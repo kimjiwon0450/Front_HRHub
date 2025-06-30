@@ -1,0 +1,173 @@
+.emp-detail-root {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.2rem 1rem 3rem 1rem;
+  font-family: 'Noto Sans KR', Arial, sans-serif;
+  background: #fff;
+  color: #222;
+}
+
+.emp-detail-topbar {
+  display: flex;
+  justify-content: flex-end;
+  .crumb {
+    font-size: 1rem;
+    color: #222;
+    margin-bottom: 1.1rem;
+  }
+}
+
+.emp-detail-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.3rem;
+  margin-bottom: 2.4rem;
+
+  .emp-profile {
+    flex-shrink: 0;
+    img {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 2px solid #b6c2cf;
+      background: #f2f4f8;
+      object-fit: cover;
+      margin-right: 1.2rem;
+    }
+  }
+  .emp-info-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 700px;
+
+    th,
+    td {
+      border: 1px solid #7e9cb0;
+      padding: 0.7em 1em;
+      font-size: 1rem;
+      text-align: left;
+      background: #e2ecf3;
+    }
+    th {
+      font-weight: 500;
+      background: #bdd3e6;
+      min-width: 80px;
+    }
+    td {
+      background: #fff;
+      min-width: 110px;
+    }
+  }
+}
+
+.emp-section {
+  margin-top: 2.2rem;
+
+  .emp-section-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.7rem;
+    color: #222;
+    letter-spacing: 0.01em;
+  }
+  .emp-summary-table {
+    border-collapse: collapse;
+    width: 100%;
+    th,
+    td {
+      border: 1px solid #b5c6d8;
+      padding: 0.7em 1em;
+      background: #f7fbfe;
+      font-size: 1rem;
+      font-weight: 400;
+    }
+    th {
+      width: 180px;
+      background: #ddeaf4;
+      font-weight: 500;
+      text-align: left;
+    }
+    td {
+      background: #fff;
+    }
+  }
+  .emp-edu-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 0.8rem;
+    th,
+    td {
+      border: 1px solid #7e9cb0;
+      padding: 0.6em 0.7em;
+      font-size: 1rem;
+      text-align: center;
+    }
+    th {
+      background: #bdd3e6;
+      font-weight: 500;
+    }
+    td {
+      background: #fff;
+    }
+  }
+}
+
+.emp-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  margin-top: 2.4rem;
+
+  .btn {
+    min-width: 120px;
+    font-size: 1.05rem;
+    font-weight: 500;
+    padding: 0.7em 1.5em;
+    border: none;
+    border-radius: 8px;
+    margin-left: 0.1rem;
+    cursor: pointer;
+    transition:
+      background 0.13s,
+      color 0.13s;
+    &.blue {
+      background: #2196f3;
+      color: #fff;
+      &:hover {
+        background: #1766ad;
+      }
+    }
+    &.green {
+      background: #41b339;
+      color: #fff;
+      &:hover {
+        background: #248a22;
+      }
+    }
+  }
+}
+
+/* 최소 반응형 */
+@media (max-width: 900px) {
+  .emp-detail-main {
+    flex-direction: column;
+    gap: 1.2rem;
+    .emp-info-table {
+      min-width: 0;
+    }
+    .emp-profile {
+      margin-bottom: 0.6rem;
+    }
+  }
+}
+@media (max-width: 600px) {
+  .emp-section .emp-summary-table th,
+  .emp-section .emp-summary-table td,
+  .emp-section .emp-edu-table th,
+  .emp-section .emp-edu-table td,
+  .emp-detail-main .emp-info-table th,
+  .emp-detail-main .emp-info-table td {
+    font-size: 0.93rem;
+    padding: 0.5em 0.5em;
+  }
+}

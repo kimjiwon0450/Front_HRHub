@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../configs/host-config';
 
-const AuthContext = React.createContext({
+const UserContext = React.createContext({
   isLoggedIn: false,
   onLogin: () => {},
   onLogout: () => {},
@@ -16,7 +16,7 @@ const AuthContext = React.createContext({
   isInit: false,
 });
 
-export const AuthContextProvider = (props) => {
+export const UserContextProvider = (props) => {
   const [userId, setUserId] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState('');
@@ -33,15 +33,15 @@ export const AuthContextProvider = (props) => {
     localStorage.setItem('ACCESS_TOKEN', loginData.token);
     localStorage.setItem('USER_ID', loginData.id);
     localStorage.setItem('USER_ROLE', loginData.role);
-    localStorage.setItem('USER_NICKNAME', loginData.nickName);
-    localStorage.setItem('USER_IMAGE', loginData.profileImage);
+    localStorage.setItem('USER_NAME', loginData.name);
+    // localStorage.setItem('USER_IMAGE', loginData.profileImage);
 
     // 상태저장
     setIsLoggedIn(true);
     setUserId(loginData.id);
     setUserRole(loginData.role);
-    setUserName(loginData.nickName);
-    setUserImage(loginData.profileImage);
+    setUserName(loginData.name);
+    // setUserImage(loginData.profileImage);
   };
 
   const logoutHandler = () => {
@@ -92,7 +92,7 @@ export const AuthContextProvider = (props) => {
   }, [badge]);
 
   return (
-    <AuthContext.Provider
+    <UserContext.Provider
       value={{
         isLoggedIn,
         onLogin: loginHandler,
@@ -108,8 +108,8 @@ export const AuthContextProvider = (props) => {
       }}
     >
       {props.children}
-    </AuthContext.Provider>
+    </UserContext.Provider>
   );
 };
 
-export default AuthContext;
+export default UserContext;
