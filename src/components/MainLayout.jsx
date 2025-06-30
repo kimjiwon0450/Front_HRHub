@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import './MainLayout.scss';
 
 const sidebarMenus = [
@@ -60,7 +60,9 @@ export default function MainLayout({ children }) {
           <button className='logout-btn'>Logout</button>
         </header>
 
-        <main className='content'>{children}</main>
+        <main className='content'>
+          <Outlet />
+        </main>
       </div>
     </div>
   );
