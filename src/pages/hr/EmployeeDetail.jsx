@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './EmployeeDetail.scss';
 import HRHeader from './HRHeader';
+import EmployeeEdit from './EmployeeEdit';
+import EvaluationForm from './EvaluationForm';
 
-export default function EmployeeDetail({ employee }) {
+export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
+  const [showEdit, setShowEdit] = useState(false);
+  const [showEval, setShowEval] = useState(false);
+
   console.log(employee);
   function getAge(birth) {
     if (!birth) return '';
@@ -15,6 +20,19 @@ export default function EmployeeDetail({ employee }) {
     }
     return age;
   }
+
+  // 두 컴포넌트 중 하나라도 활성화되면 해당 컴포넌트만 표시
+  if (showEdit) {
+    return (
+      <EmployeeEdit employee={employee} onClose={() => setShowEdit(false)} />
+    );
+  }
+  if (showEval) {
+    return (
+      <EvaluationForm employee={employee} onClose={() => setShowEval(false)} />
+    );
+  }
+
   return (
     <>
       <div className='emp-detail-root'>
@@ -67,15 +85,26 @@ export default function EmployeeDetail({ employee }) {
                 <th>전화번호</th>
                 <td>{employee.phone}</td>
               </tr>
+              <tr>
+                <th>이메일</th>
+                <td colSpan={5}>{employee.email}</td>
+              </tr>
             </tbody>
           </table>
         </div>
 
         {/* 하단 버튼 */}
         <div className='emp-btns'>
-          <button className='btn blue'>직원정보 수정</button>
+          <button className='btn blue' onClick={onEdit}>
+            직원정보 수정
+          </button>
           <button className='btn blue'>직원정보 삭제</button>
-          <button className='btn green'>인사평가</button>
+          <button className='btn green' onClick={onEval}>
+            인사평가
+          </button>
+          <button className='btn gray' onClick={onClose}>
+            목록
+          </button>
         </div>
       </div>
     </>

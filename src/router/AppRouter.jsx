@@ -28,7 +28,6 @@ const AppRouter = () => {
         <Route path='/hr/employee-register' element={<EmployeeRegister />} />
         <Route path='/hr/employee-edit' element={<EmployeeEdit />} />
         <Route path='/hr/employee-eval' element={<EvaluationForm />} />
-        <Route path='/hr/employee-edit' element={<EmployeeEdit />} />
         <Route path='/payroll' element={<></>} />
         <Route path='/approval' element={<LeavePage />} />
         <Route path='/schedule' element={<></>} />

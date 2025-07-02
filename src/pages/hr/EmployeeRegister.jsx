@@ -24,6 +24,11 @@ export default function EmployeeRegister() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
+  // 전화번호 형식 검증: 010-1234-5678, 010-123-4567 등
+  function isValidPhone(phone) {
+    return /^01[016789]-\d{3,4}-\d{4}$/.test(phone);
+  }
+
   function getAge(birth) {
     if (!birth) return '';
     const today = new Date();
@@ -36,12 +41,34 @@ export default function EmployeeRegister() {
     return age;
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // 필수 항목 검증 함수
+  function isFormValid() {
+    if (
+      !email.trim() ||
+      !employeeName.trim() ||
+      !birth.trim() ||
+      !address.trim() ||
+      !position.trim() ||
+      !phone.trim()
+    ) {
+      alert('필수 항목을 모두 입력해주세요.');
+      return false;
+    }
     if (!isValidEmail(email)) {
       alert('유효하지 않은 이메일 형식입니다!');
-      return;
+      return false;
     }
+    if (!isValidPhone(phone)) {
+      alert('전화번호는 010-1234-5678 형식으로 입력해주세요.');
+      return false;
+    }
+    return true;
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isFormValid()) return;
+
     try {
       await axios.post(`http://localhost:8000${HR_SERVICE}/employees`, {
         email,
@@ -56,8 +83,16 @@ export default function EmployeeRegister() {
         memo,
       });
       alert('등록 성공!');
+      // 폼 초기화(선택)
+      // setEmail('');
+      // setEmployeeName('');
+      // setBirth('');
+      // setAddress('');
+      // setPosition('');
+      // setPhone('');
+      // setMemo('');
     } catch (error) {
-      alert(error.response.data.statusMessage);
+      alert(error.response?.data?.statusMessage || '등록 실패');
     }
   };
 
@@ -66,7 +101,6 @@ export default function EmployeeRegister() {
       <HRHeader />
       <div className='register-root'>
         <h2 className='register-title'>신규 등록</h2>
-
         <form className='register-form' onSubmit={handleSubmit}>
           {/* 이메일 */}
           <label className='reg-label'>이메일</label>
@@ -75,6 +109,7 @@ export default function EmployeeRegister() {
               className='reg-input'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder='예: abc@domain.com'
             />
           </div>
 
@@ -147,10 +182,11 @@ export default function EmployeeRegister() {
                 type='text'
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+                placeholder='010-1234-5678'
+                maxLength={13}
               />
             </div>
           </div>
-
           {/* 메모 */}
           <label className='reg-label'>메모</label>
           <textarea
