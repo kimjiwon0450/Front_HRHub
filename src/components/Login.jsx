@@ -51,6 +51,8 @@ export default function Login() {
           email,
           password: newPassword,
         });
+        alert('비밀번호 설정 완료!');
+        navigate('/');
       } catch (error) {
         alert(error.response.data.statusMessage);
       }
