@@ -25,7 +25,7 @@ function StarRating({ value, onChange }) {
   );
 }
 
-export default function EvaluationForm() {
+export default function EvaluationForm({ onClose }) {
   // 폼 상태 관리
   const [form, setForm] = useState({
     name: '홍길동(영업)  <- 자동으로 불러옴',
@@ -68,8 +68,15 @@ export default function EvaluationForm() {
   };
   const handleSave = () => alert('임시저장: ' + JSON.stringify(form, null, 2));
   const handlePreview = () => alert('미리보기 (팝업 구현 가능)');
-  const handleCancel = () =>
-    window.confirm('취소하시겠습니까?') && window.location.reload();
+  const handleCancel = () => {
+    if (window.confirm('취소하시겠습니까?')) {
+      if (onClose) {
+        onClose();
+      } else {
+        window.location.reload();
+      }
+    }
+  };
 
   return (
     <div className='eval-root'>
