@@ -109,7 +109,7 @@ const NoticeBoardList = () => {
                             <li key={`notice-${post.id}`} className="notice" onClick={() => navigate(`/noticeboard/${post.id}`)}>
                                 <span>[공지]</span>
                                 <span>{post.title}</span>
-                                <span>{post.writer}</span>
+                                <span>{post.writerName}</span>
                                 <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                                 <span>{post.viewCount}</span>
                             </li>
