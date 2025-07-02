@@ -19,7 +19,7 @@ export default function EmployeeEdit({ employee }) {
   const [birth, setBirth] = useState('');
   const [departmentId, setDepartmentId] = useState(1);
   const [address, setAddress] = useState('');
-  const [position, setPosition] = useState('');
+  const [role, setRole] = useState('');
   const [phone, setPhone] = useState('');
   const [memo, setMemo] = useState('');
 
@@ -31,7 +31,7 @@ export default function EmployeeEdit({ employee }) {
       setBirth(employee.birthday.split('T')[0] || ''); // API에 따라 birth or birthday
       setDepartmentId(employee.departmentId || 1);
       setAddress(employee.address || '');
-      setPosition(employee.position || '');
+      setRole(employee.role || '');
       setPhone(employee.phone || '');
       setMemo(employee.memo || '');
     }
@@ -68,7 +68,7 @@ export default function EmployeeEdit({ employee }) {
           name: employeeName,
           birthday: birth,
           address,
-          position,
+          role,
           departmentId,
           phone,
           status: employee.status || 'ACTIVE', // 필요에 따라 수정
@@ -157,8 +157,8 @@ export default function EmployeeEdit({ employee }) {
               <input
                 className='reg-input'
                 type='text'
-                value={position}
-                onChange={(e) => setPosition(e.target.value)}
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
               />
             </div>
             <div>

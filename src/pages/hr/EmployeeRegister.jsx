@@ -16,7 +16,7 @@ export default function EmployeeRegister() {
   const [birth, setBirth] = useState('');
   const [departmentId, setDepartmentId] = useState(1);
   const [address, setAddress] = useState('');
-  const [position, setPosition] = useState('');
+  const [role, setRole] = useState('');
   const [phone, setPhone] = useState('');
   const [memo, setMemo] = useState('');
 
@@ -48,7 +48,7 @@ export default function EmployeeRegister() {
       !employeeName.trim() ||
       !birth.trim() ||
       !address.trim() ||
-      !position.trim() ||
+      !role.trim() ||
       !phone.trim()
     ) {
       alert('필수 항목을 모두 입력해주세요.');
@@ -75,7 +75,7 @@ export default function EmployeeRegister() {
         name: employeeName,
         birthday: birth,
         address,
-        position,
+        role,
         departmentId,
         phone,
         status: 'ACTIVE',
@@ -88,7 +88,7 @@ export default function EmployeeRegister() {
       // setEmployeeName('');
       // setBirth('');
       // setAddress('');
-      // setPosition('');
+      // setRole('');
       // setPhone('');
       // setMemo('');
     } catch (error) {
@@ -171,8 +171,8 @@ export default function EmployeeRegister() {
               <input
                 className='reg-input'
                 type='text'
-                value={position}
-                onChange={(e) => setPosition(e.target.value)}
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
               />
             </div>
             <div>
