@@ -7,6 +7,9 @@ import './EmployeeList.scss';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 
+// 부서 목록 (예시, 실제는 서버에서 받아올 수도 있음)
+const DEPT_LIST = ['전체', '마케팅', '디자인', '인사'];
+
 export default function EmployeeList() {
   // 'list', 'edit', 'eval' 중 하나
   const [mode, setMode] = useState('list');
@@ -14,27 +17,48 @@ export default function EmployeeList() {
   const [selectedDetail, setSelectedDetail] = useState({});
   const [employees, setEmployees] = useState([]);
 
-  useEffect(() => {
-    getEmployeeList();
-  }, []);
+  // 검색/필터 state
+  const [searchField, setSearchField] = useState('name');
+  const [searchText, setSearchText] = useState('');
+  const [searchDept, setSearchDept] = useState('전체');
 
-  const getEmployeeList = async () => {
+  // 서버에서 직원 목록 조회 (필터 포함)
+  const getEmployeeList = async ({
+    field = searchField,
+    keyword = searchText,
+    department = searchDept,
+    page = 0,
+    size = 100,
+  } = {}) => {
     try {
+      let params = `?page=${page}&size=${size}`;
+      if (keyword.trim())
+        params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
+      if (department !== '전체')
+        params += `&department=${encodeURIComponent(department)}`;
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees?page=0&size=10`,
+        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
       );
       setEmployees(res.data.result.content);
     } catch (error) {
-      alert(error);
+      alert(error?.response?.data?.statusMessage || error.message);
     }
   };
 
-  // 상세정보 fetch
+  // 최초 1회
+  useEffect(() => {
+    getEmployeeList();
+    // eslint-disable-next-line
+  }, []);
+
+  // 직원 선택시 상세 조회
   useEffect(() => {
     if (selectedId == null) return;
     getEmployeeDetail(selectedId);
+    // eslint-disable-next-line
   }, [selectedId]);
 
+  // 직원 상세정보 조회
   const getEmployeeDetail = async (id) => {
     try {
       const res = await axiosInstance.get(
@@ -51,25 +75,82 @@ export default function EmployeeList() {
 
   // Edit/Eval 화면 종료 시 목록+상세 복귀
   const handleClose = () => setMode('list');
-
-  // 상세 하단 버튼에서 넘겨줄 핸들러
   const handleEdit = () => setMode('edit');
   const handleEval = () => setMode('eval');
 
-  // 수정/평가 화면만 보여줄 때
-  if (mode === 'edit') {
-    return <EmployeeEdit employee={selectedDetail} onClose={handleClose} />;
-  }
-  if (mode === 'eval') {
-    return <EvaluationForm employee={selectedDetail} onClose={handleClose} />;
-  }
+  // 검색 버튼 or 폼 submit시
+  const handleSearch = (e) => {
+    e.preventDefault();
+    getEmployeeList({
+      field: searchField,
+      keyword: searchText,
+      department: searchDept,
+    });
+    setSelectedId(null); // 검색하면 상세 닫기
+  };
 
-  // 기본: 리스트+디테일(선택시)
+  // 초기화
+  const handleReset = () => {
+    setSearchField('name');
+    setSearchText('');
+    setSearchDept('전체');
+    getEmployeeList({ field: 'name', keyword: '', department: '전체' });
+    setSelectedId(null);
+  };
+
+  // 수정/평가 화면 분기
+  if (mode === 'edit')
+    return <EmployeeEdit employee={selectedDetail} onClose={handleClose} />;
+  if (mode === 'eval')
+    return <EvaluationForm employee={selectedDetail} onClose={handleClose} />;
+
+  // 기본(리스트/상세)
   return (
     <>
       <HRHeader />
       <div className='emp-list-root'>
         <h2 className='emp-list-title'>직원 목록</h2>
+        {/* 검색/필터 영역 */}
+        <form className='emp-search-bar' onSubmit={handleSearch}>
+          <select
+            value={searchField}
+            onChange={(e) => setSearchField(e.target.value)}
+            className='emp-search-select'
+          >
+            <option value='name'>이름</option>
+            <option value='department'>부서</option>
+            <option value='position'>직급</option>
+            <option value='phone'>연락처</option>
+          </select>
+          <input
+            type='text'
+            className='emp-search-input'
+            placeholder='검색어 입력'
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          <select
+            value={searchDept}
+            onChange={(e) => setSearchDept(e.target.value)}
+            className='emp-search-dept'
+          >
+            {DEPT_LIST.map((dept) => (
+              <option value={dept} key={dept}>
+                {dept}
+              </option>
+            ))}
+          </select>
+          <button type='submit' className='emp-search-btn'>
+            검색
+          </button>
+          <button
+            type='button'
+            className='emp-search-clear'
+            onClick={handleReset}
+          >
+            초기화
+          </button>
+        </form>
         <table className='emp-list-table'>
           <thead>
             <tr>

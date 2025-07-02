@@ -1,3 +1,47 @@
+.emp-search-bar {
+  display: flex;
+  gap: 0.9rem;
+  margin-bottom: 1.2rem;
+  align-items: center;
+
+  .emp-search-select,
+  .emp-search-input,
+  .emp-search-dept {
+    font-size: 1rem;
+    padding: 0.45em 1em;
+    border: 1px solid #c6d3e1;
+    border-radius: 6px;
+    background: #fff;
+  }
+
+  .emp-search-input {
+    min-width: 160px;
+  }
+
+  .emp-search-btn,
+  .emp-search-clear {
+    font-size: 1rem;
+    padding: 0.45em 1.2em;
+    border-radius: 6px;
+    background: #2196f3;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    &:hover {
+      background: #1766ad;
+    }
+    margin-left: 0.2em;
+  }
+  .emp-search-clear {
+    background: #eee;
+    color: #444;
+    border: 1px solid #c6d3e1;
+    &:hover {
+      background: #cde8ff;
+    }
+  }
+}
+
 .emp-list-root {
   max-width: 900px;
   margin: 0 auto;

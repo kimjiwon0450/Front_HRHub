@@ -28,7 +28,7 @@ export default function EmployeeEdit({ employee }) {
     if (employee) {
       setEmail(employee.email || '');
       setEmployeeName(employee.name || '');
-      setBirth(employee.birthday || ''); // API에 따라 birth or birthday
+      setBirth(employee.birthday.split('T')[0] || ''); // API에 따라 birth or birthday
       setDepartmentId(employee.departmentId || 1);
       setAddress(employee.address || '');
       setPosition(employee.position || '');
@@ -62,7 +62,7 @@ export default function EmployeeEdit({ employee }) {
     }
     try {
       await axiosInstance.patch(
-        `http://localhost:8000${HR_SERVICE}/employees/${employee.id}`, // id 필요!
+        `http://localhost:8000${HR_SERVICE}/employees/${employee.employeeId}`, // id 필요!
         {
           email,
           name: employeeName,
