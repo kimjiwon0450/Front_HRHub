@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { USER_SERVICE } from './host-config';
+import { HR_SERVICE } from './host-config';
 
 const axiosInstance = axios.create({
   headers: {
@@ -49,7 +49,7 @@ axiosInstance.interceptors.response.use(
         const id = localStorage.getItem('USER_ID');
 
         const res = await axios.post(
-          `http://localhost:8000${USER_SERVICE}/user/refresh`,
+          `http://localhost:8000${HR_SERVICE}/refresh`,
           {
             id,
           },

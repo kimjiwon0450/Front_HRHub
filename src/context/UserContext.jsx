@@ -18,6 +18,7 @@ export const UserContext = React.createContext({
 });
 
 export const UserContextProvider = (props) => {
+export const UserContextProvider = (props) => {
   const [userId, setUserId] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState('');
@@ -35,8 +36,8 @@ export const UserContextProvider = (props) => {
     localStorage.setItem('ACCESS_TOKEN', loginData.token);
     localStorage.setItem('USER_ID', loginData.id);
     localStorage.setItem('USER_ROLE', loginData.role);
-    localStorage.setItem('USER_NICKNAME', loginData.nickName);
-    localStorage.setItem('USER_IMAGE', loginData.profileImage);
+    localStorage.setItem('USER_NAME', loginData.name);
+    // localStorage.setItem('USER_IMAGE', loginData.profileImage);
     localStorage.setItem('USER_DEPARTMENT_ID', loginData.departmentId);
 
     // 상태저장
@@ -101,6 +102,7 @@ export const UserContextProvider = (props) => {
 
   return (
     <UserContext.Provider
+    <UserContext.Provider
       value={{
         isLoggedIn,
         onLogin: loginHandler,
@@ -118,7 +120,9 @@ export const UserContextProvider = (props) => {
     >
       {props.children}
     </UserContext.Provider>
+    </UserContext.Provider>
   );
 };
 
+export default UserContext;
 export default UserContext;

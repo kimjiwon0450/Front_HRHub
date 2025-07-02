@@ -9,9 +9,7 @@ const sidebarMenus = [
   { to: '/notice', label: '공지사항' },
   { to: '/dashboard', label: '대시보드' },
   { to: '/hr', label: '인사관리' },
-  { to: '/payroll', label: '급여관리' },
   { to: '/approval', label: '전자결재' },
-  { to: '/schedule', label: '일정' },
 ];
 
 const headerMenus = [
@@ -23,8 +21,15 @@ const headerMenus = [
   { to: '/attendance', label: '근태' },
 ];
 
-export default function MainLayout({ children }) {
+export default function MainLayout() {
   const location = useLocation();
+  const { onLogout } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  const handleLogoutClick = () => {
+    onLogout();
+    navigate('/');
+  };
 
   const [unreadCount, setUnreadCount] = useState(0);
   const { user } = useContext(UserContext);
@@ -83,6 +88,9 @@ export default function MainLayout({ children }) {
               </Link>
             ))}
           </div>
+          <button className='logout-btn' onClick={handleLogoutClick}>
+            Logout
+          </button>
           <div className="notice-icon" onClick={() => navigate('/board')}>
             📢 게시판
             {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
