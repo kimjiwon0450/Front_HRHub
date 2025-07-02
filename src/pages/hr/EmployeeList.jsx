@@ -89,7 +89,7 @@ export default function EmployeeList() {
               >
                 <td>{emp.name}</td>
                 <td>{emp.department}</td>
-                <td>{emp.position}</td>
+                <td>{emp.role}</td>
                 <td>{emp.phone}</td>
               </tr>
             ))}
