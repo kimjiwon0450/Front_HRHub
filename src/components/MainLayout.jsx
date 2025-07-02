@@ -1,7 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import './MainLayout.scss';
-import UserContext from '../context/UserContext';
+import { API_BASE_URL, NOTICE_SERVICE } from '../configs/host-config'
+import { UserContext } from '../context/UserContext'
 
 const sidebarMenus = [
   { to: '/notice', label: '공지사항' },
@@ -29,10 +31,33 @@ export default function MainLayout() {
     navigate('/');
   };
 
+  const [unreadCount, setUnreadCount] = useState(0);
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user?.userId) return;
+
+
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/unread-count`, {
+          credentials: 'include'
+        });
+        const count = await res.json();
+        setUnreadCount(count);
+      } catch (err) {
+        console.error('안 읽은 게시글 수 조회 실패:', err);
+      }
+    };
+
+    fetchUnreadCount();
+  }, [user]);
+
   return (
     <div className='layout'>
       <aside className='sidebar'>
-        <div className='logo'>
+        <div className='logo' onClick={() => navigate('/dashboard')}>
           <img src='/logo.png' alt='PetWiz ERP' />
         </div>
         <nav className='nav'>
@@ -66,6 +91,17 @@ export default function MainLayout() {
           <button className='logout-btn' onClick={handleLogoutClick}>
             Logout
           </button>
+          <div className="notice-icon" onClick={() => navigate('/board')}>
+            📢 게시판
+            {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+          </div>
+          <button className='logout-btn' onClick={() => {
+            user?.onLogout?.();
+            navigate('/');
+          }}>
+            Logout
+          </button>
+
         </header>
 
         <main className='content'>

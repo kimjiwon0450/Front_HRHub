@@ -14,6 +14,9 @@ import EmployeeList from '../pages/hr/EmployeeList';
 import LeaveRequestForm from '../pages/approval/LeaveRequestForm';
 import LeavePage from '../pages/approval/LeavePage';
 import EvaluationForm from '../pages/hr/EvaluationForm';
+import NoticeBoardList from '../pages/NoticeBoard/NoticeBoardList';
+import NoticeBoardWrite from '../pages/NoticeBoard/NoticeBoardWrite';
+import NoticeBoardDetail from '../pages/NoticeBoard/NoticeBoardDetail';
 
 const AppRouter = () => {
   const { userRole } = useContext(AuthContext); // private 라우터를 이용하기 위해 추가(하준)
@@ -32,7 +35,9 @@ const AppRouter = () => {
         <Route path='/approval' element={<LeavePage />} />
         <Route path='/schedule' element={<></>} />
         <Route path='/attendance' element={<></>} />
-        <Route path='/notice' element={<></>} />
+        <Route path='/noticeboard' element={<NoticeBoardList />} />
+        <Route path='/noticeboard/write' element={<NoticeBoardWrite />} />
+        <Route path='/noticeboard/:id' element={<NoticeBoardDetail />} />
         <Route path='/mail' element={<></>} />
         <Route path='/board' element={<></>} />
         <Route path='/contacts' element={<></>} />
