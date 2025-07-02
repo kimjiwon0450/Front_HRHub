@@ -4,6 +4,7 @@ import HRHeader from './HRHeader';
 import axios from 'axios';
 import { HR_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
+import { useNavigate } from 'react-router-dom';
 
 // 부서 목록은 상위에서 받아올 수도 있고, 아래처럼 고정할 수도 있음
 const departments = [
@@ -22,6 +23,8 @@ export default function EmployeeEdit({ employee }) {
   const [role, setRole] = useState('');
   const [phone, setPhone] = useState('');
   const [memo, setMemo] = useState('');
+
+  const navigate = useNavigate();
 
   // mount 시 기존 데이터로 state 초기화
   useEffect(() => {
@@ -185,7 +188,7 @@ export default function EmployeeEdit({ employee }) {
             <button
               type='button'
               className='btn gray'
-              onClick={() => window.history.back()}
+              onClick={() => window.location.reload()}
             >
               취소
             </button>
