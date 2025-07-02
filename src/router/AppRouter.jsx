@@ -6,6 +6,9 @@ import AuthContext from '../context/UserContext';
 import Login from '../components/Login';
 import MainLayout from '../components/MainLayout';
 import Dashboard from '../pages/dashboard/Dashboard';
+import NoticeBoardList from '../pages/NoticeBoard/NoticeBoardList';
+import NoticeBoardWrite from '../pages/NoticeBoard/NoticeBoardWrite';
+import NoticeBoardDetail from '../pages/NoticeBoard/NoticeBoardDetail';
 
 const AppRouter = () => {
   const { userRole } = useContext(AuthContext); // private 라우터를 이용하기 위해 추가(하준)
@@ -20,7 +23,9 @@ const AppRouter = () => {
         <Route path='/approval' element={<></>} />
         <Route path='/schedule' element={<></>} />
         <Route path='/attendance' element={<></>} />
-        <Route path='/notice' element={<></>} />
+        <Route path='/noticeboard' element={<NoticeBoardList />} />
+        <Route path='/noticeboard/write' element={<NoticeBoardWrite />} />
+        <Route path='/noticeboard/:id' element={<NoticeBoardDetail />} />
         <Route path='/mail' element={<></>} />
         <Route path='/board' element={<></>} />
         <Route path='/contacts' element={<></>} />
