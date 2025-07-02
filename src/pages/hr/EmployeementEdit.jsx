@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-import './EmployeeRegister.scss';
+import React, { useState, useEffect } from 'react';
+import './EmployeeRegister.scss'; // 스타일 재사용!
 import HRHeader from './HRHeader';
 import axios from 'axios';
 import { HR_SERVICE } from '../../configs/host-config';
 
+// 부서 목록은 상위에서 받아올 수도 있고, 아래처럼 고정할 수도 있음
 const departments = [
   { id: 1, name: '마케팅' },
   { id: 2, name: '디자인' },
   { id: 3, name: '인사' },
 ];
 
-export default function EmployeeRegister() {
+export default function EmployeeEdit({ employee }) {
+  // 기존 employee prop을 state로 복사 (혹은 useEffect로 세팅)
   const [email, setEmail] = useState('');
   const [employeeName, setEmployeeName] = useState('');
   const [birth, setBirth] = useState('');
@@ -19,6 +21,20 @@ export default function EmployeeRegister() {
   const [position, setPosition] = useState('');
   const [phone, setPhone] = useState('');
   const [memo, setMemo] = useState('');
+
+  // mount 시 기존 데이터로 state 초기화
+  useEffect(() => {
+    if (employee) {
+      setEmail(employee.email || '');
+      setEmployeeName(employee.name || '');
+      setBirth(employee.birthday || ''); // API에 따라 birth or birthday
+      setDepartmentId(employee.departmentId || 1);
+      setAddress(employee.address || '');
+      setPosition(employee.position || '');
+      setPhone(employee.phone || '');
+      setMemo(employee.memo || '');
+    }
+  }, [employee]);
 
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -36,6 +52,7 @@ export default function EmployeeRegister() {
     return age;
   }
 
+  // 수정 제출
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValidEmail(email)) {
@@ -43,21 +60,24 @@ export default function EmployeeRegister() {
       return;
     }
     try {
-      await axios.post(`http://localhost:8000${HR_SERVICE}/employees`, {
-        email,
-        name: employeeName,
-        birthday: birth,
-        address,
-        position,
-        departmentId,
-        phone,
-        status: 'ACTIVE',
-        role: 'EMPLOYEE',
-        memo,
-      });
-      alert('등록 성공!');
+      await axios.patch(
+        `http://localhost:8000${HR_SERVICE}/employees/${employee.id}`, // id 필요!
+        {
+          email,
+          name: employeeName,
+          birthday: birth,
+          address,
+          position,
+          departmentId,
+          phone,
+          status: employee.status || 'ACTIVE', // 필요에 따라 수정
+          role: employee.role || 'EMPLOYEE',
+          memo,
+        },
+      );
+      alert('수정 성공!');
     } catch (error) {
-      alert(error.response.data.statusMessage);
+      alert(error?.response?.data?.statusMessage || error.message);
     }
   };
 
@@ -65,7 +85,7 @@ export default function EmployeeRegister() {
     <>
       <HRHeader />
       <div className='register-root'>
-        <h2 className='register-title'>신규 등록</h2>
+        <h2 className='register-title'>정보 수정</h2>
 
         <form className='register-form' onSubmit={handleSubmit}>
           {/* 이메일 */}
@@ -161,11 +181,15 @@ export default function EmployeeRegister() {
 
           {/* 하단 버튼 */}
           <div className='reg-btns'>
-            <button type='button' className='btn gray'>
-              목록
+            <button
+              type='button'
+              className='btn gray'
+              onClick={() => window.history.back()}
+            >
+              취소
             </button>
             <button type='submit' className='btn blue'>
-              등록
+              수정
             </button>
           </div>
         </form>

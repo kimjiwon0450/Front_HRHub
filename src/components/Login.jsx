@@ -18,8 +18,13 @@ export default function Login() {
   const [newPassword, setNewPassword] = useState('');
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
   const isResetMode = !!emailParam; // email 쿼리가 있으면 "비번 재설정" 모드
-  const { onLogin } = useContext(UserContext);
+  const { onLogin, isLoggedIn } = useContext(UserContext);
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/dashboard');
+    }
+  }, []);
   // email 쿼리가 들어오면 초기값 셋팅
   useEffect(() => {
     if (emailParam) setEmail(emailParam);

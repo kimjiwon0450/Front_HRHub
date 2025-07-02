@@ -22,6 +22,7 @@
   align-items: flex-start;
   gap: 2.3rem;
   margin-bottom: 2.4rem;
+  overflow-x: auto; // 여기 추가
 
   .emp-profile {
     flex-shrink: 0;
@@ -35,10 +36,13 @@
       margin-right: 1.2rem;
     }
   }
+
   .emp-info-table {
     border-collapse: collapse;
-    width: 100%;
-    min-width: 700px;
+    width: 100%; // 추가: 테이블이 컨테이너 안에서 100%만 차지
+    max-width: 100%; // 추가: 더 커지지 않게
+    min-width: 700px; // 기존 (원하면 줄여도 됨)
+    table-layout: auto; // auto로 (혹시 fixed였으면)
 
     th,
     td {
