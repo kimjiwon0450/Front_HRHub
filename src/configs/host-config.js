@@ -24,7 +24,7 @@ if (clientHostName === 'localhost') {
 export const API_BASE_URL = backendHostName;
 export const ASSET_SERVICE = '/asset-service';
 export const ATTENDANCE_SERVICE = '/attendance-service';
-export const BOARD_SERVICE = '/board-service';
+export const NOTICE_SERVICE = '/notice-service';
 export const EVAL_SERVICE = '/eval-service';
 export const HR_SERVICE = '/hr-service';
 export const PAYROLL_SERVICE = '/payroll-service';

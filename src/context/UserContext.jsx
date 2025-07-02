@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../configs/host-config';
 
-const UserContext = React.createContext({
+export const UserContext = React.createContext({
   isLoggedIn: false,
   onLogin: () => {},
   onLogout: () => {},
@@ -24,6 +24,7 @@ export const UserContextProvider = (props) => {
   const [badge, setBadge] = useState(null);
   const [isInit, setIsInit] = useState(false);
   const [userImage, setUserImage] = useState('');
+  const [departmentId, setDepartmentId] = useState(null);
 
   // 로그인 함수: 상태 + 배지까지 한 번에처리리
   const loginHandler = async (loginData) => {
@@ -35,13 +36,15 @@ export const UserContextProvider = (props) => {
     localStorage.setItem('USER_ROLE', loginData.role);
     localStorage.setItem('USER_NAME', loginData.name);
     // localStorage.setItem('USER_IMAGE', loginData.profileImage);
+    localStorage.setItem('USER_DEPARTMENT_ID', loginData.departmentId);
 
     // 상태저장
     setIsLoggedIn(true);
     setUserId(loginData.id);
     setUserRole(loginData.role);
     setUserName(loginData.name);
-    // setUserImage(loginData.profileImage);
+    setUserImage(loginData.profileImage);
+    setDepartmentId(loginData.departmentId);
   };
 
   const logoutHandler = () => {
@@ -61,9 +64,10 @@ export const UserContextProvider = (props) => {
     if (storedToken) {
       const storedId = localStorage.getItem('USER_ID');
       const storedRole = localStorage.getItem('USER_ROLE');
-      const storedName = localStorage.getItem('USER_NICKNAME');
+      const storedName = localStorage.getItem('USER_NAME');
       const storedBadge = localStorage.getItem('USER_ICON');
       const storedImage = localStorage.getItem('USER_IMAGE');
+      const storedDepartmentId = localStorage.getItem('USER_DEPARTMENT_ID');
 
       setIsLoggedIn(true);
       setUserId(storedId);
@@ -71,6 +75,9 @@ export const UserContextProvider = (props) => {
       setUserName(storedName);
       if (storedImage) {
         setUserImage(storedImage);
+      }
+      if (storedDepartmentId) {
+        setDepartmentId(storedDepartmentId);
       }
       // 1차 로컬 복원
       if (storedBadge) {
@@ -100,6 +107,7 @@ export const UserContextProvider = (props) => {
         userRole,
         userName,
         userId,
+        departmentId,
         badge,
         setBadge,
         userImage,
