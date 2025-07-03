@@ -79,7 +79,7 @@ const NoticeBoardDetail = () => {
             <h2>{post.isNotice ? '[공지] ' : ''}{post.title}</h2>
             <div className="meta">
                 <p>작성자 : {post.name}</p>
-                <p>부서: {post.writerDepartment}</p>
+                <p>부서: {post.departmentName}</p>
                 <p>등록일: {post.createdAt?.substring(0, 10)}</p>
             </div>
             <hr />
