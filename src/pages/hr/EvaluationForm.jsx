@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './EvaluationForm.scss';
+import axiosInstance from '../../configs/axios-config';
+import { API_BASE_URL } from '../../configs/host-config';
+import { useContext } from 'react';
+import { UserContext } from '../../context/UserContext';
 
 // 별점 컴포넌트
 function StarRating({ value, onChange }) {
@@ -25,18 +29,31 @@ function StarRating({ value, onChange }) {
   );
 }
 
-export default function EvaluationForm({ onClose }) {
+export default function EvaluationForm({ employee, onClose }) {
+  const { userId } = useContext(UserContext);
   // 폼 상태 관리
   const [form, setForm] = useState({
-    name: '홍길동(영업)  <- 자동으로 불러옴',
-    dept: '영업  <- 자동으로 불러옴',
+    name: '',
+    dept: '',
     date: new Date(),
-    leadership: 1,
-    creativity: 1,
-    cooperation: 1,
-    problem: 1,
+    template: {
+      leadership: 1,
+      creativity: 1,
+      cooperation: 1,
+      problem: 1,
+    },
     comment: '',
   });
+
+  useEffect(() => {
+    if (employee) {
+      setForm((prev) => ({
+        ...prev,
+        name: `${employee.name} (${employee.role})`,
+        dept: employee.department || '',
+      }));
+    }
+  }, [employee]);
 
   // 사이드 패널 상태
   const [approval, setApproval] = useState('박지수(인사)');
@@ -62,9 +79,25 @@ export default function EvaluationForm({ onClose }) {
   };
 
   // 제출 등 이벤트 (실제 로직 연결 가능)
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('결재상신: ' + JSON.stringify(form, null, 2));
+    try {
+      await axiosInstance.post(`${API_BASE_URL}/evaluation/${employee.id}`, {
+        evaluateeId: employee.id,
+        evaluatorId: userId,
+        template: JSON.stringify({
+          leadership: form.leadership,
+          creativity: form.creativity,
+          cooperation: form.cooperation,
+          problem: form.problem,
+        }),
+        comment: form.comment,
+        total_evaluation: Number(avg),
+      });
+      if (onClose) onClose();
+    } catch (error) {
+      alert('제출 실패: ' + (error.response?.data?.message || error.message));
+    }
   };
   const handleSave = () => alert('임시저장: ' + JSON.stringify(form, null, 2));
   const handlePreview = () => alert('미리보기 (팝업 구현 가능)');
@@ -81,7 +114,9 @@ export default function EvaluationForm({ onClose }) {
   return (
     <div className='eval-root'>
       <div className='eval-header'>
-        <button className='back-btn'>◀</button>
+        <button className='back-btn' type='button' onClick={handleCancel}>
+          ◀
+        </button>
         <div className='eval-title'>인사평가표</div>
         <div className='eval-searchbar'>
           <select>
