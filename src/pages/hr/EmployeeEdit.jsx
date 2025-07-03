@@ -13,7 +13,7 @@ const departments = [
   { id: 3, name: '인사' },
 ];
 
-export default function EmployeeEdit({ employee }) {
+export default function EmployeeEdit({ employee, onClose }) {
   // 기존 employee prop을 state로 복사 (혹은 useEffect로 세팅)
   const [email, setEmail] = useState('');
   const [employeeName, setEmployeeName] = useState('');
@@ -185,11 +185,7 @@ export default function EmployeeEdit({ employee }) {
 
           {/* 하단 버튼 */}
           <div className='reg-btns'>
-            <button
-              type='button'
-              className='btn gray'
-              onClick={() => window.location.reload()}
-            >
+            <button type='button' className='btn gray' onClick={onClose}>
               취소
             </button>
             <button type='submit' className='btn blue'>
