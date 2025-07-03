@@ -94,10 +94,6 @@ export const UserContextProvider = (props) => {
     setIsInit(true);
   }, []);
 
-  useEffect(() => {
-    console.log('[badge state] 현재 badge 상태:', badge);
-  }, [badge]);
-
   return (
     <UserContext.Provider
       value={{
