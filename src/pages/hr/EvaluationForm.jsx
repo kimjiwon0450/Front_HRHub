@@ -3,7 +3,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './EvaluationForm.scss';
 import axiosInstance from '../../configs/axios-config';
-import { API_BASE_URL } from '../../configs/host-config';
+import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import { useContext } from 'react';
 import { UserContext } from '../../context/UserContext';
 
@@ -45,6 +45,8 @@ export default function EvaluationForm({ employee, onClose }) {
     comment: '',
   });
 
+  console.log(employee, '여기임');
+
   useEffect(() => {
     if (employee) {
       setForm((prev) => ({
@@ -61,11 +63,21 @@ export default function EvaluationForm({ employee, onClose }) {
   const [searchEmp, setSearchEmp] = useState('');
 
   // 별점
-  const handleStar = (key, val) => setForm((prev) => ({ ...prev, [key]: val }));
+  const handleStar = (key, val) =>
+    setForm((prev) => ({
+      ...prev,
+      template: {
+        ...prev.template,
+        [key]: val,
+      },
+    }));
 
   // 평균점수
   const avg = (
-    (form.leadership + form.creativity + form.cooperation + form.problem) /
+    (form.template.leadership +
+      form.template.creativity +
+      form.template.cooperation +
+      form.template.problem) /
     4
   ).toFixed(1);
 
@@ -81,19 +93,24 @@ export default function EvaluationForm({ employee, onClose }) {
   // 제출 등 이벤트 (실제 로직 연결 가능)
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(form);
     try {
-      await axiosInstance.post(`${API_BASE_URL}/evaluation/${employee.id}`, {
-        evaluateeId: employee.id,
-        evaluatorId: userId,
-        template: JSON.stringify({
-          leadership: form.leadership,
-          creativity: form.creativity,
-          cooperation: form.cooperation,
-          problem: form.problem,
-        }),
-        comment: form.comment,
-        total_evaluation: Number(avg),
-      });
+      await axiosInstance.post(
+        `${API_BASE_URL}${HR_SERVICE}/evaluation/${employee.employeeId}`,
+        {
+          evaluateeId: employee.employeeId,
+          evaluatorId: userId,
+          template: JSON.stringify({
+            leadership: form.template.leadership,
+            creativity: form.template.creativity,
+            cooperation: form.template.cooperation,
+            problem: form.template.problem,
+          }),
+          comment: form.comment,
+          total_evaluation: Number(avg),
+          interviewDate: form.date,
+        },
+      );
       if (onClose) onClose();
     } catch (error) {
       alert('제출 실패: ' + (error.response?.data?.message || error.message));
@@ -175,28 +192,28 @@ export default function EvaluationForm({ employee, onClose }) {
             <div className='eval-field stars'>
               <label>리더십</label>
               <StarRating
-                value={form.leadership}
+                value={form.template.leadership}
                 onChange={(v) => handleStar('leadership', v)}
               />
             </div>
             <div className='eval-field stars'>
               <label>창의성</label>
               <StarRating
-                value={form.creativity}
+                value={form.template.creativity}
                 onChange={(v) => handleStar('creativity', v)}
               />
             </div>
             <div className='eval-field stars'>
               <label>협업능력</label>
               <StarRating
-                value={form.cooperation}
+                value={form.template.cooperation}
                 onChange={(v) => handleStar('cooperation', v)}
               />
             </div>
             <div className='eval-field stars'>
               <label>문제해결능력</label>
               <StarRating
-                value={form.problem}
+                value={form.template.problem}
                 onChange={(v) => handleStar('problem', v)}
               />
             </div>

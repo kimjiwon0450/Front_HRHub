@@ -22,16 +22,21 @@ export default function EmployeeList() {
   const [searchText, setSearchText] = useState('');
   const [searchDept, setSearchDept] = useState('전체');
 
+  // 페이징 state
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
   // 서버에서 직원 목록 조회 (필터 포함)
   const getEmployeeList = async ({
     field = searchField,
     keyword = searchText,
     department = searchDept,
-    page = 0,
-    size = 100,
+    page: reqPage = page,
+    size: reqSize = size,
   } = {}) => {
     try {
-      let params = `?page=${page}&size=${size}`;
+      let params = `?page=${reqPage}&size=${reqSize}`;
       if (keyword.trim())
         params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
       if (department !== '전체')
@@ -40,6 +45,7 @@ export default function EmployeeList() {
         `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
       );
       setEmployees(res.data.result.content);
+      setTotalPages(res.data.result.totalPages || 1);
     } catch (error) {
       alert(error?.response?.data?.statusMessage || error.message);
     }
@@ -47,9 +53,9 @@ export default function EmployeeList() {
 
   // 최초 1회
   useEffect(() => {
-    getEmployeeList();
+    getEmployeeList({ page, size });
     // eslint-disable-next-line
-  }, []);
+  }, [page, size]);
 
   // 직원 선택시 상세 조회
   useEffect(() => {
@@ -96,6 +102,12 @@ export default function EmployeeList() {
     setSearchDept('전체');
     getEmployeeList({ field: 'name', keyword: '', department: '전체' });
     setSelectedId(null);
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setPage(newPage);
+    }
   };
 
   // 수정/평가 화면 분기
@@ -176,6 +188,33 @@ export default function EmployeeList() {
             ))}
           </tbody>
         </table>
+        {/* 페이징 UI */}
+        <div
+          className='pagination'
+          style={{ margin: '1rem 0', textAlign: 'center' }}
+        >
+          <button
+            onClick={() => handlePageChange(page - 1)}
+            disabled={page === 0}
+          >
+            이전
+          </button>
+          {Array.from({ length: totalPages }, (_, idx) => (
+            <button
+              key={idx}
+              onClick={() => handlePageChange(idx)}
+              style={{ fontWeight: page === idx ? 'bold' : 'normal' }}
+            >
+              {idx + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => handlePageChange(page + 1)}
+            disabled={page === totalPages - 1}
+          >
+            다음
+          </button>
+        </div>
       </div>
       {/* 상세 정보는 선택 시 하단에만 노출 */}
       {selectedId && (

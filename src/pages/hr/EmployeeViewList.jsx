@@ -6,89 +6,6 @@ import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import EvaluationView from './EvaluationView';
 import EvaluationForm from './EvaluationForm';
 
-function EmployeeView({ employee, onClose, onEvaluate }) {
-  if (!employee) return null;
-  function getAge(birth) {
-    if (!birth) return '';
-    const today = new Date();
-    const dob = new Date(birth);
-    let age = today.getFullYear() - dob.getFullYear();
-    const m = today.getMonth() - dob.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-      age--;
-    }
-    return age;
-  }
-  return (
-    <div className='emp-detail-root'>
-      <div className='emp-detail-main'>
-        <div className='emp-profile'>
-          <img
-            src='https://cdn.imweb.me/thumbnail/20240206/f520d5bdbd28e.jpg'
-            alt='profile'
-          />
-        </div>
-        <table className='emp-info-table'>
-          <tbody>
-            <tr>
-              <th>이름</th>
-              <td>{employee.name}</td>
-              <th>생년월일</th>
-              <td>
-                {!employee.birthday ? null : employee.birthday.split('T')[0]}
-              </td>
-              <th>나이</th>
-              <td>{getAge(employee?.birthday)}</td>
-            </tr>
-            <tr>
-              <th>사번</th>
-              <td>{employee.employeeId}</td>
-              <th>재직상태</th>
-              <td>{employee.status}</td>
-              <th>입사구분</th>
-              <td></td>
-            </tr>
-            <tr>
-              <th>입사일</th>
-              <td>
-                {!employee.hireDate ? null : employee.hireDate.split('T')[0]}
-              </td>
-              <th>근속년월</th>
-              <td></td>
-              <th>퇴사일</th>
-              <td></td>
-            </tr>
-            <tr>
-              <th>근무부서</th>
-              <td colSpan={3}>{employee.department}</td>
-              <th>직무/단계</th>
-              <td>{employee.role}</td>
-            </tr>
-            <tr>
-              <th>주소</th>
-              <td colSpan={3}>{employee.address}</td>
-              <th>전화번호</th>
-              <td>{employee.phone}</td>
-            </tr>
-            <tr>
-              <th>이메일</th>
-              <td colSpan={5}>{employee.email}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div className='emp-btns'>
-        <button className='btn primary' onClick={() => onEvaluate(employee)}>
-          평가하기
-        </button>
-        <button className='btn gray' onClick={onClose}>
-          닫기
-        </button>
-      </div>
-    </div>
-  );
-}
-
 export default function EmployeeViewList() {
   const [selectedId, setSelectedId] = useState(null);
   const [selectedDetail, setSelectedDetail] = useState({});
@@ -99,16 +16,19 @@ export default function EmployeeViewList() {
   const [evaluation, setEvaluation] = useState(null);
   const [showEvaluationForm, setShowEvaluationForm] = useState(false);
   const DEPT_LIST = ['전체', '마케팅', '디자인', '인사'];
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
   const getEmployeeList = async ({
     field = searchField,
     keyword = searchText,
     department = searchDept,
-    page = 0,
-    size = 100,
+    page: reqPage = page,
+    size: reqSize = size,
   } = {}) => {
     try {
-      let params = `?page=${page}&size=${size}`;
+      let params = `?page=${reqPage}&size=${reqSize}`;
       if (keyword.trim())
         params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
       if (department !== '전체')
@@ -117,44 +37,33 @@ export default function EmployeeViewList() {
         `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
       );
       setEmployees(res.data.result.content);
+      setTotalPages(res.data.result.totalPages || 1);
     } catch (error) {
       alert(error?.response?.data?.statusMessage || error.message);
     }
   };
 
   useEffect(() => {
-    getEmployeeList();
+    getEmployeeList({ page, size });
     // eslint-disable-next-line
-  }, []);
+  }, [page, size]);
 
   useEffect(() => {
     if (selectedId == null) return;
-    getEmployeeDetail(selectedId);
     getLatestEvaluation(selectedId);
     // eslint-disable-next-line
   }, [selectedId]);
-
-  const getEmployeeDetail = async (id) => {
-    try {
-      const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees/${id}`,
-      );
-      setSelectedDetail(res.data.result);
-    } catch (error) {
-      alert(error.response?.data || '시스템에러');
-    }
-  };
 
   // 최신 인사평가 불러오기 (예시: /hr-service/evaluations/latest/{employeeId})
   const getLatestEvaluation = async (id) => {
     try {
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/evaluations/latest/${id}`,
+        `${API_BASE_URL}${HR_SERVICE}/evaluation/${id}`,
       );
       setEvaluation(res.data.result);
     } catch (error) {
       setEvaluation(null);
-      alert('인사평가 내역이 없습니다.');
+      alert('인사평가 정보가 없습니다.');
     }
   };
 
@@ -186,6 +95,12 @@ export default function EmployeeViewList() {
     getEmployeeList({ field: 'name', keyword: '', department: '전체' });
     setSelectedId(null);
     setEvaluation(null);
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setPage(newPage);
+    }
   };
 
   return (
@@ -258,14 +173,34 @@ export default function EmployeeViewList() {
             ))}
           </tbody>
         </table>
-        {selectedId && !showEvaluationForm && (
-          <EmployeeView
-            employee={selectedDetail}
-            onClose={handleClose}
-            onEvaluate={handleEvaluate}
-          />
-        )}
-        {selectedId && evaluation && !showEvaluationForm && (
+        {/* 페이징 UI */}
+        <div
+          className='pagination'
+          style={{ margin: '1rem 0', textAlign: 'center' }}
+        >
+          <button
+            onClick={() => handlePageChange(page - 1)}
+            disabled={page === 0}
+          >
+            이전
+          </button>
+          {Array.from({ length: totalPages }, (_, idx) => (
+            <button
+              key={idx}
+              onClick={() => handlePageChange(idx)}
+              style={{ fontWeight: page === idx ? 'bold' : 'normal' }}
+            >
+              {idx + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => handlePageChange(page + 1)}
+            disabled={page === totalPages - 1}
+          >
+            다음
+          </button>
+        </div>
+        {selectedId && !showEvaluationForm && evaluation && (
           <EvaluationView evaluation={evaluation} onClose={handleClose} />
         )}
         {showEvaluationForm && (
