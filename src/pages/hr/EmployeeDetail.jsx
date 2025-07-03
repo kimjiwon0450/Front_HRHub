@@ -85,10 +85,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
       <div className='emp-detail-root'>
         <div className='emp-detail-main'>
           <div className='emp-profile'>
-            <img
-              src='https://cdn.imweb.me/thumbnail/20240206/f520d5bdbd28e.jpg'
-              alt='profile'
-            />
+            <img src={employee.profileImage} alt='profile' />
           </div>
           <table className='emp-info-table'>
             <tbody>
