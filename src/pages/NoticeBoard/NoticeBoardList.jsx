@@ -11,6 +11,7 @@ const NoticeBoardList = () => {
     const navigate = useNavigate();
     const { isInit, departmentId } = useContext(UserContext);
 
+    const [viewMode, setViewMode] = useState('ALL'); // ALL | MY | DEPT
     const [posts, setPosts] = useState([]);
     const [notices, setNotices] = useState([]);
     const [filters, setFilters] = useState({
@@ -22,6 +23,7 @@ const NoticeBoardList = () => {
     });
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
+    const [pageSize, setPageSize] = useState(10); // ✅ 보기 개수
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -39,16 +41,32 @@ const NoticeBoardList = () => {
                     size: 10
                 });
 
-                let url = '';
-                if (departmentId) {
-                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department/${departmentId}?${params.toString()}`;
+                let url;
+                // if (departmentId != null && departmentId !== 'undefined') {
+                //     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department/${departmentId}?${params.toString()}`;
+                // } else {
+                //     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
+                // }
+
+                if (viewMode === 'MY') {
+                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/my`;
+                } else if (viewMode === 'DEPT') {
+                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department`;
                 } else {
-                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
+                    if (departmentId != null && departmentId !== 'undefined') {
+                        url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department/${departmentId}?${params.toString()}`;
+                    } else {
+                        url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
+                    }
                 }
 
                 const res = await fetch(url, { credentials: 'include' });
                 if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
                 const data = await res.json();
+
+                console.log('data : ', data);
+                console.log('data.notices : ', data.notices);
+                console.log('data.posts : ', data.posts);
 
                 setNotices(data.notices || []);
                 setPosts(data.posts || []);
@@ -61,7 +79,7 @@ const NoticeBoardList = () => {
         };
 
         fetchPosts();
-    }, [filters, page, departmentId, isInit]);
+    }, [filters, page, pageSize, departmentId, isInit]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -69,6 +87,10 @@ const NoticeBoardList = () => {
     };
 
     const handleSearch = () => setPage(0);
+    const handlePageSizeChange = (e) => {
+        setPageSize(Number(e.target.value));
+        setPage(0); // 첫 페이지로 초기화
+    };
 
     return (
         <div className="notice-board">
@@ -88,6 +110,19 @@ const NoticeBoardList = () => {
                     </select>
                     <button onClick={handleSearch}>검색</button>
                     <button className="write-button" onClick={() => navigate('/noticeboard/write')}>작성하기</button>
+
+                    <div className="view-mode-buttons">
+                        <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); }}>
+                            전체
+                        </button>
+                        <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); }}>
+                            내가 쓴 글
+                        </button>
+                        <button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); }}>
+                            내 부서 글
+                        </button>
+                    </div>
+
                 </div>
             </div>
 
@@ -95,39 +130,51 @@ const NoticeBoardList = () => {
                 <p>불러오는 중...</p>
             ) : (
                 <>
-                    <ul className="post-list">
-                        {notices.length > 0 && (
-                            <li className="notice-header">
-                                <span>공지</span>
-                                <span>제목</span>
-                                <span>작성자</span>
-                                <span>작성일</span>
-                                <span>조회수</span>
-                            </li>
-                        )}
-                        {notices.map(post => (
-                            <li key={`notice-${post.id}`} className="notice" onClick={() => navigate(`/noticeboard/${post.id}`)}>
-                                <span>[공지]</span>
-                                <span>{post.title}</span>
-                                <span>{post.writer}</span>
-                                <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-                                <span>{post.viewCount}</span>
-                            </li>
-                        ))}
-                        {posts.length > 0 ? (
-                            posts.map(post => (
-                                <li key={`post-${post.id}`} onClick={() => navigate(`/noticeboard/${post.id}`)}>
-                                    <span></span>
-                                    <span>{post.title}</span>
-                                    <span>{post.writer}</span>
-                                    <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-                                    <span>{post.viewCount}</span>
-                                </li>
-                            ))
-                        ) : (
-                            <li className="no-post">게시글이 없습니다</li>
-                        )}
-                    </ul>
+                    <table className="notice-table">
+                        <thead>
+                            <tr>
+                                <th>구분</th>
+                                <th>제목</th>
+                                <th>작성자</th>
+                                <th>작성일</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {notices.map(post => (
+                                <tr key={`notice-${post.id}`} className="notice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
+                                    <td>[공지]</td>
+                                    <td>{post.title}</td>
+                                    <td>{post.name}</td>
+                                    <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                    <td>{post.viewCount}</td>
+                                </tr>
+                            ))}
+
+                            {/* 🔻 공지와 일반글 사이 구분선 추가 */}
+                            {notices.length > 0 && posts.length > 0 && (
+                                <tr className="divider-row">
+                                    <td colSpan="5"><hr /></td>
+                                </tr>
+                            )}
+
+                            {posts.length > 0 ? (
+                                posts.map(post => (
+                                    <tr key={`post-${post.id}`} onClick={() => navigate(`/noticeboard/${post.id}`)}>
+                                        <td></td>
+                                        <td>{post.title}</td>
+                                        <td>{post.name}</td>
+                                        <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                        <td>{post.viewCount}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5" className="no-post">게시글이 없습니다</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
 
                     <div className="pagination">
                         <button onClick={() => setPage(p => Math.max(p - 1, 0))} disabled={page === 0}>Previous</button>
@@ -137,6 +184,15 @@ const NoticeBoardList = () => {
                             </button>
                         ))}
                         <button onClick={() => setPage(p => Math.min(p + 1, totalPages - 1))} disabled={page === totalPages - 1}>Next</button>
+                    </div>
+
+                    <div className="page-size-selector">
+                        <label>보기 개수:&nbsp;</label>
+                        <select value={pageSize} onChange={handlePageSizeChange}>
+                            {[10, 15, 20, 25, 30].map(size => (
+                                <option key={size} value={size}>{size}개씩 보기</option>
+                            ))}
+                        </select>
                     </div>
                 </>
             )}
