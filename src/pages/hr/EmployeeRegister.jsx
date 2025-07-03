@@ -1,16 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './EmployeeRegister.scss';
 import HRHeader from './HRHeader';
 import axios from 'axios';
-import { HR_SERVICE } from '../../configs/host-config';
-
-const departments = [
-  { id: 1, name: '마케팅' },
-  { id: 2, name: '디자인' },
-  { id: 3, name: '인사' },
-];
+import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
+import axiosInstance from '../../configs/axios-config';
 
 export default function EmployeeRegister() {
+  const [departments, setDepartments] = useState([]);
   const [email, setEmail] = useState('');
   const [employeeName, setEmployeeName] = useState('');
   const [birth, setBirth] = useState('');
@@ -20,6 +16,9 @@ export default function EmployeeRegister() {
   const [phone, setPhone] = useState('');
   const [memo, setMemo] = useState('');
   const [isNewEmployee, setIsNewEmployee] = useState(true);
+  const [showDeptModal, setShowDeptModal] = useState(false);
+  const [newDeptName, setNewDeptName] = useState('');
+  const [isDeptLoading, setIsDeptLoading] = useState(false);
 
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -97,6 +96,52 @@ export default function EmployeeRegister() {
     }
   };
 
+  // 부서 등록 핸들러
+  const handleAddDepartment = async () => {
+    if (!newDeptName.trim()) {
+      alert('부서명을 입력하세요.');
+      return;
+    }
+
+    setIsDeptLoading(true);
+    try {
+      const res = await axiosInstance.post(
+        `http://localhost:8000${HR_SERVICE}/department/add`,
+        {
+          name: newDeptName,
+        },
+      );
+      alert('부서 등록 성공!');
+      setNewDeptName('');
+      setShowDeptModal(false);
+      fetchDepartments();
+    } catch (err) {
+      alert(
+        err.response?.data?.statusMessage ||
+          err.response?.data?.message ||
+          '부서 등록 실패',
+      );
+    } finally {
+      setIsDeptLoading(false);
+    }
+  };
+
+  // 부서 목록 불러오기
+  const fetchDepartments = async () => {
+    try {
+      const res = await axiosInstance.get(
+        `http://localhost:8000${HR_SERVICE}/department/list`,
+      );
+      setDepartments(res.data);
+    } catch (err) {
+      alert('부서 목록을 불러오지 못했습니다.');
+    }
+  };
+
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
+
   return (
     <>
       <HRHeader />
@@ -147,17 +192,41 @@ export default function EmployeeRegister() {
             </div>
             <div>
               <label className='reg-label'>부서명</label>
-              <select
-                className='reg-input'
-                value={departmentId}
-                onChange={(e) => setDepartmentId(e.target.value)}
-              >
-                {departments.map((dept) => (
-                  <option value={dept.id} key={dept.id}>
-                    {dept.name}
-                  </option>
-                ))}
-              </select>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <select
+                  className='reg-input'
+                  value={departmentId}
+                  onChange={(e) => setDepartmentId(e.target.value)}
+                  style={{ flex: 1 }}
+                >
+                  {departments.map((dept) => (
+                    <option value={dept.id} key={dept.id}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type='button'
+                  style={{
+                    border: 'none',
+                    background: '#e6e6e6',
+                    borderRadius: '50%',
+                    width: 28,
+                    height: 28,
+                    fontSize: 20,
+                    cursor: 'pointer',
+                    marginLeft: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 0,
+                  }}
+                  aria-label='부서 추가'
+                  onClick={() => setShowDeptModal(true)}
+                >
+                  +
+                </button>
+              </div>
             </div>
             <div>
               <label className='reg-label'>주소</label>
@@ -221,6 +290,62 @@ export default function EmployeeRegister() {
           </div>
         </form>
       </div>
+      {showDeptModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+          onClick={() => setShowDeptModal(false)}
+        >
+          <div
+            style={{
+              background: '#fff',
+              padding: 24,
+              borderRadius: 8,
+              minWidth: 300,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ marginTop: 0 }}>부서 등록</h3>
+            <input
+              className='reg-input'
+              type='text'
+              value={newDeptName}
+              onChange={(e) => setNewDeptName(e.target.value)}
+              placeholder='부서명 입력'
+              autoFocus
+            />
+            <div className='dept-modal-btns'>
+              <button
+                type='button'
+                className='btn gray'
+                onClick={() => setShowDeptModal(false)}
+                disabled={isDeptLoading}
+              >
+                취소
+              </button>
+              <button
+                type='button'
+                className='btn blue'
+                onClick={handleAddDepartment}
+                disabled={isDeptLoading}
+              >
+                {isDeptLoading ? '등록 중...' : '등록'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
