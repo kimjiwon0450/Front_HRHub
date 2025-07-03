@@ -16,9 +16,10 @@ export default function EmployeeRegister() {
   const [birth, setBirth] = useState('');
   const [departmentId, setDepartmentId] = useState(1);
   const [address, setAddress] = useState('');
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState('EMPLOYEE');
   const [phone, setPhone] = useState('');
   const [memo, setMemo] = useState('');
+  const [isNewEmployee, setIsNewEmployee] = useState(true);
 
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -75,12 +76,12 @@ export default function EmployeeRegister() {
         name: employeeName,
         birthday: birth,
         address,
-        role,
         departmentId,
         phone,
         status: 'ACTIVE',
-        role: 'EMPLOYEE',
+        role,
         memo,
+        isNewEmployee,
       });
       alert('등록 성공!');
       // 폼 초기화(선택)
@@ -147,6 +148,7 @@ export default function EmployeeRegister() {
             <div>
               <label className='reg-label'>부서명</label>
               <select
+                className='reg-input'
                 value={departmentId}
                 onChange={(e) => setDepartmentId(e.target.value)}
               >
@@ -167,13 +169,15 @@ export default function EmployeeRegister() {
               />
             </div>
             <div>
-              <label className='reg-label'>직함/직책</label>
-              <input
+              <label className='reg-label'>직급</label>
+              <select
                 className='reg-input'
-                type='text'
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-              />
+              >
+                <option value='EMPLOYEE'>EMPLOYEE</option>
+                <option value='HR_MANAGER'>HR_MANAGER</option>
+              </select>
             </div>
             <div>
               <label className='reg-label'>핸드폰</label>
@@ -185,6 +189,17 @@ export default function EmployeeRegister() {
                 placeholder='010-1234-5678'
                 maxLength={13}
               />
+            </div>
+            <div>
+              <label className='reg-label'>입사구분</label>
+              <select
+                className='reg-input'
+                value={isNewEmployee ? '신입' : '경력'}
+                onChange={(e) => setIsNewEmployee(e.target.value === '신입')}
+              >
+                <option value='신입'>신입</option>
+                <option value='경력'>경력</option>
+              </select>
             </div>
           </div>
           {/* 메모 */}
