@@ -16,7 +16,7 @@ const headerMenus = [
   { to: '/dashboard', label: '메인' },
   { to: '/contacts', label: '연락처' },
   { to: '/schedule', label: '일정' },
-  { to: '/board', label: '게시판' },
+  // { to: '/board', label: '게시판' },
   { to: '/mail', label: '메일' },
   { to: '/attendance', label: '근태' },
 ];
@@ -59,7 +59,7 @@ export default function MainLayout() {
     <div className='layout'>
       <aside className='sidebar'>
         <div className='logo' onClick={() => navigate('/dashboard')}>
-          <img src='/logo.png' alt='PetWiz ERP' />
+          <img src='/src/assets/hrhub_logo.png' alt='hrhub' />
         </div>
         <nav className='nav'>
           {sidebarMenus.map((menu) => (
@@ -89,20 +89,12 @@ export default function MainLayout() {
               </Link>
             ))}
           </div>
-          <button className='logout-btn' onClick={handleLogoutClick}>
-            Logout
-          </button>
+
           <div className='notice-icon' onClick={() => navigate('/board')}>
             📢 게시판
             {unreadCount > 0 && <span className='badge'>{unreadCount}</span>}
           </div>
-          <button
-            className='logout-btn'
-            onClick={() => {
-              user?.onLogout?.();
-              navigate('/');
-            }}
-          >
+          <button className='logout-btn' onClick={handleLogoutClick}>
             Logout
           </button>
         </header>
