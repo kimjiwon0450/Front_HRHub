@@ -6,7 +6,7 @@ import { API_BASE_URL, NOTICE_SERVICE } from '../configs/host-config';
 import { UserContext } from '../context/UserContext';
 
 const sidebarMenus = [
-  { to: '/notice', label: '공지사항' },
+  { to: '/noticeboard', label: '공지사항' },
   { to: '/dashboard', label: '대시보드' },
   { to: '/hr', label: '인사관리' },
   { to: '/approval', label: '전자결재' },
@@ -90,7 +90,7 @@ export default function MainLayout() {
             ))}
           </div>
 
-          <div className='notice-icon' onClick={() => navigate('/board')}>
+          <div className='notice-icon' onClick={() => navigate('/noticeboard')}>
             📢 게시판
             {unreadCount > 0 && <span className='badge'>{unreadCount}</span>}
           </div>
