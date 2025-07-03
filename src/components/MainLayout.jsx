@@ -59,7 +59,7 @@ export default function MainLayout() {
     <div className='layout'>
       <aside className='sidebar'>
         <div className='logo' onClick={() => navigate('/dashboard')}>
-          <img src='/logo.png' alt='PetWiz ERP' />
+          <img src='/src/assets/hrhub_logo.png' alt='hrhub' />
         </div>
         <nav className='nav'>
           {sidebarMenus.map((menu) => (

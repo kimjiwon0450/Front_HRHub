@@ -54,7 +54,11 @@ export default function Login() {
         alert('비밀번호 설정 완료!');
         navigate('/');
       } catch (error) {
-        alert(error.response.data.statusMessage);
+        alert(
+          error.response.data.statusMessage
+            ? error.response.data.statusMessage
+            : error,
+        );
       }
       return;
     }
@@ -70,14 +74,18 @@ export default function Login() {
       onLogin(res.data.result);
       navigate('/dashboard');
     } catch (error) {
-      alert(error.response.data.statusMessage);
+      alert(
+        error.response.data.statusMessage
+          ? error.response.data.statusMessage
+          : '서버 에러입니다. 관리자에게 문의해주세요.',
+      );
     }
   };
 
   return (
     <div className='login-container'>
       <div className='login-box'>
-        <img src='/logo.png' alt='PetWiz ERP' className='logo' />
+        <img src='/src/assets/hrhub_logo.png' alt='hrhub' className='logo' />
         <form className='login-form' onSubmit={handleSubmit}>
           {/* 로그인 or 비밀번호 재설정 분기 */}
           <label htmlFor='email'>Email address</label>
