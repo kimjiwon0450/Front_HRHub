@@ -130,9 +130,9 @@ export default function EmployeeRegister() {
   const fetchDepartments = async () => {
     try {
       const res = await axiosInstance.get(
-        `http://localhost:8000${HR_SERVICE}/department/list`,
+        `http://localhost:8000${HR_SERVICE}/departments`,
       );
-      setDepartments(res.data);
+      setDepartments(res.data.result);
     } catch (err) {
       alert('부서 목록을 불러오지 못했습니다.');
     }
