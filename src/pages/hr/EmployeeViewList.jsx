@@ -1,33 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import EmployeeDetail from './EmployeeDetail';
-import EmployeeEdit from './EmployeeEdit';
-import EvaluationForm from './EvaluationForm';
 import HRHeader from './HRHeader';
 import './EmployeeList.scss';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
+import EvaluationView from './EvaluationView';
+import EvaluationForm from './EvaluationForm';
 
-// 부서 목록 (예시, 실제는 서버에서 받아올 수도 있음)
-const DEPT_LIST = ['전체', '마케팅', '디자인', '인사'];
-
-export default function EmployeeList() {
-  // 'list', 'edit', 'eval' 중 하나
-  const [mode, setMode] = useState('list');
+export default function EmployeeViewList() {
   const [selectedId, setSelectedId] = useState(null);
   const [selectedDetail, setSelectedDetail] = useState({});
   const [employees, setEmployees] = useState([]);
-
-  // 검색/필터 state
   const [searchField, setSearchField] = useState('name');
   const [searchText, setSearchText] = useState('');
   const [searchDept, setSearchDept] = useState('전체');
-
-  // 페이징 state
+  const [evaluation, setEvaluation] = useState(null);
+  const [showEvaluationForm, setShowEvaluationForm] = useState(false);
+  const DEPT_LIST = ['전체', '마케팅', '디자인', '인사'];
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
-  // 서버에서 직원 목록 조회 (필터 포함)
   const getEmployeeList = async ({
     field = searchField,
     keyword = searchText,
@@ -51,40 +43,40 @@ export default function EmployeeList() {
     }
   };
 
-  // 최초 1회
   useEffect(() => {
     getEmployeeList({ page, size });
     // eslint-disable-next-line
   }, [page, size]);
 
-  // 직원 선택시 상세 조회
   useEffect(() => {
     if (selectedId == null) return;
-    getEmployeeDetail(selectedId);
+    getLatestEvaluation(selectedId);
     // eslint-disable-next-line
   }, [selectedId]);
 
-  // 직원 상세정보 조회
-  const getEmployeeDetail = async (id) => {
+  // 최신 인사평가 불러오기 (예시: /hr-service/evaluations/latest/{employeeId})
+  const getLatestEvaluation = async (id) => {
     try {
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees/${id}`,
+        `${API_BASE_URL}${HR_SERVICE}/evaluation/${id}`,
       );
-      setSelectedDetail({
-        ...res.data.result,
-        department: employees.find((e) => e.id === id)?.department,
-      });
+      setEvaluation(res.data.result);
     } catch (error) {
-      alert(error.response?.data || '시스템에러');
+      setEvaluation(null);
+      alert('인사평가 정보가 없습니다.');
     }
   };
 
-  // Edit/Eval 화면 종료 시 목록+상세 복귀
-  const handleClose = () => setMode('list');
-  const handleEdit = () => setMode('edit');
-  const handleEval = () => setMode('eval');
+  const handleClose = () => {
+    setSelectedId(null);
+    setEvaluation(null);
+    setShowEvaluationForm(false);
+  };
 
-  // 검색 버튼 or 폼 submit시
+  const handleEvaluate = (employee) => {
+    setShowEvaluationForm(true);
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     getEmployeeList({
@@ -92,16 +84,17 @@ export default function EmployeeList() {
       keyword: searchText,
       department: searchDept,
     });
-    setSelectedId(null); // 검색하면 상세 닫기
+    setSelectedId(null);
+    setEvaluation(null);
   };
 
-  // 초기화
   const handleReset = () => {
     setSearchField('name');
     setSearchText('');
     setSearchDept('전체');
     getEmployeeList({ field: 'name', keyword: '', department: '전체' });
     setSelectedId(null);
+    setEvaluation(null);
   };
 
   const handlePageChange = (newPage) => {
@@ -110,19 +103,11 @@ export default function EmployeeList() {
     }
   };
 
-  // 수정/평가 화면 분기
-  if (mode === 'edit')
-    return <EmployeeEdit employee={selectedDetail} onClose={handleClose} />;
-  if (mode === 'eval')
-    return <EvaluationForm employee={selectedDetail} onClose={handleClose} />;
-
-  // 기본(리스트/상세)
   return (
     <>
       <HRHeader />
       <div className='emp-list-root'>
-        <h2 className='emp-list-title'>직원 목록</h2>
-        {/* 검색/필터 영역 */}
+        <h2 className='emp-list-title'>직원 인사조회</h2>
         <form className='emp-search-bar' onSubmit={handleSearch}>
           <select
             value={searchField}
@@ -215,17 +200,13 @@ export default function EmployeeList() {
             다음
           </button>
         </div>
+        {selectedId && !showEvaluationForm && evaluation && (
+          <EvaluationView evaluation={evaluation} onClose={handleClose} />
+        )}
+        {showEvaluationForm && (
+          <EvaluationForm employee={selectedDetail} onClose={handleClose} />
+        )}
       </div>
-      {/* 상세 정보는 선택 시 하단에만 노출 */}
-      {selectedId && (
-        <div className='emp-detail-below'>
-          <EmployeeDetail
-            employee={selectedDetail}
-            onEdit={handleEdit}
-            onEval={handleEval}
-          />
-        </div>
-      )}
     </>
   );
 }

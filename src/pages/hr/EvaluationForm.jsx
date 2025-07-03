@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './EvaluationForm.scss';
+import axiosInstance from '../../configs/axios-config';
+import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
+import { useContext } from 'react';
+import { UserContext } from '../../context/UserContext';
 
 // 별점 컴포넌트
 function StarRating({ value, onChange }) {
@@ -25,18 +29,33 @@ function StarRating({ value, onChange }) {
   );
 }
 
-export default function EvaluationForm({ onClose }) {
+export default function EvaluationForm({ employee, onClose }) {
+  const { userId } = useContext(UserContext);
   // 폼 상태 관리
   const [form, setForm] = useState({
-    name: '홍길동(영업)  <- 자동으로 불러옴',
-    dept: '영업  <- 자동으로 불러옴',
+    name: '',
+    dept: '',
     date: new Date(),
-    leadership: 1,
-    creativity: 1,
-    cooperation: 1,
-    problem: 1,
+    template: {
+      leadership: 1,
+      creativity: 1,
+      cooperation: 1,
+      problem: 1,
+    },
     comment: '',
   });
+
+  console.log(employee, '여기임');
+
+  useEffect(() => {
+    if (employee) {
+      setForm((prev) => ({
+        ...prev,
+        name: `${employee.name} (${employee.role})`,
+        dept: employee.department || '',
+      }));
+    }
+  }, [employee]);
 
   // 사이드 패널 상태
   const [approval, setApproval] = useState('박지수(인사)');
@@ -44,11 +63,21 @@ export default function EvaluationForm({ onClose }) {
   const [searchEmp, setSearchEmp] = useState('');
 
   // 별점
-  const handleStar = (key, val) => setForm((prev) => ({ ...prev, [key]: val }));
+  const handleStar = (key, val) =>
+    setForm((prev) => ({
+      ...prev,
+      template: {
+        ...prev.template,
+        [key]: val,
+      },
+    }));
 
   // 평균점수
   const avg = (
-    (form.leadership + form.creativity + form.cooperation + form.problem) /
+    (form.template.leadership +
+      form.template.creativity +
+      form.template.cooperation +
+      form.template.problem) /
     4
   ).toFixed(1);
 
@@ -62,9 +91,30 @@ export default function EvaluationForm({ onClose }) {
   };
 
   // 제출 등 이벤트 (실제 로직 연결 가능)
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('결재상신: ' + JSON.stringify(form, null, 2));
+    console.log(form);
+    try {
+      await axiosInstance.post(
+        `${API_BASE_URL}${HR_SERVICE}/evaluation/${employee.employeeId}`,
+        {
+          evaluateeId: employee.employeeId,
+          evaluatorId: userId,
+          template: JSON.stringify({
+            leadership: form.template.leadership,
+            creativity: form.template.creativity,
+            cooperation: form.template.cooperation,
+            problem: form.template.problem,
+          }),
+          comment: form.comment,
+          total_evaluation: Number(avg),
+          interviewDate: form.date,
+        },
+      );
+      if (onClose) onClose();
+    } catch (error) {
+      alert('제출 실패: ' + (error.response?.data?.message || error.message));
+    }
   };
   const handleSave = () => alert('임시저장: ' + JSON.stringify(form, null, 2));
   const handlePreview = () => alert('미리보기 (팝업 구현 가능)');
@@ -81,7 +131,9 @@ export default function EvaluationForm({ onClose }) {
   return (
     <div className='eval-root'>
       <div className='eval-header'>
-        <button className='back-btn'>◀</button>
+        <button className='back-btn' type='button' onClick={handleCancel}>
+          ◀
+        </button>
         <div className='eval-title'>인사평가표</div>
         <div className='eval-searchbar'>
           <select>
@@ -140,28 +192,28 @@ export default function EvaluationForm({ onClose }) {
             <div className='eval-field stars'>
               <label>리더십</label>
               <StarRating
-                value={form.leadership}
+                value={form.template.leadership}
                 onChange={(v) => handleStar('leadership', v)}
               />
             </div>
             <div className='eval-field stars'>
               <label>창의성</label>
               <StarRating
-                value={form.creativity}
+                value={form.template.creativity}
                 onChange={(v) => handleStar('creativity', v)}
               />
             </div>
             <div className='eval-field stars'>
               <label>협업능력</label>
               <StarRating
-                value={form.cooperation}
+                value={form.template.cooperation}
                 onChange={(v) => handleStar('cooperation', v)}
               />
             </div>
             <div className='eval-field stars'>
               <label>문제해결능력</label>
               <StarRating
-                value={form.problem}
+                value={form.template.problem}
                 onChange={(v) => handleStar('problem', v)}
               />
             </div>

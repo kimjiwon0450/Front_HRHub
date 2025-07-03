@@ -115,3 +115,45 @@
     max-width: 100%;
   }
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 1.2rem 0 0.5rem 0;
+
+  button {
+    background: #f5f7fa;
+    border: 1.5px solid #b0c7d4;
+    color: #222;
+    font-size: 1.05rem;
+    padding: 0.45em 1.1em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:
+      background 0.15s,
+      color 0.15s,
+      border 0.15s;
+    font-weight: 500;
+    outline: none;
+    &:hover:not(:disabled) {
+      background: #e3eaf2;
+      color: #1766ad;
+      border-color: #1766ad;
+    }
+    &:disabled {
+      background: #f0f0f0;
+      color: #aaa;
+      border-color: #ddd;
+      cursor: not-allowed;
+    }
+    &.active,
+    &[style*='font-weight: bold'] {
+      background: #1766ad;
+      color: #fff;
+      border-color: #1766ad;
+      font-weight: bold;
+    }
+  }
+}

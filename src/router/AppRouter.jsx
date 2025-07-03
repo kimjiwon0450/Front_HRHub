@@ -17,6 +17,7 @@ import EvaluationForm from '../pages/hr/EvaluationForm';
 import NoticeBoardList from '../pages/NoticeBoard/NoticeBoardList';
 import NoticeBoardWrite from '../pages/NoticeBoard/NoticeBoardWrite';
 import NoticeBoardDetail from '../pages/NoticeBoard/NoticeBoardDetail';
+import EmployeeViewList from '../pages/hr/EmployeeViewList';
 
 const AppRouter = () => {
   const { userRole } = useContext(AuthContext); // private 라우터를 이용하기 위해 추가(하준)
@@ -31,6 +32,7 @@ const AppRouter = () => {
         <Route path='/hr/employee-register' element={<EmployeeRegister />} />
         <Route path='/hr/employee-edit' element={<EmployeeEdit />} />
         <Route path='/hr/employee-eval' element={<EvaluationForm />} />
+        <Route path='/hr/employee-eval-list' element={<EmployeeViewList />} />
         <Route path='/payroll' element={<></>} />
         <Route path='/approval' element={<LeavePage />} />
         <Route path='/schedule' element={<></>} />
