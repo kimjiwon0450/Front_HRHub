@@ -4,12 +4,12 @@ import {
     API_BASE_URL,
     NOTICE_SERVICE
 } from '../../configs/host-config';
-import { UserContext } from '../../context/UserContext'; // 로그인 유저 정보
+import { UserContext, UserContextProvider } from '../../context/UserContext'; // 로그인 유저 정보
 import './NoticeBoard.scss';
 
 const NoticeBoardList = () => {
     const navigate = useNavigate();
-    const { isInit, departmentId } = useContext(UserContext);
+    const { isInit, userId, accessToken, departmentId } = useContext(UserContext);
 
     const [viewMode, setViewMode] = useState('ALL'); // ALL | MY | DEPT
     const [posts, setPosts] = useState([]);
@@ -27,6 +27,8 @@ const NoticeBoardList = () => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        if (!isInit || !accessToken || !userId) return; // ✅ 초기화 완료 여부 확인
+
         const fetchPosts = async () => {
             setLoading(true);
             try {
@@ -48,10 +50,12 @@ const NoticeBoardList = () => {
                 //     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
                 // }
 
+                console.log('viewMode : ', viewMode);
+                console.log('departmentId : ', departmentId);
                 if (viewMode === 'MY') {
                     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/my`;
                 } else if (viewMode === 'DEPT') {
-                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department`;
+                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/mydepartment`;
                 } else {
                     if (departmentId != null && departmentId !== 'undefined') {
                         url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department/${departmentId}?${params.toString()}`;
@@ -60,7 +64,13 @@ const NoticeBoardList = () => {
                     }
                 }
 
-                const res = await fetch(url, { credentials: 'include' });
+                const res = await fetch(url, {
+                    credentials: 'include',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                    }
+                });
+
                 if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
                 const data = await res.json();
 
@@ -68,9 +78,15 @@ const NoticeBoardList = () => {
                 console.log('data.notices : ', data.notices);
                 console.log('data.posts : ', data.posts);
 
-                setNotices(data.notices || []);
-                setPosts(data.posts || []);
-                setTotalPages(data.totalPages || 1);
+                if (viewMode === 'MY' || viewMode === 'DEPT') {
+                    setNotices([]);
+                    setPosts(data || []); // 서버에서 단일 배열을 반환하므로 전체를 posts로 처리
+                    setTotalPages(1); // 페이징 미적용이므로 1로 고정
+                } else {
+                    setNotices(data.notices || []);
+                    setPosts(data.posts || []);
+                    setTotalPages(data.totalPages || 1);
+                }
             } catch (err) {
                 console.error('게시글 불러오기 실패:', err);
             } finally {
@@ -79,7 +95,7 @@ const NoticeBoardList = () => {
         };
 
         fetchPosts();
-    }, [filters, page, pageSize, departmentId, isInit]);
+    }, [filters, page, pageSize, departmentId, isInit, viewMode, accessToken, userId]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -87,7 +103,7 @@ const NoticeBoardList = () => {
     };
 
     const handleSearch = () => setPage(0);
-    
+
     const handlePageSizeChange = (e) => {
         setPageSize(Number(e.target.value));
         setPage(0); // 첫 페이지로 초기화
@@ -116,10 +132,10 @@ const NoticeBoardList = () => {
                         <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); }}>
                             전체
                         </button>
-                        <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); }}>
+                        <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate(`/noticeboard/my`) }}>
                             내가 쓴 글
                         </button>
-                        <button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); }}>
+                        <button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate(`/noticeboard/mydepartment`) }}>
                             내 부서 글
                         </button>
                     </div>
