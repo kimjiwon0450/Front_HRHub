@@ -137,33 +137,8 @@ export default function HRPage() {
               </tbody>
             </table>
           </div>
-          {/* 휴가신청 */}
-          <div className='hr-card hr-tab-card'>
-            <div className='tabs'>
-              <button className='active'>휴가신청</button>
-              <div className='menu-icon'>≡</div>
-            </div>
-            <table className='mini-table'>
-              <thead>
-                <tr>
-                  <th>구분</th>
-                  <th>발생</th>
-                  <th>사용</th>
-                  <th>잔여</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>합계</td>
-                  <td className='text-accent'>0</td>
-                  <td>0</td>
-                  <td className='text-error'>0</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
           {/* 공지사항 */}
-          <div className='hr-card hr-tab-card'>
+          <div className='hr-card hr-tab-card' style={{ flex: 2 }}>
             <div className='tabs'>
               <button className='active'>공지사항</button>
               <div className='menu-icon'>≡</div>
