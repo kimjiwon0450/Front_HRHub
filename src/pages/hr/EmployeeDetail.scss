@@ -35,13 +35,17 @@
       object-fit: cover;
       margin-right: 1.2rem;
       cursor: pointer;
+
+      &.disabled {
+        cursor: default;
+      }
     }
 
     input {
       display: none;
     }
 
-    img:hover {
+    img:hover:not(.disabled) {
       opacity: 0.8;
     }
   }

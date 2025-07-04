@@ -6,7 +6,7 @@ import EvaluationForm from './EvaluationForm';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import pin from '../../assets/pin.jpg';
-import UserContext from '../../context/UserContext';
+import { UserContext } from '../../context/UserContext';
 
 export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   const [showEdit, setShowEdit] = useState(false);
@@ -19,7 +19,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   const canEdit =
     userRole === 'HR_MANAGER' ||
     userRole === 'ADMIN' ||
-    (userRole === 'EMPLOYEE' && userId === employee.id);
+    (userRole === 'EMPLOYEE' && userId === employee.employeeId);
 
   const handleProfileImageClick = () => {
     if (!canEdit) return;
@@ -52,7 +52,6 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
     setImageUri(employee.profileImageUri);
   }, [employee]);
 
-  console.log(employee);
   function getAge(birth) {
     if (!birth) return '';
     const today = new Date();
@@ -105,8 +104,6 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
     }
   };
 
-  console.log('프로필사진', employee.profileImageUri);
-
   // 두 컴포넌트 중 하나라도 활성화되면 해당 컴포넌트만 표시
   if (showEdit) {
     return (
@@ -118,8 +115,6 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
       <EvaluationForm employee={employee} onClose={() => setShowEval(false)} />
     );
   }
-
-  console.log('imageUri', imageUri);
 
   return (
     <>
