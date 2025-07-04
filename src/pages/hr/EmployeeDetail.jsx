@@ -85,7 +85,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
       <div className='emp-detail-root'>
         <div className='emp-detail-main'>
           <div className='emp-profile'>
-            <img src={employee.profileImage} alt='profile' />
+            <img src={employee.profileImageUri} alt='profile' />
           </div>
           <table className='emp-info-table'>
             <tbody>
