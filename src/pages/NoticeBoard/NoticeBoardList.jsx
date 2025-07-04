@@ -87,6 +87,7 @@ const NoticeBoardList = () => {
     };
 
     const handleSearch = () => setPage(0);
+    
     const handlePageSizeChange = (e) => {
         setPageSize(Number(e.target.value));
         setPage(0); // 첫 페이지로 초기화
@@ -143,7 +144,7 @@ const NoticeBoardList = () => {
                         <tbody>
                             {notices.map(post => (
                                 <tr key={`notice-${post.id}`} className="notice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
-                                    <td>[공지]</td>
+                                    <td>{post.id}</td>
                                     <td>{post.title}</td>
                                     <td>{post.name}</td>
                                     <td>{new Date(post.createdAt).toLocaleDateString()}</td>
@@ -161,7 +162,7 @@ const NoticeBoardList = () => {
                             {posts.length > 0 ? (
                                 posts.map(post => (
                                     <tr key={`post-${post.id}`} onClick={() => navigate(`/noticeboard/${post.id}`)}>
-                                        <td></td>
+                                        <td>{post.id}</td>
                                         <td>{post.title}</td>
                                         <td>{post.name}</td>
                                         <td>{new Date(post.createdAt).toLocaleDateString()}</td>

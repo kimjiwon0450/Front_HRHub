@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import Home from '../components/Home';
 import { Route, Routes } from 'react-router-dom';
 import PrivateRouter from './PrivateRouter';
-import AuthContext from '../context/UserContext';
+import { UserContext } from '../context/UserContext';
 import Login from '../components/Login';
 import MainLayout from '../components/MainLayout';
 import Dashboard from '../pages/dashboard/Dashboard';
@@ -20,7 +20,7 @@ import NoticeBoardDetail from '../pages/NoticeBoard/NoticeBoardDetail';
 import EmployeeViewList from '../pages/hr/EmployeeViewList';
 
 const AppRouter = () => {
-  const { userRole } = useContext(AuthContext); // private 라우터를 이용하기 위해 추가(하준)
+  const { userRole } = useContext(UserContext); // private 라우터를 이용하기 위해 추가(하준)
 
   return (
     <Routes>

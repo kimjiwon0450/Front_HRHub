@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom'; // 쿼리 파싱용
 import './Login.scss';
 import axios from 'axios';
 import { API_BASE_URL, HR_SERVICE } from '../configs/host-config';
-import UserContext from '../context/UserContext';
+import { UserContext, UserContextProvider } from '../context/UserContext';
+
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
