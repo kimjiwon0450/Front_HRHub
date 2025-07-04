@@ -137,6 +137,10 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
                 <th>이메일</th>
                 <td colSpan={5}>{employee.email}</td>
               </tr>
+              <tr>
+                <th>메모</th>
+                <td colSpan={5}>{employee.memo}</td>
+              </tr>
             </tbody>
           </table>
         </div>

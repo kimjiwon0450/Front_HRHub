@@ -76,11 +76,6 @@ export default function EvaluationForm({ employee, onClose }) {
     fetchEvaluatorName();
   }, [userId]);
 
-  // 사이드 패널 상태
-  const [approval, setApproval] = useState('박지수(인사)');
-  const [shareType, setShareType] = useState('전체');
-  const [searchEmp, setSearchEmp] = useState('');
-
   // 별점
   const handleStar = (key, val) =>
     setForm((prev) => ({
@@ -154,13 +149,6 @@ export default function EvaluationForm({ employee, onClose }) {
           ◀
         </button>
         <div className='eval-title'>인사평가표</div>
-        <div className='eval-searchbar'>
-          <select>
-            <option>전체</option>
-          </select>
-          <input type='text' placeholder='검색' />
-          <button className='icon-search'>🔍</button>
-        </div>
       </div>
 
       <div className='eval-main'>
@@ -258,68 +246,6 @@ export default function EvaluationForm({ employee, onClose }) {
               <span className='avg-score'>{avg}</span>
             </div>
           </form>
-        </div>
-
-        {/* 오른쪽 사이드 패널 */}
-        <div className='eval-side-panel'>
-          {/* 결재선 */}
-          <div className='side-box side-approval'>
-            <div className='side-title'>
-              결재선
-              <button className='side-view-btn'>보기</button>
-              <button className='side-setting-btn'>설정 ▼</button>
-            </div>
-          </div>
-          {/* 참조 */}
-          <div className='side-box side-reference'>
-            <div className='side-title'>참조</div>
-            <input
-              className='side-input'
-              value={approval}
-              readOnly
-              style={{ background: '#eee' }}
-            />
-          </div>
-          {/* 일부 공유 */}
-          <div className='side-box side-share'>
-            <div className='side-title'>
-              일부 공유
-              <button className='side-view-btn'>보기</button>
-              <button className='side-setting-btn'>설정 ▼</button>
-            </div>
-          </div>
-          <div className='side-box'>
-            <button
-              className={`btn dark${shareType === '전체' ? ' active' : ''}`}
-              onClick={() => setShareType('전체')}
-              type='button'
-            >
-              전체공유
-            </button>
-            <button
-              className={`btn dark${shareType === '일부' ? ' active' : ''}`}
-              onClick={() => setShareType('일부')}
-              type='button'
-            >
-              일부공유
-            </button>
-          </div>
-          {/* 사원 검색 */}
-          <div className='side-box'>
-            <div className='side-row'>
-              <label>사원</label>
-              <input
-                className='side-input'
-                placeholder='사원명을 입력하세요'
-                value={searchEmp}
-                onChange={(e) => setSearchEmp(e.target.value)}
-              />
-              <button className='icon-search' type='button'>
-                🔍
-              </button>
-            </div>
-            <input className='side-input' style={{ marginTop: '0.7rem' }} />
-          </div>
         </div>
       </div>
 

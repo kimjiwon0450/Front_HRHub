@@ -79,6 +79,21 @@ export default function EmployeeList() {
     }
   };
 
+  // 인사평가 존재 여부 확인 후 평가화면 이동
+  const handleEvalWithCheck = async () => {
+    if (!selectedDetail || !selectedDetail.employeeId) return;
+    try {
+      await axiosInstance.get(
+        `${API_BASE_URL}${HR_SERVICE}/evaluation/${selectedDetail.employeeId}`,
+      );
+      // 평가가 이미 존재하면 alert만 띄우고 이동하지 않음
+      alert('이미 인사평가가 존재합니다.');
+    } catch (error) {
+      // 평가가 없으면 평가화면으로 이동
+      setMode('eval');
+    }
+  };
+
   // Edit/Eval 화면 종료 시 목록+상세 복귀
   const handleClose = () => setMode('list');
   const handleEdit = () => setMode('edit');
@@ -238,7 +253,8 @@ export default function EmployeeList() {
           <EmployeeDetail
             employee={selectedDetail}
             onEdit={handleEdit}
-            onEval={handleEval}
+            onEval={handleEvalWithCheck}
+            onClose={handleClose}
           />
         </div>
       )}
