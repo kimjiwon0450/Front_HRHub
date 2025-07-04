@@ -56,6 +56,8 @@
 
 .eval-main {
   display: flex;
+  justify-content: center;
+  align-items: flex-start;
   gap: 2.6rem;
 }
 
@@ -68,6 +70,7 @@
   background: #fafbfc;
   min-width: 550px;
   max-width: 700px;
+  margin: 0 auto;
   .eval-form-title {
     font-size: 1.13rem;
     font-weight: bold;

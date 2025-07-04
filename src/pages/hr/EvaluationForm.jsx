@@ -45,6 +45,9 @@ export default function EvaluationForm({ employee, onClose }) {
     comment: '',
   });
 
+  // 평가자 이름 상태 추가
+  const [evaluatorName, setEvaluatorName] = useState('');
+
   console.log(employee, '여기임');
 
   useEffect(() => {
@@ -57,10 +60,21 @@ export default function EvaluationForm({ employee, onClose }) {
     }
   }, [employee]);
 
-  // 사이드 패널 상태
-  const [approval, setApproval] = useState('박지수(인사)');
-  const [shareType, setShareType] = useState('전체');
-  const [searchEmp, setSearchEmp] = useState('');
+  // 평가자 이름 조회
+  useEffect(() => {
+    async function fetchEvaluatorName() {
+      if (!userId) return;
+      try {
+        const res = await axiosInstance.get(
+          `${API_BASE_URL}${HR_SERVICE}/employees/${userId}/name`,
+        );
+        setEvaluatorName(res.data.result);
+      } catch (error) {
+        setEvaluatorName('');
+      }
+    }
+    fetchEvaluatorName();
+  }, [userId]);
 
   // 별점
   const handleStar = (key, val) =>
@@ -93,7 +107,6 @@ export default function EvaluationForm({ employee, onClose }) {
   // 제출 등 이벤트 (실제 로직 연결 가능)
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(form);
     try {
       await axiosInstance.post(
         `${API_BASE_URL}${HR_SERVICE}/evaluation/${employee.employeeId}`,
@@ -107,10 +120,11 @@ export default function EvaluationForm({ employee, onClose }) {
             problem: form.template.problem,
           }),
           comment: form.comment,
-          total_evaluation: Number(avg),
+          totalEvaluation: Number(avg),
           interviewDate: form.date,
         },
       );
+      alert('평가등록 완료');
       if (onClose) onClose();
     } catch (error) {
       alert('제출 실패: ' + (error.response?.data?.message || error.message));
@@ -135,13 +149,6 @@ export default function EvaluationForm({ employee, onClose }) {
           ◀
         </button>
         <div className='eval-title'>인사평가표</div>
-        <div className='eval-searchbar'>
-          <select>
-            <option>전체</option>
-          </select>
-          <input type='text' placeholder='검색' />
-          <button className='icon-search'>🔍</button>
-        </div>
       </div>
 
       <div className='eval-main'>
@@ -189,6 +196,15 @@ export default function EvaluationForm({ employee, onClose }) {
                 </button>
               </div>
             </div>
+            <div className='eval-field'>
+              <label>평가자</label>
+              <input
+                type='text'
+                name='evaluator'
+                value={evaluatorName || ''}
+                readOnly
+              />
+            </div>
             <div className='eval-field stars'>
               <label>리더십</label>
               <StarRating
@@ -231,68 +247,6 @@ export default function EvaluationForm({ employee, onClose }) {
             </div>
           </form>
         </div>
-
-        {/* 오른쪽 사이드 패널 */}
-        <div className='eval-side-panel'>
-          {/* 결재선 */}
-          <div className='side-box side-approval'>
-            <div className='side-title'>
-              결재선
-              <button className='side-view-btn'>보기</button>
-              <button className='side-setting-btn'>설정 ▼</button>
-            </div>
-          </div>
-          {/* 참조 */}
-          <div className='side-box side-reference'>
-            <div className='side-title'>참조</div>
-            <input
-              className='side-input'
-              value={approval}
-              readOnly
-              style={{ background: '#eee' }}
-            />
-          </div>
-          {/* 일부 공유 */}
-          <div className='side-box side-share'>
-            <div className='side-title'>
-              일부 공유
-              <button className='side-view-btn'>보기</button>
-              <button className='side-setting-btn'>설정 ▼</button>
-            </div>
-          </div>
-          <div className='side-box'>
-            <button
-              className={`btn dark${shareType === '전체' ? ' active' : ''}`}
-              onClick={() => setShareType('전체')}
-              type='button'
-            >
-              전체공유
-            </button>
-            <button
-              className={`btn dark${shareType === '일부' ? ' active' : ''}`}
-              onClick={() => setShareType('일부')}
-              type='button'
-            >
-              일부공유
-            </button>
-          </div>
-          {/* 사원 검색 */}
-          <div className='side-box'>
-            <div className='side-row'>
-              <label>사원</label>
-              <input
-                className='side-input'
-                placeholder='사원명을 입력하세요'
-                value={searchEmp}
-                onChange={(e) => setSearchEmp(e.target.value)}
-              />
-              <button className='icon-search' type='button'>
-                🔍
-              </button>
-            </div>
-            <input className='side-input' style={{ marginTop: '0.7rem' }} />
-          </div>
-        </div>
       </div>
 
       {/* 하단 버튼 */}
@@ -307,7 +261,7 @@ export default function EvaluationForm({ employee, onClose }) {
           임시저장
         </button>
         <button className='btn blue' type='button' onClick={handleSubmit}>
-          결재상신
+          평가등록
         </button>
       </div>
     </div>

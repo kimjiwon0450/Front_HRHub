@@ -4,16 +4,17 @@ import { API_BASE_URL } from '../configs/host-config';
 
 export const UserContext = React.createContext({
   isLoggedIn: false,
-  onLogin: () => {},
-  onLogout: () => {},
+  onLogin: () => { },
+  onLogout: () => { },
   userRole: '',
   userName: '',
   badge: null,
-  setBadge: () => {},
+  setBadge: () => { },
   userId: null,
   userImage: '', // 유저 프로필사진
-  setUserImage: () => {},
+  setUserImage: () => { },
   isInit: false,
+  accessToken: '',
 });
 
 export const UserContextProvider = (props) => {
@@ -25,10 +26,13 @@ export const UserContextProvider = (props) => {
   const [isInit, setIsInit] = useState(false);
   const [userImage, setUserImage] = useState('');
   const [departmentId, setDepartmentId] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
 
   // 로그인 함수: 상태 + 배지까지 한 번에처리리
   const loginHandler = async (loginData) => {
     console.log('[loginHandler] 로그인 응답 데이터:', loginData);
+    console.log(`[accessToken]: Bearer ${loginData.token}`);
+
 
     // 로컬스토리지 저장
     localStorage.setItem('ACCESS_TOKEN', loginData.token);
@@ -39,12 +43,15 @@ export const UserContextProvider = (props) => {
     localStorage.setItem('USER_DEPARTMENT_ID', loginData.departmentId);
 
     // 상태저장
+    console.log("loginData : ", loginData);
     setIsLoggedIn(true);
     setUserId(loginData.id);
     setUserRole(loginData.role);
     setUserName(loginData.name);
     setUserImage(loginData.profileImage);
     setDepartmentId(loginData.departmentId);
+    setAccessToken(loginData.token);
+
   };
 
   const logoutHandler = () => {
@@ -70,6 +77,7 @@ export const UserContextProvider = (props) => {
       const storedDepartmentId = localStorage.getItem('USER_DEPARTMENT_ID');
 
       setIsLoggedIn(true);
+      setAccessToken(storedToken);
       setUserId(storedId);
       setUserRole(storedRole);
       setUserName(storedName);
@@ -109,6 +117,7 @@ export const UserContextProvider = (props) => {
         userImage,
         setUserImage,
         isInit,
+        accessToken,
       }}
     >
       {props.children}
@@ -116,4 +125,3 @@ export const UserContextProvider = (props) => {
   );
 };
 
-export default UserContext;

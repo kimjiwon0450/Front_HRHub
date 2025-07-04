@@ -15,7 +15,7 @@ export default function EmployeeViewList() {
   const [searchDept, setSearchDept] = useState('전체');
   const [evaluation, setEvaluation] = useState(null);
   const [showEvaluationForm, setShowEvaluationForm] = useState(false);
-  const DEPT_LIST = ['전체', '마케팅', '디자인', '인사'];
+  const [departments, setDepartments] = useState([]);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
@@ -53,6 +53,20 @@ export default function EmployeeViewList() {
     getLatestEvaluation(selectedId);
     // eslint-disable-next-line
   }, [selectedId]);
+
+  useEffect(() => {
+    async function fetchDepartments() {
+      try {
+        const res = await axiosInstance.get(
+          `${API_BASE_URL}${HR_SERVICE}/departments`,
+        );
+        setDepartments(res.data.result || []);
+      } catch (err) {
+        setDepartments([]);
+      }
+    }
+    fetchDepartments();
+  }, []);
 
   // 최신 인사평가 불러오기 (예시: /hr-service/evaluations/latest/{employeeId})
   const getLatestEvaluation = async (id) => {
@@ -131,9 +145,10 @@ export default function EmployeeViewList() {
             onChange={(e) => setSearchDept(e.target.value)}
             className='emp-search-dept'
           >
-            {DEPT_LIST.map((dept) => (
-              <option value={dept} key={dept}>
-                {dept}
+            <option value='전체'>전체</option>
+            {departments.map((dept) => (
+              <option value={dept.name} key={dept.id}>
+                {dept.name}
               </option>
             ))}
           </select>
