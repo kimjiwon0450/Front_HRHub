@@ -11,7 +11,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   const [showEdit, setShowEdit] = useState(false);
   const [showEval, setShowEval] = useState(false);
   const [localEmployee, setLocalEmployee] = useState(employee);
-  const [imageUri, setImageUri] = useState(employee.profileImageUri);
+  const [imageUri, setImageUri] = useState('');
   const fileInputRef = useRef(null);
 
   const handleProfileImageClick = () => {
@@ -20,22 +20,26 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
 
   const uploadFile = (e) => {
     let fileArr = e.target.files;
-    console.log(fileArr[0]);
 
     const formData = new FormData();
 
     formData.append('targetEmail', employee.email);
     formData.append('file', fileArr[0]);
 
-    axiosInstance.post(`${API_BASE_URL}${HR_SERVICE}/profileImage`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    axiosInstance
+      .post(`${API_BASE_URL}${HR_SERVICE}/profileImage`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((res) => {
+        setImageUri(res.data);
+      });
   };
 
   useEffect(() => {
     setLocalEmployee(employee);
+    setImageUri(employee.profileImageUri);
   }, [employee]);
 
   console.log(employee);
@@ -105,14 +109,17 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
     );
   }
 
+  console.log('imageUri', imageUri);
+
   return (
     <>
       <div className='emp-detail-root'>
         <div className='emp-detail-main'>
           <div className='emp-profile'>
             <input type='file' ref={fileInputRef} onChange={uploadFile} />
+            {console.log('imageUri', imageUri)}
             <img
-              src={employee.profileImageUri ? employee.profileImageUri : pin}
+              src={imageUri ? imageUri : pin}
               alt='profile'
               onClick={handleProfileImageClick}
             />
