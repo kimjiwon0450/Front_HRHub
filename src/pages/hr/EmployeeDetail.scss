@@ -34,6 +34,15 @@
       background: #f2f4f8;
       object-fit: cover;
       margin-right: 1.2rem;
+      cursor: pointer;
+    }
+
+    input {
+      display: none;
+    }
+
+    img:hover {
+      opacity: 0.8;
     }
   }
 

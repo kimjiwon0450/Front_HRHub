@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './EmployeeDetail.scss';
 import HRHeader from './HRHeader';
 import EmployeeEdit from './EmployeeEdit';
@@ -11,6 +11,28 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   const [showEdit, setShowEdit] = useState(false);
   const [showEval, setShowEval] = useState(false);
   const [localEmployee, setLocalEmployee] = useState(employee);
+  const [imageUri, setImageUri] = useState(employee.profileImageUri);
+  const fileInputRef = useRef(null);
+
+  const handleProfileImageClick = () => {
+    fileInputRef.current.click(); /// 여기여기
+  };
+
+  const uploadFile = (e) => {
+    let fileArr = e.target.files;
+    console.log(fileArr[0]);
+
+    const formData = new FormData();
+
+    formData.append('targetEmail', employee.email);
+    formData.append('file', fileArr[0]);
+
+    axiosInstance.post(`${API_BASE_URL}${HR_SERVICE}/profileImage`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  };
 
   useEffect(() => {
     setLocalEmployee(employee);
@@ -69,6 +91,8 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
     }
   };
 
+  console.log('프로필사진', employee.profileImageUri);
+
   // 두 컴포넌트 중 하나라도 활성화되면 해당 컴포넌트만 표시
   if (showEdit) {
     return (
@@ -86,9 +110,11 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
       <div className='emp-detail-root'>
         <div className='emp-detail-main'>
           <div className='emp-profile'>
+            <input type='file' ref={fileInputRef} onChange={uploadFile} />
             <img
               src={employee.profileImageUri ? employee.profileImageUri : pin}
               alt='profile'
+              onClick={handleProfileImageClick}
             />
           </div>
           <table className='emp-info-table'>
