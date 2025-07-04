@@ -94,6 +94,7 @@ const NoticeBoardDetail = () => {
                 <p>작성자 : {post.name}</p>
                 <p>부서: {post.departmentName}</p>
                 <p>등록일: {post.createdAt?.substring(0, 10)}</p>
+                <p>조회수: {post.viewCount}</p>
             </div>
             <hr />
             <div className="content">{post.content}</div>
