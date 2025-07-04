@@ -45,6 +45,9 @@ export default function EvaluationForm({ employee, onClose }) {
     comment: '',
   });
 
+  // 평가자 이름 상태 추가
+  const [evaluatorName, setEvaluatorName] = useState('');
+
   console.log(employee, '여기임');
 
   useEffect(() => {
@@ -56,6 +59,22 @@ export default function EvaluationForm({ employee, onClose }) {
       }));
     }
   }, [employee]);
+
+  // 평가자 이름 조회
+  useEffect(() => {
+    async function fetchEvaluatorName() {
+      if (!userId) return;
+      try {
+        const res = await axiosInstance.get(
+          `${API_BASE_URL}${HR_SERVICE}/employees/${userId}/name`,
+        );
+        setEvaluatorName(res.data.result);
+      } catch (error) {
+        setEvaluatorName('');
+      }
+    }
+    fetchEvaluatorName();
+  }, [userId]);
 
   // 사이드 패널 상태
   const [approval, setApproval] = useState('박지수(인사)');
@@ -93,7 +112,6 @@ export default function EvaluationForm({ employee, onClose }) {
   // 제출 등 이벤트 (실제 로직 연결 가능)
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(form);
     try {
       await axiosInstance.post(
         `${API_BASE_URL}${HR_SERVICE}/evaluation/${employee.employeeId}`,
@@ -107,10 +125,11 @@ export default function EvaluationForm({ employee, onClose }) {
             problem: form.template.problem,
           }),
           comment: form.comment,
-          total_evaluation: Number(avg),
+          totalEvaluation: Number(avg),
           interviewDate: form.date,
         },
       );
+      alert('평가등록 완료');
       if (onClose) onClose();
     } catch (error) {
       alert('제출 실패: ' + (error.response?.data?.message || error.message));
@@ -188,6 +207,15 @@ export default function EvaluationForm({ employee, onClose }) {
                   🗓️
                 </button>
               </div>
+            </div>
+            <div className='eval-field'>
+              <label>평가자</label>
+              <input
+                type='text'
+                name='evaluator'
+                value={evaluatorName || ''}
+                readOnly
+              />
             </div>
             <div className='eval-field stars'>
               <label>리더십</label>
@@ -307,7 +335,7 @@ export default function EvaluationForm({ employee, onClose }) {
           임시저장
         </button>
         <button className='btn blue' type='button' onClick={handleSubmit}>
-          결재상신
+          평가등록
         </button>
       </div>
     </div>

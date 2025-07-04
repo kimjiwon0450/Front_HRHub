@@ -32,11 +32,13 @@ export default function EvaluationView({ evaluation, onClose }) {
   const [employeeName, setEmployeeName] = useState('');
   const [employeeDept, setEmployeeDept] = useState('');
   const [approverName, setApproverName] = useState('');
+  const [evaluatorName, setEvaluatorName] = useState('');
 
   useEffect(() => {
     getEmployeeName();
     getEmployeeDept();
     getApproverName();
+    fetchEvaluatorName();
   }, []);
 
   const getEmployeeName = async () => {
@@ -73,30 +75,20 @@ export default function EvaluationView({ evaluation, onClose }) {
     }
   };
 
+  const fetchEvaluatorName = async () => {
+    if (!evaluation.evaluatorId) return;
+    try {
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${HR_SERVICE}/employees/${evaluation.evaluatorId}/name`,
+      );
+      setEvaluatorName(res.data.result);
+    } catch (error) {
+      setEvaluatorName('');
+    }
+  };
+
   return (
     <div className='eval-root'>
-      {/* 결재선 표 추가 */}
-      <div className='approval-table-wrapper'>
-        <table className='approval-table'>
-          <tbody>
-            <tr>
-              <td rowSpan={3} className='approval-title'>
-                결재
-              </td>
-              <td className='approval-label'>참조/승인</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td className='approval-label'>(서명)</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td className='approval-label'>{approverName}</td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
       <div className='eval-header'>
         <button className='back-btn' onClick={onClose}>
           ◀
@@ -121,6 +113,15 @@ export default function EvaluationView({ evaluation, onClose }) {
               <label>면담일시</label>
               <input type='text' value={evaluation.interviewDate} readOnly />
             </div>
+            <div className='eval-field'>
+              <label>평가자</label>
+              <input
+                type='text'
+                name='evaluator'
+                value={evaluatorName || ''}
+                readOnly
+              />
+            </div>
             <div className='eval-field stars'>
               <label>리더십</label>
               <StarRatingView value={evaluation.template.leadership} />
@@ -143,7 +144,7 @@ export default function EvaluationView({ evaluation, onClose }) {
             </div>
             <div className='eval-field avg'>
               <span>평균 점수</span>
-              <span className='avg-score'>{evaluation.total_evaluation}</span>
+              <span className='avg-score'>{evaluation.totalEvaluation}</span>
             </div>
           </form>
         </div>

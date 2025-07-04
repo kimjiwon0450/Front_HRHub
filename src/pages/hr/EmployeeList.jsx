@@ -7,8 +7,7 @@ import './EmployeeList.scss';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 
-// 부서 목록 (예시, 실제는 서버에서 받아올 수도 있음)
-const DEPT_LIST = ['전체', '마케팅', '디자인', '인사'];
+// 부서 목록을 서버에서 받아옴
 
 export default function EmployeeList() {
   // 'list', 'edit', 'eval' 중 하나
@@ -16,6 +15,7 @@ export default function EmployeeList() {
   const [selectedId, setSelectedId] = useState(null);
   const [selectedDetail, setSelectedDetail] = useState({});
   const [employees, setEmployees] = useState([]);
+  const [departments, setDepartments] = useState([]);
 
   // 검색/필터 state
   const [searchField, setSearchField] = useState('name');
@@ -110,6 +110,21 @@ export default function EmployeeList() {
     }
   };
 
+  // 부서 목록 불러오기
+  useEffect(() => {
+    async function fetchDepartments() {
+      try {
+        const res = await axiosInstance.get(
+          `${API_BASE_URL}${HR_SERVICE}/departments`,
+        );
+        setDepartments(res.data.result || []);
+      } catch (err) {
+        setDepartments([]);
+      }
+    }
+    fetchDepartments();
+  }, []);
+
   // 수정/평가 화면 분기
   if (mode === 'edit')
     return <EmployeeEdit employee={selectedDetail} onClose={handleClose} />;
@@ -146,9 +161,10 @@ export default function EmployeeList() {
             onChange={(e) => setSearchDept(e.target.value)}
             className='emp-search-dept'
           >
-            {DEPT_LIST.map((dept) => (
-              <option value={dept} key={dept}>
-                {dept}
+            <option value='전체'>전체</option>
+            {departments.map((dept) => (
+              <option value={dept.name} key={dept.id}>
+                {dept.name}
               </option>
             ))}
           </select>
