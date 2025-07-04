@@ -11,6 +11,7 @@ export const UserContext = React.createContext({
   badge: null,
   setBadge: () => { },
   userId: null,
+  departmentId: null,
   userImage: '', // 유저 프로필사진
   setUserImage: () => { },
   isInit: false,

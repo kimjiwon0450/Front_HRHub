@@ -38,6 +38,8 @@ const AppRouter = () => {
         <Route path='/schedule' element={<></>} />
         <Route path='/attendance' element={<></>} />
         <Route path='/noticeboard' element={<NoticeBoardList />} />
+        <Route path='/noticeboard/my' element={<NoticeBoardList />} />
+        <Route path='/noticeboard/mydepartment' element={<NoticeBoardList />} />
         <Route path='/noticeboard/write' element={<NoticeBoardWrite />} />
         <Route path='/noticeboard/:id' element={<NoticeBoardDetail />} />
         <Route path='/mail' element={<></>} />
