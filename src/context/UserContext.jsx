@@ -4,16 +4,16 @@ import { API_BASE_URL } from '../configs/host-config';
 
 export const UserContext = React.createContext({
   isLoggedIn: false,
-  onLogin: () => { },
-  onLogout: () => { },
+  onLogin: () => {},
+  onLogout: () => {},
   userRole: '',
   userName: '',
   badge: null,
-  setBadge: () => { },
+  setBadge: () => {},
   userId: null,
   departmentId: null,
   userImage: '', // 유저 프로필사진
-  setUserImage: () => { },
+  setUserImage: () => {},
   isInit: false,
   accessToken: '',
 });
@@ -34,7 +34,6 @@ export const UserContextProvider = (props) => {
     console.log('[loginHandler] 로그인 응답 데이터:', loginData);
     console.log(`[accessToken]: Bearer ${loginData.token}`);
 
-
     // 로컬스토리지 저장
     localStorage.setItem('ACCESS_TOKEN', loginData.token);
     localStorage.setItem('USER_ID', loginData.id);
@@ -44,15 +43,14 @@ export const UserContextProvider = (props) => {
     localStorage.setItem('USER_DEPARTMENT_ID', loginData.departmentId);
 
     // 상태저장
-    console.log("loginData : ", loginData);
+    console.log('loginData : ', loginData);
     setIsLoggedIn(true);
     setUserId(loginData.id);
     setUserRole(loginData.role);
     setUserName(loginData.name);
-    setUserImage(loginData.profileImage);
+    setUserImage(loginData.profileImageUri || loginData.profileImage || '');
     setDepartmentId(loginData.departmentId);
     setAccessToken(loginData.token);
-
   };
 
   const logoutHandler = () => {
@@ -125,4 +123,3 @@ export const UserContextProvider = (props) => {
     </UserContext.Provider>
   );
 };
-
