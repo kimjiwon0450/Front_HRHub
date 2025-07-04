@@ -34,6 +34,19 @@
       background: #f2f4f8;
       object-fit: cover;
       margin-right: 1.2rem;
+      cursor: pointer;
+
+      &.disabled {
+        cursor: default;
+      }
+    }
+
+    input {
+      display: none;
+    }
+
+    img:hover:not(.disabled) {
+      opacity: 0.8;
     }
   }
 
