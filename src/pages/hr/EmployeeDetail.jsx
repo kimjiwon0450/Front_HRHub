@@ -5,6 +5,7 @@ import EmployeeEdit from './EmployeeEdit';
 import EvaluationForm from './EvaluationForm';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
+import pin from '../../assets/pin.jpg';
 
 export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   const [showEdit, setShowEdit] = useState(false);
@@ -85,7 +86,10 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
       <div className='emp-detail-root'>
         <div className='emp-detail-main'>
           <div className='emp-profile'>
-            <img src={employee.profileImageUri} alt='profile' />
+            <img
+              src={employee.profileImageUri ? employee.profileImageUri : pin}
+              alt='profile'
+            />
           </div>
           <table className='emp-info-table'>
             <tbody>
