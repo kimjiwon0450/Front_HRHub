@@ -16,9 +16,11 @@ import EvaluationForm from '../pages/hr/EvaluationForm';
 import NoticeBoardList from '../pages/NoticeBoard/NoticeBoardList';
 import NoticeBoardWrite from '../pages/NoticeBoard/NoticeBoardWrite';
 import NoticeBoardDetail from '../pages/NoticeBoard/NoticeBoardDetail';
+import { UserContext } from '../context/UserContext'; // UserContext를 import
 
 const AppRouter = () => {
   const { userRole } = useContext(UserContext); // private 라우터를 이용하기 위해 추가(하준)
+
 
   return (
     <Routes>
