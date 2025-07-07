@@ -1,33 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import EmployeeDetail from './EmployeeDetail';
-import EmployeeEdit from './EmployeeEdit';
-import EvaluationForm from './EvaluationForm';
 import HRHeader from './HRHeader';
 import './EmployeeList.scss';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
+import EvaluationView from './EvaluationView';
+import EvaluationForm from './EvaluationForm';
 
-// 부서 목록을 서버에서 받아옴
-
-export default function EmployeeList() {
-  // 'list', 'edit', 'eval' 중 하나
-  const [mode, setMode] = useState('list');
+export default function EmployeeViewList() {
   const [selectedId, setSelectedId] = useState(null);
   const [selectedDetail, setSelectedDetail] = useState({});
   const [employees, setEmployees] = useState([]);
-  const [departments, setDepartments] = useState([]);
-
-  // 검색/필터 state
   const [searchField, setSearchField] = useState('name');
   const [searchText, setSearchText] = useState('');
   const [searchDept, setSearchDept] = useState('전체');
-
-  // 페이징 state
+  const [evaluation, setEvaluation] = useState(null);
+  const [showEvaluationForm, setShowEvaluationForm] = useState(false);
+  const [departments, setDepartments] = useState([]);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
-  // 서버에서 직원 목록 조회 (필터 포함)
   const getEmployeeList = async ({
     field = searchField,
     keyword = searchText,
@@ -51,81 +43,17 @@ export default function EmployeeList() {
     }
   };
 
-  // 최초 1회
   useEffect(() => {
     getEmployeeList({ page, size });
     // eslint-disable-next-line
   }, [page, size]);
 
-  // 직원 선택시 상세 조회
   useEffect(() => {
     if (selectedId == null) return;
-    getEmployeeDetail(selectedId);
+    getLatestEvaluation(selectedId);
     // eslint-disable-next-line
   }, [selectedId]);
 
-  // 직원 상세정보 조회
-  const getEmployeeDetail = async (id) => {
-    try {
-      const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees/${id}`,
-      );
-      setSelectedDetail({
-        ...res.data.result,
-        department: employees.find((e) => e.id === id)?.department,
-      });
-    } catch (error) {
-      alert(error.response?.data || '시스템에러');
-    }
-  };
-
-  // 인사평가 존재 여부 확인 후 평가화면 이동
-  const handleEvalWithCheck = async () => {
-    if (!selectedDetail || !selectedDetail.employeeId) return;
-    try {
-      await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/evaluation/${selectedDetail.employeeId}`,
-      );
-      // 평가가 이미 존재하면 alert만 띄우고 이동하지 않음
-      alert('이미 인사평가가 존재합니다.');
-    } catch (error) {
-      // 평가가 없으면 평가화면으로 이동
-      setMode('eval');
-    }
-  };
-
-  // Edit/Eval 화면 종료 시 목록+상세 복귀
-  const handleClose = () => setMode('list');
-  const handleEdit = () => setMode('edit');
-  const handleEval = () => setMode('eval');
-
-  // 검색 버튼 or 폼 submit시
-  const handleSearch = (e) => {
-    e.preventDefault();
-    getEmployeeList({
-      field: searchField,
-      keyword: searchText,
-      department: searchDept,
-    });
-    setSelectedId(null); // 검색하면 상세 닫기
-  };
-
-  // 초기화
-  const handleReset = () => {
-    setSearchField('name');
-    setSearchText('');
-    setSearchDept('전체');
-    getEmployeeList({ field: 'name', keyword: '', department: '전체' });
-    setSelectedId(null);
-  };
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 0 && newPage < totalPages) {
-      setPage(newPage);
-    }
-  };
-
-  // 부서 목록 불러오기
   useEffect(() => {
     async function fetchDepartments() {
       try {
@@ -140,19 +68,60 @@ export default function EmployeeList() {
     fetchDepartments();
   }, []);
 
-  // 수정/평가 화면 분기
-  if (mode === 'edit')
-    return <EmployeeEdit employee={selectedDetail} onClose={handleClose} />;
-  if (mode === 'eval')
-    return <EvaluationForm employee={selectedDetail} onClose={handleClose} />;
+  // 최신 인사평가 불러오기 (예시: /hr-service/evaluations/latest/{employeeId})
+  const getLatestEvaluation = async (id) => {
+    try {
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${HR_SERVICE}/evaluation/${id}`,
+      );
+      setEvaluation(res.data.result);
+    } catch (error) {
+      setEvaluation(null);
+      alert('인사평가 정보가 없습니다.');
+    }
+  };
 
-  // 기본(리스트/상세)
+  const handleClose = () => {
+    setSelectedId(null);
+    setEvaluation(null);
+    setShowEvaluationForm(false);
+  };
+
+  const handleEvaluate = (employee) => {
+    setShowEvaluationForm(true);
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    getEmployeeList({
+      field: searchField,
+      keyword: searchText,
+      department: searchDept,
+    });
+    setSelectedId(null);
+    setEvaluation(null);
+  };
+
+  const handleReset = () => {
+    setSearchField('name');
+    setSearchText('');
+    setSearchDept('전체');
+    getEmployeeList({ field: 'name', keyword: '', department: '전체' });
+    setSelectedId(null);
+    setEvaluation(null);
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setPage(newPage);
+    }
+  };
+
   return (
     <>
       <HRHeader />
       <div className='emp-list-root'>
-        <h2 className='emp-list-title'>직원 목록</h2>
-        {/* 검색/필터 영역 */}
+        <h2 className='emp-list-title'>직원 인사조회</h2>
         <form className='emp-search-bar' onSubmit={handleSearch}>
           <select
             value={searchField}
@@ -246,18 +215,13 @@ export default function EmployeeList() {
             다음
           </button>
         </div>
+        {selectedId && !showEvaluationForm && evaluation && (
+          <EvaluationView evaluation={evaluation} onClose={handleClose} />
+        )}
+        {showEvaluationForm && (
+          <EvaluationForm employee={selectedDetail} onClose={handleClose} />
+        )}
       </div>
-      {/* 상세 정보는 선택 시 하단에만 노출 */}
-      {selectedId && (
-        <div className='emp-detail-below'>
-          <EmployeeDetail
-            employee={selectedDetail}
-            onEdit={handleEdit}
-            onEval={handleEvalWithCheck}
-            onClose={handleClose}
-          />
-        </div>
-      )}
     </>
   );
 }

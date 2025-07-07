@@ -70,6 +70,8 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
       }
     }
+    // 여기에 반드시 추가!
+    return Promise.reject(error);
   },
 );
 

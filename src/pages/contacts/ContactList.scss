@@ -1,0 +1,126 @@
+.contact-root {
+  display: flex;
+  height: 100%;
+  background: #fff;
+}
+.contact-org {
+  width: 220px;
+  border-right: 1px solid #ddd;
+  padding: 24px 12px;
+  background: #fafbfc;
+}
+.contact-org h3 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+.contact-org ul {
+  list-style: none;
+  padding: 0;
+}
+.contact-org li {
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.contact-org li.selected,
+.contact-org li:hover {
+  background: #e6f0ff;
+  font-weight: bold;
+}
+.contact-main {
+  flex: 1;
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+}
+.contact-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.contact-search select,
+.contact-search input {
+  padding: 6px 10px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+}
+.contact-search button {
+  padding: 6px 16px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.contact-sort {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.contact-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 18px;
+}
+.contact-card {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 18px 20px;
+  background: #fff;
+  min-height: 110px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+.contact-profile {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  margin-right: 18px;
+}
+.contact-info b {
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 4px;
+}
+.contact-info span {
+  font-size: 0.95rem;
+  color: #1976d2;
+  margin-left: 6px;
+}
+.contact-info div {
+  font-size: 0.97rem;
+  color: #444;
+}
+.no-result {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #888;
+  padding: 32px 0;
+}
+.contact-pagination {
+  text-align: center;
+}
+.contact-pagination button {
+  margin: 0 3px;
+  padding: 4px 12px;
+  border: 1px solid #bbb;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.contact-pagination button.active {
+  background: #1976d2;
+  color: #fff;
+  border-color: #1976d2;
+}

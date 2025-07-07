@@ -12,7 +12,7 @@ const NoticeBoardWrite = () => {
         id: 1,
         name: '관리자',
         role: 'ADMIN' // 또는 'USER'
-        };
+    };
 
     const handleSubmit = async () => {
         const formData = new FormData();
@@ -21,11 +21,11 @@ const NoticeBoardWrite = () => {
             content,
             isNotice: type === 'notice',
         };
-        formData.append("data", new Blob([JSON.stringify(noticeData)], { type: "application/json" }));
-        if (file) formData.append("file", file);
+        formData.append("data", new Blob([JSON.stringify({ title, content, isNotice: type === 'notice' })], { type: "application/json" }));
+        files.forEach((f) => formData.append("files", f));
 
         try {
-            const res = await axios.post('/api/noticeboard/write', formData, {
+            await axios.post('/api/noticeboard/write', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${yourAccessToken}`,
@@ -33,12 +33,12 @@ const NoticeBoardWrite = () => {
                 withCredentials: true,
             });
             alert('저장되었습니다!');
+            window.location.href = '/board'; // 게시판으로 이동
         } catch (err) {
             console.error(err);
             alert('저장 실패');
         }
     };
-
 
     return (
         <div className="notice-write">
@@ -82,7 +82,7 @@ const NoticeBoardWrite = () => {
             </div>
 
             <div className="attachments">
-                <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+                <input type="file" multiple onChange={(e) => setFiles([...e.target.files])} />
             </div>
 
             <div className="buttons">

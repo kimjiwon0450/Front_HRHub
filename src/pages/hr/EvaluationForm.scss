@@ -56,6 +56,8 @@
 
 .eval-main {
   display: flex;
+  justify-content: center;
+  align-items: flex-start;
   gap: 2.6rem;
 }
 
@@ -68,6 +70,7 @@
   background: #fafbfc;
   min-width: 550px;
   max-width: 700px;
+  margin: 0 auto;
   .eval-form-title {
     font-size: 1.13rem;
     font-weight: bold;
@@ -291,4 +294,36 @@
   .eval-side-panel {
     min-width: 0;
   }
+}
+
+.approval-table-wrapper {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.approval-table {
+  border-collapse: collapse;
+  min-width: 350px;
+  font-size: 1rem;
+  background: #fff;
+}
+
+.approval-table td {
+  border: 1.5px solid #222;
+  padding: 0.7em 1.2em;
+  text-align: center;
+  min-width: 80px;
+}
+
+.approval-title {
+  font-weight: bold;
+  font-size: 1.15em;
+  background: #f7f7f7;
+  min-width: 60px;
+}
+
+.approval-label {
+  font-weight: 500;
+  background: #fafbfc;
 }

@@ -1,32 +1,168 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import HRHeader from './HRHeader';
 import './HRPage.scss';
+import { UserContext } from '../../context/UserContext';
+import axiosInstance from '../../configs/axios-config';
+import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
+import pin from '../../assets/pin.jpg';
 
 export default function HRPage() {
+  const { userName, userRole, userImage, departmentId, userId } =
+    useContext(UserContext);
+  const [departments, setDepartments] = useState([]);
+  const [departmentName, setDepartmentName] = useState('');
+  const [profileImageUri, setProfileImageUri] = useState('');
+
+  // 달력 상태 및 유틸
+  const today = new Date();
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+  const firstDay = new Date(year, month, 1).getDay(); // 0:일~6:토
+  const lastDate = new Date(year, month + 1, 0).getDate();
+  // 달력은 월요일 시작(Mo=1)로 맞춤
+  const getCalendarMatrix = () => {
+    const matrix = [];
+    let day = 1;
+    let start = (firstDay + 6) % 7; // 일요일(0) -> 6, 월요일(1) -> 0
+    for (let i = 0; i < 6; i++) {
+      const row = [];
+      for (let j = 0; j < 7; j++) {
+        if ((i === 0 && j < start) || day > lastDate) {
+          row.push(null);
+        } else {
+          row.push(day++);
+        }
+      }
+      matrix.push(row);
+    }
+    return matrix;
+  };
+  const calendarMatrix = getCalendarMatrix();
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  const handlePrevMonth = () => {
+    setCalendarDate(new Date(year, month - 1, 1));
+  };
+  const handleNextMonth = () => {
+    setCalendarDate(new Date(year, month + 1, 1));
+  };
+
+  useEffect(() => {
+    async function fetchDepartments() {
+      try {
+        const res = await axiosInstance.get(
+          `${API_BASE_URL}${HR_SERVICE}/departments`,
+        );
+        setDepartments(res.data.result || []);
+      } catch (err) {
+        setDepartments([]);
+      }
+    }
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    if (!departmentId || !departments.length) {
+      setDepartmentName('');
+      return;
+    }
+    const found = departments.find(
+      (d) => String(d.id) === String(departmentId),
+    );
+    setDepartmentName(found ? found.name : '');
+  }, [departmentId, departments]);
+
+  useEffect(() => {
+    if (!userId) return;
+    async function fetchEmployee() {
+      try {
+        const res = await axiosInstance.get(
+          `${API_BASE_URL}${HR_SERVICE}/employees/${userId}`,
+        );
+        setProfileImageUri(res.data.result.profileImageUri || '');
+      } catch (err) {
+        setProfileImageUri('');
+      }
+    }
+    fetchEmployee();
+  }, [userId]);
+
   return (
     <div className='hrpage-root'>
       <HRHeader />
       {/* 유저 카드 + 검색/달력 */}
       <div className='hr-top'>
         <div className='hr-usercard'>
-          <div className='user-avatar' />
+          <div className='user-avatar'>
+            <img
+              src={profileImageUri ? profileImageUri : pin}
+              alt='profile'
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: '1rem',
+              }}
+            />
+          </div>
           <div className='user-meta'>
             <div className='user-name'>
-              <b>김지원</b> <span className='user-role'>관리자</span>
+              <b>{userName || '이름없음'}</b>{' '}
+              <span className='user-role'>{userRole || '직급없음'}</span>
             </div>
             <div className='user-desc'>
-              This is a wider card with supporting text below as a natural
-              lead-in to additional content. This content is a little bit
-              longer.
+              {departmentName ? `부서: ${departmentName}` : '부서 정보 없음'}
             </div>
             <div className='user-edit'>개인정보 수정</div>
           </div>
         </div>
         <div className='hr-tools'>
-          <input className='search-input' placeholder='임직원 검색' />
-          <button className='search-btn'>Search</button>
           <div className='calendar-mock'>
-            <div className='calendar-title'>October 2014</div>
+            <div
+              className='calendar-title'
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <button
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  fontSize: '1.1em',
+                  cursor: 'pointer',
+                }}
+                onClick={handlePrevMonth}
+              >
+                &lt;
+              </button>
+              {monthNames[month]} {year}
+              <button
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  fontSize: '1.1em',
+                  cursor: 'pointer',
+                }}
+                onClick={handleNextMonth}
+              >
+                &gt;
+              </button>
+            </div>
             <table>
               <thead>
                 <tr>
@@ -40,51 +176,29 @@ export default function HRPage() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td>1</td>
-                  <td>2</td>
-                  <td>3</td>
-                  <td>4</td>
-                  <td>5</td>
-                </tr>
-                <tr>
-                  <td>6</td>
-                  <td>7</td>
-                  <td>8</td>
-                  <td>9</td>
-                  <td>10</td>
-                  <td>11</td>
-                  <td>12</td>
-                </tr>
-                <tr>
-                  <td>13</td>
-                  <td>14</td>
-                  <td>15</td>
-                  <td>16</td>
-                  <td>17</td>
-                  <td>18</td>
-                  <td>19</td>
-                </tr>
-                <tr>
-                  <td>20</td>
-                  <td>21</td>
-                  <td>22</td>
-                  <td>23</td>
-                  <td>24</td>
-                  <td>25</td>
-                  <td>26</td>
-                </tr>
-                <tr>
-                  <td>27</td>
-                  <td>28</td>
-                  <td>29</td>
-                  <td>30</td>
-                  <td>31</td>
-                  <td></td>
-                  <td></td>
-                </tr>
+                {calendarMatrix.map((row, i) => (
+                  <tr key={i}>
+                    {row.map((date, j) => (
+                      <td
+                        key={j}
+                        style={
+                          date &&
+                          today.getFullYear() === year &&
+                          today.getMonth() === month &&
+                          today.getDate() === date
+                            ? {
+                                background: '#2b80ff',
+                                color: '#fff',
+                                borderRadius: '50%',
+                              }
+                            : undefined
+                        }
+                      >
+                        {date || ''}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -137,33 +251,8 @@ export default function HRPage() {
               </tbody>
             </table>
           </div>
-          {/* 휴가신청 */}
-          <div className='hr-card hr-tab-card'>
-            <div className='tabs'>
-              <button className='active'>휴가신청</button>
-              <div className='menu-icon'>≡</div>
-            </div>
-            <table className='mini-table'>
-              <thead>
-                <tr>
-                  <th>구분</th>
-                  <th>발생</th>
-                  <th>사용</th>
-                  <th>잔여</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>합계</td>
-                  <td className='text-accent'>0</td>
-                  <td>0</td>
-                  <td className='text-error'>0</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
           {/* 공지사항 */}
-          <div className='hr-card hr-tab-card'>
+          <div className='hr-card hr-tab-card' style={{ flex: 2 }}>
             <div className='tabs'>
               <button className='active'>공지사항</button>
               <div className='menu-icon'>≡</div>
