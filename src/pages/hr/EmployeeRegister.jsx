@@ -4,6 +4,7 @@ import HRHeader from './HRHeader';
 import axios from 'axios';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
+import { useNavigate } from 'react-router-dom';
 
 export default function EmployeeRegister() {
   const [departments, setDepartments] = useState([]);
@@ -19,6 +20,8 @@ export default function EmployeeRegister() {
   const [showDeptModal, setShowDeptModal] = useState(false);
   const [newDeptName, setNewDeptName] = useState('');
   const [isDeptLoading, setIsDeptLoading] = useState(false);
+  const [hireDate, setHireDate] = useState('');
+  const navigate = useNavigate();
 
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -49,7 +52,8 @@ export default function EmployeeRegister() {
       !birth.trim() ||
       !address.trim() ||
       !role.trim() ||
-      !phone.trim()
+      !phone.trim() ||
+      !hireDate.trim()
     ) {
       alert('필수 항목을 모두 입력해주세요.');
       return false;
@@ -81,16 +85,10 @@ export default function EmployeeRegister() {
         role,
         memo,
         isNewEmployee,
+        hireDate,
       });
       alert('등록 성공!');
-      // 폼 초기화(선택)
-      // setEmail('');
-      // setEmployeeName('');
-      // setBirth('');
-      // setAddress('');
-      // setRole('');
-      // setPhone('');
-      // setMemo('');
+      navigate('/hr/employee-list');
     } catch (error) {
       alert(error.response?.data?.statusMessage || '등록 실패');
     }
@@ -257,6 +255,16 @@ export default function EmployeeRegister() {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder='010-1234-5678'
                 maxLength={13}
+              />
+            </div>
+            <div>
+              <label className='reg-label'>입사일</label>
+              <input
+                className='reg-input'
+                type='date'
+                value={hireDate}
+                onChange={(e) => setHireDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
               />
             </div>
             <div>

@@ -24,7 +24,15 @@ function StarRatingView({ value }) {
   );
 }
 
-export default function EvaluationView({ evaluation, onClose }) {
+// 평가 항목 기본값
+const DEFAULT_CRITERIA = [
+  { key: 'leadership', label: '리더십' },
+  { key: 'creativity', label: '창의성' },
+  { key: 'cooperation', label: '협업능력' },
+  { key: 'problem', label: '문제해결능력' },
+];
+
+export default function EvaluationView({ evaluation, onClose, onEdit }) {
   // evaluation: {
   //   name, dept, date, leadership, creativity, cooperation, problem, comment, avg
   // }
@@ -122,26 +130,31 @@ export default function EvaluationView({ evaluation, onClose }) {
                 readOnly
               />
             </div>
-            <div className='eval-field stars'>
-              <label>리더십</label>
-              <StarRatingView value={evaluation.template.leadership} />
-            </div>
-            <div className='eval-field stars'>
-              <label>창의성</label>
-              <StarRatingView value={evaluation.template.creativity} />
-            </div>
-            <div className='eval-field stars'>
-              <label>협업능력</label>
-              <StarRatingView value={evaluation.template.cooperation} />
-            </div>
-            <div className='eval-field stars'>
-              <label>문제해결능력</label>
-              <StarRatingView value={evaluation.template.problem} />
-            </div>
+            {/* 평가 항목 동적 렌더링 */}
+            {Object.entries(evaluation.template).map(([key, value]) => {
+              const found = DEFAULT_CRITERIA.find((c) => c.key === key);
+              const label = found ? found.label : key;
+              return (
+                <div className='eval-field stars' key={key}>
+                  <label>{label}</label>
+                  <StarRatingView value={value} />
+                </div>
+              );
+            })}
             <div className='eval-field'>
               <label>총평</label>
               <textarea name='comment' value={evaluation.comment} readOnly />
             </div>
+            {evaluation.updateMemo && (
+              <div className='eval-field'>
+                <label>수정 사유</label>
+                <textarea
+                  name='updateMemo'
+                  value={evaluation.updateMemo}
+                  readOnly
+                />
+              </div>
+            )}
             <div className='eval-field avg'>
               <span>평균 점수</span>
               <span className='avg-score'>{evaluation.totalEvaluation}</span>
@@ -153,6 +166,13 @@ export default function EvaluationView({ evaluation, onClose }) {
       <div className='eval-footer-btns'>
         <button className='btn dark' type='button' onClick={onClose}>
           닫기
+        </button>
+        <button
+          className='btn blue'
+          type='button'
+          onClick={() => onEdit && onEdit(evaluation)}
+        >
+          수정
         </button>
       </div>
     </div>

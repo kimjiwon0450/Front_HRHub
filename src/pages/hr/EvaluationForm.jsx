@@ -29,7 +29,20 @@ function StarRating({ value, onChange }) {
   );
 }
 
-export default function EvaluationForm({ employee, onClose }) {
+// 평가 항목 기본값
+const DEFAULT_CRITERIA = [
+  { key: 'leadership', label: '리더십' },
+  { key: 'creativity', label: '창의성' },
+  { key: 'cooperation', label: '협업능력' },
+  { key: 'problem', label: '문제해결능력' },
+];
+
+export default function EvaluationForm({
+  employee,
+  evaluation,
+  onClose,
+  onSubmitSuccess,
+}) {
   const { userId } = useContext(UserContext);
   // 폼 상태 관리
   const [form, setForm] = useState({
@@ -47,6 +60,14 @@ export default function EvaluationForm({ employee, onClose }) {
 
   // 평가자 이름 상태 추가
   const [evaluatorName, setEvaluatorName] = useState('');
+  const [updateMemo, setUpdateMemo] = useState('');
+
+  // 평가 항목 동적 관리
+  const [criteria, setCriteria] = useState(DEFAULT_CRITERIA);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newCriterion, setNewCriterion] = useState('');
+
+  const isEdit = !!evaluation;
 
   console.log(employee, '여기임');
 
@@ -57,8 +78,57 @@ export default function EvaluationForm({ employee, onClose }) {
         name: `${employee.name} (${employee.role})`,
         dept: employee.department || '',
       }));
+      setCriteria(DEFAULT_CRITERIA);
     }
-  }, [employee]);
+    if (evaluation) {
+      setForm({
+        name: evaluation.evaluateeName || '',
+        dept: evaluation.evaluateeDept || '',
+        date: evaluation.interviewDate
+          ? new Date(evaluation.interviewDate)
+          : new Date(),
+        template: {
+          ...DEFAULT_CRITERIA.reduce(
+            (acc, c) => ({ ...acc, [c.key]: evaluation.template[c.key] || 1 }),
+            {},
+          ),
+          ...Object.keys(evaluation.template)
+            .filter((k) => !DEFAULT_CRITERIA.find((c) => c.key === k))
+            .reduce((acc, k) => ({ ...acc, [k]: evaluation.template[k] }), {}),
+        },
+        comment: evaluation.comment || '',
+      });
+      // 기존 항목 + 커스텀 항목
+      setCriteria([
+        ...DEFAULT_CRITERIA,
+        ...Object.keys(evaluation.template)
+          .filter((k) => !DEFAULT_CRITERIA.find((c) => c.key === k))
+          .map((k) => ({ key: k, label: k })),
+      ]);
+      setUpdateMemo('');
+      // 만약 이름/부서가 없으면 evaluateeId로 조회
+      if (!evaluation.evaluateeName && evaluation.evaluateeId) {
+        axiosInstance
+          .get(
+            `${API_BASE_URL}${HR_SERVICE}/employees/${evaluation.evaluateeId}/name`,
+          )
+          .then((res) =>
+            setForm((prev) => ({ ...prev, name: res.data.result })),
+          )
+          .catch(() => {});
+      }
+      if (!evaluation.evaluateeDept && evaluation.evaluateeId) {
+        axiosInstance
+          .get(
+            `${API_BASE_URL}${HR_SERVICE}/employees/${evaluation.evaluateeId}/name/department`,
+          )
+          .then((res) =>
+            setForm((prev) => ({ ...prev, dept: res.data.result })),
+          )
+          .catch(() => {});
+      }
+    }
+  }, [employee, evaluation]);
 
   // 평가자 이름 조회
   useEffect(() => {
@@ -86,13 +156,10 @@ export default function EvaluationForm({ employee, onClose }) {
       },
     }));
 
-  // 평균점수
+  // 평균점수 계산 (동적)
   const avg = (
-    (form.template.leadership +
-      form.template.creativity +
-      form.template.cooperation +
-      form.template.problem) /
-    4
+    criteria.reduce((sum, c) => sum + Number(form.template[c.key] || 0), 0) /
+    (criteria.length || 1)
   ).toFixed(1);
 
   // 날짜 삭제
@@ -104,27 +171,73 @@ export default function EvaluationForm({ employee, onClose }) {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // 항목 삭제
+  const handleRemoveCriterion = (key) => {
+    setCriteria((prev) => prev.filter((c) => c.key !== key));
+    setForm((prev) => {
+      const newTemplate = { ...prev.template };
+      delete newTemplate[key];
+      return { ...prev, template: newTemplate };
+    });
+  };
+
+  // 항목 추가
+  const handleAddCriterion = () => {
+    if (!newCriterion.trim()) return;
+    const key = newCriterion.trim();
+    if (criteria.find((c) => c.key === key)) return;
+    setCriteria((prev) => [...prev, { key, label: key }]);
+    setForm((prev) => ({
+      ...prev,
+      template: { ...prev.template, [key]: 1 },
+    }));
+    setShowAddModal(false);
+    setNewCriterion('');
+  };
+
   // 제출 등 이벤트 (실제 로직 연결 가능)
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.post(
-        `${API_BASE_URL}${HR_SERVICE}/evaluation/${employee.employeeId}`,
-        {
-          evaluateeId: employee.employeeId,
-          evaluatorId: userId,
-          template: JSON.stringify({
-            leadership: form.template.leadership,
-            creativity: form.template.creativity,
-            cooperation: form.template.cooperation,
-            problem: form.template.problem,
-          }),
-          comment: form.comment,
-          totalEvaluation: Number(avg),
-          interviewDate: form.date,
-        },
-      );
-      alert('평가등록 완료');
+      if (isEdit) {
+        await axiosInstance.patch(
+          `${API_BASE_URL}${HR_SERVICE}/evaluation/${evaluation.evaluationId}`,
+          {
+            evaluateeId: evaluation.evaluateeId,
+            evaluatorId: userId,
+            template: JSON.stringify(
+              criteria.reduce(
+                (acc, c) => ({ ...acc, [c.key]: form.template[c.key] }),
+                {},
+              ),
+            ),
+            comment: form.comment,
+            totalEvaluation: Number(avg),
+            interviewDate: form.date,
+            updateMemo,
+          },
+        );
+        alert('평가 수정 완료');
+      } else {
+        await axiosInstance.post(
+          `${API_BASE_URL}${HR_SERVICE}/evaluation/${employee.employeeId}`,
+          {
+            evaluateeId: employee.employeeId,
+            evaluatorId: userId,
+            template: JSON.stringify(
+              criteria.reduce(
+                (acc, c) => ({ ...acc, [c.key]: form.template[c.key] }),
+                {},
+              ),
+            ),
+            comment: form.comment,
+            totalEvaluation: Number(avg),
+            interviewDate: form.date,
+          },
+        );
+        alert('평가등록 완료');
+      }
+      if (onSubmitSuccess) onSubmitSuccess();
       if (onClose) onClose();
     } catch (error) {
       alert('제출 실패: ' + (error.response?.data?.message || error.message));
@@ -148,7 +261,9 @@ export default function EvaluationForm({ employee, onClose }) {
         <button className='back-btn' type='button' onClick={handleCancel}>
           ◀
         </button>
-        <div className='eval-title'>인사평가표</div>
+        <div className='eval-title'>
+          {isEdit ? '인사평가 수정' : '인사평가표'}
+        </div>
       </div>
 
       <div className='eval-main'>
@@ -205,34 +320,74 @@ export default function EvaluationForm({ employee, onClose }) {
                 readOnly
               />
             </div>
-            <div className='eval-field stars'>
-              <label>리더십</label>
-              <StarRating
-                value={form.template.leadership}
-                onChange={(v) => handleStar('leadership', v)}
-              />
+            {/* 평가 항목 동적 렌더링 */}
+            {criteria.map((c) => (
+              <div
+                className='eval-field stars'
+                key={c.key}
+                style={{ display: 'flex', alignItems: 'center' }}
+              >
+                <label style={{ flex: '0 0 100px' }}>{c.label}</label>
+                <StarRating
+                  value={form.template[c.key] || 1}
+                  onChange={(v) => handleStar(c.key, v)}
+                />
+                <button
+                  type='button'
+                  style={{
+                    marginLeft: 8,
+                    color: 'red',
+                    fontWeight: 'bold',
+                    fontSize: 18,
+                  }}
+                  onClick={() => handleRemoveCriterion(c.key)}
+                  title='항목 삭제'
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {/* 항목 추가 버튼 */}
+            <div style={{ textAlign: 'right', marginBottom: 8 }}>
+              <button
+                type='button'
+                className='btn blue'
+                onClick={() => setShowAddModal(true)}
+              >
+                + 항목 추가
+              </button>
             </div>
-            <div className='eval-field stars'>
-              <label>창의성</label>
-              <StarRating
-                value={form.template.creativity}
-                onChange={(v) => handleStar('creativity', v)}
-              />
-            </div>
-            <div className='eval-field stars'>
-              <label>협업능력</label>
-              <StarRating
-                value={form.template.cooperation}
-                onChange={(v) => handleStar('cooperation', v)}
-              />
-            </div>
-            <div className='eval-field stars'>
-              <label>문제해결능력</label>
-              <StarRating
-                value={form.template.problem}
-                onChange={(v) => handleStar('problem', v)}
-              />
-            </div>
+            {/* 항목 추가 모달 */}
+            {showAddModal && (
+              <div className='modal-overlay'>
+                <div className='modal-box'>
+                  <h4>평가 항목 추가</h4>
+                  <input
+                    type='text'
+                    value={newCriterion}
+                    onChange={(e) => setNewCriterion(e.target.value)}
+                    placeholder='항목 이름 입력'
+                    autoFocus
+                  />
+                  <div className='modal-btns'>
+                    <button
+                      className='btn gray'
+                      type='button'
+                      onClick={() => setShowAddModal(false)}
+                    >
+                      취소
+                    </button>
+                    <button
+                      className='btn blue'
+                      type='button'
+                      onClick={handleAddCriterion}
+                    >
+                      추가
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className='eval-field'>
               <label>총평</label>
               <textarea
@@ -245,24 +400,38 @@ export default function EvaluationForm({ employee, onClose }) {
               <span>평균 점수</span>
               <span className='avg-score'>{avg}</span>
             </div>
+            {isEdit && (
+              <div className='eval-field'>
+                <label>수정 사유</label>
+                <textarea
+                  name='updateMemo'
+                  value={updateMemo}
+                  onChange={(e) => setUpdateMemo(e.target.value)}
+                  placeholder='수정 사유를 입력하세요.'
+                  required
+                />
+              </div>
+            )}
+            <div className='eval-footer-btns'>
+              <button className='btn dark' type='button' onClick={handleCancel}>
+                취소
+              </button>
+              <button
+                className='btn dark'
+                type='button'
+                onClick={handlePreview}
+              >
+                미리보기
+              </button>
+              <button className='btn dark' type='button' onClick={handleSave}>
+                임시저장
+              </button>
+              <button className='btn blue' type='submit'>
+                {isEdit ? '수정' : '등록'}
+              </button>
+            </div>
           </form>
         </div>
-      </div>
-
-      {/* 하단 버튼 */}
-      <div className='eval-footer-btns'>
-        <button className='btn dark' type='button' onClick={handleCancel}>
-          취소
-        </button>
-        <button className='btn dark' type='button' onClick={handlePreview}>
-          미리보기
-        </button>
-        <button className='btn dark' type='button' onClick={handleSave}>
-          임시저장
-        </button>
-        <button className='btn blue' type='button' onClick={handleSubmit}>
-          평가등록
-        </button>
       </div>
     </div>
   );

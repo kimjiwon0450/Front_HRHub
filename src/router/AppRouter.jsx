@@ -42,8 +42,14 @@ const AppRouter = () => {
         <Route path='/noticeboard' element={<NoticeBoardList />} />
         <Route path='/noticeboard/my' element={<NoticeBoardList />} />
         <Route path='/noticeboard/mydepartment' element={<NoticeBoardList />} />
-        <Route path='/noticeboard/write' element={<NoticeBoardWrite isEdit={false} />} />
-        <Route path="/noticeboard/edit/:id" element={<NoticeBoardWrite isEdit={true} />} />
+        <Route
+          path='/noticeboard/write'
+          element={<NoticeBoardWrite isEdit={false} />}
+        />
+        <Route
+          path='/noticeboard/edit/:id'
+          element={<NoticeBoardWrite isEdit={true} />}
+        />
         <Route path='/noticeboard/alert' element={<NoticeAlertPage />} />
         <Route path='/noticeboard/:id' element={<NoticeBoardDetail />} />
         <Route path='/mail' element={<></>} />
