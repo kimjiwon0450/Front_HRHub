@@ -40,6 +40,7 @@ export const UserContextProvider = (props) => {
     localStorage.setItem('USER_ROLE', loginData.role);
     localStorage.setItem('USER_NAME', loginData.name);
     // localStorage.setItem('USER_IMAGE', loginData.profileImage);
+    loginData.departmentId = loginData.depId;
     localStorage.setItem('USER_DEPARTMENT_ID', loginData.departmentId);
 
     // 상태저장

@@ -75,6 +75,7 @@ export default function HRPage() {
   }, []);
 
   useEffect(() => {
+    console.log('departmentId:', departmentId, 'departments:', departments);
     if (!departmentId || !departments.length) {
       setDepartmentName('');
       return;
