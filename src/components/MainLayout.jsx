@@ -90,8 +90,8 @@ export default function MainLayout() {
             ))}
           </div>
 
-          <div className='notice-icon' onClick={() => navigate('/noticeboard')}>
-            📢 게시판
+          <div className='notice-icon' onClick={() => navigate('/noticeboard/alert')}>
+            📢
             {unreadCount > 0 && <span className='badge'>{unreadCount}</span>}
           </div>
           <button className='logout-btn' onClick={handleLogoutClick}>

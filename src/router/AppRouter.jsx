@@ -17,6 +17,7 @@ import EvaluationForm from '../pages/hr/EvaluationForm';
 import NoticeBoardList from '../pages/NoticeBoard/NoticeBoardList';
 import NoticeBoardWrite from '../pages/NoticeBoard/NoticeBoardWrite';
 import NoticeBoardDetail from '../pages/NoticeBoard/NoticeBoardDetail';
+import NoticeAlertPage from '../pages/NoticeBoard/NoticeAlertPage';
 import EmployeeViewList from '../pages/hr/EmployeeViewList';
 import ContactList from '../pages/contacts/ContactList';
 
@@ -41,7 +42,9 @@ const AppRouter = () => {
         <Route path='/noticeboard' element={<NoticeBoardList />} />
         <Route path='/noticeboard/my' element={<NoticeBoardList />} />
         <Route path='/noticeboard/mydepartment' element={<NoticeBoardList />} />
-        <Route path='/noticeboard/write' element={<NoticeBoardWrite />} />
+        <Route path='/noticeboard/write' element={<NoticeBoardWrite isEdit={false} />} />
+        <Route path="/noticeboard/edit/:id" element={<NoticeBoardWrite isEdit={true} />} />
+        <Route path='/noticeboard/alert' element={<NoticeAlertPage />} />
         <Route path='/noticeboard/:id' element={<NoticeBoardDetail />} />
         <Route path='/mail' element={<></>} />
         <Route path='/board' element={<></>} />
