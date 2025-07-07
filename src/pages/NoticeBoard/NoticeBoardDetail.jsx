@@ -6,19 +6,22 @@ import {
 } from '../../configs/host-config';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
-import { UserContext, UserContextProvider  } from '../../context/UserContext';
+import { UserContext, UserContextProvider } from '../../context/UserContext';
 
 
 
 const NoticeBoardDetail = () => {
     const { id } = useParams();
-    const [post, setPost] = useState(null);
+    const [posts, setPosts] = useState(null);
     const [loading, setLoading] = useState(true);
     const { accessToken, userId, isInit } = useContext(UserContext); // ✅ 한 번에 구조 분해
 
     const navigate = useNavigate();
 
-    const isAuthor = post?.employeeId === userId;
+    const isAuthor = posts?.employeeId === userId;
+    console.log('posts : ', posts);
+    console.log('posts.employeeId : ', posts?.employeeId);
+    console.log('userId : ', userId);
 
     const handleDelete = async () => {
         if (!window.confirm('정말 삭제하시겠습니까?')) return;
@@ -63,7 +66,7 @@ const NoticeBoardDetail = () => {
                     }
                 });
                 const data = await res.json();
-                setPost(data);
+                setPosts(data);
 
                 // ✅ 읽음 처리 API 호출
                 await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/read`, {
@@ -85,23 +88,23 @@ const NoticeBoardDetail = () => {
     }, [id, accessToken, isInit]);
 
     if (loading) return <p>불러오는 중...</p>;
-    if (!post) return <p>게시글을 찾을 수 없습니다.</p>;
+    if (!posts) return <p>게시글을 찾을 수 없습니다.</p>;
 
     return (
         <div className="notice-detail">
-            <h2>{post.isNotice ? '[공지] ' : ''}{post.title}</h2>
+            <h2>{posts.isNotice ? '[공지] ' : ''}{posts.title}</h2>
             <div className="meta">
-                <p>작성자 : {post.name}</p>
-                <p>부서: {post.departmentName}</p>
-                <p>등록일: {post.createdAt?.substring(0, 10)}</p>
-                <p>조회수: {post.viewCount}</p>
+                <p>작성자 : {posts.name}</p>
+                <p>부서: {posts.departmentName}</p>
+                <p>등록일: {posts.createdAt?.substring(0, 10)}</p>
+                <p>조회수: {posts.viewCount}</p>
             </div>
             <hr />
-            <div className="content">{post.content}</div>
+            <div className="content">{posts.content}</div>
 
-            {post.fileUrl && (
+            {posts.fileUrl && (
                 <div className="attachment">
-                    <a href={post.fileUrl} download>📎 첨부파일 다운로드</a>
+                    <a href={posts.fileUrl} download>📎 첨부파일 다운로드</a>
                 </div>
             )}
 
