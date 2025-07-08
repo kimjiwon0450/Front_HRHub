@@ -22,6 +22,7 @@ export default function EmployeeEdit({ employee, onClose }) {
   const [isDeptLoading, setIsDeptLoading] = useState(false);
   const [isNewEmployee, setIsNewEmployee] = useState(true);
   const [hireDate, setHireDate] = useState('');
+  const [position, setPosition] = useState(''); // 직급 초기값 설정
 
   const navigate = useNavigate();
 
@@ -35,6 +36,7 @@ export default function EmployeeEdit({ employee, onClose }) {
       setAddress(employee.address || '');
       setRole(employee.role || '');
       setPhone(employee.phone || '');
+      setPosition(employee.position || ''); // 직급
       setMemo(employee.memo || '');
       setIsNewEmployee(employee.isNewEmployee !== false); // true(신입), false(경력)
       setHireDate(employee.hireDate ? employee.hireDate.split('T')[0] : ''); // 입사일 초기화
@@ -121,11 +123,11 @@ export default function EmployeeEdit({ employee, onClose }) {
           name: employeeName,
           birthday: birth,
           address,
-          role,
           departmentId,
           phone,
           status: employee.status || 'ACTIVE',
-          role: employee.role || 'EMPLOYEE',
+          role: employee.role,
+          position: employee.position,
           memo,
           isNewEmployee,
           hireDate,
@@ -225,16 +227,21 @@ export default function EmployeeEdit({ employee, onClose }) {
               </div>
             </div>
             <div>
-              <label className='reg-label'>주소</label>
-              <input
+              <label className='reg-label'>직급</label>
+              <select
                 className='reg-input'
-                type='text'
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+              >
+                <option value='INTERN'>INTERN</option>
+                <option value='JUNIOR'>JUNIOR</option>
+                <option value='SENIOR'>SENIOR</option>
+                <option value='MANAGER'>MANAGER</option>
+                <option value='DIRECTOR'>DIRECTOR</option>
+              </select>
             </div>
             <div>
-              <label className='reg-label'>직급</label>
+              <label className='reg-label'>직책</label>
               <select
                 className='reg-input'
                 value={role}
@@ -243,6 +250,15 @@ export default function EmployeeEdit({ employee, onClose }) {
                 <option value='EMPLOYEE'>EMPLOYEE</option>
                 <option value='HR_MANAGER'>HR_MANAGER</option>
               </select>
+            </div>
+            <div>
+              <label className='reg-label'>주소</label>
+              <input
+                className='reg-input'
+                type='text'
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
             </div>
             <div>
               <label className='reg-label'>핸드폰</label>
