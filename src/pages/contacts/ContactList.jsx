@@ -29,58 +29,85 @@ const ContactList = () => {
   const [searchDept, setSearchDept] = useState('전체');
 
   // 페이징 state
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
   const [departmentList, setDepartmentList] = useState([]);
 
-  // //부서 가져오기
-  // useEffect(() => {
-  //   const getDepartments = async () => {
-  //     const res = await axiosInstance.get(
-  //       `${API_BASE_URL}${HR_SERVICE}/departments`,
-  //     );
-
-  //     if (res.status === 200) {
-  //       setDepartmentList(res.data.result);
-  //       console.log(res.data.result);
-  //     } else {
-  //       alert(
-  //         res.data.statusMessage || '부서 목록을 가져오는 데 실패했습니다.',
-  //       );
-  //     }
-  //   };
-  // }, []);
-
-  // 서버에서 직원 목록 조회 (필터 포함)
-  const getEmployeeList = async ({
-    field = searchField,
-    keyword = searchText,
-    department = searchDept,
-    page: reqPage = page,
-    size: reqSize = size,
-  } = {}) => {
-    try {
-      let params = `?page=${reqPage}&size=${reqSize}`;
-      if (keyword.trim())
-        params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
-      if (department !== '전체')
-        params += `&department=${encodeURIComponent(department)}`;
+  //부서 가져오기
+  useEffect(() => {
+    const getDepartments = async () => {
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
+        `${API_BASE_URL}${HR_SERVICE}/departments`,
       );
-      setEmployees(res.data.result.content);
-      setTotalPages(res.data.result.totalPages || 1);
-      console.log(res.data.result.content);
-    } catch (error) {
-      alert(error?.response?.data?.statusMessage || error.message);
-    }
-  };
-  // getEmployeeList();
+
+      if (res.status === 200) {
+        setDepartmentList(res.data.result);
+        console.log(res.data.result);
+      } else {
+        alert(
+          res.data.statusMessage || '부서 목록을 가져오는 데 실패했습니다.',
+        );
+      }
+    };
+    getDepartments();
+    //// ----------------------------------------------------------------------------------------
+    const getEmployeeList = async ({
+      field = searchField,
+      keyword = searchText,
+      department = searchDept,
+      page: reqPage = page,
+      size: reqSize = size,
+    } = {}) => {
+      try {
+        let params = `?page=${reqPage}&size=${reqSize}`;
+        if (keyword.trim())
+          params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
+        if (department !== '전체')
+          params += `&department=${encodeURIComponent(department)}`;
+        const res = await axiosInstance.get(
+          `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
+        );
+        setEmployees(res.data.result.content);
+        setTotalPages(res.data.result.totalPages || 1);
+        console.log(res.data.result.content);
+        console.log(employees);
+      } catch (error) {
+        alert(error?.response?.data?.statusMessage || error.message);
+      }
+    };
+    getEmployeeList();
+  }, []);
+
+  // // 서버에서 직원 목록 조회 (필터 포함)
+  // const getEmployeeList = async ({
+  //   field = searchField,
+  //   keyword = searchText,
+  //   department = searchDept,
+  //   page: reqPage = page,
+  //   size: reqSize = size,
+  // } = {}) => {
+  //   try {
+  //     let params = `?page=${reqPage}&size=${reqSize}`;
+  //     if (keyword.trim())
+  //       params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
+  //     if (department !== '전체')
+  //       params += `&department=${encodeURIComponent(department)}`;
+  //     const res = await axiosInstance.get(
+  //       `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
+  //     );
+  //     setEmployees(res.data.result.content);
+  //     setTotalPages(res.data.result.totalPages || 1);
+  //     console.log(res.data.result.content);
+  //   } catch (error) {
+  //     alert(error?.response?.data?.statusMessage || error.message);
+  //   }
+  // };
+  // // getEmployeeList();
 
   // 부서 필터링
-  const filteredEmployees = dummyEmployees.filter(
+  const filteredEmployees = employees.filter(
     (emp) =>
       (searchDept === '전체' || emp.department === searchDept) &&
       (searchText === '' || emp[searchField]?.includes(searchText)),
@@ -103,15 +130,15 @@ const ContactList = () => {
         <ul>
           <li
             className={searchDept === '전체' ? 'selected' : ''}
-            onClick={() => setsearchDept('전체')}
+            onClick={() => setSearchDept('전체')}
           >
             전체
           </li>
           {departmentList.map((dept) => (
             <li
               key={dept.id}
-              className={selectedDept === dept.name ? 'selected' : ''}
-              // onClick={() => setSearchDept(dept.name)}
+              className={searchDept === dept.name ? 'selected' : ''}
+              onClick={() => setSearchDept(dept.name)}
             >
               {dept.name}
             </li>
