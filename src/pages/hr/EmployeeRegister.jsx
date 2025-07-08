@@ -23,6 +23,7 @@ export default function EmployeeRegister() {
   const [isDeptLoading, setIsDeptLoading] = useState(false);
   const [hireDate, setHireDate] = useState('');
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
 
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -73,7 +74,7 @@ export default function EmployeeRegister() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isFormValid()) return;
-
+    setIsLoading(true); // 로딩 시작
     try {
       await axios.post(`http://localhost:8000${HR_SERVICE}/employees`, {
         email,
@@ -93,6 +94,8 @@ export default function EmployeeRegister() {
       navigate('/hr/employee-list');
     } catch (error) {
       alert(error.response?.data?.statusMessage || '등록 실패');
+    } finally {
+      setIsLoading(false); // 로딩 종료
     }
   };
 
@@ -308,8 +311,8 @@ export default function EmployeeRegister() {
             <button type='button' className='btn gray'>
               목록
             </button>
-            <button type='submit' className='btn blue'>
-              등록
+            <button type='submit' className='btn blue' disabled={isLoading}>
+              {isLoading ? '등록 중...' : '등록'}
             </button>
           </div>
         </form>
