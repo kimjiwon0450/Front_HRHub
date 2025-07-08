@@ -96,7 +96,9 @@ const NoticeBoardDetail = () => {
 
     if (loading) return <p>불러오는 중...</p>;
     if (!posts) return <p>게시글을 찾을 수 없습니다.</p>;
-    
+
+    console.log('posts : ', posts);
+
 
     return (
         <div className="notice-detail">
