@@ -42,11 +42,12 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
         const noticeData = {
             title,
             content,
-            isNotice: type === 'notice',
+            notice: type === 'notice',
             hasAttachment: files.length > 0, // 필요 시 서버 DTO 필드
         };
 
         try {
+            console.log('noticeData : ', noticeData);
             if (isEdit) {
                 await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, noticeData, {
                     headers: {
@@ -75,7 +76,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
 
     return (
         <div className="notice-write">
-            <h2>{isEdit ? '공지사항 수정' : '공지사항 작성'}</h2>
+            <h2>{isEdit ? '게시글 수정' : '게시글 작성'}</h2>
             <input
                 type="text"
                 placeholder="제목을 입력하세요"
