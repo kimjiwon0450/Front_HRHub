@@ -77,6 +77,7 @@ export const UserContextProvider = (props) => {
     if (storedToken) {
       const storedId = localStorage.getItem('USER_ID');
       const storedRole = localStorage.getItem('USER_ROLE');
+      const storedPosition = localStorage.getItem('USER_POSITION');
       const storedName = localStorage.getItem('USER_NAME');
       const storedBadge = localStorage.getItem('USER_ICON');
       const storedImage = localStorage.getItem('USER_IMAGE');
@@ -84,8 +85,9 @@ export const UserContextProvider = (props) => {
 
       setIsLoggedIn(true);
       setAccessToken(storedToken);
-      setUserId(storedId);
+      setUserId(Number(storedId));
       setUserRole(storedRole);
+      setUserPosition(storedPosition);
       setUserName(storedName);
       if (storedImage) {
         setUserImage(storedImage);

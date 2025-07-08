@@ -15,13 +15,15 @@ const dummyEmployees = [
   },
   // ... 여러명 더 추가 가능
 ];
-
+//// ----------------------------------------------------------------------------------------
 const ContactList = () => {
   const [selectedDept, setSelectedDept] = useState('전체');
   const [searchField, setSearchField] = useState('name');
   const [searchText, setSearchText] = useState('');
   const [sortField, setSortField] = useState('name');
   const [page, setPage] = useState(1);
+  const [employees, setEmployees] = useState([]);
+  const [totalPage, setTotalPages] = useState(1);
   const size = 8;
 
   const [departmentList, setDepartmentList] = useState([]);
@@ -43,6 +45,32 @@ const ContactList = () => {
     };
     getDepartments();
   }, []);
+
+  // 서버에서 직원 목록 조회 (필터 포함)
+  const getEmployeeList = async ({
+    field = searchField,
+    keyword = searchText,
+    department = searchDept,
+    page: reqPage = page,
+    size: reqSize = size,
+  } = {}) => {
+    try {
+      let params = `?page=${reqPage}&size=${reqSize}`;
+      if (keyword.trim())
+        params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
+      if (department !== '전체')
+        params += `&department=${encodeURIComponent(department)}`;
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
+      );
+      setEmployees(res.data.result.content);
+      setTotalPages(res.data.result.totalPages || 1);
+      console.log(res.data.result.content);
+    } catch (error) {
+      alert(error?.response?.data?.statusMessage || error.message);
+    }
+  };
+  getEmployeeList();
 
   // 부서 필터링
   const filteredEmployees = dummyEmployees.filter(
