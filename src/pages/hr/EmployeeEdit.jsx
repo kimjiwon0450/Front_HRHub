@@ -21,6 +21,8 @@ export default function EmployeeEdit({ employee, onClose }) {
   const [newDeptName, setNewDeptName] = useState('');
   const [isDeptLoading, setIsDeptLoading] = useState(false);
   const [isNewEmployee, setIsNewEmployee] = useState(true);
+  const [hireDate, setHireDate] = useState('');
+  const [position, setPosition] = useState(''); // 직급 초기값 설정
 
   const navigate = useNavigate();
 
@@ -34,8 +36,10 @@ export default function EmployeeEdit({ employee, onClose }) {
       setAddress(employee.address || '');
       setRole(employee.role || '');
       setPhone(employee.phone || '');
+      setPosition(employee.position || ''); // 직급
       setMemo(employee.memo || '');
       setIsNewEmployee(employee.isNewEmployee !== false); // true(신입), false(경력)
+      setHireDate(employee.hireDate ? employee.hireDate.split('T')[0] : ''); // 입사일 초기화
     }
   }, [employee]);
 
@@ -107,24 +111,30 @@ export default function EmployeeEdit({ employee, onClose }) {
       alert('유효하지 않은 이메일 형식입니다!');
       return;
     }
+    if (!hireDate.trim()) {
+      alert('입사일을 입력해주세요.');
+      return;
+    }
     try {
       await axiosInstance.patch(
-        `http://localhost:8000${HR_SERVICE}/employees/${employee.employeeId}`, // id 필요!
+        `http://localhost:8000${HR_SERVICE}/employees/${employee.employeeId}`,
         {
           email,
           name: employeeName,
           birthday: birth,
           address,
-          role,
           departmentId,
           phone,
-          status: employee.status || 'ACTIVE', // 필요에 따라 수정
-          role: employee.role || 'EMPLOYEE',
+          status: employee.status || 'ACTIVE',
+          role: employee.role,
+          position: employee.position,
           memo,
           isNewEmployee,
+          hireDate,
         },
       );
       alert('수정 성공!');
+      window.location.reload(); // 수정 후 새로고침
     } catch (error) {
       alert(error?.response?.data?.statusMessage || error.message);
     }
@@ -217,16 +227,21 @@ export default function EmployeeEdit({ employee, onClose }) {
               </div>
             </div>
             <div>
-              <label className='reg-label'>주소</label>
-              <input
+              <label className='reg-label'>직급</label>
+              <select
                 className='reg-input'
-                type='text'
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+              >
+                <option value='INTERN'>INTERN</option>
+                <option value='JUNIOR'>JUNIOR</option>
+                <option value='SENIOR'>SENIOR</option>
+                <option value='MANAGER'>MANAGER</option>
+                <option value='DIRECTOR'>DIRECTOR</option>
+              </select>
             </div>
             <div>
-              <label className='reg-label'>직급</label>
+              <label className='reg-label'>직책</label>
               <select
                 className='reg-input'
                 value={role}
@@ -237,12 +252,31 @@ export default function EmployeeEdit({ employee, onClose }) {
               </select>
             </div>
             <div>
+              <label className='reg-label'>주소</label>
+              <input
+                className='reg-input'
+                type='text'
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </div>
+            <div>
               <label className='reg-label'>핸드폰</label>
               <input
                 className='reg-input'
                 type='text'
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className='reg-label'>입사일</label>
+              <input
+                className='reg-input'
+                type='date'
+                value={hireDate}
+                onChange={(e) => setHireDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
               />
             </div>
             <div>

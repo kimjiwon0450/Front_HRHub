@@ -34,7 +34,7 @@ const NoticeBoardList = () => {
             try {
                 const { keyword, startDate, endDate, sortBy, sortDir } = filters;
                 const params = new URLSearchParams({
-                    keyword,
+                    keyword: filters.keyword.trim(),
                     fromDate: startDate,
                     toDate: endDate,
                     sortBy,
@@ -57,15 +57,10 @@ const NoticeBoardList = () => {
                 } else if (viewMode === 'DEPT') {
                     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/mydepartment`;
                 } else {
-                    if (departmentId != null && departmentId !== 'undefined') {
-                        url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department/${departmentId}?${params.toString()}`;
-                    } else {
-                        url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
-                    }
+                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
                 }
 
                 const res = await fetch(url, {
-                    credentials: 'include',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
                     }
@@ -116,7 +111,15 @@ const NoticeBoardList = () => {
                 <div className="filters">
                     <input type="date" name="startDate" value={filters.startDate} onChange={handleInputChange} />
                     <input type="date" name="endDate" value={filters.endDate} onChange={handleInputChange} />
-                    <input type="text" name="keyword" value={filters.keyword} placeholder="제목 검색" onChange={handleInputChange} />
+                    <input type="text"
+                        name="keyword"
+                        value={filters.keyword}
+                        placeholder="제목 검색"
+                        onChange={handleInputChange}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSearch();
+                        }}
+                    />
                     <select name="sortBy" value={filters.sortBy} onChange={handleInputChange}>
                         <option value="createdAt">등록일</option>
                         <option value="title">제목</option>
@@ -126,7 +129,22 @@ const NoticeBoardList = () => {
                         <option value="asc">오름차순</option>
                     </select>
                     <button onClick={handleSearch}>검색</button>
-                    <button className="write-button" onClick={() => navigate('/noticeboard/write')}>작성하기</button>
+                    <button
+                        className="reset-button"
+                        onClick={() => {
+                            setFilters({
+                                startDate: '',
+                                endDate: '',
+                                keyword: '',
+                                sortBy: 'createdAt',
+                                sortDir: 'desc'
+                            });
+                            setPage(0);
+                            setPageSize(10);
+                        }}
+                    >
+                        초기화
+                    </button>
 
                     <div className="view-mode-buttons">
                         <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); }}>
@@ -138,6 +156,10 @@ const NoticeBoardList = () => {
                         <button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate(`/noticeboard/mydepartment`) }}>
                             내 부서 글
                         </button>
+                    </div>
+
+                    <div className="write-button-wrapper">
+                        <button className="write-button" onClick={() => navigate('/noticeboard/write')}>작성하기</button>
                     </div>
 
                 </div>

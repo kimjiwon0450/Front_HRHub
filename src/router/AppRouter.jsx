@@ -5,7 +5,6 @@ import PrivateRouter from './PrivateRouter';
 import { UserContext } from '../context/UserContext';
 import Login from '../components/Login';
 import MainLayout from '../components/MainLayout';
-import Dashboard from '../pages/dashboard/Dashboard';
 import HRPage from '../pages/hr/HRPage';
 import EmployeeDetail from '../pages/hr/EmployeeDetail';
 import EmployeeRegister from '../pages/hr/EmployeeRegister';
@@ -20,6 +19,7 @@ import NoticeBoardDetail from '../pages/NoticeBoard/NoticeBoardDetail';
 import NoticeAlertPage from '../pages/NoticeBoard/NoticeAlertPage';
 import EmployeeViewList from '../pages/hr/EmployeeViewList';
 import ContactList from '../pages/contacts/ContactList';
+import MyEvaluationList from '../pages/hr/MyEvaluationList';
 
 const AppRouter = () => {
   const { userRole } = useContext(UserContext); // private 라우터를 이용하기 위해 추가(하준)
@@ -29,13 +29,14 @@ const AppRouter = () => {
     <Routes>
       <Route path='/' element={<Login />} />
       <Route element={<MainLayout />}>
-        <Route path='/dashboard' element={<Dashboard />} />
-        <Route path='/hr' element={<HRPage />} />
+        <Route path='/dashboard' element={<HRPage />} />
+        <Route path='/hr' element={<EmployeeList />} />
         <Route path='/hr/employee-list' element={<EmployeeList />} />
         <Route path='/hr/employee-register' element={<EmployeeRegister />} />
         <Route path='/hr/employee-edit' element={<EmployeeEdit />} />
         <Route path='/hr/employee-eval' element={<EvaluationForm />} />
         <Route path='/hr/employee-eval-list' element={<EmployeeViewList />} />
+        <Route path='/hr/my-evaluations' element={<MyEvaluationList />} />
         <Route path='/payroll' element={<></>} />
         <Route path='/approval' element={<LeavePage />} />
         <Route path='/schedule' element={<></>} />
@@ -43,8 +44,14 @@ const AppRouter = () => {
         <Route path='/noticeboard' element={<NoticeBoardList />} />
         <Route path='/noticeboard/my' element={<NoticeBoardList />} />
         <Route path='/noticeboard/mydepartment' element={<NoticeBoardList />} />
-        <Route path='/noticeboard/write' element={<NoticeBoardWrite isEdit={false} />} />
-        <Route path="/noticeboard/edit/:id" element={<NoticeBoardWrite isEdit={true} />} />
+        <Route
+          path='/noticeboard/write'
+          element={<NoticeBoardWrite isEdit={false} />}
+        />
+        <Route
+          path='/noticeboard/edit/:id'
+          element={<NoticeBoardWrite isEdit={true} />}
+        />
         <Route path='/noticeboard/alert' element={<NoticeAlertPage />} />
         <Route path='/noticeboard/:id' element={<NoticeBoardDetail />} />
         <Route path='/mail' element={<></>} />

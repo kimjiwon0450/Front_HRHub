@@ -3,6 +3,7 @@ import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import './NoticeBoard.scss';
 import { UserContext, UserContextProvider } from '../../context/UserContext';
+import { API_BASE_URL, NOTICE_SERVICE } from '../../configs/host-config';
 
 const NoticeBoardWrite = ({ isEdit = false }) => {
     const { id } = useParams();
@@ -11,59 +12,56 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [type, setType] = useState('post');
-    const [file, setFile] = useState([]);
+    const [files, setFiles] = useState([]);
 
     const { accessToken, userId, isInit, userRole } = useContext(UserContext); // ✅ 한 번에 구조 분해
 
     // 수정 모드일 경우 게시글 불러오기
     useEffect(() => {
         if (isEdit && id) {
-            axios.get(`/noticeboard/${id}`, {
+            axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
                 },
-                withCredentials: true,
             })
                 .then((res) => {
                     setTitle(res.data.title ?? '');
                     setContent(res.data.content ?? '');
-                    setType(res.data.notice ? 'notice' : 'post');
+                    setType(res.data.isNotice ? 'notice' : 'post');
                 })
                 .catch(err => {
                     console.error(err);
                     alert('게시글을 불러오지 못했습니다.');
                 });
         }
-    }, [isEdit, id]);
+    }, [isEdit, id, accessToken]);
 
 
     const handleSubmit = async () => {
-        const formData = new FormData();
         const noticeData = {
             title,
             content,
-            isNotice: type === 'notice',
+            notice: type === 'notice',
+            hasAttachment: files.length > 0, // 필요 시 서버 DTO 필드
         };
-        formData.append("data", new Blob([JSON.stringify(noticeData)], { type: "application/json" }));
-        files.forEach((f) => formData.append("files", f));
 
         try {
+            console.log('noticeData : ', noticeData);
             if (isEdit) {
-                await axios.put(`/noticeboard/${id}`, formData, {
+                await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, noticeData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
                     },
-                    withCredentials: true,
                 });
                 alert('수정되었습니다!');
             } else {
-                await axios.post('/noticeboard', formData, {
+                await axios.post(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/write`, noticeData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
                     },
-                    withCredentials: true,
                 });
                 alert('저장되었습니다!');
             }
@@ -75,9 +73,10 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
         }
     };
 
+
     return (
         <div className="notice-write">
-            <h2>{isEdit ? '공지사항 수정' : '공지사항 작성'}</h2>
+            <h2>{isEdit ? '게시글 수정' : '게시글 작성'}</h2>
             <input
                 type="text"
                 placeholder="제목을 입력하세요"

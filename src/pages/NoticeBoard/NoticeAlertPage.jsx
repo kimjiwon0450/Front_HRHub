@@ -2,9 +2,11 @@ import React, { useEffect, useState, useContext } from 'react';
 import { API_BASE_URL, NOTICE_SERVICE } from '../../configs/host-config';
 import { UserContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
+import './NoticeAlertPage.scss';
+
 
 const NoticeAlertPage = () => {
-    const { userId } = useContext(UserContext);
+    const { userId, accessToken, isInit } = useContext(UserContext);
     const [alerts, setAlerts] = useState({ unreadNotices: [], otherAlerts: [] });
     const navigate = useNavigate();
 
@@ -13,7 +15,17 @@ const NoticeAlertPage = () => {
 
         const fetchAlerts = async () => {
             try {
-                const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/alerts?userId=${userId}`);
+                const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/alerts`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(`서버 응답 오류: ${res.status} ${errorText}`);
+                }
+
                 const data = await res.json();
                 setAlerts(data);
             } catch (err) {
@@ -22,7 +34,16 @@ const NoticeAlertPage = () => {
         };
 
         fetchAlerts();
-    }, [userId]);
+    }, [userId, accessToken]);
+
+    const handleClick = (noticeId) => {
+        navigate(`/noticeboard/${noticeId}`);
+    };
+
+    const handleBack = () => {
+        navigate(-1); // 뒤로가기
+    };
+
 
     return (
         <div className="alert-page">
@@ -34,7 +55,8 @@ const NoticeAlertPage = () => {
                     <ul>
                         {alerts.unreadNotices.map(notice => (
                             <li key={notice.id} onClick={() => navigate(`/noticeboard/${notice.id}`)}>
-                                {notice.title} <small>({notice.createdAt?.substring(0, 10)})</small>
+                                <div className="title">{notice.title}</div>
+                                <div className="date">{notice.createdAt?.substring(0, 10)}</div>
                             </li>
                         ))}
                     </ul>
@@ -47,6 +69,10 @@ const NoticeAlertPage = () => {
                 <h3>📌 기타 알림</h3>
                 <p>아직 알림이 없습니다.</p>
             </section>
+
+            <div className="buttons">
+                <button onClick={handleBack}>뒤로가기</button>
+            </div>
         </div>
     );
 };

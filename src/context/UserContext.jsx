@@ -7,6 +7,7 @@ export const UserContext = React.createContext({
   onLogin: () => {},
   onLogout: () => {},
   userRole: '',
+  userPosition: '',
   userName: '',
   badge: null,
   setBadge: () => {},
@@ -23,6 +24,7 @@ export const UserContextProvider = (props) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState('');
   const [userName, setUserName] = useState('');
+  const [userPosition, setUserPosition] = useState('');
   const [badge, setBadge] = useState(null);
   const [isInit, setIsInit] = useState(false);
   const [userImage, setUserImage] = useState('');
@@ -42,14 +44,17 @@ export const UserContextProvider = (props) => {
     // localStorage.setItem('USER_IMAGE', loginData.profileImage);
     loginData.departmentId = loginData.depId;
     localStorage.setItem('USER_DEPARTMENT_ID', loginData.departmentId);
+    localStorage.setItem('USER_POSITION', loginData.position);
 
     // 상태저장
     console.log('loginData : ', loginData);
+    console.log('logingPositionl : ', loginData.position);
     setIsLoggedIn(true);
     setUserId(loginData.id);
     setUserRole(loginData.role);
     setUserName(loginData.name);
     setUserImage(loginData.profileImageUri || loginData.profileImage || '');
+    setUserPosition(loginData.position);
     setDepartmentId(loginData.departmentId);
     setAccessToken(loginData.token);
   };
@@ -58,6 +63,7 @@ export const UserContextProvider = (props) => {
     console.log('[logoutHandler] 로그아웃 수행');
     localStorage.clear();
     setIsLoggedIn(false);
+    setUserRole('');
     setUserRole('');
     setUserName('');
     setBadge(null);
@@ -71,6 +77,7 @@ export const UserContextProvider = (props) => {
     if (storedToken) {
       const storedId = localStorage.getItem('USER_ID');
       const storedRole = localStorage.getItem('USER_ROLE');
+      const storedPosition = localStorage.getItem('USER_POSITION');
       const storedName = localStorage.getItem('USER_NAME');
       const storedBadge = localStorage.getItem('USER_ICON');
       const storedImage = localStorage.getItem('USER_IMAGE');
@@ -78,8 +85,9 @@ export const UserContextProvider = (props) => {
 
       setIsLoggedIn(true);
       setAccessToken(storedToken);
-      setUserId(storedId);
+      setUserId(Number(storedId));
       setUserRole(storedRole);
+      setUserPosition(storedPosition);
       setUserName(storedName);
       if (storedImage) {
         setUserImage(storedImage);
@@ -110,6 +118,7 @@ export const UserContextProvider = (props) => {
         onLogout: logoutHandler,
         userRole,
         userName,
+        userPosition,
         userId,
         departmentId,
         badge,

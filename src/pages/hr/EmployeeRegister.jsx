@@ -4,6 +4,7 @@ import HRHeader from './HRHeader';
 import axios from 'axios';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
+import { useNavigate } from 'react-router-dom';
 
 export default function EmployeeRegister() {
   const [departments, setDepartments] = useState([]);
@@ -13,12 +14,16 @@ export default function EmployeeRegister() {
   const [departmentId, setDepartmentId] = useState(1);
   const [address, setAddress] = useState('');
   const [role, setRole] = useState('EMPLOYEE');
+  const [position, setPosition] = useState('INTERN'); // 직책 추가
   const [phone, setPhone] = useState('');
   const [memo, setMemo] = useState('');
   const [isNewEmployee, setIsNewEmployee] = useState(true);
   const [showDeptModal, setShowDeptModal] = useState(false);
   const [newDeptName, setNewDeptName] = useState('');
   const [isDeptLoading, setIsDeptLoading] = useState(false);
+  const [hireDate, setHireDate] = useState('');
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
 
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -49,7 +54,8 @@ export default function EmployeeRegister() {
       !birth.trim() ||
       !address.trim() ||
       !role.trim() ||
-      !phone.trim()
+      !phone.trim() ||
+      !hireDate.trim()
     ) {
       alert('필수 항목을 모두 입력해주세요.');
       return false;
@@ -68,7 +74,7 @@ export default function EmployeeRegister() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isFormValid()) return;
-
+    setIsLoading(true); // 로딩 시작
     try {
       await axios.post(`http://localhost:8000${HR_SERVICE}/employees`, {
         email,
@@ -81,18 +87,15 @@ export default function EmployeeRegister() {
         role,
         memo,
         isNewEmployee,
+        hireDate,
+        position, // 추가
       });
       alert('등록 성공!');
-      // 폼 초기화(선택)
-      // setEmail('');
-      // setEmployeeName('');
-      // setBirth('');
-      // setAddress('');
-      // setRole('');
-      // setPhone('');
-      // setMemo('');
+      navigate('/hr/employee-list');
     } catch (error) {
       alert(error.response?.data?.statusMessage || '등록 실패');
+    } finally {
+      setIsLoading(false); // 로딩 종료
     }
   };
 
@@ -229,16 +232,7 @@ export default function EmployeeRegister() {
               </div>
             </div>
             <div>
-              <label className='reg-label'>주소</label>
-              <input
-                className='reg-input'
-                type='text'
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className='reg-label'>직급</label>
+              <label className='reg-label'>직책</label>
               <select
                 className='reg-input'
                 value={role}
@@ -249,6 +243,29 @@ export default function EmployeeRegister() {
               </select>
             </div>
             <div>
+              <label className='reg-label'>직급</label>
+              <select
+                className='reg-input'
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+              >
+                <option value='INTERN'>INTERN</option>
+                <option value='JUNIOR'>JUNIOR</option>
+                <option value='SENIOR'>SENIOR</option>
+                <option value='MANAGER'>MANAGER</option>
+                <option value='DIRECTOR'>DIRECTOR</option>
+              </select>
+            </div>
+            <div>
+              <label className='reg-label'>주소</label>
+              <input
+                className='reg-input'
+                type='text'
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </div>
+            <div>
               <label className='reg-label'>핸드폰</label>
               <input
                 className='reg-input'
@@ -257,6 +274,16 @@ export default function EmployeeRegister() {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder='010-1234-5678'
                 maxLength={13}
+              />
+            </div>
+            <div>
+              <label className='reg-label'>입사일</label>
+              <input
+                className='reg-input'
+                type='date'
+                value={hireDate}
+                onChange={(e) => setHireDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
               />
             </div>
             <div>
@@ -284,8 +311,8 @@ export default function EmployeeRegister() {
             <button type='button' className='btn gray'>
               목록
             </button>
-            <button type='submit' className='btn blue'>
-              등록
+            <button type='submit' className='btn blue' disabled={isLoading}>
+              {isLoading ? '등록 중...' : '등록'}
             </button>
           </div>
         </form>

@@ -3,6 +3,7 @@ import './EmployeeDetail.scss';
 import HRHeader from './HRHeader';
 import EmployeeEdit from './EmployeeEdit';
 import EvaluationForm from './EvaluationForm';
+import TransferHistoryModal from './TransferHistoryModal';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import pin from '../../assets/pin.jpg';
@@ -11,15 +12,18 @@ import { UserContext } from '../../context/UserContext';
 export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   const [showEdit, setShowEdit] = useState(false);
   const [showEval, setShowEval] = useState(false);
+  const [showTransferHistory, setShowTransferHistory] = useState(false); // 모달 토글용
   const [localEmployee, setLocalEmployee] = useState(employee);
   const [imageUri, setImageUri] = useState('');
   const fileInputRef = useRef(null);
-  const { userRole, userId } = useContext(UserContext); // 프로필 이미지 수정을 위해 현재사용자 정보 가져옴
+  const { userRole, userId } = useContext(UserContext);
 
   const canEdit =
     userRole === 'HR_MANAGER' ||
     userRole === 'ADMIN' ||
     (userRole === 'EMPLOYEE' && userId === employee.employeeId);
+
+  const canManage = userRole === 'HR_MANAGER' || userRole === 'ADMIN';
 
   const handleProfileImageClick = () => {
     if (!canEdit) return;
@@ -107,7 +111,16 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   // 두 컴포넌트 중 하나라도 활성화되면 해당 컴포넌트만 표시
   if (showEdit) {
     return (
-      <EmployeeEdit employee={employee} onClose={() => setShowEdit(false)} />
+      <EmployeeEdit
+        employee={employee}
+        onClose={(updatedEmployee) => {
+          if (updatedEmployee) {
+            setLocalEmployee(updatedEmployee);
+            setImageUri(updatedEmployee.profileImageUri);
+          }
+          setShowEdit(false);
+        }}
+      />
     );
   }
   if (showEval) {
@@ -118,6 +131,12 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
 
   return (
     <>
+      {showTransferHistory && (
+        <TransferHistoryModal
+          employeeId={employee.employeeId}
+          onClose={() => setShowTransferHistory(false)}
+        />
+      )}
       <div className='emp-detail-root'>
         <div className='emp-detail-main'>
           <div className='emp-profile'>
@@ -170,8 +189,10 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
               </tr>
               <tr>
                 <th>근무부서</th>
-                <td colSpan={3}>{employee.department}</td>
-                <th>직무/단계</th>
+                <td>{employee.department}</td>
+                <th>직급</th>
+                <td>{employee.position}</td>
+                <th>직책</th>
                 <td>{employee.role}</td>
               </tr>
               <tr>
@@ -194,19 +215,29 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
 
         {/* 하단 버튼 */}
         <div className='emp-btns'>
-          <button className='btn blue' onClick={onEdit}>
-            직원정보 수정
-          </button>
-          {localEmployee.status !== 'INACTIVE' && (
-            <>
-              <button className='btn blue' onClick={handleDelete}>
-                직원정보 삭제
-              </button>
+          {canEdit && (
+            <button className='btn blue' onClick={onEdit}>
+              직원정보 수정
+            </button>
+          )}
+          {canManage && localEmployee.status !== 'INACTIVE' && (
+            <button className='btn blue' onClick={handleDelete}>
+              직원정보 삭제
+            </button>
+          )}
+          {canManage &&
+            localEmployee.status !== 'INACTIVE' &&
+            userId !== employee.employeeId && (
               <button className='btn green' onClick={onEval}>
                 인사평가
               </button>
-            </>
-          )}
+            )}
+          <button
+            className='btn blue'
+            onClick={() => setShowTransferHistory(true)}
+          >
+            인사이동 이력
+          </button>
           <button className='btn gray' onClick={onClose}>
             목록
           </button>
