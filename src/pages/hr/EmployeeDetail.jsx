@@ -221,15 +221,17 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
             </button>
           )}
           {canManage && localEmployee.status !== 'INACTIVE' && (
-            <>
-              <button className='btn blue' onClick={handleDelete}>
-                직원정보 삭제
-              </button>
+            <button className='btn blue' onClick={handleDelete}>
+              직원정보 삭제
+            </button>
+          )}
+          {canManage &&
+            localEmployee.status !== 'INACTIVE' &&
+            userId !== employee.employeeId && (
               <button className='btn green' onClick={onEval}>
                 인사평가
               </button>
-            </>
-          )}
+            )}
           <button
             className='btn blue'
             onClick={() => setShowTransferHistory(true)}
