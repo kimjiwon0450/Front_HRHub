@@ -7,7 +7,7 @@ import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import pin from '../../assets/pin.jpg';
 
 export default function HRPage() {
-  const { userName, userRole, userImage, departmentId, userId } =
+  const { userName, userRole, userImage, userPosition, departmentId, userId } =
     useContext(UserContext);
   const [departments, setDepartments] = useState([]);
   const [departmentName, setDepartmentName] = useState('');
@@ -122,7 +122,7 @@ export default function HRPage() {
           <div className='user-meta'>
             <div className='user-name'>
               <b>{userName || '이름없음'}</b>{' '}
-              <span className='user-role'>{userRole || '직급없음'}</span>
+              <span className='user-role'>{userPosition || '직급없음'}</span>
             </div>
             <div className='user-desc'>
               {departmentName ? `부서: ${departmentName}` : '부서 정보 없음'}
