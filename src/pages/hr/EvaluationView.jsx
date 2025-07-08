@@ -167,13 +167,15 @@ export default function EvaluationView({ evaluation, onClose, onEdit }) {
         <button className='btn dark' type='button' onClick={onClose}>
           닫기
         </button>
-        <button
-          className='btn blue'
-          type='button'
-          onClick={() => onEdit && onEdit(evaluation)}
-        >
-          수정
-        </button>
+        {onEdit && (
+          <button
+            className='btn blue'
+            type='button'
+            onClick={() => onEdit(evaluation)}
+          >
+            수정
+          </button>
+        )}
       </div>
     </div>
   );

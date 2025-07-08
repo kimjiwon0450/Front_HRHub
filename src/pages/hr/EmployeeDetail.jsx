@@ -21,6 +21,8 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
     userRole === 'ADMIN' ||
     (userRole === 'EMPLOYEE' && userId === employee.employeeId);
 
+  const canManage = userRole === 'HR_MANAGER' || userRole === 'ADMIN';
+
   const handleProfileImageClick = () => {
     if (!canEdit) return;
     fileInputRef.current.click();
@@ -107,7 +109,16 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   // 두 컴포넌트 중 하나라도 활성화되면 해당 컴포넌트만 표시
   if (showEdit) {
     return (
-      <EmployeeEdit employee={employee} onClose={() => setShowEdit(false)} />
+      <EmployeeEdit
+        employee={employee}
+        onClose={(updatedEmployee) => {
+          if (updatedEmployee) {
+            setLocalEmployee(updatedEmployee);
+            setImageUri(updatedEmployee.profileImageUri);
+          }
+          setShowEdit(false);
+        }}
+      />
     );
   }
   if (showEval) {
@@ -194,10 +205,12 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
 
         {/* 하단 버튼 */}
         <div className='emp-btns'>
-          <button className='btn blue' onClick={onEdit}>
-            직원정보 수정
-          </button>
-          {localEmployee.status !== 'INACTIVE' && (
+          {canEdit && (
+            <button className='btn blue' onClick={onEdit}>
+              직원정보 수정
+            </button>
+          )}
+          {canManage && localEmployee.status !== 'INACTIVE' && (
             <>
               <button className='btn blue' onClick={handleDelete}>
                 직원정보 삭제

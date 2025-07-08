@@ -84,7 +84,7 @@ export const UserContextProvider = (props) => {
 
       setIsLoggedIn(true);
       setAccessToken(storedToken);
-      setUserId(storedId);
+      setUserId(Number(storedId));
       setUserRole(storedRole);
       setUserName(storedName);
       if (storedImage) {
