@@ -1,21 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import './EmployeeDetail.scss';
 import HRHeader from './HRHeader';
 import EmployeeEdit from './EmployeeEdit';
 import EvaluationForm from './EvaluationForm';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
+import pin from '../../assets/pin.jpg';
+import { UserContext } from '../../context/UserContext';
 
 export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   const [showEdit, setShowEdit] = useState(false);
   const [showEval, setShowEval] = useState(false);
   const [localEmployee, setLocalEmployee] = useState(employee);
+  const [imageUri, setImageUri] = useState('');
+  const fileInputRef = useRef(null);
+  const { userRole, userId } = useContext(UserContext); // 프로필 이미지 수정을 위해 현재사용자 정보 가져옴
+
+  const canEdit =
+    userRole === 'HR_MANAGER' ||
+    userRole === 'ADMIN' ||
+    (userRole === 'EMPLOYEE' && userId === employee.employeeId);
+
+  const handleProfileImageClick = () => {
+    if (!canEdit) return;
+    fileInputRef.current.click();
+  };
+
+  const uploadFile = (e) => {
+    let fileArr = e.target.files;
+
+    const formData = new FormData();
+
+    formData.append('targetEmail', employee.email);
+    formData.append('file', fileArr[0]);
+
+    setImageUri(URL.createObjectURL(fileArr[0])); // 이걸로 임시보기 먼저 띄움움
+
+    axiosInstance
+      .post(`${API_BASE_URL}${HR_SERVICE}/profileImage`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((res) => {
+        setImageUri(res.data); //후에 진행 다시 진행!
+      });
+  };
 
   useEffect(() => {
     setLocalEmployee(employee);
+    setImageUri(employee.profileImageUri);
   }, [employee]);
 
-  console.log(employee);
   function getAge(birth) {
     if (!birth) return '';
     const today = new Date();
@@ -85,9 +121,17 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
       <div className='emp-detail-root'>
         <div className='emp-detail-main'>
           <div className='emp-profile'>
+            <input
+              className={canEdit ? '' : 'disabled'}
+              type='file'
+              ref={fileInputRef}
+              onChange={uploadFile}
+            />
             <img
-              src='https://cdn.imweb.me/thumbnail/20240206/f520d5bdbd28e.jpg'
+              className={canEdit ? '' : 'disabled'}
+              src={imageUri ? imageUri : pin}
               alt='profile'
+              onClick={handleProfileImageClick}
             />
           </div>
           <table className='emp-info-table'>
@@ -139,6 +183,10 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
               <tr>
                 <th>이메일</th>
                 <td colSpan={5}>{employee.email}</td>
+              </tr>
+              <tr>
+                <th>메모</th>
+                <td colSpan={5}>{employee.memo}</td>
               </tr>
             </tbody>
           </table>

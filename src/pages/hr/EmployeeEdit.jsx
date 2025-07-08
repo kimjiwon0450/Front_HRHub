@@ -2,16 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './EmployeeRegister.scss'; // 스타일 재사용!
 import HRHeader from './HRHeader';
 import axios from 'axios';
-import { HR_SERVICE } from '../../configs/host-config';
+import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
 import { useNavigate } from 'react-router-dom';
-
-// 부서 목록은 상위에서 받아올 수도 있고, 아래처럼 고정할 수도 있음
-const departments = [
-  { id: 1, name: '마케팅' },
-  { id: 2, name: '디자인' },
-  { id: 3, name: '인사' },
-];
 
 export default function EmployeeEdit({ employee, onClose }) {
   // 기존 employee prop을 state로 복사 (혹은 useEffect로 세팅)
@@ -23,6 +16,11 @@ export default function EmployeeEdit({ employee, onClose }) {
   const [role, setRole] = useState('');
   const [phone, setPhone] = useState('');
   const [memo, setMemo] = useState('');
+  const [departments, setDepartments] = useState([]);
+  const [showDeptModal, setShowDeptModal] = useState(false);
+  const [newDeptName, setNewDeptName] = useState('');
+  const [isDeptLoading, setIsDeptLoading] = useState(false);
+  const [isNewEmployee, setIsNewEmployee] = useState(true);
 
   const navigate = useNavigate();
 
@@ -37,8 +35,54 @@ export default function EmployeeEdit({ employee, onClose }) {
       setRole(employee.role || '');
       setPhone(employee.phone || '');
       setMemo(employee.memo || '');
+      setIsNewEmployee(employee.isNewEmployee !== false); // true(신입), false(경력)
     }
   }, [employee]);
+
+  // 부서 목록 불러오기
+  const fetchDepartments = async () => {
+    try {
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${HR_SERVICE}/departments`,
+      );
+      setDepartments(res.data.result);
+    } catch (err) {
+      setDepartments([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
+
+  // 부서 등록 핸들러
+  const handleAddDepartment = async () => {
+    if (!newDeptName.trim()) {
+      alert('부서명을 입력하세요.');
+      return;
+    }
+    setIsDeptLoading(true);
+    try {
+      const res = await axiosInstance.post(
+        `${API_BASE_URL}${HR_SERVICE}/department/add`,
+        {
+          name: newDeptName,
+        },
+      );
+      alert('부서 등록 성공!');
+      setNewDeptName('');
+      setShowDeptModal(false);
+      fetchDepartments();
+    } catch (err) {
+      alert(
+        err.response?.data?.statusMessage ||
+          err.response?.data?.message ||
+          '부서 등록 실패',
+      );
+    } finally {
+      setIsDeptLoading(false);
+    }
+  };
 
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -77,6 +121,7 @@ export default function EmployeeEdit({ employee, onClose }) {
           status: employee.status || 'ACTIVE', // 필요에 따라 수정
           role: employee.role || 'EMPLOYEE',
           memo,
+          isNewEmployee,
         },
       );
       alert('수정 성공!');
@@ -135,16 +180,41 @@ export default function EmployeeEdit({ employee, onClose }) {
             </div>
             <div>
               <label className='reg-label'>부서명</label>
-              <select
-                value={departmentId}
-                onChange={(e) => setDepartmentId(e.target.value)}
-              >
-                {departments.map((dept) => (
-                  <option value={dept.id} key={dept.id}>
-                    {dept.name}
-                  </option>
-                ))}
-              </select>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <select
+                  className='reg-input'
+                  value={departmentId}
+                  onChange={(e) => setDepartmentId(e.target.value)}
+                  style={{ flex: 1 }}
+                >
+                  {departments.map((dept) => (
+                    <option value={dept.id} key={dept.id}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type='button'
+                  style={{
+                    border: 'none',
+                    background: '#e6e6e6',
+                    borderRadius: '50%',
+                    width: 28,
+                    height: 28,
+                    fontSize: 20,
+                    cursor: 'pointer',
+                    marginLeft: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 0,
+                  }}
+                  aria-label='부서 추가'
+                  onClick={() => setShowDeptModal(true)}
+                >
+                  +
+                </button>
+              </div>
             </div>
             <div>
               <label className='reg-label'>주소</label>
@@ -156,13 +226,15 @@ export default function EmployeeEdit({ employee, onClose }) {
               />
             </div>
             <div>
-              <label className='reg-label'>직함/직책</label>
-              <input
+              <label className='reg-label'>직급</label>
+              <select
                 className='reg-input'
-                type='text'
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-              />
+              >
+                <option value='EMPLOYEE'>EMPLOYEE</option>
+                <option value='HR_MANAGER'>HR_MANAGER</option>
+              </select>
             </div>
             <div>
               <label className='reg-label'>핸드폰</label>
@@ -172,6 +244,17 @@ export default function EmployeeEdit({ employee, onClose }) {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
+            </div>
+            <div>
+              <label className='reg-label'>입사구분</label>
+              <select
+                className='reg-input'
+                value={isNewEmployee ? '신입' : '경력'}
+                onChange={(e) => setIsNewEmployee(e.target.value === '신입')}
+              >
+                <option value='신입'>신입</option>
+                <option value='경력'>경력</option>
+              </select>
             </div>
           </div>
 
@@ -194,6 +277,37 @@ export default function EmployeeEdit({ employee, onClose }) {
           </div>
         </form>
       </div>
+      {/* 부서 추가 모달 */}
+      {showDeptModal && (
+        <div className='dept-modal-overlay'>
+          <div className='dept-modal'>
+            <h3>부서 추가</h3>
+            <input
+              className='reg-input'
+              value={newDeptName}
+              onChange={(e) => setNewDeptName(e.target.value)}
+              placeholder='부서명 입력'
+              disabled={isDeptLoading}
+            />
+            <div className='dept-modal-btns'>
+              <button
+                className='btn blue'
+                onClick={handleAddDepartment}
+                disabled={isDeptLoading}
+              >
+                추가
+              </button>
+              <button
+                className='btn gray'
+                onClick={() => setShowDeptModal(false)}
+                disabled={isDeptLoading}
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

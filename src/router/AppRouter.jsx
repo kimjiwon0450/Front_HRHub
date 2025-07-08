@@ -19,6 +19,7 @@ import NoticeBoardWrite from '../pages/NoticeBoard/NoticeBoardWrite';
 import NoticeBoardDetail from '../pages/NoticeBoard/NoticeBoardDetail';
 import NoticeAlertPage from '../pages/NoticeBoard/NoticeAlertPage';
 import EmployeeViewList from '../pages/hr/EmployeeViewList';
+import ContactList from '../pages/contacts/ContactList';
 
 const AppRouter = () => {
   const { userRole } = useContext(UserContext); // private 라우터를 이용하기 위해 추가(하준)
@@ -47,7 +48,7 @@ const AppRouter = () => {
         <Route path='/noticeboard/:id' element={<NoticeBoardDetail />} />
         <Route path='/mail' element={<></>} />
         <Route path='/board' element={<></>} />
-        <Route path='/contacts' element={<></>} />
+        <Route path='/contacts' element={<ContactList />} />
       </Route>
     </Routes>
   );
