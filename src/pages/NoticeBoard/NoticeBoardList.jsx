@@ -57,11 +57,7 @@ const NoticeBoardList = () => {
                 } else if (viewMode === 'DEPT') {
                     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/mydepartment`;
                 } else {
-                    if (departmentId != null && departmentId !== 'undefined') {
-                        url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department/${departmentId}?${params.toString()}`;
-                    } else {
-                        url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
-                    }
+                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
                 }
 
                 const res = await fetch(url, {
