@@ -5,7 +5,6 @@ import PrivateRouter from './PrivateRouter';
 import { UserContext } from '../context/UserContext';
 import Login from '../components/Login';
 import MainLayout from '../components/MainLayout';
-import Dashboard from '../pages/dashboard/Dashboard';
 import HRPage from '../pages/hr/HRPage';
 import EmployeeDetail from '../pages/hr/EmployeeDetail';
 import EmployeeRegister from '../pages/hr/EmployeeRegister';
@@ -29,8 +28,8 @@ const AppRouter = () => {
     <Routes>
       <Route path='/' element={<Login />} />
       <Route element={<MainLayout />}>
-        <Route path='/dashboard' element={<Dashboard />} />
-        <Route path='/hr' element={<HRPage />} />
+        <Route path='/dashboard' element={<HRPage />} />
+        <Route path='/hr' element={<EmployeeList />} />
         <Route path='/hr/employee-list' element={<EmployeeList />} />
         <Route path='/hr/employee-register' element={<EmployeeRegister />} />
         <Route path='/hr/employee-edit' element={<EmployeeEdit />} />
