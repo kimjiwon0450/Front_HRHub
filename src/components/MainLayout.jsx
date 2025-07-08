@@ -32,28 +32,31 @@ export default function MainLayout() {
   };
 
   const [unreadCount, setUnreadCount] = useState(0);
-  const { user } = useContext(UserContext);
+  const { user, userId, accessToken, isInit } = useContext(UserContext);
 
   useEffect(() => {
-    if (!user?.userId) return;
+    if (!userId) return;
 
     const fetchUnreadCount = async () => {
       try {
         const res = await fetch(
           `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/unread-count`,
           {
-            credentials: 'include',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+            }
           },
         );
         const count = await res.json();
         setUnreadCount(count);
+        console.log('안 읽은 게시글 수 :', count);
       } catch (err) {
-        console.error('안 읽은 게시글 수 조회 실패:', err);
+        console.log('안 읽은 게시글 수 조회 실패:', err);
       }
     };
 
     fetchUnreadCount();
-  }, [user]);
+  }, [user, location.pathname]);
 
   return (
     <div className='layout'>
