@@ -5,6 +5,10 @@ import { UserContext } from '../../context/UserContext';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import pin from '../../assets/pin.jpg';
+import EmployeeOfMonthCarousel from './EmployeeOfMonthCarousel';
+import UserCard from './UserCard';
+import CalendarWidget from './CalendarWidget';
+import NoticeList from './NoticeList';
 
 export default function HRPage() {
   const { userName, userRole, userImage, userPosition, departmentId, userId } =
@@ -109,18 +113,18 @@ export default function HRPage() {
       comment: '항상 밝은 에너지로 팀을 이끄는 홍길동님!',
       img: pin,
     },
-    {
-      name: '김철수',
-      dept: '개발팀',
-      comment: '혁신적인 아이디어로 프로젝트를 성공시킨 김철수님!',
-      img: pin,
-    },
-    {
-      name: '이영희',
-      dept: '인사팀',
-      comment: '세심한 배려로 모두를 챙기는 이영희님!',
-      img: pin,
-    },
+    // {
+    //   name: '김철수',
+    //   dept: '개발팀',
+    //   comment: '혁신적인 아이디어로 프로젝트를 성공시킨 김철수님!',
+    //   img: pin,
+    // },
+    // {
+    //   name: '이영희',
+    //   dept: '인사팀',
+    //   comment: '세심한 배려로 모두를 챙기는 이영희님!',
+    //   img: pin,
+    // },
   ];
   const [eomIndex, setEomIndex] = useState(0);
   // 자동 슬라이드
@@ -137,103 +141,25 @@ export default function HRPage() {
       <HRHeader />
       {/* 유저 카드 + 검색/달력 */}
       <div className='hr-top'>
-        <div className='hr-usercard'>
-          <div className='user-avatar'>
-            <img
-              src={profileImageUri ? profileImageUri : pin}
-              alt='profile'
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                borderRadius: '1rem',
-              }}
-            />
-          </div>
-          <div className='user-meta'>
-            <div className='user-name'>
-              <b>{userName || '이름없음'}</b>{' '}
-              <span className='user-role'>{userPosition || '직급없음'}</span>
-            </div>
-            <div className='user-desc'>
-              {departmentName ? `부서: ${departmentName}` : '부서 정보 없음'}
-            </div>
-            <div className='user-edit'>개인정보 수정</div>
-          </div>
-        </div>
+        <UserCard
+          userName={userName}
+          userPosition={userPosition}
+          departmentName={departmentName}
+          profileImageUri={profileImageUri}
+          onEditProfile={() => {}}
+        />
         <div className='hr-tools'>
-          <div className='calendar-mock'>
-            <div
-              className='calendar-title'
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <button
-                style={{
-                  border: 'none',
-                  background: 'none',
-                  fontSize: '1.1em',
-                  cursor: 'pointer',
-                }}
-                onClick={handlePrevMonth}
-              >
-                &lt;
-              </button>
-              {monthNames[month]} {year}
-              <button
-                style={{
-                  border: 'none',
-                  background: 'none',
-                  fontSize: '1.1em',
-                  cursor: 'pointer',
-                }}
-                onClick={handleNextMonth}
-              >
-                &gt;
-              </button>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Mo</th>
-                  <th>Tu</th>
-                  <th>We</th>
-                  <th>Th</th>
-                  <th>Fr</th>
-                  <th>Sa</th>
-                  <th>Su</th>
-                </tr>
-              </thead>
-              <tbody>
-                {calendarMatrix.map((row, i) => (
-                  <tr key={i}>
-                    {row.map((date, j) => (
-                      <td
-                        key={j}
-                        style={
-                          date &&
-                          today.getFullYear() === year &&
-                          today.getMonth() === month &&
-                          today.getDate() === date
-                            ? {
-                                background: '#2b80ff',
-                                color: '#fff',
-                                borderRadius: '50%',
-                              }
-                            : undefined
-                        }
-                      >
-                        {date || ''}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <CalendarWidget
+            calendarDate={calendarDate}
+            setCalendarDate={setCalendarDate}
+            today={today}
+            calendarMatrix={calendarMatrix}
+            monthNames={monthNames}
+            handlePrevMonth={handlePrevMonth}
+            handleNextMonth={handleNextMonth}
+            year={year}
+            month={month}
+          />
         </div>
       </div>
       {/* 메인 카드 섹션 */}
@@ -289,11 +215,13 @@ export default function HRPage() {
               <button className='active'>공지사항</button>
               <div className='menu-icon'>≡</div>
             </div>
-            <ul className='notice-list'>
-              <li>정기 인사 발령 안내드립니다.(2025-06-10)</li>
-              <li>정기 인사 발령 안내드립니다.(2025-02-10)</li>
-              <li>정기 인사 발령 안내드립니다.(2024-10-10)</li>
-            </ul>
+            <NoticeList
+              notices={[
+                '정기 인사 발령 안내드립니다.(2025-06-10)',
+                '정기 인사 발령 안내드립니다.(2025-02-10)',
+                '정기 인사 발령 안내드립니다.(2024-10-10)',
+              ]}
+            />
           </div>
         </div>
         {/* 두번째 줄 */}
@@ -327,35 +255,7 @@ export default function HRPage() {
               <button className='active'>이달의 사원</button>
               <div className='menu-icon'>≡</div>
             </div>
-            <div className='employee-of-month'>
-              <div className='eom-slider'>
-                {eomList.map((eom, idx) => (
-                  <div
-                    key={eom.name}
-                    className={`eom-slide${idx === eomIndex ? ' active' : ''}`}
-                  >
-                    <div className='eom-avatar'>
-                      <img src={eom.img} alt='이달의 사원' />
-                    </div>
-                    <div className='eom-info'>
-                      <div className='eom-name'>{eom.name}</div>
-                      <div className='eom-dept'>{eom.dept}</div>
-                      <div className='eom-comment'>"{eom.comment}"</div>
-                    </div>
-                  </div>
-                ))}
-                {/* 페이지네이션 */}
-                <div className='eom-pagination'>
-                  {eomList.map((_, idx) => (
-                    <span
-                      key={idx}
-                      className={idx === eomIndex ? 'active' : ''}
-                      onClick={() => setEomIndex(idx)}
-                    ></span>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <EmployeeOfMonthCarousel />
           </div>
           {/* 자주 방문하는 메뉴 */}
           <div className='hr-card hr-tab-card'>
