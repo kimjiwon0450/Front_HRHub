@@ -157,6 +157,7 @@ export default function EmployeeViewList() {
                 <option value='name'>이름</option>
                 <option value='department'>부서</option>
                 <option value='position'>직급</option>
+                <option value='role'>직책</option>
                 <option value='phone'>연락처</option>
               </select>
               <input
@@ -195,6 +196,7 @@ export default function EmployeeViewList() {
                   <th>이름</th>
                   <th>부서</th>
                   <th>직급</th>
+                  <th>직책</th>
                   <th>연락처</th>
                 </tr>
               </thead>
@@ -209,6 +211,7 @@ export default function EmployeeViewList() {
                     <td>{emp.name}</td>
                     <td>{emp.department}</td>
                     <td>{emp.position}</td>
+                    <td>{emp.role}</td>
                     <td>{emp.phone}</td>
                   </tr>
                 ))}
