@@ -138,7 +138,7 @@ export default function HRPage() {
 
   return (
     <div className='hrpage-root'>
-      <HRHeader />
+      {/* <HRHeader /> */}
       {/* 유저 카드 + 검색/달력 */}
       <div className='hr-top'>
         <UserCard
@@ -226,25 +226,35 @@ export default function HRPage() {
         </div>
         {/* 두번째 줄 */}
         <div className='hr-row'>
-          {/* 인사담당자 */}
+          {/* 우리팀 직원 */}
           <div className='hr-card hr-tab-card'>
             <div className='tabs'>
-              <button className='active'>인사담당자</button>
+              <button className='active'>우리팀 직원</button>
               <div className='menu-icon'>≡</div>
             </div>
             <table className='mini-table'>
               <thead>
                 <tr>
-                  <th>업무</th>
                   <th>성명</th>
+                  <th>직급</th>
                   <th>연락처</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>채용</td>
-                  <td>유**</td>
-                  <td>8875</td>
+                  <td>유재석</td>
+                  <td>팀장</td>
+                  <td>010-1234-5678</td>
+                </tr>
+                <tr>
+                  <td>김종국</td>
+                  <td>대리</td>
+                  <td>010-2345-6789</td>
+                </tr>
+                <tr>
+                  <td>하하</td>
+                  <td>사원</td>
+                  <td>010-3456-7890</td>
                 </tr>
               </tbody>
             </table>
