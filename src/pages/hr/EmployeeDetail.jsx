@@ -170,8 +170,10 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
               </tr>
               <tr>
                 <th>근무부서</th>
-                <td colSpan={3}>{employee.department}</td>
-                <th>직무/단계</th>
+                <td>{employee.department}</td>
+                <th>직급</th>
+                <td>{employee.position}</td>
+                <th>직책</th>
                 <td>{employee.role}</td>
               </tr>
               <tr>

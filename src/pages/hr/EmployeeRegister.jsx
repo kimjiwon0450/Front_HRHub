@@ -14,6 +14,7 @@ export default function EmployeeRegister() {
   const [departmentId, setDepartmentId] = useState(1);
   const [address, setAddress] = useState('');
   const [role, setRole] = useState('EMPLOYEE');
+  const [position, setPosition] = useState('INTERN'); // 직책 추가
   const [phone, setPhone] = useState('');
   const [memo, setMemo] = useState('');
   const [isNewEmployee, setIsNewEmployee] = useState(true);
@@ -86,6 +87,7 @@ export default function EmployeeRegister() {
         memo,
         isNewEmployee,
         hireDate,
+        position, // 추가
       });
       alert('등록 성공!');
       navigate('/hr/employee-list');
@@ -227,16 +229,7 @@ export default function EmployeeRegister() {
               </div>
             </div>
             <div>
-              <label className='reg-label'>주소</label>
-              <input
-                className='reg-input'
-                type='text'
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className='reg-label'>직급</label>
+              <label className='reg-label'>직책</label>
               <select
                 className='reg-input'
                 value={role}
@@ -245,6 +238,29 @@ export default function EmployeeRegister() {
                 <option value='EMPLOYEE'>EMPLOYEE</option>
                 <option value='HR_MANAGER'>HR_MANAGER</option>
               </select>
+            </div>
+            <div>
+              <label className='reg-label'>직급</label>
+              <select
+                className='reg-input'
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+              >
+                <option value='INTERN'>INTERN</option>
+                <option value='JUNIOR'>JUNIOR</option>
+                <option value='SENIOR'>SENIOR</option>
+                <option value='MANAGER'>MANAGER</option>
+                <option value='DIRECTOR'>DIRECTOR</option>
+              </select>
+            </div>
+            <div>
+              <label className='reg-label'>주소</label>
+              <input
+                className='reg-input'
+                type='text'
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
             </div>
             <div>
               <label className='reg-label'>핸드폰</label>
