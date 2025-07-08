@@ -56,18 +56,13 @@ const NoticeBoardDetail = () => {
                 });
 
                 const data = await res.json();
-                setPosts(data);
+                setPosts(data); // ✅ posts를 여기서만 세팅
 
                 console.log('data : ', data);
                 console.log('data.employeeId : ', data.employeeId);
-                console.log('posts : ', posts);
                 console.log('userId : ', userId);
 
-                // ✅ 작성자 여부 판단
-                if (data.employeeId === userId) {
-                    setIsAuthor(true);
-                    console.log('작성자 맞음!')
-                }
+                // ✅ 작성자 여부 판단은 아래 useEffect에서 처리
 
                 // ✅ 읽음 처리
                 await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/read`, {
@@ -87,15 +82,17 @@ const NoticeBoardDetail = () => {
         fetchPost();
     }, [id, accessToken, isInit, userId]);
 
-    // ✅ posts가 바뀐 이후 작성자인지 여부 판단
+    // ✅ 수정된 부분: posts가 세팅된 이후에만 작성자 여부 판단
     useEffect(() => {
         if (posts && userId) {
-            if (posts.employeeId === userId) {
+            if (posts.employeeId === Number(userId)) {
                 setIsAuthor(true);
                 console.log('작성자 맞음!');
+            } else {
+                console.log('작성자 아님!');
             }
         }
-    }, [posts, userId]);
+    }, [posts, userId]); // ✅ 여기서만 판단하도록 분리
 
     if (loading) return <p>불러오는 중...</p>;
     if (!posts) return <p>게시글을 찾을 수 없습니다.</p>;
