@@ -3,6 +3,7 @@ import './EmployeeDetail.scss';
 import HRHeader from './HRHeader';
 import EmployeeEdit from './EmployeeEdit';
 import EvaluationForm from './EvaluationForm';
+import TransferHistoryModal from './TransferHistoryModal';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import pin from '../../assets/pin.jpg';
@@ -11,10 +12,11 @@ import { UserContext } from '../../context/UserContext';
 export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   const [showEdit, setShowEdit] = useState(false);
   const [showEval, setShowEval] = useState(false);
+  const [showTransferHistory, setShowTransferHistory] = useState(false); // 모달 토글용
   const [localEmployee, setLocalEmployee] = useState(employee);
   const [imageUri, setImageUri] = useState('');
   const fileInputRef = useRef(null);
-  const { userRole, userId } = useContext(UserContext); // 프로필 이미지 수정을 위해 현재사용자 정보 가져옴
+  const { userRole, userId } = useContext(UserContext);
 
   const canEdit =
     userRole === 'HR_MANAGER' ||
@@ -129,6 +131,12 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
 
   return (
     <>
+      {showTransferHistory && (
+        <TransferHistoryModal
+          employeeId={employee.employeeId}
+          onClose={() => setShowTransferHistory(false)}
+        />
+      )}
       <div className='emp-detail-root'>
         <div className='emp-detail-main'>
           <div className='emp-profile'>
@@ -222,6 +230,12 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
               </button>
             </>
           )}
+          <button
+            className='btn blue'
+            onClick={() => setShowTransferHistory(true)}
+          >
+            인사이동 이력
+          </button>
           <button className='btn gray' onClick={onClose}>
             목록
           </button>
