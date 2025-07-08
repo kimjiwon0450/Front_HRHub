@@ -1,13 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ContactList.scss';
+import axiosInstance from '../../configs/axios-config';
+import { get } from 'lodash';
+import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 
-// 더미 데이터 (실제 API 연동시 교체)
-const dummyDepartments = [
-  { id: 1, name: '경영팀' },
-  { id: 2, name: '인사팀' },
-  { id: 3, name: '재고팀' },
-  { id: 4, name: 'CS팀' },
-];
 const dummyEmployees = [
   {
     id: 1,
@@ -20,13 +16,33 @@ const dummyEmployees = [
   // ... 여러명 더 추가 가능
 ];
 
-export default function ContactList() {
+const ContactList = () => {
   const [selectedDept, setSelectedDept] = useState('전체');
   const [searchField, setSearchField] = useState('name');
   const [searchText, setSearchText] = useState('');
   const [sortField, setSortField] = useState('name');
   const [page, setPage] = useState(1);
   const size = 8;
+
+  const [departmentList, setDepartmentList] = useState([]);
+
+  //부서 가져오기
+  useEffect(() => {
+    const getDepartments = async () => {
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${HR_SERVICE}/departments`,
+      );
+
+      if (res.status === 200) {
+        setDepartmentList(res.data.result);
+      } else {
+        alert(
+          res.data.statusMessage || '부서 목록을 가져오는 데 실패했습니다.',
+        );
+      }
+    };
+    getDepartments();
+  }, []);
 
   // 부서 필터링
   const filteredEmployees = dummyEmployees.filter(
@@ -55,7 +71,7 @@ export default function ContactList() {
           >
             전체
           </li>
-          {dummyDepartments.map((dept) => (
+          {departmentList.map((dept) => (
             <li
               key={dept.id}
               className={selectedDept === dept.name ? 'selected' : ''}
@@ -130,4 +146,6 @@ export default function ContactList() {
       </section>
     </div>
   );
-}
+};
+
+export default ContactList;
