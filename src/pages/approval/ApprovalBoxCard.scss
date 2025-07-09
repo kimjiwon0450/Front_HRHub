@@ -1,0 +1,53 @@
+.approvalbox-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1.5px solid #e0e0e0;
+  transition: box-shadow 0.2s, border 0.2s;
+  &.status-미결 {
+    border-color: #2196f3;
+  }
+  &.status-종결 {
+    border-color: #4caf50;
+  }
+  &.status-열람 {
+    border-color: #ff9800;
+  }
+  .approvalbox-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 6px;
+  }
+  .approvalbox-info {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    .approvalbox-status {
+      font-size: 15px;
+      font-weight: 600;
+      &.status-미결 {
+        color: #2196f3;
+      }
+      &.status-종결 {
+        color: #4caf50;
+      }
+      &.status-열람 {
+        color: #ff9800;
+      }
+    }
+    .approvalbox-date {
+      font-size: 14px;
+      color: #888;
+    }
+    .approvalbox-writer {
+      font-size: 15px;
+      color: #2196f3;
+      font-weight: 600;
+    }
+  }
+} 

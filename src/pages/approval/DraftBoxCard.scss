@@ -1,0 +1,45 @@
+.draftbox-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1.5px solid #e0e0e0;
+  transition: box-shadow 0.2s, border 0.2s;
+  &.closed {
+    border-color: #4caf50;
+  }
+  &.recalled {
+    border-color: #bdbdbd;
+  }
+  .draftbox-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 6px;
+  }
+  .draftbox-info {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    .draftbox-status {
+      font-size: 15px;
+      font-weight: 600;
+      color: #4caf50;
+      &.recalled {
+        color: #bdbdbd;
+      }
+    }
+    .draftbox-date {
+      font-size: 14px;
+      color: #888;
+    }
+    .draftbox-writer {
+      font-size: 15px;
+      color: #2196f3;
+      font-weight: 600;
+    }
+  }
+} 
