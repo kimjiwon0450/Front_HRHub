@@ -133,7 +133,15 @@ export default function EmployeeList() {
     setSearchField('name');
     setSearchText('');
     setSearchDept('전체');
-    getEmployeeList({ field: 'name', keyword: '', department: '전체' });
+    setSortField(null); // 정렬 초기화
+    setSortOrder('asc'); // 정렬 초기화
+    getEmployeeList({
+      field: 'name',
+      keyword: '',
+      department: '전체',
+      sortField: null,
+      sortOrder: 'asc',
+    });
     setSelectedId(null);
   };
 

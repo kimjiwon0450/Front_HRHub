@@ -238,9 +238,9 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
           >
             인사이동 이력
           </button>
-          <button className='btn gray' onClick={onClose}>
+          {/* <button className='btn gray' onClick={onClose}>
             목록
-          </button>
+          </button> */}
         </div>
       </div>
     </>
