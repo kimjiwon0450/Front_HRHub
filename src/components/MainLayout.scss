@@ -22,6 +22,9 @@ $border: #eceff3;
   padding: 2rem 1rem 1.5rem 1rem;
   border-right: 1px solid $border;
   z-index: 2;
+  position: sticky;
+  top: 0;
+  height: 100vh;
 
   .logo {
     margin-bottom: 0;

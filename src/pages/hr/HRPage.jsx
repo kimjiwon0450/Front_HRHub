@@ -9,6 +9,7 @@ import EmployeeOfMonthCarousel from './EmployeeOfMonthCarousel';
 import UserCard from './UserCard';
 import CalendarWidget from './CalendarWidget';
 import NoticeList from './NoticeList';
+import EmployeeEdit from './EmployeeEdit'; // EmployeeEdit 컴포넌트 임포트
 
 export default function HRPage() {
   const { userName, userRole, userImage, userPosition, departmentId, userId } =
@@ -16,6 +17,8 @@ export default function HRPage() {
   const [departments, setDepartments] = useState([]);
   const [departmentName, setDepartmentName] = useState('');
   const [profileImageUri, setProfileImageUri] = useState('');
+  const [showEdit, setShowEdit] = useState(false); // 수정 컴포넌트 토글 상태
+  const [currentUserEmployee, setCurrentUserEmployee] = useState(null); // 현재 사용자 정보 상태
 
   // 달력 상태 및 유틸
   const today = new Date();
@@ -98,8 +101,10 @@ export default function HRPage() {
           `${API_BASE_URL}${HR_SERVICE}/employees/${userId}`,
         );
         setProfileImageUri(res.data.result.profileImageUri || '');
+        setCurrentUserEmployee(res.data.result); // 전체 직원 정보 저장
       } catch (err) {
         setProfileImageUri('');
+        setCurrentUserEmployee(null);
       }
     }
     fetchEmployee();
@@ -136,6 +141,32 @@ export default function HRPage() {
     return () => clearInterval(timer);
   }, [eomList.length]);
 
+  // 수정 컴포넌트가 활성화되면 해당 컴포넌트만 렌더링
+  if (showEdit) {
+    return (
+      <EmployeeEdit
+        employee={currentUserEmployee}
+        hideHeader={true}
+        onClose={() => {
+          setShowEdit(false);
+          // 데이터가 수정되었을 수 있으니 다시 불러오기
+          const fetchEmployee = async () => {
+            try {
+              const res = await axiosInstance.get(
+                `${API_BASE_URL}${HR_SERVICE}/employees/${userId}`,
+              );
+              setProfileImageUri(res.data.result.profileImageUri || '');
+              setCurrentUserEmployee(res.data.result);
+            } catch (err) {
+              console.error(err);
+            }
+          };
+          fetchEmployee();
+        }}
+      />
+    );
+  }
+
   return (
     <div className='hrpage-root'>
       {/* <HRHeader /> */}
@@ -146,7 +177,7 @@ export default function HRPage() {
           userPosition={userPosition}
           departmentName={departmentName}
           profileImageUri={profileImageUri}
-          onEditProfile={() => {}}
+          onEditProfile={() => setShowEdit(true)} // 수정 버튼 클릭 시 토글
         />
         <div className='hr-tools'>
           <CalendarWidget

@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './EmployeeRegister.scss'; // 스타일 재사용!
 import HRHeader from './HRHeader';
 import axios from 'axios';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../../context/UserContext';
 
-export default function EmployeeEdit({ employee, onClose }) {
+export default function EmployeeEdit({ employee, onClose, hideHeader }) {
   // 기존 employee prop을 state로 복사 (혹은 useEffect로 세팅)
   const [email, setEmail] = useState('');
   const [employeeName, setEmployeeName] = useState('');
@@ -23,12 +24,15 @@ export default function EmployeeEdit({ employee, onClose }) {
   const [isNewEmployee, setIsNewEmployee] = useState(true);
   const [hireDate, setHireDate] = useState('');
   const [position, setPosition] = useState(''); // 직급 초기값 설정
+  const [currentEmployeeId, setCurrentEmployeeId] = useState(null); // 현재 수정할 직원의 ID
 
   const navigate = useNavigate();
+  const { userId } = useContext(UserContext); // UserContext에서 userId 가져오기
 
-  // mount 시 기존 데이터로 state 초기화
+  // prop으로 받은 employee가 있으면 그 정보를 사용하고, 없으면 userId로 본인 정보를 조회
   useEffect(() => {
     if (employee) {
+      setCurrentEmployeeId(employee.employeeId);
       setEmail(employee.email || '');
       setEmployeeName(employee.name || '');
       setBirth(employee.birthday.split('T')[0] || ''); // API에 따라 birth or birthday
@@ -40,8 +44,35 @@ export default function EmployeeEdit({ employee, onClose }) {
       setMemo(employee.memo || '');
       setIsNewEmployee(employee.isNewEmployee !== false); // true(신입), false(경력)
       setHireDate(employee.hireDate ? employee.hireDate.split('T')[0] : ''); // 입사일 초기화
+    } else if (userId) {
+      // prop이 없을 때, userId로 본인 정보를 조회
+      const fetchMyData = async () => {
+        try {
+          const res = await axiosInstance.get(
+            `${API_BASE_URL}${HR_SERVICE}/employees/${userId}`,
+          );
+          const myData = res.data.result;
+          setCurrentEmployeeId(myData.employeeId);
+          setEmail(myData.email || '');
+          setEmployeeName(myData.name || '');
+          setBirth(myData.birthday ? myData.birthday.split('T')[0] : '');
+          setDepartmentId(myData.departmentId || 1);
+          setAddress(myData.address || '');
+          setRole(myData.role || '');
+          setPhone(myData.phone || '');
+          setPosition(myData.position || '');
+          setMemo(myData.memo || '');
+          setIsNewEmployee(myData.isNewEmployee !== false);
+          setHireDate(myData.hireDate ? myData.hireDate.split('T')[0] : '');
+        } catch (error) {
+          console.error('Failed to fetch my data:', error);
+          alert('내 정보를 불러오는 데 실패했습니다.');
+          navigate(-1); // 이전 페이지로 돌아가기
+        }
+      };
+      fetchMyData();
     }
-  }, [employee]);
+  }, [employee, userId, navigate]);
 
   // 부서 목록 불러오기
   const fetchDepartments = async () => {
@@ -117,7 +148,7 @@ export default function EmployeeEdit({ employee, onClose }) {
     }
     try {
       await axiosInstance.patch(
-        `http://localhost:8000${HR_SERVICE}/employees/${employee.employeeId}`,
+        `${API_BASE_URL}${HR_SERVICE}/employees/${currentEmployeeId}`,
         {
           email,
           name: employeeName,
@@ -134,7 +165,11 @@ export default function EmployeeEdit({ employee, onClose }) {
         },
       );
       alert('수정 성공!');
-      window.location.reload(); // 수정 후 새로고침
+      if (onClose) {
+        onClose(); // 모달로 사용될 경우 닫기 함수 호출
+      } else {
+        window.location.reload(); // 페이지로 사용될 경우 새로고침
+      }
     } catch (error) {
       alert(error?.response?.data?.statusMessage || error.message);
     }
@@ -142,7 +177,7 @@ export default function EmployeeEdit({ employee, onClose }) {
 
   return (
     <>
-      <HRHeader />
+      {!hideHeader && <HRHeader />}
       <div className='register-root'>
         <h2 className='register-title'>정보 수정</h2>
 
@@ -153,6 +188,8 @@ export default function EmployeeEdit({ employee, onClose }) {
             <input
               className='reg-input'
               value={email}
+              readOnly={!!employee || !!userId} // employee prop이 있거나 userId가 있으면 readonly
+              style={{ backgroundColor: '#eee' }}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
@@ -302,7 +339,11 @@ export default function EmployeeEdit({ employee, onClose }) {
 
           {/* 하단 버튼 */}
           <div className='reg-btns'>
-            <button type='button' className='btn gray' onClick={onClose}>
+            <button
+              type='button'
+              className='btn gray'
+              onClick={() => (onClose ? onClose() : navigate(-1))} // 취소 버튼 동작 수정
+            >
               취소
             </button>
             <button type='submit' className='btn blue'>
