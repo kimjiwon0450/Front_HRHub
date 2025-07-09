@@ -599,3 +599,47 @@
   }
 }
 
+
+.existing-attachments {
+  margin-top: 20px;
+
+  h4 {
+    margin-bottom: 10px;
+  }
+
+  img {
+    max-width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+
+  a {
+    color: #007bff;
+    text-decoration: underline;
+  }
+}
+
+
+.existing-files {
+  margin-top: 10px;
+
+  h4 {
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+
+  a {
+    font-size: 14px;
+    text-decoration: underline;
+    color: #007bff;
+  }
+
+  button {
+    font-size: 13px;
+    background: none;
+    border: none;
+    color: #d9534f;
+    cursor: pointer;
+  }
+}

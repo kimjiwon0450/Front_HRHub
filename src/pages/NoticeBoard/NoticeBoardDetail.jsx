@@ -12,6 +12,8 @@ const NoticeBoardDetail = () => {
     const [posts, setPosts] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isAuthor, setIsAuthor] = useState(false); // ✅ 상태값으로 분리
+    const [attachments, setAttachments] = useState([]);
+    
 
     const { accessToken, userId, isInit } = useContext(UserContext);
     const navigate = useNavigate();
@@ -45,6 +47,31 @@ const NoticeBoardDetail = () => {
         navigate(-1); // 뒤로가기
     };
 
+    const isImageFile = (url) => {
+        return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(url);
+    };
+
+    // 파일 다운로드 유틸 함수
+    const forceDownload = async (url, filename) => {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            alert('파일 다운로드에 실패했습니다.');
+            console.error(error);
+        }
+    };
+
+
     useEffect(() => {
         if (!isInit || !accessToken) return;
 
@@ -63,7 +90,24 @@ const NoticeBoardDetail = () => {
                 console.log('data.employeeId : ', data.employeeId);
                 console.log('userId : ', userId);
 
-                // ✅ 작성자 여부 판단은 아래 useEffect에서 처리
+                // ✅ 첨부파일 파싱
+                let attachments = [];
+                if (data.attachmentUri) {
+                    try {
+                        if (data.attachmentUri.trim().startsWith('[')) {
+                            // JSON 배열인 경우
+                            const parsed = JSON.parse(data.attachmentUri);
+                            attachments = Array.isArray(parsed) ? parsed : [parsed];
+                        } else {
+                            // 쉼표 구분 문자열인 경우
+                            attachments = data.attachmentUri.split(',').map(url => url.trim());
+                        }
+                    } catch (e) {
+                        console.error('첨부파일 파싱 실패', e);
+                        attachments = [];
+                    }
+                }
+                setAttachments(attachments);
 
                 // ✅ 읽음 처리
                 await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/read`, {
@@ -104,18 +148,46 @@ const NoticeBoardDetail = () => {
     return (
         <div className="notice-detail">
             <h2>{posts.notice ? '[공지] ' : ''}{posts.title}</h2>
-            <div className="meta">
-                <p>작성자 : {posts.name}</p>
-                <p>부서 : {posts.departmentName}</p>
-                <p>등록일 : {posts.createdAt?.substring(0, 10)}</p>
-                <p>조회수 : {posts.viewCount}</p>
+            <div className="meta-with-attachment">
+                <div className="meta">
+                    <p>작성자 : {posts.name}</p>
+                    <p>부서 : {posts.departmentName}</p>
+                    <p>등록일 : {posts.createdAt?.substring(0, 10)}</p>
+                    <p>조회수 : {posts.viewCount}</p>
+                </div>
+                {attachments.length > 0 && (
+                    <div className="attachment-link">
+                        <a href="#!"
+                           onClick={() => 
+                            forceDownload(attachments[0], attachments[0].split('/').pop())} rel="noopener noreferrer">
+                            📎 첨부파일
+                        </a>
+                    </div>
+                )}
             </div>
             <hr />
             <div className="content">{posts.content}</div>
 
-            {posts.fileUrl && (
-                <div className="attachment">
-                    <a href={posts.fileUrl} download>📎 첨부파일 다운로드</a>
+            {/* ✅ 첨부파일 미리보기 */}
+            {attachments.length > 0 && (
+                <div className="attachments">
+                    {attachments.map((url, idx) => (
+                        <div key={idx} style={{ marginBottom: '10px' }}>
+                            {isImageFile(url) ? (
+                                <img
+                                    src={url}
+                                    alt={`attachment-${idx}`}
+                                    style={{ maxWidth: '100%', borderRadius: '8px' }}
+                                />
+                                
+                                ) : (
+                                <a href="#!" onClick={() => forceDownload(url, url.split('/').pop())}>
+                                    📎 파일 다운로드 {url.split('/').pop()}
+                                </a>
+                                )
+                            }
+                        </div>
+                    ))}
                 </div>
             )}
 

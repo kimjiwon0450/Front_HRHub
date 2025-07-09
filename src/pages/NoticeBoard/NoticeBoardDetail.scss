@@ -132,3 +132,50 @@
     }
   }
   
+
+  .attachments {
+    margin-top: 20px;
+  
+    h4 {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+  
+    img {
+      max-width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+  
+    a {
+      color: #007bff;
+      text-decoration: underline;
+      font-size: 15px;
+    }
+  }
+  
+
+  .meta-with-attachment {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .attachment-link a {
+    font-weight: bold;
+    text-decoration: none;
+    color: #0077cc;
+    transition: 0.2s;
+  }
+  
+  .attachment-link a:hover {
+    text-decoration: underline;
+  }
+  
