@@ -150,7 +150,7 @@ const NoticeBoardDetail = () => {
             <h2>{posts.notice ? '[공지] ' : ''}{posts.title}</h2>
             <div className="meta-with-attachment">
                 <div className="meta">
-                    <p>작성자 : {posts.name}</p>
+                    <p>작성자 : {posts.name}{posts.employStatus === 'INACTIVE' ? ' (퇴사)' : ''}</p>
                     <p>부서 : {posts.departmentName}</p>
                     <p>등록일 : {posts.createdAt?.substring(0, 10)}</p>
                     <p>조회수 : {posts.viewCount}</p>

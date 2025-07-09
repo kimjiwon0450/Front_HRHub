@@ -209,7 +209,10 @@ const NoticeBoardList = () => {
                                 <tr key={`notice-${post.id}`} className="notice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
                                     <td>{post.id}</td>
                                     <td>{post.title}</td>
-                                    <td>{post.name}</td>
+                                    <td>
+                                        {post.name}
+                                        {post.employStatus === 'INACTIVE' ? ' (퇴사)' : ''}
+                                    </td>
                                     <td>{new Date(post.createdAt).toLocaleDateString()}</td>
                                     <td>{post.viewCount}</td>
                                 </tr>
