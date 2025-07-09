@@ -127,7 +127,7 @@ export default function EmployeeEdit({ employee, onClose }) {
           phone,
           status: employee.status || 'ACTIVE',
           role: employee.role,
-          position: employee.position,
+          position: position,
           memo,
           isNewEmployee,
           hireDate,
