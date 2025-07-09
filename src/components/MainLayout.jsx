@@ -8,7 +8,7 @@ import { UserContext } from '../context/UserContext';
 const sidebarMenus = [
   { to: '/noticeboard', label: '공지사항', icon: '📢' },
   { to: '/dashboard', label: '대시보드', icon: '📊' },
-  { to: '/hr', label: '인사관리', icon: '👥' },
+  { to: '/hr/employee-list', label: '인사관리', icon: '👥' },
   { to: '/approval', label: '전자결재', icon: '✍️' },
 ];
 

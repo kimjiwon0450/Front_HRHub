@@ -4,17 +4,17 @@ import { API_BASE_URL } from '../configs/host-config';
 
 export const UserContext = React.createContext({
   isLoggedIn: false,
-  onLogin: () => { },
-  onLogout: () => { },
+  onLogin: () => {},
+  onLogout: () => {},
   userRole: '',
   userPosition: '',
   userName: '',
   badge: null,
-  setBadge: () => { },
+  setBadge: () => {},
   userId: null,
   departmentId: null,
   userImage: '', // 유저 프로필사진
-  setUserImage: () => { },
+  setUserImage: () => {},
   isInit: false,
   accessToken: '',
 });
