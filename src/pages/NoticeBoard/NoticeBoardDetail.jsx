@@ -157,13 +157,19 @@ const NoticeBoardDetail = () => {
                 </div>
                 {attachments.length > 0 && (
                     <div className="attachment-link">
-                        <a href="#!"
-                           onClick={() => 
-                            forceDownload(attachments[0], attachments[0].split('/').pop())} rel="noopener noreferrer">
-                            📎 첨부파일
-                        </a>
+                        {attachments.map((url, idx) => (
+                        <div key={idx} style={{ marginBottom: '6px' }}>
+                            <a
+                            href="#!"
+                            onClick={() => forceDownload(url, url.split('/').pop())}
+                            rel="noopener noreferrer"
+                            >
+                            📎 {url.split('/').pop()}
+                            </a>
+                        </div>
+                        ))}
                     </div>
-                )}
+                    )}
             </div>
             <hr />
             <div className="content">{posts.content}</div>

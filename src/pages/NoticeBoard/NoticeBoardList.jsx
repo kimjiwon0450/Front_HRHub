@@ -120,14 +120,39 @@ const NoticeBoardList = () => {
                             if (e.key === 'Enter') handleSearch();
                         }}
                     />
-                    <select name="sortBy" value={filters.sortBy} onChange={handleInputChange}>
-                        <option value="createdAt">등록일</option>
-                        <option value="title">제목</option>
-                    </select>
-                    <select name="sortDir" value={filters.sortDir} onChange={handleInputChange}>
-                        <option value="desc">내림차순</option>
-                        <option value="asc">오름차순</option>
-                    </select>
+
+                    <div className="sort-options" style={{ display: 'flex', alignItems: 'center' }}>
+                        <select
+                            name="sortBy"
+                            value={filters.sortBy}
+                            onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
+                        >
+                            <option value="createdAt">등록일</option>
+                            <option value="title">제목</option>
+                            <option value="viewCount">조회수</option>
+                        </select>
+
+                        <button
+                            onClick={() =>
+                                setFilters(prev => ({
+                                    ...prev,
+                                    sortDir: prev.sortDir === 'asc' ? 'desc' : 'asc'
+                                }))
+                            }
+                            style={{
+                                marginLeft: '8px',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: '1.2em',
+                            }}
+                            title={filters.sortDir === 'asc' ? '오름차순' : '내림차순'}
+                        >
+                            {filters.sortDir === 'asc' ? '⬆️' : '⬇️'}
+                        </button>
+                    </div>
+
+                    
                     <button onClick={handleSearch}>검색</button>
                     <button
                         className="reset-button"
