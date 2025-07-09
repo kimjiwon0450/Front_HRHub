@@ -3,11 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import './HRHeader.scss';
 
 const menus = [
-  { label: '홈', path: '/hr' },
   { label: '인사조회', path: '/hr/employee-list' },
   { label: '인사평가 조회', path: '/hr/employee-eval-list' },
   { label: '내 인사평가 이력', path: '/hr/my-evaluations' },
-  { label: '커뮤니티', path: '/community' },
   { label: '신규등록', path: '/hr/employee-register' },
 ];
 

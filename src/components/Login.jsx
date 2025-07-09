@@ -5,7 +5,6 @@ import axios from 'axios';
 import { API_BASE_URL, HR_SERVICE } from '../configs/host-config';
 import { UserContext, UserContextProvider } from '../context/UserContext';
 
-
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
@@ -18,6 +17,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
   const isResetMode = !!emailParam; // email 쿼리가 있으면 "비번 재설정" 모드
   const { onLogin, isLoggedIn } = useContext(UserContext);
 
@@ -51,6 +51,7 @@ export default function Login() {
         await axios.patch(`${API_BASE_URL}${HR_SERVICE}/employees/password`, {
           email,
           password: newPassword,
+          verificationCode, // 인증번호 추가
         });
         alert('비밀번호 설정 완료!');
         navigate('/');
@@ -102,6 +103,14 @@ export default function Login() {
           {isResetMode ? (
             // 비밀번호 재설정 모드
             <>
+              <label htmlFor='verificationCode'>인증번호 입력</label>
+              <input
+                type='text'
+                id='verificationCode'
+                placeholder='인증번호'
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+              />
               <label htmlFor='newPassword'>새 비밀번호 입력</label>
               <input
                 type='password'
