@@ -46,7 +46,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
 
                     if (res.data.attachmentUri) {
                         try {
-                            const parsed = JparseAttachmentUri(data.attachmentUri);
+                            const parsed = parseAttachmentUri(res.data.attachmentUri);
                             if (Array.isArray(parsed)) setExistingFiles(parsed);
                         } catch (e) {
                             console.error('첨부파일 파싱 실패', e);
