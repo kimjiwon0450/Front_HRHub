@@ -39,14 +39,46 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
 
 
     const handleSubmit = async () => {
-        const noticeData = {
-            title,
-            content,
-            notice: type === 'notice',
-            attchmentUri: files.length > 0, // 필요 시 서버 DTO 필드
-        };
+        const uploadedFileUrls = [];
 
         try {
+
+            // ✅ 파일이 있다면 presigned URL 받아서 직접 업로드
+            if (files.length > 0) {
+                for (const file of files) {
+                    // 1. presigned URL 요청
+                    const res = await axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/upload-url`, {
+                        params: { fileName: file.name },
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    });
+
+                    const presignedUrl = res.data;
+
+                    // 2. S3에 파일 업로드
+                    await axios.put(presignedUrl, file, {
+                        headers: {
+                            'Content-Type': file.type,
+                        },
+                    });
+
+                    // 3. 업로드된 S3의 정적 URL 추출
+                    const uploadedUrl = presignedUrl.split('?')[0];
+                    uploadedFileUrls.push(uploadedUrl);
+                }
+            }
+
+
+            // ✅ 게시글 데이터 구성
+            const noticeData = {
+                title,
+                content,
+                notice: type === 'notice',
+                attachmentUri: uploadedFileUrls.length > 0 ? JSON.stringify(uploadedFileUrls) : null,
+            };
+
+        
             console.log('noticeData : ', noticeData);
             if (isEdit) {
                 await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, noticeData, {
