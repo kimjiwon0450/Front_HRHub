@@ -5,6 +5,7 @@ import {
     NOTICE_SERVICE
 } from '../../configs/host-config';
 import { UserContext } from '../../context/UserContext';
+import './NoticeBoardDetail.scss';
 
 const NoticeBoardDetail = () => {
     const { id } = useParams();
@@ -102,7 +103,7 @@ const NoticeBoardDetail = () => {
 
     return (
         <div className="notice-detail">
-            <h2>{posts.isNotice ? '[공지] ' : ''}{posts.title}</h2>
+            <h2>{posts.notice ? '[공지] ' : ''}{posts.title}</h2>
             <div className="meta">
                 <p>작성자 : {posts.name}</p>
                 <p>부서 : {posts.departmentName}</p>

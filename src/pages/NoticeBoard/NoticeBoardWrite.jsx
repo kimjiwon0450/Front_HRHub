@@ -28,7 +28,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                 .then((res) => {
                     setTitle(res.data.title ?? '');
                     setContent(res.data.content ?? '');
-                    setType(res.data.isNotice ? 'notice' : 'post');
+                    setType(res.data.notice ? 'notice' : 'post');
                 })
                 .catch(err => {
                     console.error(err);
@@ -43,7 +43,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
             title,
             content,
             notice: type === 'notice',
-            hasAttachment: files.length > 0, // 필요 시 서버 DTO 필드
+            attchmentUri: files.length > 0, // 필요 시 서버 DTO 필드
         };
 
         try {
