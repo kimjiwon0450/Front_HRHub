@@ -13,12 +13,12 @@ const sidebarMenus = [
 ];
 
 const headerMenus = [
-  { to: '/dashboard', label: '메인' },
-  { to: '/contacts', label: '연락처' },
-  { to: '/schedule', label: '일정' },
+  { to: '/dashboard', label: '메인', icon: '🏠' },
+  { to: '/contacts', label: '연락처', icon: '📞' },
+  // { to: '/schedule', label: '일정', icon: '📅' },
   // { to: '/board', label: '게시판' },
-  { to: '/mail', label: '메일' },
-  { to: '/attendance', label: '근태' },
+  // { to: '/mail', label: '메일', icon: '✉️' },
+  // { to: '/attendance', label: '근태', icon: '🕒' },
 ];
 
 export default function MainLayout() {
@@ -89,7 +89,8 @@ export default function MainLayout() {
                   location.pathname.startsWith(menu.to) ? 'active' : ''
                 }
               >
-                {menu.label}
+                <span className='header-menu-icon'>{menu.icon}</span>
+                <span className='header-menu-label'>{menu.label}</span>
               </Link>
             ))}
           </div>

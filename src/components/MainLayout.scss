@@ -92,6 +92,9 @@ $border: #eceff3;
       gap: 1.7rem;
 
       a {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         color: #384048;
         font-weight: 600;
         font-size: 1.05rem;
@@ -146,7 +149,7 @@ $border: #eceff3;
       background: transparent;
     }
     &::-webkit-scrollbar-thumb {
-      background: #d2e7db;
+      background: #dbeafe;
       border-radius: 4px;
     }
   }
