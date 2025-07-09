@@ -19,6 +19,8 @@ export default function HRPage() {
   const [profileImageUri, setProfileImageUri] = useState('');
   const [showEdit, setShowEdit] = useState(false); // 수정 컴포넌트 토글 상태
   const [currentUserEmployee, setCurrentUserEmployee] = useState(null); // 현재 사용자 정보 상태
+  const [teamEmployees, setTeamEmployees] = useState([]); // 우리팀 직원 목록
+  const [teamPage, setTeamPage] = useState(0); // 우리팀 직원 슬라이드 페이지
 
   // 달력 상태 및 유틸
   const today = new Date();
@@ -140,6 +142,43 @@ export default function HRPage() {
     }, 3000);
     return () => clearInterval(timer);
   }, [eomList.length]);
+
+  // 부서명 변경 시 우리팀 직원 목록 fetch
+  useEffect(() => {
+    if (!departmentName) {
+      setTeamEmployees([]);
+      return;
+    }
+    const fetchTeamEmployees = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `${API_BASE_URL}${HR_SERVICE}/employees?department=${encodeURIComponent(departmentName)}`,
+        );
+        setTeamEmployees(res.data.result.content || []);
+      } catch (err) {
+        setTeamEmployees([]);
+      }
+    };
+    fetchTeamEmployees();
+  }, [departmentName]);
+
+  // 팀 직원 자동 슬라이드
+  useEffect(() => {
+    if (teamEmployees.length <= 3) {
+      setTeamPage(0);
+      return;
+    }
+    const timer = setInterval(() => {
+      setTeamPage((prev) => (prev + 1) % Math.ceil(teamEmployees.length / 3));
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [teamEmployees]);
+
+  // 현재 보여줄 직원 3명 slice
+  const teamSlice = teamEmployees.slice(teamPage * 3, teamPage * 3 + 3);
+  const teamTotalPages = Math.ceil(teamEmployees.length / 3);
+
+  const handleTeamDotClick = (idx) => setTeamPage(idx);
 
   // 수정 컴포넌트가 활성화되면 해당 컴포넌트만 렌더링
   if (showEdit) {
@@ -272,23 +311,47 @@ export default function HRPage() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>유재석</td>
-                  <td>팀장</td>
-                  <td>010-1234-5678</td>
-                </tr>
-                <tr>
-                  <td>김종국</td>
-                  <td>대리</td>
-                  <td>010-2345-6789</td>
-                </tr>
-                <tr>
-                  <td>하하</td>
-                  <td>사원</td>
-                  <td>010-3456-7890</td>
-                </tr>
+                {teamSlice.map((emp) => (
+                  <tr key={emp.employeeId}>
+                    <td>{emp.name}</td>
+                    <td>{emp.position}</td>
+                    <td>{emp.phone}</td>
+                  </tr>
+                ))}
+                {teamEmployees.length === 0 && (
+                  <tr>
+                    <td colSpan={3}>팀원이 없습니다.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
+            {/* 팀원 페이지네이션 점 표시 */}
+            {teamTotalPages > 1 && (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginTop: 8,
+                }}
+              >
+                {Array.from({ length: teamTotalPages }).map((_, idx) => (
+                  <span
+                    key={idx}
+                    onClick={() => handleTeamDotClick(idx)}
+                    style={{
+                      display: 'inline-block',
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      background: idx === teamPage ? '#3b82f6' : '#d1d5db',
+                      margin: '0 4px',
+                      transition: 'background 0.2s',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
           {/* 자주 방문하는 사이트 */}
           <div className='hr-card hr-tab-card'>
