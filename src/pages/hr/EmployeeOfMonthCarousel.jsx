@@ -1,28 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import pin from '../../assets/pin.jpg';
+import axios from 'axios';
+import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
+import axiosInstance from '../../configs/axios-config';
 
-export default function EmployeeOfMonthCarousel() {
-  // 이달의 사원 예시 데이터 (원하면 props로 대체 가능)
-  const eomList = [
-    {
-      name: '홍길동',
-      dept: '영업팀',
-      comment: '항상 밝은 에너지로 팀을 이끄는 홍길동님!',
-      img: pin,
-    },
-    // {
-    //   name: '김철수',
-    //   dept: '개발팀',
-    //   comment: '혁신적인 아이디어로 프로젝트를 성공시킨 김철수님!',
-    //   img: pin,
-    // },
-    // {
-    //   name: '이영희',
-    //   dept: '인사팀',
-    //   comment: '세심한 배려로 모두를 챙기는 이영희님!',
-    //   img: pin,
-    // },
-  ];
+const EmployeeOfMonthCarousel = () => {
+  const [eomList, setEomList] = useState([]);
+
+  console.log(`${API_BASE_URL}${HR_SERVICE}/top/employee`);
+  const getThisMonthEmployee = async () => {
+    try {
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${HR_SERVICE}/top/employee`,
+      );
+      setEomList(res.data.result);
+    } catch (e) {
+      alert(e.response.data.message);
+    }
+  };
+
+  useEffect(() => {
+    getThisMonthEmployee();
+  }, []);
+
   const [eomIndex, setEomIndex] = useState(0);
   // 자동 슬라이드
   useEffect(() => {
@@ -42,12 +41,12 @@ export default function EmployeeOfMonthCarousel() {
             className={`eom-slide${idx === eomIndex ? ' active' : ''}`}
           >
             <div className='eom-avatar'>
-              <img src={eom.img} alt='이달의 사원' />
+              <img src={eom.profileImageUri} alt='이달의 사원' />
             </div>
             <div className='eom-info'>
               <div className='eom-name'>{eom.name}</div>
-              <div className='eom-dept'>{eom.dept}</div>
-              <div className='eom-comment'>"{eom.comment}"</div>
+              <div className='eom-dept'>{eom.departmentId}</div>
+              <div className='eom-comment'>"{eom.memo}"</div>
             </div>
           </div>
         ))}
@@ -64,4 +63,6 @@ export default function EmployeeOfMonthCarousel() {
       </div>
     </div>
   );
-}
+};
+
+export default EmployeeOfMonthCarousel;
