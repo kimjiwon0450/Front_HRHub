@@ -1,44 +1,78 @@
-import React, { useState } from 'react';
-import './DraftBoxList.scss';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import axiosInstance from '../../configs/axios-config';
 import DraftBoxCard from './DraftBoxCard';
+import styles from './DraftBoxList.module.scss';
+import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 
-// 임시 데이터
-const dummyDrafts = [
-  {
-    id: 1,
-    title: '휴가신청서',
-    status: '종결',
-    createdAt: '2025-06-23',
-    writer: '홍길동 대리',
-  },
-  {
-    id: 2,
-    title: '출장신청서',
-    status: '회수',
-    createdAt: '2025-06-20',
-    writer: '홍길동 대리',
-  },
-];
+const DraftBoxList = () => {
+  const [drafts, setDrafts] = useState([]);
+  const [searchParams] = useSearchParams();
+  const status = searchParams.get('status');
 
-export default function DraftBoxList() {
-  const [filter, setFilter] = useState('종결');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDrafts = async () => {
+      setLoading(true);
+      setError(null);
+
+      const params = {
+        role: 'writer',
+        page: 0,
+        size: 10,
+      };
+
+      if (status) {
+        params.status = status;
+      }
+
+      try {
+        const res = await axiosInstance.get(
+          `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
+          { params }
+        );
+
+        if (res.data?.statusCode === 200) {
+          setDrafts(res.data.result.reports || []);
+        } else {
+          setError(res.data?.statusMessage || '기안함 목록을 불러오지 못했습니다.');
+        }
+      } catch (err) {
+        console.log(err);
+        setError('네트워크 오류 또는 서버 오류');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDrafts();
+  }, [status]);
+
+  let title = '전체 기안';
+  if (status === 'APPROVED') {
+    title = '종결된 기안';
+  } else if (status === 'RECALLED') {
+    title = '회수한 기안';
+  }
 
   return (
-    <div className="draftbox-list-root">
-      <div className="draftbox-header">
-        <h2>기안함</h2>
-        <div className="draftbox-filter">
-          <button className={filter === '종결' ? 'active' : ''} onClick={() => setFilter('종결')}>종결</button>
-          <button className={filter === '회수' ? 'active' : ''} onClick={() => setFilter('회수')}>회수</button>
-        </div>
-      </div>
-      <div className="draftbox-list">
-        {dummyDrafts
-          .filter(d => d.status === filter)
-          .map(draft => (
+    <div className={styles.container}>
+      <h2>{title}</h2>
+      <div className={styles.list}>
+        {loading && <p>로딩 중...</p>}
+        {error && <p className={styles.error}>{error}</p>}
+        {!loading && !error && drafts.length > 0 ? (
+          drafts.map((draft) => (
             <DraftBoxCard key={draft.id} draft={draft} />
-          ))}
+          ))
+        ) : (
+          !loading && !error && <p>해당하는 기안서가 없습니다.</p>
+        )}
       </div>
     </div>
   );
-} 
+};
+
+export default DraftBoxList;

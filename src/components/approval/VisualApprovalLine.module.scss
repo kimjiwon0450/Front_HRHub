@@ -1,0 +1,93 @@
+.approvalLineContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.approverNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  min-width: 70px;
+}
+
+.approverName {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.approverStatus {
+  font-size: 11px;
+  color: #555;
+  margin-top: 2px;
+}
+
+.arrow {
+  font-size: 16px;
+  color: #999;
+}
+
+.approved {
+  background-color: #e8f5e9;
+  border-color: #4caf50;
+  color: #2e7d32;
+}
+
+.rejected {
+  background-color: #ffebee;
+  border-color: #f44336;
+  color: #c62828;
+}
+
+.pending {
+  background-color: #fffde7;
+  border-color: #fdd835;
+  color: #f57f17;
+}
+
+.finalNode {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.finalApproved {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.finalRejected {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.finalIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.ellipsis {
+    color: #999;
+    font-weight: bold;
+    align-self: center;
+}
+
+.noApprovers {
+  font-size: 14px;
+  color: #888;
+  padding: 20px;
+  text-align: center;
+} 

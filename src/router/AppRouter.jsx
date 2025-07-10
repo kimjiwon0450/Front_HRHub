@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Home from '../components/Home';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import PrivateRouter from './PrivateRouter';
 import { UserContext } from '../context/UserContext';
 import Login from '../components/Login';
@@ -10,8 +10,6 @@ import EmployeeDetail from '../pages/hr/EmployeeDetail';
 import EmployeeRegister from '../pages/hr/EmployeeRegister';
 import EmployeeEdit from '../pages/hr/EmployeeEdit';
 import EmployeeList from '../pages/hr/EmployeeList';
-import LeaveRequestForm from '../pages/approval/LeaveRequestForm';
-import LeavePage from '../pages/approval/LeavePage';
 import EvaluationForm from '../pages/hr/EvaluationForm';
 import NoticeBoardList from '../pages/NoticeBoard/NoticeBoardList';
 import NoticeBoardWrite from '../pages/NoticeBoard/NoticeBoardWrite';
@@ -20,19 +18,27 @@ import NoticeAlertPage from '../pages/NoticeBoard/NoticeAlertPage';
 import EmployeeViewList from '../pages/hr/EmployeeViewList';
 import ContactList from '../pages/contacts/ContactList';
 import MyEvaluationList from '../pages/hr/MyEvaluationList';
-import TemplateList from '../pages/approval/TemplateList';
-import DraftBoxList from '../pages/approval/DraftBoxList';
+import ApprovalPage from '../pages/approval/ApprovalPage';
 import ApprovalBoxList from '../pages/approval/ApprovalBoxList';
 import ApprovalPendingList from '../pages/approval/ApprovalPendingList';
+import ApprovalDetail from '../pages/approval/ApprovalDetail';
+import TemplateList from '../pages/approval/TemplateList';
+import DraftBoxList from '../pages/approval/DraftBoxList';
+import ApprovalForm from '../pages/approval/ApprovalForm';
+import TemplateForm from '../pages/approval/TemplateForm';
+import ApprovalHome from '../pages/approval/ApprovalHome';
 
 const AppRouter = () => {
-  const { userRole } = useContext(UserContext); // private 라우터를 이용하기 위해 추가(하준)
+  const { user, loading } = useContext(UserContext);
 
+  if (loading) {
+    return <div>로딩 중...</div>;
+  }
 
   return (
     <Routes>
       <Route path='/' element={<Login />} />
-      <Route element={<MainLayout />}>
+      <Route element={<MainLayout />}>       
         <Route path='/dashboard' element={<HRPage />} />
         <Route path='/hr' element={<EmployeeList />} />
         <Route path='/hr/employee-list' element={<EmployeeList />} />
@@ -41,15 +47,21 @@ const AppRouter = () => {
         <Route path='/hr/employee-eval' element={<EvaluationForm />} />
         <Route path='/hr/employee-eval-list' element={<EmployeeViewList />} />
         <Route path='/hr/my-evaluations' element={<MyEvaluationList />} />
-        <Route path='/payroll' element={<></>} />
-        <Route path='/approval' element={<LeavePage />} />
-        <Route path='/approval/templates' element={<TemplateList />} />
-        <Route path='/approval/templates/leave' element={<LeaveRequestForm />} />
-        <Route path='/approval/drafts' element={<DraftBoxList />} />
-        <Route path='/approval/box' element={<ApprovalBoxList />} />
-        <Route path='/approval/pending' element={<ApprovalPendingList />} />
-        <Route path='/schedule' element={<></>} />
-        <Route path='/attendance' element={<></>} />
+
+        <Route path='/approval' element={<ApprovalPage />}>
+          <Route index element={<Navigate to='home' replace />} />
+          <Route path='home' element={<ApprovalHome />} />
+          <Route path='box' element={<ApprovalBoxList />} />
+          <Route path='drafts' element={<DraftBoxList />} />
+          <Route path='pending' element={<ApprovalPendingList />} />
+          <Route path='reports/:id' element={<ApprovalDetail />} />
+          <Route path='form' element={<ApprovalForm />} />
+          <Route path='form/:id' element={<ApprovalForm />} />
+          <Route path='templates/list' element={<TemplateList />} />
+          <Route path='templates/form' element={<TemplateForm />} />
+          <Route path='templates/form/:id' element={<TemplateForm />} />
+        </Route>
+
         <Route path='/noticeboard' element={<NoticeBoardList />} />
         <Route path='/noticeboard/my' element={<NoticeBoardList />} />
         <Route path='/noticeboard/mydepartment' element={<NoticeBoardList />} />

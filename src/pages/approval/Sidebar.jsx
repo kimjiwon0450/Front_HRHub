@@ -1,56 +1,59 @@
-import React from 'react';
-import './Sidebar.scss';
+import React, { useContext } from 'react';
+import { NavLink } from 'react-router-dom';
+import styles from './Sidebar.module.scss';
+import { UserContext } from '../../context/UserContext';
 
-export default function Sidebar() {
+const Sidebar = () => {
+  const { userRole } = useContext(UserContext);
+
   return (
-    <div className='sidebar-container'>
-      {/* 왼쪽 컬럼 */}
-      <div className='sidebar-left'>
-        <button className='draft-btn'>기안서 작성</button>
-        <div className='approve-status'>
-          <div>
-            결재 대기 <span>0</span>
-          </div>
-          <div>
-            결재 요청 <span>0</span>
-          </div>
+    <aside className={styles.sidebar}>
+      <div className={styles.menu}>
+        <div className={styles.menuHeader}>전자결재</div>
+        <ul className={styles.menuList}>
+          <li>
+            <NavLink to='/approval/home' className={({ isActive }) => (isActive ? styles.active : '')}>
+              결재 홈
+            </NavLink>
+          </li>
+        </ul>
+
+        <div className={styles.menuGroup}>
+          <div className={styles.menuGroupHeader}>결재 상신함</div>
+          <ul className={styles.menuList}>
+            <li>
+              <NavLink to='/approval/drafts' className={({ isActive }) => (isActive ? styles.active : '')}>
+                내가 올린 문서
+              </NavLink>
+            </li>
+            {/* <li><NavLink to="/approval/pending" className={({ isActive }) => isActive ? styles.active : ''}>결재 진행</NavLink></li>
+            <li><NavLink to="/approval/completed" className={({ isActive }) => isActive ? styles.active : ''}>결재 완료</NavLink></li> */}
+          </ul>
         </div>
-        <div className='menu-section'>
-          <div className='menu-title'>▼ 기안함</div>
-          <div className='menu-item'>종결</div>
-          <div className='menu-item'>회수</div>
-        </div>
-        <div className='menu-section'>
-          <div className='menu-title'>▼ 결재함</div>
-          <div className='menu-item'>미결</div>
-          <div className='menu-item'>종결</div>
-          <div className='menu-item'>열람/공람</div>
-        </div>
-      </div>
-      {/* 오른쪽 컬럼 */}
-      <div className='sidebar-right'>
-        <div className='doc-list'>
-          <div className='doc-item'>지출결의서</div>
-          <div className='doc-item selected'>휴가신청서</div>
-          <div className='doc-item'>휴직원</div>
-          <div className='doc-item'>육아휴직신청서</div>
-          <div className='doc-item'>병가휴직신청서</div>
-          <div className='doc-item'>복직원</div>
-          <div className='doc-item'>출장신청서</div>
-          <div className='doc-item'>회의보고서</div>
-          <div className='doc-item'>주간업무보고</div>
-          <div className='doc-item'>업무협조요청서</div>
-          <div className='doc-item'>외부교육 참석보고서</div>
-          <div className='doc-item'>외근계획서</div>
-          <div className='doc-item'>조퇴신청서</div>
-          <div className='doc-item'>경조금지급신청서</div>
-          <div className='doc-item'>영업보고서</div>
-          <div className='doc-item'>업무보고서</div>
-          <div className='doc-item'>기안서</div>
-          <div className='doc-item'>품의서</div>
-          <div className='doc-item'>증명서 신청</div>
+
+        <div className={styles.menuGroup}>
+          <div className={styles.menuGroupHeader}>결재 수신함</div>
+          <ul className={styles.menuList}>
+            <li>
+              <NavLink to='/approval/home' className={({ isActive }) => (isActive ? styles.active : '')}>
+                결재할 문서
+              </NavLink>
+            </li>
+            {/* <li><NavLink to="/approval/history" className={({ isActive }) => isActive ? styles.active : ''}>결재 내역</NavLink></li>
+            <li><NavLink to="/approval/cc" className={({ isActive }) => isActive ? styles.active : ''}>수신 참조</NavLink></li> */}
+          </ul>
         </div>
       </div>
-    </div>
+
+      {userRole === 'ADMIN' && (
+        <div className={styles.adminMenu}>
+          <NavLink to='/admin/service' className={({ isActive }) => (isActive ? styles.active : '')}>
+            ⚙️ 서비스 관리
+          </NavLink>
+        </div>
+      )}
+    </aside>
   );
-}
+};
+
+export default Sidebar;

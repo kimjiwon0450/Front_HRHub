@@ -1,17 +1,53 @@
 import React from 'react';
-import './ApprovalPendingCard.scss';
-import ApprovalLine from './ApprovalLine';
+import styles from './ApprovalPendingCard.module.scss';
+import { useNavigate } from 'react-router-dom';
 
-export default function ApprovalPendingCard({ report }) {
+const reportStatusMap = {
+  DRAFT: '임시 저장',
+  IN_PROGRESS: '결재 진행 중',
+  APPROVED: '최종 승인',
+  REJECTED: '반려',
+  RECALLED: '상신 후 회수',
+};
+
+const approvalStatusMap = {
+  PENDING: { color: '#bdbdbd', text: '대기', icon: '⏳' },
+  APPROVED: { color: '#4caf50', text: '승인', icon: '✔️' },
+  REJECTED: { color: '#f44336', text: '반려', icon: '❌' },
+};
+
+const ApprovalPendingCard = ({ report }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/approval/reports/${report.id}`);
+  };
+
   return (
-    <div className="approvalpending-card">
-      <div className="approvalpending-title">{report.title}</div>
-      <div className="approvalpending-info">
-        <span className="approvalpending-status">{report.status}</span>
-        <span className="approvalpending-date">{report.createdAt}</span>
-        <span className="approvalpending-writer">{report.writer}</span>
+    <div className={styles['approvalpending-card']} onClick={handleClick}>
+      <div className={styles['approvalpending-title']}>{report.title}</div>
+      <div className={styles['approvalpending-info']}>
+        <span className={styles['approvalpending-status']}>{reportStatusMap[report.reportStatus] || report.reportStatus}</span>
+        <span className={styles['approvalpending-date']}>{new Date(report.createdAt).toLocaleDateString()}</span>
+        <span className={styles['approvalpending-writer']}>{report.name}</span>
       </div>
-      {report.approvalLine && <ApprovalLine approvers={report.approvalLine} />}
+      {report.approvalLine && (
+        <div className={styles['approval-line']}>
+          {report.approvalLine.map((a, i) => {
+            const s = approvalStatusMap[a.approvalStatus] || approvalStatusMap.PENDING;
+            return (
+              <div key={i} className={styles['approval-item']} style={{ borderColor: s.color }}>
+                <span className={styles['approval-status-icon']} style={{ color: s.color }}>{s.icon}</span>
+                <span className={styles['approver-name']}>{a.name}</span>
+                <span className={styles['approval-status']} style={{ color: s.color }}>{s.text}</span>
+                <span className={styles['approval-date']}>{a.approvedAt ? new Date(a.approvedAt).toLocaleDateString() : '-'}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
-} 
+};
+
+export default ApprovalPendingCard; 

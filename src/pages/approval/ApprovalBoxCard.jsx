@@ -1,15 +1,53 @@
-import React from 'react';
-import './ApprovalBoxCard.scss';
+import React, { useState } from 'react';
+import styles from './ApprovalBoxCard.module.scss';
+import { useNavigate } from 'react-router-dom';
+import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
+import ApprovalLineModal from '../../components/approval/ApprovalLineModal';
 
-export default function ApprovalBoxCard({ approval }) {
+const ApprovalBoxCard = ({ report }) => {
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCardClick = () => {
+    navigate(`/approval/reports/${report.id}`);
+  };
+
+  const handleLineClick = (e) => {
+    e.stopPropagation();
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
-    <div className={`approvalbox-card status-${approval.status}`}>
-      <div className="approvalbox-title">{approval.title}</div>
-      <div className="approvalbox-info">
-        <span className="approvalbox-status">{approval.status}</span>
-        <span className="approvalbox-date">{approval.createdAt}</span>
-        <span className="approvalbox-writer">{approval.writer}</span>
+    <>
+      <div className={styles['approvalbox-card']} onClick={handleCardClick}>
+        <div className={styles['card-left']}>
+          <div className={styles['approval-title']}>{report.title}</div>
+          <div className={styles['approval-info']}>
+            <span>{report.drafter.name}</span>
+            <span>{new Date(report.createdAt).toLocaleDateString()}</span>
+          </div>
+        </div>
+        <div className={styles['card-right']} onClick={handleLineClick}>
+          <VisualApprovalLine
+            approvalLine={report.approvalLine}
+            reportStatus={report.reportStatus}
+            mode='summary'
+          />
+        </div>
       </div>
-    </div>
+      {isModalOpen && (
+        <ApprovalLineModal
+          approvalLine={report.approvalLine}
+          reportStatus={report.reportStatus}
+          onClose={handleCloseModal}
+        />
+      )}
+    </>
   );
-} 
+};
+
+export default ApprovalBoxCard; 
