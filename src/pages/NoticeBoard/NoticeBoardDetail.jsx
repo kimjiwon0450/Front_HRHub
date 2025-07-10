@@ -158,21 +158,30 @@ const NoticeBoardDetail = () => {
                 {attachments.length > 0 && (
                     <div className="attachment-link">
                         {attachments.map((url, idx) => (
-                        <div key={idx} style={{ marginBottom: '6px' }}>
+                        <div key={idx} >
                             <a
-                            href="#!"
-                            onClick={() => forceDownload(url, url.split('/').pop())}
-                            rel="noopener noreferrer"
+                                // href="#!"
+                                // onClick={() => forceDownload(url, url.split('/').pop())}
+                                // rel="noopener noreferrer"
+
+                                href={url}
+                                download={url.split('/').pop()}
+                                rel="noopener noreferrer"
+                                target="_blank"
+
                             >
                             📎 {url.split('/').pop()}
                             </a>
                         </div>
                         ))}
                     </div>
-                    )}
+                    )
+                }
             </div>
             <hr />
             <div className="content">{posts.content}</div>
+
+            <hr />
 
             {/* ✅ 첨부파일 미리보기 */}
             {attachments.length > 0 && (

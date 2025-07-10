@@ -7,22 +7,7 @@ const EmployeeOfMonthCarousel = () => {
   const [eomList, setEomList] = useState([]);
 
   console.log(`${API_BASE_URL}${HR_SERVICE}/top/employee`);
-  const getThisMonthEmployee = async () => {
-    try {
-      const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/top/employee`,
-      );
-      setEomList(res.data.result);
-    } catch (e) {
-      alert(e.response.data.message);
-    }
-  };
-
-  useEffect(() => {
-    getThisMonthEmployee();
-  }, []);
-
-  const [eomIndex, setEomIndex] = useState(0);
+  
   // 자동 슬라이드
   useEffect(() => {
     if (eomList.length <= 1) return;
