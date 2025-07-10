@@ -90,7 +90,7 @@ export default function Login() {
     if (isLoggedIn) {
       navigate('/dashboard');
     }
-  }, []);
+  }, [isLoggedIn, navigate]);
   // email 쿼리가 들어오면 초기값 셋팅
   useEffect(() => {
     if (emailParam) setEmail(emailParam);
