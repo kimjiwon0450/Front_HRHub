@@ -40,7 +40,7 @@ const NoticeBoardList = () => {
                     sortBy,
                     sortDir,
                     page,
-                    size: 10
+                    pageSize,
                 });
 
                 let url;
@@ -100,6 +100,7 @@ const NoticeBoardList = () => {
     const handleSearch = () => setPage(0);
 
     const handlePageSizeChange = (e) => {
+        console.log('Number(e.target.value) : ', Number(e.target.value));
         setPageSize(Number(e.target.value));
         setPage(0); // 첫 페이지로 초기화
     };
