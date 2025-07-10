@@ -6,19 +6,19 @@ import { API_BASE_URL, NOTICE_SERVICE } from '../configs/host-config';
 import { UserContext } from '../context/UserContext';
 
 const sidebarMenus = [
-  { to: '/noticeboard', label: '공지사항' },
-  { to: '/dashboard', label: '대시보드' },
-  { to: '/hr', label: '인사관리' },
-  { to: '/approval', label: '전자결재' },
+  { to: '/noticeboard', label: '공지사항', icon: '📢' },
+  { to: '/dashboard', label: '대시보드', icon: '📊' },
+  { to: '/hr', label: '인사관리', icon: '👥' },
+  { to: '/approval', label: '전자결재', icon: '✍️' },
 ];
 
 const headerMenus = [
-  { to: '/dashboard', label: '메인' },
-  { to: '/contacts', label: '연락처' },
-  { to: '/schedule', label: '일정' },
+  { to: '/dashboard', label: '메인', icon: '🏠' },
+  { to: '/contacts', label: '연락처', icon: '📞' },
+  // { to: '/schedule', label: '일정', icon: '📅' },
   // { to: '/board', label: '게시판' },
-  { to: '/mail', label: '메일' },
-  { to: '/attendance', label: '근태' },
+  // { to: '/mail', label: '메일', icon: '✉️' },
+  // { to: '/attendance', label: '근태', icon: '🕒' },
 ];
 
 export default function MainLayout() {
@@ -43,8 +43,8 @@ export default function MainLayout() {
           `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/unread-count`,
           {
             headers: {
-              'Authorization': `Bearer ${accessToken}`,
-            }
+              Authorization: `Bearer ${accessToken}`,
+            },
           },
         );
         const count = await res.json();
@@ -71,7 +71,8 @@ export default function MainLayout() {
               to={menu.to}
               className={location.pathname.startsWith(menu.to) ? 'active' : ''}
             >
-              {menu.label}
+              <span className='menu-icon'>{menu.icon}</span>
+              <span className='menu-label'>{menu.label}</span>
             </Link>
           ))}
         </nav>
@@ -88,12 +89,16 @@ export default function MainLayout() {
                   location.pathname.startsWith(menu.to) ? 'active' : ''
                 }
               >
-                {menu.label}
+                <span className='header-menu-icon'>{menu.icon}</span>
+                <span className='header-menu-label'>{menu.label}</span>
               </Link>
             ))}
           </div>
 
-          <div className='notice-icon' onClick={() => navigate('/noticeboard/alert')}>
+          <div
+            className='notice-icon'
+            onClick={() => navigate('/noticeboard/alert')}
+          >
             📢
             {unreadCount > 0 && <span className='badge'>{unreadCount}</span>}
           </div>

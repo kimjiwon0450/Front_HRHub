@@ -4,17 +4,17 @@ import { API_BASE_URL } from '../configs/host-config';
 
 export const UserContext = React.createContext({
   isLoggedIn: false,
-  onLogin: () => { },
-  onLogout: () => { },
+  onLogin: () => {},
+  onLogout: () => {},
   userRole: '',
   userPosition: '',
   userName: '',
   badge: null,
-  setBadge: () => { },
+  setBadge: () => {},
   userId: null,
   departmentId: null,
   userImage: '', // 유저 프로필사진
-  setUserImage: () => { },
+  setUserImage: () => {},
   isInit: false,
   accessToken: '',
 });
@@ -39,6 +39,7 @@ export const UserContextProvider = (props) => {
     // 로컬스토리지 저장
     localStorage.setItem('ACCESS_TOKEN', loginData.token);
     localStorage.setItem('USER_ID', loginData.id);
+    console.log(`[UserContext] 💾 USER_ID to localStorage: ${loginData.id}`);
     localStorage.setItem('USER_ROLE', loginData.role);
     localStorage.setItem('USER_NAME', loginData.name);
     // localStorage.setItem('USER_IMAGE', loginData.profileImage);
@@ -51,6 +52,7 @@ export const UserContextProvider = (props) => {
     console.log('logingPositionl : ', loginData.position);
     setIsLoggedIn(true);
     setUserId(loginData.id);
+    console.log(`[UserContext] 🔄️ userId state set to: ${loginData.id}`);
     setUserRole(loginData.role);
     setUserName(loginData.name);
     setUserImage(loginData.profileImageUri || loginData.profileImage || '');

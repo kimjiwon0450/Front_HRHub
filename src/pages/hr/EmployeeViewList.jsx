@@ -24,12 +24,18 @@ export default function EmployeeViewList() {
   const [editEvaluation, setEditEvaluation] = useState(null);
   const navigate = useNavigate();
 
+  // 정렬 state
+  const [sortField, setSortField] = useState(null);
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
+
   const getEmployeeList = async ({
     field = searchField,
     keyword = searchText,
     department = searchDept,
     page: reqPage = page,
     size: reqSize = size,
+    sortField: reqSortField = sortField,
+    sortOrder: reqSortOrder = sortOrder,
   } = {}) => {
     try {
       let params = `?page=${reqPage}&size=${reqSize}`;
@@ -37,6 +43,7 @@ export default function EmployeeViewList() {
         params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
       if (department !== '전체')
         params += `&department=${encodeURIComponent(department)}`;
+      if (reqSortField) params += `&sort=${reqSortField},${reqSortOrder}`;
       const res = await axiosInstance.get(
         `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
       );
@@ -47,10 +54,22 @@ export default function EmployeeViewList() {
     }
   };
 
+  // 정렬 핸들러
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+    setPage(0); // 정렬 시 첫 페이지로
+  };
+
+  // 정렬/페이지/페이지크기 변화 시 목록 재요청
   useEffect(() => {
-    getEmployeeList({ page, size });
+    getEmployeeList({ page, size, sortField, sortOrder });
     // eslint-disable-next-line
-  }, [page, size]);
+  }, [page, size, sortField, sortOrder]);
 
   useEffect(() => {
     if (selectedId == null) return;
@@ -110,7 +129,15 @@ export default function EmployeeViewList() {
     setSearchField('name');
     setSearchText('');
     setSearchDept('전체');
-    getEmployeeList({ field: 'name', keyword: '', department: '전체' });
+    setSortField(null); // 정렬 초기화
+    setSortOrder('asc'); // 정렬 초기화
+    getEmployeeList({
+      field: 'name',
+      keyword: '',
+      department: '전체',
+      sortField: null,
+      sortOrder: 'asc',
+    });
     setSelectedId(null);
     setEvaluation(null);
   };
@@ -147,7 +174,7 @@ export default function EmployeeViewList() {
           />
         ) : (
           <>
-            <h2 className='emp-list-title'>직원 인사조회</h2>
+            <h2 className='emp-list-title'>직원 인사평가 조회</h2>
             <form className='emp-search-bar' onSubmit={handleSearch}>
               <select
                 value={searchField}
@@ -193,11 +220,61 @@ export default function EmployeeViewList() {
             <table className='emp-list-table'>
               <thead>
                 <tr>
-                  <th>이름</th>
-                  <th>부서</th>
-                  <th>직급</th>
-                  <th>직책</th>
-                  <th>연락처</th>
+                  <th
+                    onClick={() => handleSort('name')}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    이름{' '}
+                    {sortField === 'name'
+                      ? sortOrder === 'asc'
+                        ? '▲'
+                        : '▼'
+                      : ''}
+                  </th>
+                  <th
+                    onClick={() => handleSort('department')}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    부서{' '}
+                    {sortField === 'department'
+                      ? sortOrder === 'asc'
+                        ? '▲'
+                        : '▼'
+                      : ''}
+                  </th>
+                  <th
+                    onClick={() => handleSort('position')}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    직급{' '}
+                    {sortField === 'position'
+                      ? sortOrder === 'asc'
+                        ? '▲'
+                        : '▼'
+                      : ''}
+                  </th>
+                  <th
+                    onClick={() => handleSort('role')}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    직책{' '}
+                    {sortField === 'role'
+                      ? sortOrder === 'asc'
+                        ? '▲'
+                        : '▼'
+                      : ''}
+                  </th>
+                  <th
+                    onClick={() => handleSort('phone')}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    연락처{' '}
+                    {sortField === 'phone'
+                      ? sortOrder === 'asc'
+                        ? '▲'
+                        : '▼'
+                      : ''}
+                  </th>
                 </tr>
               </thead>
               <tbody>

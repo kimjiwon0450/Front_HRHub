@@ -29,3 +29,4 @@ export const EVAL_SERVICE = '/eval-service';
 export const HR_SERVICE = '/hr-service';
 export const PAYROLL_SERVICE = '/payroll-service';
 export const SCHEDULE_SERVICE = '/schedule-service';
+export const APPROVAL_SERVICE = '/approval-service';

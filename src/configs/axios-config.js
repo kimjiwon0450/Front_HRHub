@@ -12,6 +12,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     // 요청 보내기 전에 항상 처리해야 할 내용을 콜백으로 전달.
+    console.log('🚀 Axios Request:', config.method.toUpperCase(), config.url);
     const token = localStorage.getItem('ACCESS_TOKEN');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -20,20 +21,22 @@ axiosInstance.interceptors.request.use(
   },
 
   (error) => {
-    console.log(error);
-    Promise.reject(error);
+    console.error('💥 Axios Request Error:', error);
+    return Promise.reject(error);
   },
 );
 
 // 응답용 인터셉터
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ Axios Response:', response.config.url, response.data);
+    return response;
+  },
 
   async (error) => {
-    console.log('response interceptor 동작함! 응답에 문제가 발생!');
-    console.log(error);
+    console.error('🚨 Axios Response Error:', error.response?.status, error.response?.data);
 
-    if (error.response.data.message === 'NO_LOGIN') {
+    if (error.response?.data.message === 'NO_LOGIN') {
       console.log('아예 로그인을 하지 않아서 재발급 요청 들어갈 수 없음!');
       return Promise.reject(error);
     }
@@ -64,8 +67,10 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (error) {
         console.log(error);
+        alert('로그인 정보가 만료되었습니다. 다시 로그인을 해주세요.');
         // 백엔드에서 401을 보낸거 -> Refresh도 만료된 상황 (로그아웃처럼 처리해줘야 함.)
         localStorage.clear();
+        // navigate('/');
         // 재발급 요청도 거절당하면 인스턴스를 호출한 곳으로 에러 정보 리턴.
         return Promise.reject(error);
       }

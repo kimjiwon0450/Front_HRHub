@@ -1,0 +1,46 @@
+.draftbox-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.draftbox-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
+}
+
+.card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.draftbox-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.draftbox-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #666;
+}
+
+.draftbox-status {
+  font-weight: bold;
+}
+
+.card-right {
+  flex-grow: 1;
+  margin-left: 40px;
+  min-width: 300px;
+} 

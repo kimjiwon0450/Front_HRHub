@@ -1,0 +1,93 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modalContent {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    width: 600px;
+    max-width: 90%;
+  }
+  
+  .modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .modalHeader h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #888;
+  }
+  
+  .modalBody {
+    width: 100%;
+  }
+
+  .visualLineWrapper {
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .approvalTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  
+  .approvalTable th,
+  .approvalTable td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .approvalTable th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #555;
+  }
+  
+  .approvalTable tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .approved {
+    color: #28a745;
+    font-weight: bold;
+  }
+  
+  .rejected {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  .pending {
+    color: #ffc107;
+    font-weight: bold;
+  } 

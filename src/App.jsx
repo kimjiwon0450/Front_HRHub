@@ -10,7 +10,11 @@ function App() {
 
   return (
     <UserContextProvider>
-      <AppRouter />
+      <div className='App'>
+        <div className='content-wrapper'>
+          <AppRouter />
+        </div>
+      </div>
     </UserContextProvider>
   );
 }
