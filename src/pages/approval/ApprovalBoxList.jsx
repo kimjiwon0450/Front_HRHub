@@ -3,6 +3,7 @@ import axiosInstance from '../../configs/axios-config';
 import { UserContext } from '../../context/UserContext';
 import ApprovalBoxCard from './ApprovalBoxCard';
 import styles from './ApprovalBoxList.module.scss';
+import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 
 const ApprovalBoxList = () => {
   const { user } = useContext(UserContext);
@@ -18,9 +19,20 @@ const ApprovalBoxList = () => {
       }
       try {
         setLoading(true);
-        const response = await axiosInstance.get('/approvals/received');
-        setReports(response.data);
-        console.log(response.data);
+        // API 명세에 맞게 엔드포인트와 파라미터 수정
+        const response = await axiosInstance.get(
+          `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
+          {
+            params: { role: 'approver' },
+          }
+        );
+
+        // API 명세에 맞게 응답 데이터 경로 수정
+        if (response.data?.data?.reports) {
+          setReports(response.data.data.reports);
+        } else {
+          setReports([]);
+        }
         setError(null);
       } catch (error) {
         console.error('결재 문서를 불러오는 중 오류 발생:', error);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './FrequentTemplatesModal.module.scss';
 import axiosInstance from '../../configs/axios-config';
+import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 
 const FrequentTemplatesModal = ({ onClose, onSave }) => {
   const [templates, setTemplates] = useState([]);
@@ -11,21 +12,29 @@ const FrequentTemplatesModal = ({ onClose, onSave }) => {
     // 모든 양식 템플릿을 불러옵니다.
     const fetchTemplates = async () => {
       try {
-        const response = await axiosInstance.get('/approvals/templates/list');
-        setTemplates(response.data);
+        // 엔드포인트를 명세에 맞게 '/templates'로 수정
+        const response = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates`);
+        // API 명세에 따라 'data' 키에서 배열을 가져오도록 수정
+        if (response.data && Array.isArray(response.data.data)) {
+            setTemplates(response.data.data);
+        } else {
+            console.error('템플릿 데이터가 배열이 아닙니다:', response.data);
+            setTemplates([]);
+        }
       } catch (error) {
         console.error('Failed to fetch templates:', error);
+        setTemplates([]);
       }
     };
-    // 현재 자주 쓰는 양식 설정을 불러옵니다. (API 구현 필요)
-    const fetchFrequentTemplates = async () => {
-        // const response = await axiosInstance.get('/approvals/frequent-templates');
-        // setSelected(response.data.map(t => t.id));
-        setSelected(['template1', 'template3']); // 임시 데이터
-    }
+    
+    // localStorage에서 현재 설정을 불러옵니다.
+    const loadFrequentTemplatesFromStorage = () => {
+        const stored = localStorage.getItem('frequentTemplates');
+        setSelected(stored ? JSON.parse(stored) : []);
+    };
 
     fetchTemplates();
-    fetchFrequentTemplates();
+    loadFrequentTemplatesFromStorage();
   }, []);
 
   const handleSelect = (templateId) => {
@@ -37,15 +46,13 @@ const FrequentTemplatesModal = ({ onClose, onSave }) => {
   };
 
   const handleSave = () => {
-    // 변경된 자주 쓰는 양식 설정을 저장합니다. (API 구현 필요)
-    // await axiosInstance.post('/approvals/frequent-templates', { templateIds: selected });
     onSave(selected);
     onClose();
   };
 
-  const filteredTemplates = templates.filter(t => 
+  const filteredTemplates = Array.isArray(templates) ? templates.filter(t => 
     t.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) : [];
 
   return (
     <div className={styles.modalOverlay}>

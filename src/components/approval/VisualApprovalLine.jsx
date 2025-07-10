@@ -19,8 +19,8 @@ const VisualApprovalLine = ({ approvalLine, reportStatus, mode = 'full' }) => {
   const renderFullLine = () => (
     <>
       {approvalLine.map((approver, index) => (
-        <React.Fragment key={approver.id}>
-          <div className={`${styles.approverNode} ${getStatusClass(approver.status)}`}>
+        <React.Fragment key={approver.employeeId}>
+          <div className={`${styles.approverNode} ${getStatusClass(approver.approvalStatus)}`}>
             <div className={styles.approverName}>{approver.name}</div>
           </div>
           {index < approvalLine.length - 1 && <div className={styles.arrow}>→</div>}
@@ -40,20 +40,20 @@ const VisualApprovalLine = ({ approvalLine, reportStatus, mode = 'full' }) => {
 
   const renderSummaryLine = () => {
     if (isConcluded) {
-      const finalApprover = approvalLine.find(a => a.status === 'REJECTED') || approvalLine[approvalLine.length - 1];
+      const finalApprover = approvalLine.find(a => a.approvalStatus === 'REJECTED') || approvalLine[approvalLine.length - 1];
       return (
-        <div className={`${styles.approverNode} ${getStatusClass(finalApprover.status)}`}>
+        <div className={`${styles.approverNode} ${getStatusClass(finalApprover.approvalStatus)}`}>
           <div className={styles.approverName}>{finalApprover.name}</div>
-          <div className={styles.approverStatus}>{finalApprover.status === 'APPROVED' ? '승인' : '반려'}</div>
+          <div className={styles.approverStatus}>{finalApprover.approvalStatus === 'APPROVED' ? '승인' : '반려'}</div>
         </div>
       );
     }
 
-    const pendingIndex = approvalLine.findIndex(a => a.status === 'PENDING');
+    const pendingIndex = approvalLine.findIndex(a => a.approvalStatus === 'PENDING');
     if (pendingIndex === -1) { // 모두 승인했지만 아직 최종 승인 전
       const lastApprover = approvalLine[approvalLine.length -1];
         return (
-            <div className={`${styles.approverNode} ${getStatusClass(lastApprover.status)}`}>
+            <div className={`${styles.approverNode} ${getStatusClass(lastApprover.approvalStatus)}`}>
                 <div className={styles.approverName}>{lastApprover.name}</div>
                 <div className={styles.approverStatus}>승인</div>
             </div>
@@ -66,8 +66,8 @@ const VisualApprovalLine = ({ approvalLine, reportStatus, mode = 'full' }) => {
         <>
             {pendingIndex > 1 && <div className={styles.ellipsis}>...</div>}
             {summaryApprovers.map((approver, index) => (
-                <React.Fragment key={approver.id}>
-                    <div className={`${styles.approverNode} ${getStatusClass(approver.status)}`}>
+                <React.Fragment key={approver.employeeId}>
+                    <div className={`${styles.approverNode} ${getStatusClass(approver.approvalStatus)}`}>
                         <div className={styles.approverName}>{approver.name}</div>
                     </div>
                     {index < summaryApprovers.length - 1 && <div className={styles.arrow}>→</div>}

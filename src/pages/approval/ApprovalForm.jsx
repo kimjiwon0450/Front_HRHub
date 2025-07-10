@@ -20,23 +20,37 @@ const ApprovalForm = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (reportId) { // 수정 또는 재상신 모드일 때
-      const fetchReportData = async () => {
-        try {
-          const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`);
-          const report = res.data.result;
+    const fetchReportData = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`
+        );
+        const report = res.data.data; // API 명세에 따라 'result'를 'data'로 수정
+
+        console.log(reportId);
+        
+        if (report) {
           setTitle(report.title);
           setContent(report.content);
-          // API 응답 형식에 맞춰 approvers와 references를 콤마로 구분된 문자열로 변환
-          setApprovers(report.approvalLine.map(a => a.employeeId).join(', '));
-          setReferences(report.references.map(r => r.employeeId).join(', '));
-        } catch (err) {
-          setError('보고서 정보를 불러오는 데 실패했습니다.');
+          setApprovers(report.approvalLine.map((a) => a.employeeId).join(', '));
+          setReferences(report.references.map((r) => r.employeeId).join(', '));
         }
-      };
+      } catch (err) {
+        console.error('보고서 정보를 불러오는 데 실패했습니다.', err);
+        setError('보고서 정보를 불러오는 데 실패했습니다.');
+      }
+    };
+
+    if (isEditMode || isResubmitMode) {
       fetchReportData();
+    } else {
+      // 새 작성 모드일 때 폼 초기화
+      setTitle('');
+      setContent('');
+      setApprovers('');
+      setReferences('');
     }
-  }, [reportId]);
+  }, [reportId, isEditMode, isResubmitMode]);
 
   // '임시 저장' 또는 '수정하기' (상태: DRAFT)
   const handleSaveOrUpdateDraft = async () => {
@@ -63,6 +77,7 @@ const ApprovalForm = () => {
         await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/create`, payload);
         alert('임시 저장되었습니다.');
       }
+      console.log(isEditMode.result);
       navigate('/approval/drafts');
     } catch (err) {
       setError(err.response?.data?.message || '처리 중 오류가 발생했습니다.');

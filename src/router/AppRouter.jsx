@@ -57,6 +57,7 @@ const AppRouter = () => {
           <Route path='reports/:id' element={<ApprovalDetail />} />
           <Route path='form' element={<ApprovalForm />} />
           <Route path='form/:id' element={<ApprovalForm />} />
+          <Route path='edit/:id' element={<ApprovalForm />} />
           <Route path='templates/list' element={<TemplateList />} />
           <Route path='templates/form' element={<TemplateForm />} />
           <Route path='templates/form/:id' element={<TemplateForm />} />

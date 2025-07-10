@@ -9,7 +9,12 @@ const ApprovalBoxCard = ({ report }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
-    navigate(`/approval/reports/${report.id}`);
+    if (report?.id) {
+      navigate(`/approval/reports/${report.id}`);
+    } else {
+      console.error('클릭된 보고서의 ID가 유효하지 않습니다.', report);
+      // 사용자에게 알림을 보여주는 로직을 추가할 수 있습니다.
+    }
   };
 
   const handleLineClick = (e) => {
