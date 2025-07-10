@@ -116,6 +116,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     },
                 });
                 alert('수정되었습니다!');
+                navigate('/noticeboard');
             } else {
                 await axios.post(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/write`, noticeData, {
                     headers: {
@@ -124,9 +125,10 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     },
                 });
                 alert('저장되었습니다!');
+                navigate('/noticeboard');
             }
 
-            navigate('/noticeboard');
+            
         } catch (err) {
             console.error(err);
             alert('저장 또는 수정에 실패했습니다.');
