@@ -1,0 +1,33 @@
+.container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.container h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #eee;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.error {
+  color: #d32f2f;
+  text-align: center;
+  padding: 20px;
+  font-weight: bold;
+}
+
+.list p {
+  text-align: center;
+  color: #888;
+  padding: 40px 0;
+} 

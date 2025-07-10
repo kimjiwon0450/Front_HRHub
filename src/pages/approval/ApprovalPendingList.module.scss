@@ -1,0 +1,74 @@
+.approval-pending-list {
+  padding: 32px 0;
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 28px;
+  }
+  .approval-pending-list-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+.approval-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: box-shadow 0.2s;
+  border: 1.5px solid #e0e0e0;
+}
+
+.approval-card-header {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 8px;
+}
+
+.approval-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+  flex: 1;
+}
+
+.approval-date {
+  font-size: 14px;
+  color: #888;
+  min-width: 120px;
+}
+
+.approval-writer {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  color: #2196f3;
+  font-weight: 600;
+  gap: 6px;
+}
+
+.icon-user {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  background: #e3f2fd;
+  border-radius: 50%;
+  margin-right: 4px;
+  position: relative;
+}
+
+.icon-user::before {
+  content: '\1F464'; /* 유니코드 사람 아이콘 */
+  position: absolute;
+  left: 4px;
+  top: 2px;
+  font-size: 16px;
+  color: #2196f3;
+} 
