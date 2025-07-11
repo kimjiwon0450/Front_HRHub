@@ -51,16 +51,41 @@ const NoticeBoardDetail = () => {
         return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(url);
     };
 
-    // 파일 다운로드 유틸 함수
-    const forceDownload = async (url, filename) => {
+    // 🔥 presigned GET URL 요청
+    const getDownloadUrl = async (fileName) => {
         try {
-            const response = await fetch(url);
-            const blob = await response.blob();
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/download-url?fileName=${encodeURIComponent(fileName)}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (!res.ok) throw new Error('presigned GET URL 요청 실패');
+            return await res.text(); // presigned URL (string)
+        } catch (error) {
+            console.error('GET presigned URL 요청 실패', error);
+            return null;
+        }
+    };
+
+    // 🔥 다운로드 핸들러
+    const handleDownloadClick = async (url) => {
+        const fileName = url.split('/').pop();
+        const presignedUrl = await getDownloadUrl(fileName);
+        console.log('다운로드 fileName : ',fileName);
+        if (!presignedUrl) {
+            alert('파일 다운로드 URL 생성에 실패했습니다.');
+            return;
+        }
+
+        try {
+            const res = await fetch(presignedUrl);
+            const blob = await res.blob();
 
             const blobUrl = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = blobUrl;
-            link.download = filename;
+            link.download = fileName;
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -160,15 +185,9 @@ const NoticeBoardDetail = () => {
                         {attachments.map((url, idx) => (
                         <div key={idx} >
                             <a
-                                // href="#!"
-                                // onClick={() => forceDownload(url, url.split('/').pop())}
-                                // rel="noopener noreferrer"
-
-                                href={url}
-                                download={url.split('/').pop()}
+                                href="#!"
+                                onClick={() => handleDownloadClick(url)}
                                 rel="noopener noreferrer"
-                                target="_blank"
-
                             >
                             📎 {url.split('/').pop()}
                             </a>
