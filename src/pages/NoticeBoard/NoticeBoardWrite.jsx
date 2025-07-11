@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import './NoticeBoard.scss';
+import './NoticeBoardWrite.scss';
 import { UserContext, UserContextProvider } from '../../context/UserContext';
 import { API_BASE_URL, NOTICE_SERVICE } from '../../configs/host-config';
 
@@ -14,6 +14,9 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
     const [type, setType] = useState('post');
     const [files, setFiles] = useState([]);
     const [existingFiles, setExistingFiles] = useState([]); // ✅ 기존 파일 목록
+
+    const [departmentId, setDepartmentId] = useState(''); // 🔹 부서 ID
+    const [departments, setDepartments] = useState([]);   // 🔹 부서 리스트
 
     const { accessToken, userId, isInit, userRole } = useContext(UserContext); // ✅ 한 번에 구조 분해
 

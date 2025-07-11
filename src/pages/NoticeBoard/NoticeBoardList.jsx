@@ -5,7 +5,7 @@ import {
     NOTICE_SERVICE
 } from '../../configs/host-config';
 import { UserContext, UserContextProvider } from '../../context/UserContext'; // 로그인 유저 정보
-import './NoticeBoard.scss';
+import './NoticeBoardList.scss';
 
 const NoticeBoardList = () => {
     const navigate = useNavigate();
@@ -211,7 +211,7 @@ const NoticeBoardList = () => {
                                 <tr 
                                     key={`notice-${post.id}`} className="notice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
                                     <td>{post.id}</td>
-                                    <td>{post.attachmentUri && post.attachmentUri.length > 0 ? '📎' : ''}</td>
+                                    <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri != '[]' ? '📎' : ''}</td>
                                     <td>{post.title}</td>
                                     <td>
                                         {post.employStatus === 'INACTIVE' ?
@@ -229,34 +229,40 @@ const NoticeBoardList = () => {
                             {/* 🔻 공지와 일반글 사이 구분선 추가 */}
                             {notices.length > 0 && posts.length > 0 && (
                                 <tr className="divider-row">
-                                    <td colSpan="5"><hr /></td>
+                                    <td colSpan="6"><hr /></td>
                                 </tr>
                             )}
 
                             {posts.length > 0 ? (
                                 posts.map(post => (
-                                    <tr key={`post-${post.id}`} onClick={() => navigate(`/noticeboard/${post.id}`)}>
+                                    <tr
+                                        key={`post-${post.id}`}
+                                        onClick={() => navigate(`/noticeboard/${post.id}`)}
+                                        style={{ fontWeight: post.notice ? 'bold' : 'normal' }} // ✅ 여기가 핵심
+                                        className={post.notice ? 'bold-row' : ''}
+                                    >
                                         <td>{post.id}</td>
                                         <td>{post.attachmentUri && post.attachmentUri.length > 0 ? '📎' : ''}</td>
                                         <td>{post.title}</td>
                                         <td>
-                                            {post.employStatus === 'INACTIVE' ?
-                                                (<span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
+                                            {post.employStatus === 'INACTIVE' ? (
+                                                <span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
                                                     {post.name}(퇴사)
-                                                </span>)
-                                            : `${post.name}`
-                                            }
+                                                </span>
+                                            ) : (
+                                                post.name
+                                            )}
                                         </td>
-                                    
                                         <td>{new Date(post.createdAt).toLocaleDateString()}</td>
                                         <td>{post.viewCount}</td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5" className="no-post">게시글이 없습니다</td>
+                                    <td colSpan="6" className="no-post">게시글이 없습니다</td>
                                 </tr>
                             )}
+
                         </tbody>
                     </table>
 

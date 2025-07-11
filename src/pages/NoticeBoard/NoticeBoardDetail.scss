@@ -1,19 +1,28 @@
 .notice-detail {
     max-width: 900px;
-    margin: 40px auto;
+    // max-width: 600px;
+    margin: 40px auto 0 auto;
     padding: 40px 30px;
+    // padding: 36px 28px 32px 28px;
     background-color: #ffffff;
     border-radius: 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    // box-shadow: 0 4px 24px rgba(60, 80, 180, 0.10), 0 1.5px 4px rgba(0,0,0,0.04);
     font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
     color: #333;
+    position: relative;
   
     h2 {
       font-size: 26px;
       font-weight: 700;
       margin-bottom: 20px;
-      line-height: 1.4;
       word-break: break-word;
+      // word-break: keep-all;
+
+      color: #22336b;
+      line-height: 1.3;
+      letter-spacing: -0.5px;
+      text-align: left;
     }
   
     .meta {
@@ -23,16 +32,25 @@
       color: #666;
       // margin-bottom: 16px;
       gap: 20px;
+      // gap: 18px 32px;
+      padding-bottom: 8px;
+      flex-direction: column;
+      border-bottom: 1px solid #e5e7eb;
   
       p {
         margin: 0;
+        font-weight: 500;
+        letter-spacing: -0.2px;
       }
     }
+
+
   
     hr {
       border: none;
       border-top: 1px solid #e0e0e0;
       margin: 24px 0;
+      // margin: 18px 0 24px 0;
     }
   
     .content {
@@ -42,26 +60,71 @@
       color: #444;
       margin-bottom: 30px;
       word-break: break-word;
+      // word-break: break-all;
       width: 100%;
       min-height: 300px;
       margin: 0;
       background-color: #f0f0f0;
       box-sizing: border-box;
+      // max-width: 500px;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 18px 16px;
     }
   
     .attachment {
+      margin-top: 20px;
       margin-bottom: 24px;
-  
+      h4 {
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+    
+      img {
+        max-width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+
       a {
         font-size: 15px;
         color: #007bff;
-        text-decoration: none;
+        text-decoration: underline;
         display: inline-block;
+        // display: inline-flex;
+
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        background: #f1f5ff;
+        padding: 7px 16px 7px 10px;
+        border-radius: 6px;
+        transition: background 0.15s;
   
         &:hover {
+          background: #e0eaff;
           text-decoration: underline;
         }
       }
+    }
+
+    .meta-with-attachment {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .attachment-link a {
+      font-weight: bold;
+      font-size: 13px;
+      text-decoration: none;
+      color: #0077cc;
+      transition: 0.2s;
+    }
+    
+    .attachment-link a:hover {
+      text-decoration: underline;
     }
   
     .buttons {
@@ -78,6 +141,10 @@
         border-radius: 8px;
         cursor: pointer;
         transition: background-color 0.2s ease-in-out;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        margin-right: 10px;
+        background-color: #3b82f6;
+        color: white;
   
         &:nth-child(1) {
           background-color: #007bff;
@@ -116,10 +183,7 @@
         font-size: 22px;
       }
   
-      .meta {
-        flex-direction: column;
-        gap: 6px;
-      }
+      
   
       .buttons {
         flex-direction: column;
@@ -130,53 +194,5 @@
         }
       }
     }
-  }
-  
-
-  .attachments {
-    margin-top: 20px;
-  
-    h4 {
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
-  
-    img {
-      max-width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-  
-    a {
-      color: #007bff;
-      text-decoration: underline;
-      font-size: 15px;
-    }
-  }
-  
-
-  .meta-with-attachment {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .meta {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-  
-  .attachment-link a {
-    font-weight: bold;
-    font-size: 13px;
-    text-decoration: none;
-    color: #0077cc;
-    transition: 0.2s;
-  }
-  
-  .attachment-link a:hover {
-    text-decoration: underline;
   }
   
