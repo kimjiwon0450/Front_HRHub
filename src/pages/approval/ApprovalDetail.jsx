@@ -42,15 +42,28 @@ const ApprovalDetail = () => {
       setLoading(true);
       setError(null);
       const [reportResponse, historyResponse] = await Promise.all([
-        axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`),
-        axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/history`),
+        axiosInstance.get(
+          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`,
+        ),
+        axiosInstance.get(
+          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/history`,
+        ),
       ]);
 
-      // [핵심 수정] 백엔드 응답에 맞춰 'data' 대신 'result'로 접근합니다.
       const reportData = reportResponse.data?.result;
       const historyData = historyResponse.data?.result;
 
       if (reportData) {
+        // [임시 수정] 백엔드에서 reportStatus가 올바르게 오지 않는 문제에 대한 임시 해결책입니다.
+        // 결재선에 반려가 한 명이라도 있으면, 문서 전체 상태를 '반려'로 간주합니다.
+        const hasRejection = reportData.approvalLine?.some(
+          (approver) => approver.approvalStatus === 'REJECTED',
+        );
+
+        if (hasRejection) {
+          reportData.reportStatus = 'REJECTED';
+        }
+        
         setReport(reportData);
       } else {
         throw new Error('보고서 정보를 찾을 수 없습니다.');
@@ -110,7 +123,9 @@ const ApprovalDetail = () => {
   if (!report) return <div className={styles.noData}>데이터가 없습니다.</div>;
 
   const isWriter = report.writer?.id === user?.id;
-  const currentApproverLine = report.approvalLine?.find(line => line.approvalStatus === 'PENDING');
+  const currentApproverLine = report.approvalLine?.find(
+    (line) => line.approvalStatus === 'PENDING',
+  );
   const isCurrentApprover = currentApproverLine?.employeeId === user?.id;
 
   return (
