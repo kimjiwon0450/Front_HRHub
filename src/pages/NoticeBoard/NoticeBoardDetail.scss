@@ -21,7 +21,7 @@
       flex-wrap: wrap;
       font-size: 14px;
       color: #666;
-      margin-bottom: 16px;
+      // margin-bottom: 16px;
       gap: 20px;
   
       p {
@@ -44,7 +44,7 @@
       word-break: break-word;
       width: 100%;
       min-height: 300px;
-      margin: 0 auto;
+      margin: 0;
       background-color: #f0f0f0;
       box-sizing: border-box;
     }
@@ -170,6 +170,7 @@
   
   .attachment-link a {
     font-weight: bold;
+    font-size: 13px;
     text-decoration: none;
     color: #0077cc;
     transition: 0.2s;
