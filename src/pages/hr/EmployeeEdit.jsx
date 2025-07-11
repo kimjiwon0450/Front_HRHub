@@ -27,7 +27,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
   const [currentEmployeeId, setCurrentEmployeeId] = useState(null); // 현재 수정할 직원의 ID
 
   const navigate = useNavigate();
-  const { userId } = useContext(UserContext); // UserContext에서 userId 가져오기
+  const { userId, userRole } = useContext(UserContext); // userRole 추가
 
   // prop으로 받은 employee가 있으면 그 정보를 사용하고, 없으면 userId로 본인 정보를 조회
   useEffect(() => {
@@ -233,6 +233,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
                   value={departmentId}
                   onChange={(e) => setDepartmentId(e.target.value)}
                   style={{ flex: 1 }}
+                  disabled={userRole === 'EMPLOYEE'}
                 >
                   {departments.map((dept) => (
                     <option value={dept.id} key={dept.id}>
@@ -258,6 +259,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
                   }}
                   aria-label='부서 추가'
                   onClick={() => setShowDeptModal(true)}
+                  disabled={userRole === 'EMPLOYEE'}
                 >
                   +
                 </button>
@@ -269,6 +271,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
                 className='reg-input'
                 value={position}
                 onChange={(e) => setPosition(e.target.value)}
+                disabled={userRole === 'EMPLOYEE'}
               >
                 <option value='INTERN'>INTERN</option>
                 <option value='JUNIOR'>JUNIOR</option>
@@ -283,6 +286,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
                 className='reg-input'
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
+                disabled={userRole === 'EMPLOYEE'}
               >
                 <option value='EMPLOYEE'>EMPLOYEE</option>
                 <option value='HR_MANAGER'>HR_MANAGER</option>

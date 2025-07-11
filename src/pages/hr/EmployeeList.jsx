@@ -279,7 +279,8 @@ export default function EmployeeList() {
                 <td>{emp.name}</td>
                 <td>{emp.department}</td>
                 <td>{emp.position}</td>
-                <td>{emp.phone}</td>
+                <td>{emp.role}</td> {/* 직책 컬럼에 role 값 표시 */}
+                <td>{emp.phone}</td> {/* 연락처 컬럼에 phone 값 표시 */}
               </tr>
             ))}
           </tbody>

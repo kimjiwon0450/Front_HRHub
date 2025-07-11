@@ -40,7 +40,7 @@ const NoticeBoardList = () => {
                     sortBy,
                     sortDir,
                     page,
-                    size: 10
+                    pageSize,
                 });
 
                 let url;
@@ -100,6 +100,7 @@ const NoticeBoardList = () => {
     const handleSearch = () => setPage(0);
 
     const handlePageSizeChange = (e) => {
+        console.log('Number(e.target.value) : ', Number(e.target.value));
         setPageSize(Number(e.target.value));
         setPage(0); // 첫 페이지로 초기화
     };
@@ -198,6 +199,7 @@ const NoticeBoardList = () => {
                         <thead>
                             <tr>
                                 <th>구분</th>
+                                <th></th>
                                 <th>제목</th>
                                 <th>작성자</th>
                                 <th>작성일</th>
@@ -206,12 +208,18 @@ const NoticeBoardList = () => {
                         </thead>
                         <tbody>
                             {notices.map(post => (
-                                <tr key={`notice-${post.id}`} className="notice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
+                                <tr 
+                                    key={`notice-${post.id}`} className="notice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
                                     <td>{post.id}</td>
+                                    <td>{post.attachmentUri && post.attachmentUri.length > 0 ? '📎' : ''}</td>
                                     <td>{post.title}</td>
                                     <td>
-                                        {post.name}
-                                        {post.employStatus === 'INACTIVE' ? ' (퇴사)' : ''}
+                                        {post.employStatus === 'INACTIVE' ?
+                                            (<span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
+                                                `${post.name}(퇴사)`
+                                            </span>)
+                                        : `${post.name}`
+                                        }
                                     </td>
                                     <td>{new Date(post.createdAt).toLocaleDateString()}</td>
                                     <td>{post.viewCount}</td>
@@ -229,8 +237,17 @@ const NoticeBoardList = () => {
                                 posts.map(post => (
                                     <tr key={`post-${post.id}`} onClick={() => navigate(`/noticeboard/${post.id}`)}>
                                         <td>{post.id}</td>
+                                        <td>{post.attachmentUri && post.attachmentUri.length > 0 ? '📎' : ''}</td>
                                         <td>{post.title}</td>
-                                        <td>{post.name}</td>
+                                        <td>
+                                            {post.employStatus === 'INACTIVE' ?
+                                                (<span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
+                                                    {post.name}(퇴사)
+                                                </span>)
+                                            : `${post.name}`
+                                            }
+                                        </td>
+                                    
                                         <td>{new Date(post.createdAt).toLocaleDateString()}</td>
                                         <td>{post.viewCount}</td>
                                     </tr>

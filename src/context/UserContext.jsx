@@ -80,7 +80,15 @@ export const UserContextProvider = (props) => {
 
   const logoutHandler = () => {
     console.log('[logoutHandler] 로그아웃 수행');
-    localStorage.clear();
+    // localStorage.clear();
+    localStorage.removeItem('ACCESS_TOKEN');
+    localStorage.removeItem('USER_ID');
+    localStorage.removeItem('USER_ROLE');
+    localStorage.removeItem('USER_NAME');
+    localStorage.removeItem('USER_DEPARTMENT_ID');
+    localStorage.removeItem('USER_POSITION');
+    localStorage.removeItem('USER_IMAGE');
+    localStorage.removeItem('USER_ICON');
     setIsLoggedIn(false);
     setUserRole('');
     setUserRole('');

@@ -6,13 +6,25 @@ import axiosInstance from '../../configs/axios-config';
 const EmployeeOfMonthCarousel = () => {
   const [eomList, setEomList] = useState([]);
 
-  console.log(`${API_BASE_URL}${HR_SERVICE}/top/employee`);
   const getThisMonthEmployee = async () => {
     try {
+      // 이달의 사원 조회회
       const res = await axiosInstance.get(
         `${API_BASE_URL}${HR_SERVICE}/top/employee`,
       );
-      setEomList(res.data.result);
+      // 부서명 조회
+      const eomList = await Promise.all(
+        res.data.result.map(async (eom) => {
+          const deptName = await axiosInstance.get(
+            `${API_BASE_URL}${HR_SERVICE}/departments/${eom.departmentId}`,
+          );
+          return {
+            ...eom,
+            departmentId: deptName.data.result.name,
+          };
+        }),
+      );
+      setEomList(eomList);
     } catch (e) {
       alert(e.response.data.message);
     }

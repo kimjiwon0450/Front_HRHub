@@ -3,81 +3,142 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import styles from './ApprovalForm.module.scss';
+import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
 
 const ApprovalForm = () => {
   const navigate = useNavigate();
-  const { reportId } = useParams();
-  const location = useLocation();
+  const { reportId } = useParams(); // URL에서 reportId 가져오기
+  const location = useLocation(); // URL 정보 가져오기
 
-  const isEditMode = reportId && location.pathname.includes('/edit/');
-  const isResubmitMode = reportId && location.pathname.includes('/resubmit/');
+  const [isEditMode, setIsEditMode] = useState(false); // 새로 작성 or 수정
+  const [isResubmitMode, setIsResubmitMode] = useState(false); // 재상신 모드
 
+  // 템플릿 정보
+  const [template, setTemplate] = useState(null); // 로드된 템플릿 정보
+  const [formData, setFormData] = useState({}); // 템플릿 기반 동적 폼 데이터
+
+  // 기존 상태
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [approvers, setApprovers] = useState('');
-  const [references, setReferences] = useState('');
+  const [content, setContent] = useState(''); // 이제 기본 내용으로 사용
+  const [approvers, setApprovers] = useState([]); // 결재선
+  const [references, setReferences] = useState([]); // 참조
+  const [showApproverModal, setShowApproverModal] = useState(false);
+  const [showReferenceModal, setShowReferenceModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [originalReport, setOriginalReport] = useState(null); // 원본 문서 (재상신/수정 시)
 
   useEffect(() => {
-    const fetchReportData = async () => {
-      try {
-        const res = await axiosInstance.get(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`
-        );
-        const report = res.data.data; // API 명세에 따라 'result'를 'data'로 수정
+    // URL에서 templateId 쿼리 파라미터 추출
+    const queryParams = new URLSearchParams(location.search);
+    const templateId = queryParams.get('templateId');
 
-        console.log(reportId);
-        
-        if (report) {
-          setTitle(report.title);
-          setContent(report.content);
-          setApprovers(report.approvalLine.map((a) => a.employeeId).join(', '));
-          setReferences(report.references.map((r) => r.employeeId).join(', '));
+    if (templateId) {
+      // 템플릿 ID가 있으면 템플릿 정보 로드
+      const fetchTemplate = async () => {
+        try {
+          const res = await axiosInstance.get(
+            `${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`,
+          );
+          const fetchedTemplate = res.data.result.template;
+
+          let parsedContent = [];
+          if (
+            fetchedTemplate.content &&
+            typeof fetchedTemplate.content === 'string'
+          ) {
+            try {
+              parsedContent = JSON.parse(fetchedTemplate.content);
+            } catch (e) {
+              console.error('Template content parsing error:', e);
+              // 파싱 실패 시 기본 텍스트 영역으로 처리
+              parsedContent = [
+                {
+                  type: 'textarea',
+                  header: '내용',
+                  value: fetchedTemplate.content,
+                },
+              ];
+            }
+          } else if (Array.isArray(fetchedTemplate.content)) {
+            parsedContent = fetchedTemplate.content;
+          }
+
+          setTemplate({ ...fetchedTemplate, content: parsedContent });
+          setTitle(fetchedTemplate.title); // 템플릿 제목을 문서 제목으로 설정
+
+          // 동적 폼 데이터 초기화
+          const initialFormData = parsedContent.reduce((acc, field) => {
+            acc[field.header] = '';
+            return acc;
+          }, {});
+          setFormData(initialFormData);
+        } catch (error) {
+          console.error('Failed to fetch template:', error);
+          alert('템플릿을 불러오는 데 실패했습니다.');
+          navigate('/approval/home');
         }
-      } catch (err) {
-        console.error('보고서 정보를 불러오는 데 실패했습니다.', err);
-        setError('보고서 정보를 불러오는 데 실패했습니다.');
-      }
-    };
-
-    if (isEditMode || isResubmitMode) {
-      fetchReportData();
-    } else {
-      // 새 작성 모드일 때 폼 초기화
-      setTitle('');
-      setContent('');
-      setApprovers('');
-      setReferences('');
+      };
+      fetchTemplate();
+    } else if (reportId) {
+      // 기존 문서(임시저장, 재상신) 로드
+      setIsEditMode(true);
+      fetchReportData(reportId);
     }
-  }, [reportId, isEditMode, isResubmitMode]);
+  }, [reportId, location.search, navigate]);
 
-  // '임시 저장' 또는 '수정하기' (상태: DRAFT)
-  const handleSaveOrUpdateDraft = async () => {
+  const fetchReportData = async (id) => {
+    try {
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${id}`,
+      );
+      const report = res.data.data; // API 명세에 따라 'result'를 'data'로 수정
+
+      console.log(reportId);
+
+      if (report) {
+        setTitle(report.title);
+        setContent(report.content);
+        setApprovers(report.approvalLine.map((a) => a.employeeId).join(', '));
+        setReferences(report.references.map((r) => r.employeeId).join(', '));
+        setOriginalReport(report); // 원본 문서 저장
+      }
+    } catch (err) {
+      console.error('보고서 정보를 불러오는 데 실패했습니다.', err);
+      setError('보고서 정보를 불러오는 데 실패했습니다.');
+    }
+  };
+
+  // '임시 저장' (상태: DRAFT)만 남김
+  const handleSaveDraft = async () => {
     if (!title) {
       alert('제목을 입력해주세요.');
       return;
     }
-
-    setIsSubmitting(true);
+    setIsSubmitting(true); // 중복으로 버튼을 여러번 누르지 못하게 하기위해서
     setError(null);
 
-    const payload = {
-      title,
-      content,
-      approvalLine: approvers.split(',').map(id => ({ employeeId: id.trim() })),
-      references: references.split(',').map(id => id.trim()).filter(id => id),
-    };
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('content', content);
+    approvers.forEach((a, idx) => {
+      formData.append(`approvalLine[${idx}].employeeId`, a.id);
+    });
+    references.forEach((a, idx) => {
+      formData.append(`references[${idx}]`, a.id);
+    });
+
+    console.log(formData.get('references'));
+    console.log(formData.get('approvalLine'));
 
     try {
-      if (isEditMode) {
-        await axiosInstance.put(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`, payload);
-        alert('수정되었습니다.');
-      } else {
-        await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/create`, payload);
-        alert('임시 저장되었습니다.');
-      }
-      console.log(isEditMode.result);
+      await axiosInstance.post(
+        `${API_BASE_URL}${APPROVAL_SERVICE}/create`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } },
+      );
+      alert('임시 저장되었습니다.');
       navigate('/approval/drafts');
     } catch (err) {
       setError(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
@@ -86,126 +147,165 @@ const ApprovalForm = () => {
     }
   };
 
-  // '상신하기' (상태: IN_PROGRESS)
-  const handleSubmitForApproval = async () => {
-    if (!window.confirm("상신하시겠습니까? 상신 후에는 수정할 수 없습니다.")) {
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setError(null);
+  // const handleResubmit = async () => {
+  //   if (!window.confirm('이 내용으로 재상신하시겠습니까?')) {
+  //     return;
+  //   }
 
-    const payload = {
-      title,
-      content,
-      approvalLine: approvers.split(',').map(id => ({ employeeId: id.trim() })),
-      references: references.split(',').map(id => id.trim()).filter(id => id),
-      reportStatus: 'IN_PROGRESS', // 상신 상태로 변경
-    };
+  //   setIsSubmitting(true);
+  //   setError(null);
 
-    try {
-      await axiosInstance.put(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`, payload);
-      alert('성공적으로 상신되었습니다.');
-      navigate('/approval/drafts');
-    } catch (err) {
-      setError(err.response?.data?.message || '상신 중 오류가 발생했습니다.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  //   const formData = new FormData();
+  //   formData.append('newTitle', title);
+  //   formData.append('newContent', content);
+  //   approvers.forEach((a, idx) => {
+  //     formData.append(`approvalLine[${idx}].employeeId`, a.id);
+  //   });
+  //   references.forEach((a, idx) => {
+  //     formData.append(`references[${idx}].employeeId`, a.id);
+  //   });
+  //   selectedFiles.forEach((file) => {
+  //     formData.append('attachments', file);
+  //   });
 
-  const handleResubmit = async () => {
-    if (!window.confirm("이 내용으로 재상신하시겠습니까?")) {
-      return;
-    }
+  //   try {
+  //     await axiosInstance.post(
+  //       `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/resubmit`,
+  //       formData,
+  //       { headers: { 'Content-Type': 'multipart/form-data' } },
+  //     );
+  //     alert('성공적으로 재상신되었습니다.');
+  //     navigate('/approval/drafts');
+  //   } catch (err) {
+  //     setError(err.response?.data?.message || '재상신 중 오류가 발생했습니다.');
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
 
-    setIsSubmitting(true);
-    setError(null);
-
-    const payload = {
-      newTitle: title,
-      newContent: content,
-      approvalLine: approvers.split(',').map(id => ({ employeeId: id.trim() })),
-      references: references.split(',').map(id => ({ employeeId: id.trim() })),
-    };
-
-    try {
-      await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/resubmit`, payload);
-      alert('성공적으로 재상신되었습니다.');
-      navigate('/approval/drafts');
-    } catch (err) {
-      setError(err.response?.data?.message || '재상신 중 오류가 발생했습니다.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const getPageTitle = () => {
-    if (isResubmitMode) return '기안서 재상신';
-    if (isEditMode) return '기안서 수정';
-    return '기안서 작성';
-  };
+  // 화면 타이틀 함수 복구
+  const getPageTitle = () => '기안서 작성';
 
   return (
     <div className={styles.container}>
       <h2>{getPageTitle()}</h2>
       {error && <div className={styles.error}>{error}</div>}
-      {/* 폼 입력 필드들은 동일하게 유지 */}
+      {/* 폼 입력 필드들 */}
       <div className={styles.formGroup}>
-        <label htmlFor="title">제목</label>
+        <label htmlFor='title'>제목</label>
         <input
-          type="text"
-          id="title"
+          type='text'
+          id='title'
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          placeholder='문서 제목을 입력하세요'
         />
       </div>
+
+      {/* 템플릿 기반 동적 폼 렌더링 */}
+      {template && renderTemplateForm()}
+
       <div className={styles.formGroup}>
-        <label htmlFor="content">내용</label>
+        <label htmlFor='content'>상세 내용</label>
         <textarea
-          id="content"
-          rows="15"
+          id='content'
+          rows='10'
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          placeholder='상세 내용을 입력하세요'
         ></textarea>
       </div>
+      {/* 결재선 */}
       <div className={styles.formGroup}>
-        <label htmlFor="approvers">결재선 (사번을 콤마로 구분하여 입력)</label>
-        <input
-          type="text"
-          id="approvers"
-          value={approvers}
-          onChange={(e) => setApprovers(e.target.value)}
-          placeholder="예: 1001, 1002, 1003"
-        />
-      </div>
-      <div className={styles.formGroup}>
-        <label htmlFor="references">참조자 (사번을 콤마로 구분하여 입력)</label>
-        <input
-          type="text"
-          id="references"
-          value={references}
-          onChange={(e) => setReferences(e.target.value)}
-        />
-      </div>
-      <div className={styles.buttonGroup}>
-        {isResubmitMode ? (
-          <button onClick={handleResubmit} className={styles.submitButton} disabled={isSubmitting}>
-            {isSubmitting ? '전송 중...' : '재상신하기'}
+        <label>결재선</label>
+        <div className={styles.approverRow}>
+          <input
+            type='text'
+            value={approvers.map((a) => a.name + ' (' + a.id + ')').join(', ')}
+            readOnly
+            placeholder='직원 선택'
+            className={styles.approverInput}
+            onClick={() => setShowApproverModal(true)}
+          />
+          <button
+            type='button'
+            onClick={() => setShowApproverModal(true)}
+            className={styles.addEmployeeButton}
+          >
+            직원 추가
           </button>
-        ) : (
-          <>
-            <button onClick={handleSaveOrUpdateDraft} disabled={isSubmitting}>
-              {isSubmitting ? '저장 중...' : (isEditMode ? '수정하기' : '임시 저장')}
-            </button>
-            <button onClick={handleSubmitForApproval} className={styles.submitButton} disabled={!isEditMode || isSubmitting}>
-              상신
-            </button>
-          </>
-        )}
+        </div>
+      </div>
+      {/* 참조자 */}
+      <div className={styles.formGroup}>
+        <label>참조자</label>
+        <div className={styles.approverRow}>
+          <input
+            type='text'
+            value={references.map((a) => a.name + ' (' + a.id + ')').join(', ')}
+            readOnly
+            placeholder='직원 선택'
+            className={styles.approverInput}
+            onClick={() => setShowReferenceModal(true)}
+          />
+          <button
+            type='button'
+            onClick={() => setShowReferenceModal(true)}
+            className={styles.addEmployeeButton}
+          >
+            직원 추가
+          </button>
+        </div>
+      </div>
+      {/* 모달 렌더링 */}
+      {showApproverModal && (
+        <EmployeeSelectModal
+          open={showApproverModal}
+          onClose={() => setShowApproverModal(false)}
+          onSelect={setApprovers}
+          selectedEmployees={approvers}
+          multiple={true}
+        />
+      )}
+      {showReferenceModal && (
+        <EmployeeSelectModal
+          open={showReferenceModal}
+          onClose={() => setShowReferenceModal(false)}
+          onSelect={setReferences}
+          selectedEmployees={references}
+          multiple={true}
+        />
+      )}
+      {/* 첨부파일 인풋 */}
+      <div className={styles.formGroup}>
+        <label htmlFor='attachment'>첨부파일</label>
+        <div className={styles.attachmentRow}>
+          <input
+            type='file'
+            id='attachment'
+            name='attachment'
+            multiple
+            style={{ display: 'none' }}
+            onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
+          />
+          <label htmlFor='attachment' className={styles.fileSelectButton}>
+            파일 선택
+          </label>
+          <span className={styles.selectedFilesText}>
+            {selectedFiles.length > 0
+              ? selectedFiles.map((f) => f.name).join(', ')
+              : '선택된 파일 없음'}
+          </span>
+        </div>
+      </div>
+      {/* 버튼 그룹 */}
+      <div className={styles.buttonGroup}>
+        <button onClick={handleSaveDraft} disabled={isSubmitting}>
+          {isSubmitting ? '저장 중...' : '임시 저장하기'}
+        </button>
       </div>
     </div>
   );
 };
 
-export default ApprovalForm; 
+export default ApprovalForm;
