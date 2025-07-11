@@ -1,9 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import HRHeader from './HRHeader';
 import './HRPage.scss';
 import { UserContext } from '../../context/UserContext';
 import axiosInstance from '../../configs/axios-config';
-import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
+import {
+  API_BASE_URL,
+  HR_SERVICE,
+  NOTICE_SERVICE,
+} from '../../configs/host-config';
 import pin from '../../assets/pin.jpg';
 import EmployeeOfMonthCarousel from './EmployeeOfMonthCarousel';
 import UserCard from './UserCard';
@@ -12,8 +17,16 @@ import NoticeList from './NoticeList';
 import EmployeeEdit from './EmployeeEdit'; // EmployeeEdit 컴포넌트 임포트
 
 export default function HRPage() {
-  const { userName, userRole, userImage, userPosition, departmentId, userId } =
-    useContext(UserContext);
+  const navigate = useNavigate();
+  const {
+    userName,
+    userRole,
+    userImage,
+    userPosition,
+    departmentId,
+    userId,
+    accessToken,
+  } = useContext(UserContext);
   const [departments, setDepartments] = useState([]);
   const [departmentName, setDepartmentName] = useState('');
   const [profileImageUri, setProfileImageUri] = useState('');
@@ -21,6 +34,9 @@ export default function HRPage() {
   const [currentUserEmployee, setCurrentUserEmployee] = useState(null); // 현재 사용자 정보 상태
   const [teamEmployees, setTeamEmployees] = useState([]); // 우리팀 직원 목록
   const [teamPage, setTeamPage] = useState(0); // 우리팀 직원 슬라이드 페이지
+
+  const [deptNotices, setDeptNotices] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // 달력 상태 및 유틸
   const today = new Date();
@@ -111,6 +127,37 @@ export default function HRPage() {
     }
     fetchEmployee();
   }, [userId]);
+
+  useEffect(() => {
+    if (!departmentId || !accessToken) return;
+
+    const fetchDeptNotices = async () => {
+      setLoading(true);
+      try {
+        const url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/mydepartment`;
+
+        const res = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        console.log('부서 공지 응답 res : ', res);
+
+        const data = await res.json();
+        console.log('부서 공지 응답 data : ', data);
+
+        setDeptNotices(data || []);
+      } catch (err) {
+        console.error('부서 공지 가져오기 실패', err);
+        setDeptNotices([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDeptNotices();
+  }, [departmentId, accessToken]);
 
   // 이달의 사원 예시 데이터
   const eomList = [
@@ -283,15 +330,14 @@ export default function HRPage() {
           <div className='hr-card hr-tab-card' style={{ flex: 2 }}>
             <div className='tabs'>
               <button className='active'>공지사항</button>
-              <div className='menu-icon'>≡</div>
+              <div
+                className='menu-icon'
+                onClick={() => navigate(`/noticeboard`)}
+              >
+                ≡
+              </div>
             </div>
-            <NoticeList
-              notices={[
-                '정기 인사 발령 안내드립니다.(2025-06-10)',
-                '정기 인사 발령 안내드립니다.(2025-02-10)',
-                '정기 인사 발령 안내드립니다.(2024-10-10)',
-              ]}
-            />
+            <NoticeList notices={deptNotices.slice(0, 4)} load={loading} />
           </div>
         </div>
         {/* 두번째 줄 */}

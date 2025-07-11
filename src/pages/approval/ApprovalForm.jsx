@@ -110,6 +110,66 @@ const ApprovalForm = () => {
     }
   };
 
+  const handleFormDataChange = (header, value) => {
+    setFormData((prev) => ({ ...prev, [header]: value }));
+  };
+
+  // 템플릿 기반 동적 폼 렌더링 함수
+  const renderTemplateForm = () => {
+    if (!template || !template.content) return null;
+
+    return template.content.map((field, index) => (
+      <div key={index} className={styles.formGroup}>
+        <label htmlFor={`template-field-${index}`}>{field.header}</label>
+        {renderFormField(field, index)}
+      </div>
+    ));
+  };
+
+  const renderFormField = (field, index) => {
+    const fieldId = `template-field-${index}`;
+    switch (field.type) {
+      case 'text':
+        return (
+          <input
+            type='text'
+            id={fieldId}
+            value={formData[field.header] || ''}
+            onChange={(e) => handleFormDataChange(field.header, e.target.value)}
+          />
+        );
+      case 'number':
+        return (
+          <input
+            type='number'
+            id={fieldId}
+            value={formData[field.header] || ''}
+            onChange={(e) => handleFormDataChange(field.header, e.target.value)}
+          />
+        );
+      case 'date':
+        return (
+          <input
+            type='date'
+            id={fieldId}
+            value={formData[field.header] || ''}
+            onChange={(e) => handleFormDataChange(field.header, e.target.value)}
+          />
+        );
+      case 'textarea':
+        return (
+          <textarea
+            id={fieldId}
+            rows='5'
+            value={formData[field.header] || ''}
+            onChange={(e) => handleFormDataChange(field.header, e.target.value)}
+          ></textarea>
+        );
+      default:
+        return <p>지원하지 않는 필드 타입입니다: {field.type}</p>;
+    }
+  };
+
   // '임시 저장' (상태: DRAFT)만 남김
   const handleSaveDraft = async () => {
     if (!title) {

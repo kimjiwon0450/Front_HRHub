@@ -31,12 +31,13 @@ const VisualApprovalLine = ({ approvalLine, reportStatus, mode = 'full' }) => {
           {index < approvalLine.length - 1 && <div className={styles.arrow}>→</div>}
         </React.Fragment>
       ))}
-      {isConcluded && (
+      {/* '최종 승인' 노드는 'APPROVED' 상태일 때만 표시합니다. */}
+      {reportStatus === 'APPROVED' && (
         <>
           <div className={styles.arrow}>→</div>
-          <div className={`${styles.finalNode} ${reportStatus === 'APPROVED' ? styles.finalApproved : styles.finalRejected}`}>
-            <span className={styles.finalIcon}>{reportStatus === 'APPROVED' ? '✔' : '✖'}</span>
-            <span>{reportStatus === 'APPROVED' ? '최종 승인' : '반려'}</span>
+          <div className={`${styles.finalNode} ${styles.finalApproved}`}>
+            <span className={styles.finalIcon}>✔</span>
+            <span>최종 승인</span>
           </div>
         </>
       )}
