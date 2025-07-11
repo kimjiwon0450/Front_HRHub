@@ -27,6 +27,8 @@ import DraftBoxList from '../pages/approval/DraftBoxList';
 import ApprovalForm from '../pages/approval/ApprovalForm';
 import TemplateForm from '../pages/approval/TemplateForm';
 import ApprovalHome from '../pages/approval/ApprovalHome';
+import CompletedBox from '../pages/approval/CompletedBox';
+import CcBox from '../pages/approval/CcBox';
 
 const AppRouter = () => {
   const { user, loading } = useContext(UserContext);
@@ -38,7 +40,7 @@ const AppRouter = () => {
   return (
     <Routes>
       <Route path='/' element={<Login />} />
-      <Route element={<MainLayout />}>       
+      <Route element={<MainLayout />}>
         <Route path='/dashboard' element={<HRPage />} />
         <Route path='/hr' element={<EmployeeList />} />
         <Route path='/hr/employee-list' element={<EmployeeList />} />
@@ -53,13 +55,17 @@ const AppRouter = () => {
           <Route path='home' element={<ApprovalHome />} />
           <Route path='box' element={<ApprovalBoxList />} />
           <Route path='drafts' element={<DraftBoxList />} />
+          <Route path='completed' element={<CompletedBox />} />
+          <Route path='cc' element={<CcBox />} />
           <Route path='pending' element={<ApprovalPendingList />} />
-          <Route path='reports/:id' element={<ApprovalDetail />} />
+          <Route path='reports/:reportId' element={<ApprovalDetail />} />
           <Route path='form' element={<ApprovalForm />} />
-          <Route path='form/:id' element={<ApprovalForm />} />
+          <Route path='form/:reportId' element={<ApprovalForm />} />
+          <Route path='edit/:reportId' element={<ApprovalForm />} />
           <Route path='templates/list' element={<TemplateList />} />
           <Route path='templates/form' element={<TemplateForm />} />
-          <Route path='templates/form/:id' element={<TemplateForm />} />
+          <Route path='templates/form/:templateId' element={<TemplateForm />} />
+          <Route path='templates/edit/:templateId' element={<TemplateForm />} />
         </Route>
 
         <Route path='/noticeboard' element={<NoticeBoardList />} />

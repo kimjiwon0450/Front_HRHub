@@ -73,20 +73,32 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
             if (files.length > 0) {
                 for (const file of files) {
                     // 1. presigned URL 요청
+                    console.log('file.name, file.type : ',file.name, file.type);
+
                     const res = await axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/upload-url`, {
-                        params: { fileName: file.name },
+                        params: { 
+                            fileName: file.name,
+                            contentType: file.type  || 'application/octet-stream',
+                            // 'x-amz-acl': 'private',  // ✅ 꼭 필요
+                        },
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
+                            'Content-Type': file.type,
                         },
                     });
 
                     const presignedUrl = res.data;
+                    console.log('presignedUrl: ', presignedUrl);
+                    
+                    const fileContentType = file.type  || 'application/octet-stream';
 
                     // 2. S3에 파일 업로드
                     await axios.put(presignedUrl, file, {
                         headers: {
-                            'Content-Type': file.type,
-                            'x-amz-acl': 'private' // ✅ 이 헤더 추가
+                            'Content-Type': fileContentType,
+                            // 'x-amz-acl': 'private' // ✅ 이 헤더 추가
+                            'x-amz-meta-contentType': fileContentType,
+                            'x-amz-meta-fileType': fileContentType
                         },
                     });
 

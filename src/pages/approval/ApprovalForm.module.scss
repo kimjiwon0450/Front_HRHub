@@ -27,6 +27,8 @@
 }
 
 .formGroup input[type='text'],
+.formGroup input[type='number'],
+.formGroup input[type='date'],
 .formGroup textarea {
   width: 100%;
   padding: 12px;
@@ -35,9 +37,12 @@
   font-size: 16px;
   box-sizing: border-box;
   transition: border-color 0.2s;
+  font-family: inherit; /* 일관된 폰트 적용 */
 }
 
 .formGroup input[type='text']:focus,
+.formGroup input[type='number']:focus,
+.formGroup input[type='date']:focus,
 .formGroup textarea:focus {
   outline: none;
   border-color: #007bff;
@@ -88,53 +93,62 @@
   margin-bottom: 20px;
 }
 
-.approverRow {
+.contentFieldContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.contentField {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.approverInput {
-  flex: 1;
+.contentField select,
+.contentField input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
-.addEmployeeButton {
-  background: #1976d2;
-  color: #fff;
+.contentField select {
+  flex: 0 0 120px; /* 고정 너비 */
+}
+
+.contentField input {
+  flex: 1; /* 남은 공간 모두 차지 */
+}
+
+.removeButton,
+.addButton {
+  padding: 8px 12px;
   border: none;
-  border-radius: 16px;
-  height: 32px;
-  padding: 0 16px;
+  border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
-  transition: background 0.2s;
-}
-.addEmployeeButton:hover {
-  background: #1565c0;
+  transition: background-color 0.2s;
 }
 
-.attachmentRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.removeButton {
+  background-color: #f44336;
+  color: white;
+}
+.removeButton:hover {
+  background-color: #d32f2f;
 }
 
-.fileSelectButton {
-  @extend .addEmployeeButton;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 500;
-  height: 32px;
-  padding: 0 16px;
-}
-.fileSelectButton:hover {
-  background: #1565c0;
+.addButton {
+  background-color: #4caf50;
+  color: white;
+  margin-top: 15px;
+  align-self: flex-start;
 }
 
-.selectedFilesText {
-  font-size: 14px;
-  color: #333;
-  white-space: pre-line;
+.addButton:hover {
+  background-color: #45a049;
 }

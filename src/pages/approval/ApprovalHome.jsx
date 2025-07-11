@@ -4,8 +4,9 @@ import axiosInstance from '../../configs/axios-config';
 import { UserContext } from '../../context/UserContext';
 import styles from './ApprovalHome.module.scss';
 import SummaryCard from './SummaryCard';
-import ApprovalBoxList from './ApprovalBoxList';
+import MyReportsList from './MyReportsList'; // ApprovalBoxList 대신 MyReportsList를 임포트
 import FrequentTemplatesModal from './FrequentTemplatesModal';
+import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 
 // 아이콘 임포트
 import delayedIcon from '/icons/advanced.png';
@@ -25,36 +26,38 @@ const ApprovalHome = () => {
 
 
   useEffect(() => {
-    // TODO: API 연동 후 실제 데이터 fetch 로직 구현
     if (!user) return;
-    
+
     const fetchAllTemplates = async () => {
-      // const response = await axiosInstance.get('/approvals/templates/list');
-      // setAllTemplates(response.data);
-      setAllTemplates([ // 임시 데이터
-        { id: 'template1', title: '휴가 신청서' },
-        { id: 'template2', title: '지출 결의서' },
-        { id: 'template3', title: '회의록' },
-        { id: 'template4', title: '업무 보고서' },
-      ]);
+      try {
+        const response = await axiosInstance.get(
+          `${API_BASE_URL}${APPROVAL_SERVICE}/templates`
+        );
+        if (response.data && Array.isArray(response.data.data)) {
+          setAllTemplates(response.data.data);
+        } else {
+          setAllTemplates([]);
+        }
+      } catch (error) {
+        setAllTemplates([]);
+      }
     };
 
-    const fetchFrequentTemplates = async () => {
-        // const response = await axiosInstance.get('/approvals/frequent-templates/my');
-        // setFrequentTemplates(response.data);
-        setFrequentTemplates(['template1', 'template3']); // 임시 데이터
+    const loadFrequentTemplatesFromStorage = () => {
+      const stored = localStorage.getItem('frequentTemplates');
+      setFrequentTemplates(stored ? JSON.parse(stored) : []);
     };
 
     fetchAllTemplates();
-    fetchFrequentTemplates();
-    setSummaryData({ delayed: 5, unchecked: 2, cc: 0, total: 27 });
+    loadFrequentTemplatesFromStorage(); // localStorage에서 데이터 로드
+    setSummaryData({ delayed: 5, unchecked: 2, cc: 0, total: 27 }); // 임시 데이터
     setLoading(false);
   }, [user]);
 
   const handleSaveTemplates = (selectedTemplateIds) => {
+    localStorage.setItem('frequentTemplates', JSON.stringify(selectedTemplateIds));
     setFrequentTemplates(selectedTemplateIds);
-    // TODO: API로 저장하는 로직 추가
-    console.log('저장된 템플릿 ID:', selectedTemplateIds);
+    console.log('localStorage에 저장된 템플릿 ID:', selectedTemplateIds);
   };
   
   const getTemplateTitle = (templateId) => {
@@ -107,7 +110,7 @@ const ApprovalHome = () => {
         {loading ? (
           <div className={styles.loading}>로딩 중...</div>
         ) : (
-          <ApprovalBoxList />
+          <MyReportsList /> // ApprovalBoxList 대신 MyReportsList를 렌더링
         )}
       </div>
     </div>

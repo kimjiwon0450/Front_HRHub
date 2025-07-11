@@ -13,10 +13,15 @@ const reportStatusMap = {
 };
 
 const DraftBoxCard = ({ draft }) => {
+  // 3. 컴포넌트 렌더링 시 props 수신 확인 로그
+  console.log('DraftBoxCard - 수신된 draft prop:', draft);
+
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
+    // 4. navigate 호출 직전 id 값 확인 로그
+    console.log('DraftBoxCard - 클릭 시 draft.id 값:', draft?.id);
     if (draft.reportStatus === 'DRAFT') {
       navigate(`/approval/edit/${draft.id}`);
     } else {
@@ -46,7 +51,7 @@ const DraftBoxCard = ({ draft }) => {
         </div>
         <div className={styles['card-right']} onClick={handleLineClick}>
           <VisualApprovalLine 
-            approvalLine={draft.approvalLine}
+            approvalLine={draft.approvalLines}
             reportStatus={draft.reportStatus}
             mode='summary'
           />
@@ -54,7 +59,7 @@ const DraftBoxCard = ({ draft }) => {
       </div>
       {isModalOpen && (
         <ApprovalLineModal
-          approvalLine={draft.approvalLine}
+          approvalLine={draft.approvalLines}
           reportStatus={draft.reportStatus}
           onClose={handleCloseModal}
         />

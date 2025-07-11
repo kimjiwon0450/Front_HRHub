@@ -66,11 +66,29 @@
   background-color: #f8f9fa;
 }
 
-.buttonGroup .deleteButton {
-  border-color: #dc3545;
-  color: #dc3545;
+.buttonGroup button:hover {
+  opacity: 0.9;
 }
+
+.buttonGroup .deleteButton {
+  background-color: #f44336;
+  color: white; /* 글자색을 흰색으로 변경 */
+  border: none; /* 테두리 제거 */
+}
+
 .buttonGroup .deleteButton:hover {
-  background-color: #dc3545;
-  color: white;
-} 
+  background-color: #d32f2f;
+}
+
+.buttonGroup .useButton {
+  background-color: #4caf50; /* 초록색 계열 */
+}
+
+.buttonGroup .useButton:hover {
+  background-color: #45a049;
+}
+
+.error {
+  color: #d32f2f;
+  text-align: center;
+}

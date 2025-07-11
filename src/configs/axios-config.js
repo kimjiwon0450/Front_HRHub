@@ -12,7 +12,6 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     // 요청 보내기 전에 항상 처리해야 할 내용을 콜백으로 전달.
-    console.log('🚀 Axios Request:', config.method.toUpperCase(), config.url);
     const token = localStorage.getItem('ACCESS_TOKEN');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -21,7 +20,6 @@ axiosInstance.interceptors.request.use(
   },
 
   (error) => {
-    console.error('💥 Axios Request Error:', error);
     return Promise.reject(error);
   },
 );
@@ -29,13 +27,11 @@ axiosInstance.interceptors.request.use(
 // 응답용 인터셉터
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log('✅ Axios Response:', response.config.url, response.data);
     return response;
   },
 
   async (error) => {
-    console.error('🚨 Axios Response Error:', error.response?.status, error.response?.data);
-
+    
     if (error.response?.data.message === 'NO_LOGIN') {
       console.log('아예 로그인을 하지 않아서 재발급 요청 들어갈 수 없음!');
       return Promise.reject(error);
