@@ -14,29 +14,28 @@ const CompletedBox = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await axiosInstance.get(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
-          {
-            params: {
-              role: 'all', // 내가 기안 또는 결재한 모든 문서
-              status: 'APPROVED,REJECTED', // 완료된 상태 (승인, 반려)
-              page: 0,
-              size: 10,
-            },
-          },
+        // 백엔드 API가 여러 상태 값을 동시에 처리하지 못하므로, 'APPROVED'와 'REJECTED'를 각각 호출합니다.
+        const [approvedRes, rejectedRes] = await Promise.all([
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
+            params: { role: 'writer', status: 'APPROVED', page: 0, size: 10 },
+          }),
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
+            params: { role: 'writer', status: 'REJECTED', page: 0, size: 10 },
+          }),
+        ]);
+
+        const approvedDocs = approvedRes.data.result?.reports || [];
+        const rejectedDocs = rejectedRes.data.result?.reports || [];
+
+        // 두 결과를 합치고 최신 작성일 순으로 정렬합니다.
+        const allCompletedDocs = [...approvedDocs, ...rejectedDocs].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
         );
 
-        if (res.data?.statusCode === 200) {
-          setCompletedDocs(res.data.result.reports || []);
-        } else {
-          setError(
-            res.data?.statusMessage ||
-              '완료된 문서를 불러오는 데 실패했습니다.',
-          );
-        }
+        setCompletedDocs(allCompletedDocs);
       } catch (err) {
-        console.error(err);
-        setError('네트워크 오류 또는 서버 오류');
+        console.error('완료 문서를 불러오는 중 오류 발생:', err);
+        setError('완료된 문서를 불러오는 데 실패했습니다.');
       } finally {
         setLoading(false);
       }

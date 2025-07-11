@@ -93,16 +93,42 @@ const ApprovalForm = () => {
       const res = await axiosInstance.get(
         `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${id}`,
       );
-      const report = res.data.data; // API 명세에 따라 'result'를 'data'로 수정
-
-      console.log(reportId);
+      const report = res.data.result; // API 응답 구조에 맞춰 'data' -> 'result'로 수정
 
       if (report) {
         setTitle(report.title);
-        setContent(report.content);
-        setApprovers(report.approvalLine.map((a) => a.employeeId).join(', '));
-        setReferences(report.references.map((r) => r.employeeId).join(', '));
+
+        // 템플릿 기반 문서인지, 일반 내용인지 확인
+        try {
+          // content가 JSON 형태일 경우, 파싱하여 템플릿 폼 데이터로 설정
+          const parsedContent = JSON.parse(report.content);
+          if (Array.isArray(parsedContent)) {
+             const templateData = parsedContent.reduce((acc, field) => {
+              acc[field.header] = field.value || '';
+              return acc;
+            }, {});
+            setFormData(templateData);
+            setTemplate({ content: parsedContent }); // 템플릿 구조 설정
+            setContent(''); // 일반 content는 비움
+          } else {
+            throw new Error();
+          }
+        } catch (e) {
+          // JSON 파싱 실패 시 일반 텍스트 내용으로 간주
+          setContent(report.content);
+          setTemplate(null);
+        }
+
+        // 결재선과 참조자 정보를 객체 배열로 변환하여 상태에 저장
+        setApprovers(report.approvalLine.map(a => ({ id: a.employeeId, name: a.name })));
+        setReferences(report.references.map(r => ({ id: r.employeeId, name: r.name })));
+        
         setOriginalReport(report); // 원본 문서 저장
+        
+        // 재상신인지, 임시저장 수정인지 구분
+        if (report.reportStatus === 'REJECTED') {
+          setIsResubmitMode(true);
+        }
       }
     } catch (err) {
       console.error('보고서 정보를 불러오는 데 실패했습니다.', err);
@@ -110,36 +136,50 @@ const ApprovalForm = () => {
     }
   };
 
-  // '임시 저장' (상태: DRAFT)만 남김
-  const handleSaveDraft = async () => {
+  // 신규/임시/재상신 모두 처리하는 핸들러
+  const handleSubmit = async (isDraft) => {
     if (!title) {
       alert('제목을 입력해주세요.');
       return;
     }
-    setIsSubmitting(true); // 중복으로 버튼을 여러번 누르지 못하게 하기위해서
+    setIsSubmitting(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('content', content);
-    approvers.forEach((a, idx) => {
-      formData.append(`approvalLine[${idx}].employeeId`, a.id);
-    });
-    references.forEach((a, idx) => {
-      formData.append(`references[${idx}]`, a.id);
-    });
+    const reportData = {
+      title,
+      content: template ? JSON.stringify(formData) : content,
+      approvalLine: approvers.map((a, index) => ({ employeeId: a.id, approvalOrder: index })),
+      references: references.map(r => ({ employeeId: r.id })),
+      reportStatus: isDraft ? 'DRAFT' : 'IN_PROGRESS',
+      templateId: template?.id || null,
+    };
 
-    console.log(formData.get('references'));
-    console.log(formData.get('approvalLine'));
+    // FormData 생성 (첨부파일 때문에 필요)
+    const payload = new FormData();
+    payload.append(
+      'report',
+      new Blob([JSON.stringify(reportData)], { type: 'application/json' }),
+    );
+    selectedFiles.forEach(file => {
+      payload.append('attachments', file);
+    });
 
     try {
-      await axiosInstance.post(
-        `${API_BASE_URL}${APPROVAL_SERVICE}/create`,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } },
-      );
-      alert('임시 저장되었습니다.');
-      navigate('/approval/drafts');
+      let url = `${API_BASE_URL}${APPROVAL_SERVICE}/reports`;
+      if (isEditMode) { // 임시저장 수정 또는 재상신
+        url += `/${reportId}`;
+        await axiosInstance.put(url, payload, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else { // 신규 작성
+        await axiosInstance.post(url, payload, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+
+      alert(isDraft ? '임시 저장되었습니다.' : '성공적으로 상신되었습니다.');
+      navigate(isDraft ? '/approval/drafts' : '/approval/in-progress');
+
     } catch (err) {
       setError(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
     } finally {
@@ -184,7 +224,37 @@ const ApprovalForm = () => {
   // };
 
   // 화면 타이틀 함수 복구
-  const getPageTitle = () => '기안서 작성';
+  const getPageTitle = () => {
+    if (isResubmitMode) return '기안서 재작성';
+    if (isEditMode) return '기안서 수정';
+    return '기안서 작성';
+  };
+
+  const renderTemplateForm = () => {
+    return (
+      <div className={styles.templateForm}>
+        {template.content.map((field, index) => (
+          <div key={index} className={styles.templateField}>
+            <label>{field.header}</label>
+            {field.type === 'textarea' ? (
+              <textarea
+                value={formData[field.header] || ''}
+                onChange={(e) => setFormData({ ...formData, [field.header]: e.target.value })}
+                placeholder={`${field.header}을 입력하세요`}
+              />
+            ) : (
+              <input
+                type='text'
+                value={formData[field.header] || ''}
+                onChange={(e) => setFormData({ ...formData, [field.header]: e.target.value })}
+                placeholder={`${field.header}을 입력하세요`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className={styles.container}>
@@ -300,8 +370,19 @@ const ApprovalForm = () => {
       </div>
       {/* 버튼 그룹 */}
       <div className={styles.buttonGroup}>
-        <button onClick={handleSaveDraft} disabled={isSubmitting}>
-          {isSubmitting ? '저장 중...' : '임시 저장하기'}
+        <button
+          onClick={() => handleSubmit(false)}
+          disabled={isSubmitting}
+          className={styles.submitBtn}
+        >
+          {isSubmitting ? '처리 중...' : '상신하기'}
+        </button>
+        <button
+          onClick={() => handleSubmit(true)}
+          disabled={isSubmitting}
+          className={styles.draftBtn}
+        >
+          {isSubmitting ? '처리 중...' : '임시 저장'}
         </button>
       </div>
     </div>

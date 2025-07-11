@@ -24,6 +24,13 @@ const MyReportsList = () => {
           },
         );
 
+        // =================  ★★★  추적용 로그 추가  ★★★  =================
+        console.log(
+          '[MyReportsList] API 응답 데이터:',
+          response.data.result,
+        );
+        // ==========================================================
+
         if (response.data?.statusCode === 200) {
           setReports(response.data.result.reports || []);
         } else {
