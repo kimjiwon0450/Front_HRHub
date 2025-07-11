@@ -147,7 +147,7 @@ export default function HRPage() {
         const data = await res.json();
         console.log('부서 공지 응답 data : ', data);
 
-        setDeptNotices(data || []);
+        setDeptNotices(data.result || []);
       } catch (err) {
         console.error('부서 공지 가져오기 실패', err);
         setDeptNotices([]);
@@ -337,7 +337,10 @@ export default function HRPage() {
                 ≡
               </div>
             </div>
-            <NoticeList notices={deptNotices.slice(0, 4)} load={loading} />
+            <NoticeList
+              notices={(deptNotices || []).slice(0, 4)}
+              load={loading}
+            />
           </div>
         </div>
         {/* 두번째 줄 */}
