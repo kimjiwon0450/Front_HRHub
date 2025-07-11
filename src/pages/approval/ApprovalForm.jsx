@@ -386,35 +386,37 @@ const ApprovalForm = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
 
   useEffect(() => {
-    if (reportId) {
-      // 수정 또는 재상신 모드일 때
-      const fetchReportData = async () => {
-        try {
-          const res = await axiosInstance.get(
-            `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`,
-          );
-          const report = res.data.result;
+    const fetchReportData = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`,
+        );
+        const report = res.data.data; // API 명세에 따라 'result'를 'data'로 수정
+
+        console.log(reportId);
+
+        if (report) {
           setTitle(report.title);
           setContent(report.content);
-          setApprovers(
-            report.approvalLine.map((a) => ({
-              id: a.employeeId,
-              name: a.employeeName,
-            })),
-          );
-          setReferences(
-            report.references.map((r) => ({
-              id: r.employeeId,
-              name: r.employeeName,
-            })),
-          );
-        } catch (err) {
-          setError('보고서 정보를 불러오는 데 실패했습니다.');
+          setApprovers(report.approvalLine.map((a) => a.employeeId).join(', '));
+          setReferences(report.references.map((r) => r.employeeId).join(', '));
         }
-      };
+      } catch (err) {
+        console.error('보고서 정보를 불러오는 데 실패했습니다.', err);
+        setError('보고서 정보를 불러오는 데 실패했습니다.');
+      }
+    };
+
+    if (isEditMode || isResubmitMode) {
       fetchReportData();
+    } else {
+      // 새 작성 모드일 때 폼 초기화
+      setTitle('');
+      setContent('');
+      setApprovers('');
+      setReferences('');
     }
-  }, [reportId]);
+  }, [reportId, isEditMode, isResubmitMode]);
 
   // '임시 저장' 또는 '수정하기' (상태: DRAFT)
   const handleSaveOrUpdateDraft = async () => {
@@ -447,6 +449,7 @@ const ApprovalForm = () => {
         );
         alert('임시 저장되었습니다.');
       }
+      console.log(isEditMode.result);
       navigate('/approval/drafts');
     } catch (err) {
       setError(err.response?.data?.message || '처리 중 오류가 발생했습니다.');

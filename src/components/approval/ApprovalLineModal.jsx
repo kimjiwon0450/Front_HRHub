@@ -45,12 +45,12 @@ const ApprovalLineModal = ({ approvalLine, reportStatus, onClose }) => {
             </thead>
             <tbody>
               {approvalLine.map((approver, index) => (
-                <tr key={approver.id}>
+                <tr key={approver.employeeId}>
                   <td>{index + 1}</td>
                   <td>{approver.name}</td>
                   <td>{approver.position}</td>
-                  <td className={styles[approver.status.toLowerCase()]}>
-                    {getStatusText(approver.status)}
+                  <td className={styles[approver.approvalStatus.toLowerCase()]}>
+                    {getStatusText(approver.approvalStatus)}
                   </td>
                   <td>{approver.approvedAt ? new Date(approver.approvedAt).toLocaleString() : '-'}</td>
                 </tr>

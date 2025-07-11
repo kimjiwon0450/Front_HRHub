@@ -17,7 +17,12 @@ const TemplateList = () => {
     setError(null);
     try {
       const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates`);
-      setTemplates(res.data.result || []);
+      // API 명세에 따라 'data' 키에서 배열을 가져오도록 수정
+      if (res.data && Array.isArray(res.data.data)) {
+        setTemplates(res.data.data);
+      } else {
+        setTemplates([]);
+      }
     } catch (err) {
       setError('템플릿 목록을 불러오는 데 실패했습니다.');
     } finally {
