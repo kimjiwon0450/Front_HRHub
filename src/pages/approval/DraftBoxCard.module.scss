@@ -1,46 +1,76 @@
 .draftbox-card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
+  flex-direction: column;
+  padding: 16px;
   background-color: #fff;
+  border: 1px solid #e9ecef;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
   cursor: pointer;
   transition: box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+
+  &:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
 }
 
-.draftbox-card:hover {
-  border-color: #007bff;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
-}
-
-.card-left {
+.card-header {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.template-name {
+  font-size: 13px;
+  color: #868e96;
+  font-weight: 500;
+}
+
+.draftbox-status {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  color: #fff;
+
+  &.in_progress {
+    background-color: #ffc107;
+  }
+  &.approved {
+    background-color: #28a745;
+  }
+  &.rejected {
+    background-color: #dc3545;
+  }
+  // 다른 상태들도 필요에 따라 추가
+}
+
+.card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .draftbox-title {
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: #343a40;
+  margin-bottom: 8px;
 }
 
 .draftbox-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   font-size: 14px;
-  color: #666;
-}
-
-.draftbox-status {
-  font-weight: bold;
+  color: #6c757d;
+  display: flex;
+  gap: 12px;
 }
 
 .card-right {
-  flex-grow: 1;
-  margin-left: 40px;
-  min-width: 300px;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  // VisualApprovalLine 스타일과 겹치지 않도록 z-index 등 조정이 필요할 수 있음
 } 

@@ -18,8 +18,8 @@ const ApprovalPendingList = () => {
           `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
           {
             params: {
-              role: 'approver',
-              status: 'IN_PROGRESS',
+              role: 'approver', // '내가 결재할 차례인 문서'를 의미
+              // status: 'IN_PROGRESS', // ApprovalStatus가 PENDING인 것을 찾아야 하므로 제거
               page: 0,
               size: 10,
             },

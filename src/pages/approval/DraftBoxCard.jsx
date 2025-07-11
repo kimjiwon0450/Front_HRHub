@@ -18,7 +18,7 @@ const DraftBoxCard = ({ draft }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
-    if (draft.reportStatus === 'DRAFT') {
+    if (draft.reportStatus === 'DRAFT' || draft.reportStatus === 'RECALLED') {
       navigate(`/approval/edit/${draft.id}`);
     } else {
       navigate(`/approval/reports/${draft.id}`);
@@ -37,17 +37,28 @@ const DraftBoxCard = ({ draft }) => {
   return (
     <>
       <div className={styles['draftbox-card']} onClick={handleCardClick}>
-        <div className={styles['card-left']}>
+        <div className={styles['card-header']}>
+          <span className={styles['template-name']}>
+            {draft.templateName || '일반 문서'}
+          </span>
+          <span
+            className={`${styles['draftbox-status']} ${
+              styles[draft.reportStatus?.toLowerCase()]
+            }`}
+          >
+            {reportStatusMap[draft.reportStatus] || draft.reportStatus}
+          </span>
+        </div>
+        <div className={styles['card-body']}>
           <div className={styles['draftbox-title']}>{draft.title}</div>
           <div className={styles['draftbox-info']}>
-            <span className={styles['draftbox-status']}>{reportStatusMap[draft.reportStatus] || draft.reportStatus}</span>
+            <span>{draft.writer?.name}</span>
             <span>{new Date(draft.createdAt).toLocaleDateString()}</span>
-            <span>{draft.name}</span>
           </div>
         </div>
         <div className={styles['card-right']} onClick={handleLineClick}>
-          <VisualApprovalLine 
-            approvalLine={draft.approvalLines}
+          <VisualApprovalLine
+            approvalLine={draft.approvalLines || []}
             reportStatus={draft.reportStatus}
             mode='summary'
           />
@@ -55,7 +66,7 @@ const DraftBoxCard = ({ draft }) => {
       </div>
       {isModalOpen && (
         <ApprovalLineModal
-          approvalLine={draft.approvalLines}
+          approvalLine={draft.approvalLines || []}
           reportStatus={draft.reportStatus}
           onClose={handleCloseModal}
         />

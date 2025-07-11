@@ -6,40 +6,43 @@
 }
 
 .sectionTitle {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   margin-bottom: 20px;
   color: #333;
 }
 
 .reportListContainer {
-  padding: 20px;
+  padding: 24px;
 }
 
-.tabHeader {
+.filterGroup {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 20px;
-  border-bottom: 2px solid #e0e0e0;
 
   button {
-    padding: 10px 20px;
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-    font-size: 16px;
+    padding: 8px 16px;
+    font-size: 14px;
     font-weight: 500;
-    color: #888;
-    transition: all 0.2s ease-in-out;
-    border-bottom: 3px solid transparent;
-
-    &.active {
-      color: #007bff;
-      border-bottom-color: #007bff;
-    }
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 
     &:hover {
-      color: #0056b3;
+      background-color: #f1f3f5;
+    }
+  }
+
+  .activeFilter {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+
+    &:hover {
+      background-color: #0056b3;
     }
   }
 }
@@ -47,7 +50,7 @@
 .reportList {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .dateGroup {

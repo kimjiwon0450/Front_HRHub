@@ -13,23 +13,19 @@ const MyReportsList = () => {
     const fetchReports = async () => {
       setLoading(true);
       setError(null);
+      
+      const params = {
+        role: 'writer',
+        status: 'IN_PROGRESS',
+        page: 0,
+        size: 10,
+      };
+      
       try {
         const response = await axiosInstance.get(
           `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
-          {
-            params: {
-              role: 'writer',
-              status: 'IN_PROGRESS', // 'IN_PROGRESS' 상태의 문서만 요청
-            },
-          },
+          { params },
         );
-
-        // =================  ★★★  추적용 로그 추가  ★★★  =================
-        console.log(
-          '[MyReportsList] API 응답 데이터:',
-          response.data.result,
-        );
-        // ==========================================================
 
         if (response.data?.statusCode === 200) {
           setReports(response.data.result.reports || []);
@@ -57,18 +53,21 @@ const MyReportsList = () => {
   }
 
   return (
-    <div className={styles.reportList}>
+    <div className={styles.reportListContainer}>
       <h3 className={styles.sectionTitle}>결재 진행함</h3>
-      {reports.length > 0 ? (
-        reports.map((report) => (
-          <DraftBoxCard key={report.id} draft={report} />
-        ))
-      ) : (
-        <div className={styles.noReports}>
-          <div className={styles.noReportsIcon}>📄</div>
-          <p>현재 진행 중인 문서가 없습니다.</p>
-        </div>
-      )}
+      
+      <div className={styles.reportList}>
+        {reports.length > 0 ? (
+          reports.map((report) => (
+            <DraftBoxCard key={report.id} draft={report} />
+          ))
+        ) : (
+          <div className={styles.noReports}>
+            <div className={styles.noReportsIcon}>📄</div>
+            <p>현재 진행 중인 문서가 없습니다.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
