@@ -12,6 +12,38 @@
   color: #333;
 }
 
+.reportListContainer {
+  padding: 20px;
+}
+
+.tabHeader {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+
+  button {
+    padding: 10px 20px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    color: #888;
+    transition: all 0.2s ease-in-out;
+    border-bottom: 3px solid transparent;
+
+    &.active {
+      color: #007bff;
+      border-bottom-color: #007bff;
+    }
+
+    &:hover {
+      color: #0056b3;
+    }
+  }
+}
+
 .reportList {
   display: flex;
   flex-direction: column;
@@ -22,22 +54,82 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
+  margin-bottom: 20px;
 }
 
 .dateHeader {
   padding: 10px 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  color: #555;
-  border-bottom: 2px solid #f0f0f0;
+  color: #666;
+  padding-bottom: 10px;
   margin-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.loading, .error {
+.listHeader {
+  display: flex;
+  padding: 12px 20px;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.reportItem {
+  display: flex;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f9fafb;
+  }
+}
+
+.headerCell, .itemCell {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 10px;
+
+  &:first-child {
+    padding-left: 0;
+  }
+  &:last-child {
+    padding-right: 0;
+  }
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &.processing {
+    background-color: #e0f2fe;
+    color: #0284c7;
+  }
+  &.approved {
+    background-color: #dcfce7;
+    color: #16a34a;
+  }
+  &.rejected {
+    background-color: #fee2e2;
+    color: #dc2626;
+  }
+}
+
+
+.loading, .error, .noReports {
   text-align: center;
-  padding: 50px;
-  font-size: 16px;
-  color: #666;
+  padding: 40px;
+  color: #888;
 }
 
 .noReports {
@@ -52,6 +144,6 @@
 
 .noReportsIcon {
   font-size: 48px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   color: #ccc;
 } 

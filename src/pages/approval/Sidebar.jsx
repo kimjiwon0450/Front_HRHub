@@ -10,37 +10,47 @@ const Sidebar = () => {
     <aside className={styles.sidebar}>
       <div className={styles.menu}>
         <div className={styles.menuHeader}>전자결재</div>
-        <ul className={styles.menuList}>
-          <li>
-            <NavLink to='/approval/home' className={({ isActive }) => (isActive ? styles.active : '')}>
-              결재 홈
-            </NavLink>
-          </li>
-        </ul>
-
+        
         <div className={styles.menuGroup}>
-          <div className={styles.menuGroupHeader}>결재 상신함</div>
+          <div className={styles.menuGroupHeader}>기안하기</div>
           <ul className={styles.menuList}>
             <li>
-              <NavLink to='/approval/drafts' className={({ isActive }) => (isActive ? styles.active : '')}>
-                내가 올린 문서
+              <NavLink to='/approval/home' className={({ isActive }) => (isActive ? styles.active : '')}>
+                새 결재 진행
               </NavLink>
             </li>
-            {/* <li><NavLink to="/approval/pending" className={({ isActive }) => isActive ? styles.active : ''}>결재 진행</NavLink></li>
-            <li><NavLink to="/approval/completed" className={({ isActive }) => isActive ? styles.active : ''}>결재 완료</NavLink></li> */}
+            <li>
+              <NavLink to='/approval/drafts' className={({ isActive }) => (isActive ? styles.active : '')}>
+                결재 진행함
+              </NavLink>
+            </li>
           </ul>
         </div>
 
         <div className={styles.menuGroup}>
-          <div className={styles.menuGroupHeader}>결재 수신함</div>
+          <div className={styles.menuGroupHeader}>결재하기</div>
           <ul className={styles.menuList}>
             <li>
-              <NavLink to='/approval/home' className={({ isActive }) => (isActive ? styles.active : '')}>
+              <NavLink to='/approval/box' className={({ isActive }) => (isActive ? styles.active : '')}>
                 결재할 문서
               </NavLink>
             </li>
-            {/* <li><NavLink to="/approval/history" className={({ isActive }) => isActive ? styles.active : ''}>결재 내역</NavLink></li>
-            <li><NavLink to="/approval/cc" className={({ isActive }) => isActive ? styles.active : ''}>수신 참조</NavLink></li> */}
+             <li>
+              <NavLink to="/approval/cc" className={({ isActive }) => (isActive ? styles.active : '')}>
+                수신 참조
+              </NavLink>
+            </li>
+          </ul>
+        </div>
+
+        <div className={styles.menuGroup}>
+          <div className={styles.menuGroupHeader}>결재 완료함</div>
+          <ul className={styles.menuList}>
+            <li>
+              <NavLink to="/approval/completed" className={({ isActive }) => (isActive ? styles.active : '')}>
+                완료 문서
+              </NavLink>
+            </li>
           </ul>
         </div>
       </div>

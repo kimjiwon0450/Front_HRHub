@@ -30,6 +30,23 @@ export const UserContextProvider = (props) => {
   const [userImage, setUserImage] = useState('');
   const [departmentId, setDepartmentId] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
+  const [user, setUser] = useState(null); // user 객체 상태 추가
+
+  // 사용자 정보가 변경될 때마다 user 객체를 업데이트하는 useEffect
+  useEffect(() => {
+    if (isLoggedIn) {
+      setUser({
+        id: userId,
+        role: userRole,
+        name: userName,
+        position: userPosition,
+        departmentId: departmentId,
+        image: userImage,
+      });
+    } else {
+      setUser(null);
+    }
+  }, [isLoggedIn, userId, userRole, userName, userPosition, departmentId, userImage]);
 
   // 로그인 함수: 상태 + 배지까지 한 번에처리리
   const loginHandler = async (loginData) => {
@@ -129,6 +146,7 @@ export const UserContextProvider = (props) => {
         setUserImage,
         isInit,
         accessToken,
+        user, // Provider value에 user 객체 추가
       }}
     >
       {props.children}
