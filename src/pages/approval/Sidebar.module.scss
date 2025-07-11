@@ -105,88 +105,81 @@
 }
 
 .sidebar {
-    width: 240px;
-    height: 100%;
-    background-color: #ffffff;
-    border-right: 1px solid #e9ecef;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  width: 240px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  height: 100%;
+  padding: 20px;
+}
+
+.menuHeader {
+  font-size: 24px;
+  font-weight: 700;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #343a40;
+  color: #343a40;
+}
+
+.newApprovalBtn {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #0056b3;
   }
-  
-  .menu {
-    padding: 20px;
-  }
-  
-  .menuHeader {
-    font-size: 24px;
-    font-weight: bold;
-    color: #007bff;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #007bff;
-  }
-  
-  .menuGroup {
-    margin-bottom: 25px;
-  }
-  
-  .menuGroupHeader {
-    font-size: 14px;
-    font-weight: 600;
-    color: #868e96;
-    text-transform: uppercase;
-    margin-bottom: 15px;
-    padding-left: 10px;
-  }
-  
-  .menuList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .menuList li a {
-    display: block;
-    padding: 12px 15px;
-    color: #495057;
-    text-decoration: none;
-    font-size: 16px;
-    border-radius: 6px;
-    transition: background-color 0.2s, color 0.2s;
-  }
-  
-  .menuList li a:hover {
-    background-color: #f1f3f5;
-  }
-  
-  .menuList li a.active {
-    background-color: #007bff;
-    color: #fff;
-    font-weight: 500;
-  }
-  
-  .adminMenu {
-    padding: 20px;
-    border-top: 1px solid #e9ecef;
-  }
-  
-  .adminMenu a {
-    display: block;
-    padding: 12px 15px;
-    color: #495057;
-    text-decoration: none;
-    font-size: 16px;
-    border-radius: 6px;
-    transition: background-color 0.2s, color 0.2s;
-    font-weight: 500;
-  }
-  
-  .adminMenu a:hover {
-    background-color: #f1f3f5;
-  }
-  
-  .adminMenu a.active {
+}
+
+.menuGroup {
+  margin-bottom: 20px;
+}
+
+.menuGroupHeader {
+  font-size: 14px;
+  font-weight: 600;
+  color: #868e96;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.menuList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menuItem {
+  display: block;
+  padding: 10px 15px;
+  color: #495057;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+
+  &:hover {
     background-color: #e9ecef;
-    color: #343a40;
   }
+}
+
+.active {
+  background-color: #007bff;
+  color: white !important;
+  font-weight: 600;
+
+  &:hover {
+    background-color: #007bff;
+  }
+}

@@ -1,67 +1,91 @@
-import React, { useContext } from 'react';
-import { NavLink } from 'react-router-dom';
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import styles from './Sidebar.module.scss';
-import { UserContext } from '../../context/UserContext';
 
 const Sidebar = () => {
-  const { userRole } = useContext(UserContext);
+  const navigate = useNavigate();
 
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.menu}>
+      <nav className={styles.menu}>
         <div className={styles.menuHeader}>전자결재</div>
-        
-        <div className={styles.menuGroup}>
-          <div className={styles.menuGroupHeader}>기안하기</div>
-          <ul className={styles.menuList}>
-            <li>
-              <NavLink to='/approval/home' className={({ isActive }) => (isActive ? styles.active : '')}>
-                새 결재 진행
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to='/approval/drafts' className={({ isActive }) => (isActive ? styles.active : '')}>
-                결재 진행함
-              </NavLink>
-            </li>
-          </ul>
-        </div>
+
+        <ul className={styles.menuList}>
+          <li>
+            <NavLink
+              to='/approval/home'
+              className={({ isActive }) =>
+                `${styles.menuItem} ${isActive ? styles.active : ''}`
+              }
+            >
+              결재 홈
+            </NavLink>
+          </li>
+        </ul>
+
+        <button
+          className={styles.newApprovalBtn}
+          onClick={() => navigate('/approval/new')}
+        >
+          + 새 결재 작성
+        </button>
 
         <div className={styles.menuGroup}>
-          <div className={styles.menuGroupHeader}>결재하기</div>
+          <div className={styles.menuGroupHeader}>결재함</div>
           <ul className={styles.menuList}>
             <li>
-              <NavLink to='/approval/box' className={({ isActive }) => (isActive ? styles.active : '')}>
+              <NavLink
+                to='/approval/pending'
+                className={({ isActive }) =>
+                  `${styles.menuItem} ${isActive ? styles.active : ''}`
+                }
+              >
                 결재할 문서
               </NavLink>
             </li>
-             <li>
-              <NavLink to="/approval/cc" className={({ isActive }) => (isActive ? styles.active : '')}>
-                수신 참조
-              </NavLink>
-            </li>
-          </ul>
-        </div>
-
-        <div className={styles.menuGroup}>
-          <div className={styles.menuGroupHeader}>결재 완료함</div>
-          <ul className={styles.menuList}>
             <li>
-              <NavLink to="/approval/completed" className={({ isActive }) => (isActive ? styles.active : '')}>
-                완료 문서
+              <NavLink
+                to='/approval/in-progress'
+                className={({ isActive }) =>
+                  `${styles.menuItem} ${isActive ? styles.active : ''}`
+                }
+              >
+                결재 진행함
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to='/approval/completed'
+                className={({ isActive }) =>
+                  `${styles.menuItem} ${isActive ? styles.active : ''}`
+                }
+              >
+                완료 문서함
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to='/approval/drafts'
+                className={({ isActive }) =>
+                  `${styles.menuItem} ${isActive ? styles.active : ''}`
+                }
+              >
+                임시 저장함
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to='/approval/cc'
+                className={({ isActive }) =>
+                  `${styles.menuItem} ${isActive ? styles.active : ''}`
+                }
+              >
+                수신 참조함
               </NavLink>
             </li>
           </ul>
         </div>
-      </div>
-
-      {userRole === 'ADMIN' && (
-        <div className={styles.adminMenu}>
-          <NavLink to='/admin/service' className={({ isActive }) => (isActive ? styles.active : '')}>
-            ⚙️ 서비스 관리
-          </NavLink>
-        </div>
-      )}
+      </nav>
     </aside>
   );
 };

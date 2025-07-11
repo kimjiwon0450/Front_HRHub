@@ -29,6 +29,7 @@ import TemplateForm from '../pages/approval/TemplateForm';
 import ApprovalHome from '../pages/approval/ApprovalHome';
 import CompletedBox from '../pages/approval/CompletedBox';
 import CcBox from '../pages/approval/CcBox';
+import MyReportsList from '../pages/approval/MyReportsList';
 
 const AppRouter = () => {
   const { user, loading } = useContext(UserContext);
@@ -53,8 +54,9 @@ const AppRouter = () => {
         <Route path='/approval' element={<ApprovalPage />}>
           <Route index element={<Navigate to='home' replace />} />
           <Route path='home' element={<ApprovalHome />} />
-          <Route path='box' element={<ApprovalBoxList />} />
+          <Route path='new' element={<ApprovalForm />} />
           <Route path='drafts' element={<DraftBoxList />} />
+          <Route path='in-progress' element={<MyReportsList />} />
           <Route path='completed' element={<CompletedBox />} />
           <Route path='cc' element={<CcBox />} />
           <Route path='pending' element={<ApprovalPendingList />} />
