@@ -116,6 +116,7 @@ const ApprovalForm = () => {
       alert('제목을 입력해주세요.');
       return;
     }
+
     setIsSubmitting(true); // 중복으로 버튼을 여러번 누르지 못하게 하기위해서
     setError(null);
 
@@ -126,11 +127,8 @@ const ApprovalForm = () => {
       formData.append(`approvalLine[${idx}].employeeId`, a.id);
     });
     references.forEach((a, idx) => {
-      formData.append(`references[${idx}]`, a.id);
+      formData.append(`references[${idx}].employeeId`, a.id);
     });
-
-    console.log(formData.get('references'));
-    console.log(formData.get('approvalLine'));
 
     try {
       await axiosInstance.post(

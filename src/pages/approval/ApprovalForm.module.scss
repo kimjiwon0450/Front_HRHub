@@ -152,3 +152,59 @@
 .addButton:hover {
   background-color: #45a049;
 }
+
+.approverRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.approverInput {
+  flex: 1;
+}
+
+.addEmployeeButton {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  height: 32px;
+  padding: 0 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.addEmployeeButton:hover {
+  background: #1565c0;
+}
+
+.attachmentRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fileSelectButton {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  height: 32px;
+  padding: 0 16px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+.fileSelectButton:hover {
+  background: #1565c0;
+}
+
+.selectedFilesText {
+  font-size: 14px;
+  color: #333;
+  white-space: pre-line;
+}

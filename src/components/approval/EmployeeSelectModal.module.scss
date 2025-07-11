@@ -22,6 +22,10 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  @media (max-width: 480px) {
+    min-width: unset;
+    padding: 18px 6px 12px 6px;
+  }
 }
 
 .modalTitle {
@@ -72,6 +76,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  &.selected {
+    background: #e3f2fd;
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
 }
 
 .employeeLabel {
@@ -82,6 +91,10 @@
   font-size: 16px;
   color: #333;
   width: 100%;
+  &:hover {
+    background: #f1f8fe;
+    border-radius: 8px;
+  }
 }
 
 .employeeInput {
@@ -89,6 +102,11 @@
   width: 18px;
   height: 18px;
   margin: 0;
+}
+
+.employeeInput:focus {
+  outline: 2px solid #1976d2;
+  box-shadow: 0 0 0 2px #bbdefb;
 }
 
 .employeeInfo {
@@ -121,6 +139,9 @@
   cursor: pointer;
   border-radius: 10px;
   user-select: none;
+  &:hover {
+    background: #e3f2fd;
+  }
 }
 
 .departmentCount {
@@ -139,6 +160,7 @@
   overflow-y: auto;
   margin: 0;
   padding: 0 0 0 8px;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .buttonGroup {
@@ -161,6 +183,12 @@
   &:hover {
     background: #1565c0;
   }
+}
+
+.confirmButton:focus,
+.cancelButton:focus {
+  outline: 2px solid #1976d2;
+  box-shadow: 0 0 0 2px #bbdefb;
 }
 
 .cancelButton {
@@ -188,6 +216,11 @@
   font-size: 15px;
 }
 
+.searchInput:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px #bbdefb;
+}
+
 .loading {
   color: #1976d2;
   text-align: center;
@@ -205,9 +238,46 @@
   text-align: center;
 }
 
+.error,
+.loading,
+.noResult {
+  text-align: center;
+  width: 100%;
+}
+
 .noResult {
   color: #888;
   text-align: center;
   padding: 16px 0;
   font-size: 15px;
+}
+
+// 버튼 크기 모바일 대응
+@media (max-width: 480px) {
+  .confirmButton,
+  .cancelButton {
+    font-size: 13px;
+    height: 28px;
+    padding: 0 10px;
+  }
+}
+
+// 스크롤바 커스텀
+.employeeList,
+.departmentList,
+.departmentEmployeeList {
+  scrollbar-width: thin;
+  scrollbar-color: #1976d2 #f8fafc;
+}
+.employeeList::-webkit-scrollbar,
+.departmentList::-webkit-scrollbar,
+.departmentEmployeeList::-webkit-scrollbar {
+  width: 6px;
+  background: #f8fafc;
+}
+.employeeList::-webkit-scrollbar-thumb,
+.departmentList::-webkit-scrollbar-thumb,
+.departmentEmployeeList::-webkit-scrollbar-thumb {
+  background: #1976d2;
+  border-radius: 6px;
 }
