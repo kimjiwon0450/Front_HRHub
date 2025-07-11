@@ -26,7 +26,9 @@
   color: #555;
 }
 
-.formGroup input[type="text"],
+.formGroup input[type='text'],
+.formGroup input[type='number'],
+.formGroup input[type='date'],
 .formGroup textarea {
   width: 100%;
   padding: 12px;
@@ -35,9 +37,12 @@
   font-size: 16px;
   box-sizing: border-box;
   transition: border-color 0.2s;
+  font-family: inherit; /* 일관된 폰트 적용 */
 }
 
-.formGroup input[type="text"]:focus,
+.formGroup input[type='text']:focus,
+.formGroup input[type='number']:focus,
+.formGroup input[type='date']:focus,
 .formGroup textarea:focus {
   outline: none;
   border-color: #007bff;
@@ -86,4 +91,64 @@
   padding: 15px;
   border-radius: 6px;
   margin-bottom: 20px;
-} 
+}
+
+.contentFieldContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.contentField {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.contentField select,
+.contentField input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.contentField select {
+  flex: 0 0 120px; /* 고정 너비 */
+}
+
+.contentField input {
+  flex: 1; /* 남은 공간 모두 차지 */
+}
+
+.removeButton,
+.addButton {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.removeButton {
+  background-color: #f44336;
+  color: white;
+}
+.removeButton:hover {
+  background-color: #d32f2f;
+}
+
+.addButton {
+  background-color: #4caf50;
+  color: white;
+  margin-top: 15px;
+  align-self: flex-start;
+}
+
+.addButton:hover {
+  background-color: #45a049;
+}

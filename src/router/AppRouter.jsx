@@ -40,7 +40,7 @@ const AppRouter = () => {
   return (
     <Routes>
       <Route path='/' element={<Login />} />
-      <Route element={<MainLayout />}>       
+      <Route element={<MainLayout />}>
         <Route path='/dashboard' element={<HRPage />} />
         <Route path='/hr' element={<EmployeeList />} />
         <Route path='/hr/employee-list' element={<EmployeeList />} />
@@ -65,6 +65,7 @@ const AppRouter = () => {
           <Route path='templates/list' element={<TemplateList />} />
           <Route path='templates/form' element={<TemplateForm />} />
           <Route path='templates/form/:templateId' element={<TemplateForm />} />
+          <Route path='templates/edit/:templateId' element={<TemplateForm />} />
         </Route>
 
         <Route path='/noticeboard' element={<NoticeBoardList />} />

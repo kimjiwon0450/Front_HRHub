@@ -368,55 +368,108 @@ const EmployeeSelectModal = ({
 
 const ApprovalForm = () => {
   const navigate = useNavigate();
-  const { reportId } = useParams();
-  const location = useLocation();
+  const { reportId } = useParams(); // URL에서 reportId 가져오기
+  const location = useLocation(); // URL 정보 가져오기
 
-  const isEditMode = reportId && location.pathname.includes('/edit/');
-  const isResubmitMode = reportId && location.pathname.includes('/resubmit/');
+  const [isEditMode, setIsEditMode] = useState(false); // 새로 작성 or 수정
+  const [isResubmitMode, setIsResubmitMode] = useState(false); // 재상신 모드
 
+  // 템플릿 정보
+  const [template, setTemplate] = useState(null); // 로드된 템플릿 정보
+  const [formData, setFormData] = useState({}); // 템플릿 기반 동적 폼 데이터
+
+  // 기존 상태
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  // (2) approvers/references를 배열로 관리
-  const [approvers, setApprovers] = useState([]); // [{id, name}]
-  const [references, setReferences] = useState([]); // [{id, name}]
+  const [content, setContent] = useState(''); // 이제 기본 내용으로 사용
+  const [approvers, setApprovers] = useState([]); // 결재선
+  const [references, setReferences] = useState([]); // 참조
   const [showApproverModal, setShowApproverModal] = useState(false);
   const [showReferenceModal, setShowReferenceModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [originalReport, setOriginalReport] = useState(null); // 원본 문서 (재상신/수정 시)
 
   useEffect(() => {
-    const fetchReportData = async () => {
-      try {
-        const res = await axiosInstance.get(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`,
-        );
-        const report = res.data.data; // API 명세에 따라 'result'를 'data'로 수정
+    // URL에서 templateId 쿼리 파라미터 추출
+    const queryParams = new URLSearchParams(location.search);
+    const templateId = queryParams.get('templateId');
 
-        console.log(reportId);
+    if (templateId) {
+      // 템플릿 ID가 있으면 템플릿 정보 로드
+      const fetchTemplate = async () => {
+        try {
+          const res = await axiosInstance.get(
+            `${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`,
+          );
+          const fetchedTemplate = res.data.result.template;
 
-        if (report) {
-          setTitle(report.title);
-          setContent(report.content);
-          setApprovers(report.approvalLine.map((a) => a.employeeId).join(', '));
-          setReferences(report.references.map((r) => r.employeeId).join(', '));
+          let parsedContent = [];
+          if (
+            fetchedTemplate.content &&
+            typeof fetchedTemplate.content === 'string'
+          ) {
+            try {
+              parsedContent = JSON.parse(fetchedTemplate.content);
+            } catch (e) {
+              console.error('Template content parsing error:', e);
+              // 파싱 실패 시 기본 텍스트 영역으로 처리
+              parsedContent = [
+                {
+                  type: 'textarea',
+                  header: '내용',
+                  value: fetchedTemplate.content,
+                },
+              ];
+            }
+          } else if (Array.isArray(fetchedTemplate.content)) {
+            parsedContent = fetchedTemplate.content;
+          }
+
+          setTemplate({ ...fetchedTemplate, content: parsedContent });
+          setTitle(fetchedTemplate.title); // 템플릿 제목을 문서 제목으로 설정
+
+          // 동적 폼 데이터 초기화
+          const initialFormData = parsedContent.reduce((acc, field) => {
+            acc[field.header] = '';
+            return acc;
+          }, {});
+          setFormData(initialFormData);
+        } catch (error) {
+          console.error('Failed to fetch template:', error);
+          alert('템플릿을 불러오는 데 실패했습니다.');
+          navigate('/approval/home');
         }
-      } catch (err) {
-        console.error('보고서 정보를 불러오는 데 실패했습니다.', err);
-        setError('보고서 정보를 불러오는 데 실패했습니다.');
-      }
-    };
-
-    if (isEditMode || isResubmitMode) {
-      fetchReportData();
-    } else {
-      // 새 작성 모드일 때 폼 초기화
-      setTitle('');
-      setContent('');
-      setApprovers('');
-      setReferences('');
+      };
+      fetchTemplate();
+    } else if (reportId) {
+      // 기존 문서(임시저장, 재상신) 로드
+      setIsEditMode(true);
+      fetchReportData(reportId);
     }
-  }, [reportId, isEditMode, isResubmitMode]);
+  }, [reportId, location.search, navigate]);
+
+  const fetchReportData = async (id) => {
+    try {
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${id}`,
+      );
+      const report = res.data.data; // API 명세에 따라 'result'를 'data'로 수정
+
+      console.log(reportId);
+
+      if (report) {
+        setTitle(report.title);
+        setContent(report.content);
+        setApprovers(report.approvalLine.map((a) => a.employeeId).join(', '));
+        setReferences(report.references.map((r) => r.employeeId).join(', '));
+        setOriginalReport(report); // 원본 문서 저장
+      }
+    } catch (err) {
+      console.error('보고서 정보를 불러오는 데 실패했습니다.', err);
+      setError('보고서 정보를 불러오는 데 실패했습니다.');
+    }
+  };
 
   // '임시 저장' 또는 '수정하기' (상태: DRAFT)
   const handleSaveOrUpdateDraft = async () => {
@@ -518,6 +571,66 @@ const ApprovalForm = () => {
     }
   };
 
+  const handleFormDataChange = (header, value) => {
+    setFormData((prev) => ({ ...prev, [header]: value }));
+  };
+
+  // 템플릿 기반 동적 폼 렌더링 함수
+  const renderTemplateForm = () => {
+    if (!template || !template.content) return null;
+
+    return template.content.map((field, index) => (
+      <div key={index} className={styles.formGroup}>
+        <label htmlFor={`template-field-${index}`}>{field.header}</label>
+        {renderFormField(field, index)}
+      </div>
+    ));
+  };
+
+  const renderFormField = (field, index) => {
+    const fieldId = `template-field-${index}`;
+    switch (field.type) {
+      case 'text':
+        return (
+          <input
+            type='text'
+            id={fieldId}
+            value={formData[field.header] || ''}
+            onChange={(e) => handleFormDataChange(field.header, e.target.value)}
+          />
+        );
+      case 'number':
+        return (
+          <input
+            type='number'
+            id={fieldId}
+            value={formData[field.header] || ''}
+            onChange={(e) => handleFormDataChange(field.header, e.target.value)}
+          />
+        );
+      case 'date':
+        return (
+          <input
+            type='date'
+            id={fieldId}
+            value={formData[field.header] || ''}
+            onChange={(e) => handleFormDataChange(field.header, e.target.value)}
+          />
+        );
+      case 'textarea':
+        return (
+          <textarea
+            id={fieldId}
+            rows='5'
+            value={formData[field.header] || ''}
+            onChange={(e) => handleFormDataChange(field.header, e.target.value)}
+          ></textarea>
+        );
+      default:
+        return <p>지원하지 않는 필드 타입입니다: {field.type}</p>;
+    }
+  };
+
   const getPageTitle = () => {
     if (isResubmitMode) return '기안서 재상신';
     if (isEditMode) return '기안서 수정';
@@ -536,15 +649,21 @@ const ApprovalForm = () => {
           id='title'
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          placeholder='문서 제목을 입력하세요'
         />
       </div>
+
+      {/* 템플릿 기반 동적 폼 렌더링 */}
+      {template && renderTemplateForm()}
+
       <div className={styles.formGroup}>
-        <label htmlFor='content'>내용</label>
+        <label htmlFor='content'>상세 내용</label>
         <textarea
           id='content'
-          rows='15'
+          rows='10'
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          placeholder='상세 내용을 입력하세요'
         ></textarea>
       </div>
       {/* 결재선 */}
