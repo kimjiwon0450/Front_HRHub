@@ -9,10 +9,8 @@ const ApprovalForm = () => {
   const navigate = useNavigate();
   const { reportId } = useParams();
   const location = useLocation();
-
   const isEditMode = reportId && location.pathname.includes('/edit/');
   const isResubmitMode = reportId && location.pathname.includes('/resubmit/');
-
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   // (2) approvers/references를 배열로 관리
@@ -24,48 +22,46 @@ const ApprovalForm = () => {
   const [error, setError] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
 
-  useEffect(() => {
-    if (reportId) {
-      // 수정 또는 재상신 모드일 때
-      const fetchReportData = async () => {
-        try {
-          const res = await axiosInstance.get(
-            `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`,
-          );
-          const report = res.data.result;
-          setTitle(report.title);
-          setContent(report.content);
-          setApprovers(
-            report.approvalLine.map((a) => ({
-              id: a.employeeId,
-              name: a.employeeName,
-            })),
-          );
-          setReferences(
-            report.references.map((r) => ({
-              id: r.employeeId,
-              name: r.employeeName,
-            })),
-          );
-        } catch (err) {
-          setError('보고서 정보를 불러오는 데 실패했습니다.');
-        }
-      };
-      fetchReportData();
-    }
-  }, [reportId]);
+  // useEffect(() => {
+  //   if (reportId) {
+  //     // 수정 또는 재상신 모드일 때
+  //     const fetchReportData = async () => {
+  //       try {
+  //         const res = await axiosInstance.get(
+  //           `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`,
+  //         );
+  //         const report = res.data.result;
+  //         setTitle(report.title);
+  //         setContent(report.content);
+  //         setApprovers(
+  //           report.approvalLine.map((a) => ({
+  //             id: a.employeeId,
+  //             name: a.employeeName,
+  //           })),
+  //         );
+  //         setReferences(
+  //           report.references.map((r) => ({
+  //             id: r.employeeId,
+  //             name: r.employeeName,
+  //           })),
+  //         );
+  //       } catch (err) {
+  //         setError('보고서 정보를 불러오는 데 실패했습니다.');
+  //       }
+  //     };
+  //     fetchReportData();
+  //   }
+  // }, [reportId]);
 
-  // '임시 저장' 또는 '수정하기' (상태: DRAFT)
-  const handleSaveOrUpdateDraft = async () => {
+  // '임시 저장' (상태: DRAFT)만 남김
+  const handleSaveDraft = async () => {
     if (!title) {
       alert('제목을 입력해주세요.');
       return;
     }
-
-    setIsSubmitting(true);
+    setIsSubmitting(true); // 중복으로 버튼을 여러번 누르지 못하게 하기위해서
     setError(null);
 
-    // FormData로 변환
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', content);
@@ -75,27 +71,17 @@ const ApprovalForm = () => {
     references.forEach((a, idx) => {
       formData.append(`references[${idx}]`, a.id);
     });
-    selectedFiles.forEach((file) => {
-      formData.append('attachments', file);
-    });
+
+    console.log(formData.get('references'));
+    console.log(formData.get('approvalLine'));
 
     try {
-      if (isEditMode) {
-        await axiosInstance.put(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`,
-          formData,
-          { headers: { 'Content-Type': 'multipart/form-data' } },
-        );
-        alert('수정되었습니다.');
-      } else {
-        console.log(formData);
-        await axiosInstance.post(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/create`,
-          formData,
-          { headers: { 'Content-Type': 'multipart/form-data' } },
-        );
-        alert('임시 저장되었습니다.');
-      }
+      await axiosInstance.post(
+        `${API_BASE_URL}${APPROVAL_SERVICE}/create`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } },
+      );
+      alert('임시 저장되었습니다.');
       navigate('/approval/drafts');
     } catch (err) {
       setError(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
@@ -104,85 +90,44 @@ const ApprovalForm = () => {
     }
   };
 
-  // '상신하기' (상태: IN_PROGRESS)
-  const handleSubmitForApproval = async () => {
-    if (!window.confirm('상신하시겠습니까? 상신 후에는 수정할 수 없습니다.')) {
-      return;
-    }
+  // const handleResubmit = async () => {
+  //   if (!window.confirm('이 내용으로 재상신하시겠습니까?')) {
+  //     return;
+  //   }
 
-    setIsSubmitting(true);
-    setError(null);
+  //   setIsSubmitting(true);
+  //   setError(null);
 
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('content', content);
-    approvers.forEach((a, idx) => {
-      formData.append(`approvalLine[${idx}].employeeId`, a.id);
-    });
-    references.forEach((a, idx) => {
-      formData.append(`references[${idx}]`, a.id);
-    });
-    formData.append('reportStatus', 'IN_PROGRESS');
-    selectedFiles.forEach((file) => {
-      formData.append('attachments', file);
-    });
+  //   const formData = new FormData();
+  //   formData.append('newTitle', title);
+  //   formData.append('newContent', content);
+  //   approvers.forEach((a, idx) => {
+  //     formData.append(`approvalLine[${idx}].employeeId`, a.id);
+  //   });
+  //   references.forEach((a, idx) => {
+  //     formData.append(`references[${idx}].employeeId`, a.id);
+  //   });
+  //   selectedFiles.forEach((file) => {
+  //     formData.append('attachments', file);
+  //   });
 
-    try {
-      await axiosInstance.put(
-        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } },
-      );
-      alert('성공적으로 상신되었습니다.');
-      navigate('/approval/drafts');
-    } catch (err) {
-      setError(err.response?.data?.message || '상신 중 오류가 발생했습니다.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  //   try {
+  //     await axiosInstance.post(
+  //       `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/resubmit`,
+  //       formData,
+  //       { headers: { 'Content-Type': 'multipart/form-data' } },
+  //     );
+  //     alert('성공적으로 재상신되었습니다.');
+  //     navigate('/approval/drafts');
+  //   } catch (err) {
+  //     setError(err.response?.data?.message || '재상신 중 오류가 발생했습니다.');
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
 
-  const handleResubmit = async () => {
-    if (!window.confirm('이 내용으로 재상신하시겠습니까?')) {
-      return;
-    }
-
-    setIsSubmitting(true);
-    setError(null);
-
-    const formData = new FormData();
-    formData.append('newTitle', title);
-    formData.append('newContent', content);
-    approvers.forEach((a, idx) => {
-      formData.append(`approvalLine[${idx}].employeeId`, a.id);
-    });
-    references.forEach((a, idx) => {
-      formData.append(`references[${idx}].employeeId`, a.id);
-    });
-    selectedFiles.forEach((file) => {
-      formData.append('attachments', file);
-    });
-
-    try {
-      await axiosInstance.post(
-        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/resubmit`,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } },
-      );
-      alert('성공적으로 재상신되었습니다.');
-      navigate('/approval/drafts');
-    } catch (err) {
-      setError(err.response?.data?.message || '재상신 중 오류가 발생했습니다.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const getPageTitle = () => {
-    if (isResubmitMode) return '기안서 재상신';
-    if (isEditMode) return '기안서 수정';
-    return '기안서 작성';
-  };
+  // 화면 타이틀 함수 복구
+  const getPageTitle = () => '기안서 작성';
 
   return (
     <div className={styles.container}>
@@ -292,32 +237,9 @@ const ApprovalForm = () => {
       </div>
       {/* 버튼 그룹 */}
       <div className={styles.buttonGroup}>
-        {isResubmitMode ? (
-          <button
-            onClick={handleResubmit}
-            className={styles.submitButton}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? '전송 중...' : '재상신하기'}
-          </button>
-        ) : (
-          <>
-            <button onClick={handleSaveOrUpdateDraft} disabled={isSubmitting}>
-              {isSubmitting
-                ? '저장 중...'
-                : isEditMode
-                  ? '수정하기'
-                  : '임시 저장'}
-            </button>
-            <button
-              onClick={handleSubmitForApproval}
-              className={styles.submitButton}
-              disabled={!isEditMode || isSubmitting}
-            >
-              상신
-            </button>
-          </>
-        )}
+        <button onClick={handleSaveDraft} disabled={isSubmitting}>
+          {isSubmitting ? '저장 중...' : '임시 저장하기'}
+        </button>
       </div>
     </div>
   );
