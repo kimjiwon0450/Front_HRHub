@@ -4,8 +4,9 @@ import axiosInstance from '../../configs/axios-config';
 import { UserContext } from '../../context/UserContext';
 import styles from './ApprovalHome.module.scss';
 import SummaryCard from './SummaryCard';
-import ApprovalBoxList from './ApprovalBoxList';
+import MyReportsList from './MyReportsList'; // ApprovalBoxList 대신 MyReportsList를 임포트
 import FrequentTemplatesModal from './FrequentTemplatesModal';
+import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 
 // 아이콘 임포트
 import delayedIcon from '/icons/advanced.png';
@@ -109,7 +110,7 @@ const ApprovalHome = () => {
         {loading ? (
           <div className={styles.loading}>로딩 중...</div>
         ) : (
-          <ApprovalBoxList />
+          <MyReportsList /> // ApprovalBoxList 대신 MyReportsList를 렌더링
         )}
       </div>
     </div>
