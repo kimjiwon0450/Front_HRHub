@@ -208,7 +208,8 @@ const NoticeBoardList = () => {
                         </thead>
                         <tbody>
                             {notices.map(post => (
-                                <tr key={`notice-${post.id}`} className="notice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
+                                <tr 
+                                    key={`notice-${post.id}`} className="notice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
                                     <td>{post.id}</td>
                                     <td>{post.attachmentUri && post.attachmentUri.length > 0 ? '📎' : ''}</td>
                                     <td>{post.title}</td>

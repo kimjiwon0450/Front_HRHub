@@ -18,6 +18,11 @@ $shadow: 0 2px 14px 0 rgba(30, 65, 112, 0.07);
 
     width: 100%;
     border-collapse: collapse;
+
+    tr:hover {
+      background-color: #f0f0f0;
+      cursor: pointer;
+    }
   
     .notice-item {
       padding: 10px 12px;
