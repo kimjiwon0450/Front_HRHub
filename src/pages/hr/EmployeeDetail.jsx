@@ -152,6 +152,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
               src={imageUri ? imageUri : pin}
               alt='profile'
               onClick={handleProfileImageClick}
+              style={{ cursor: canEdit ? 'pointer' : 'default' }}
             />
           </div>
           <div className='emp-main-info'>
