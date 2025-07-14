@@ -29,14 +29,17 @@ const CcBox = () => {
           },
         );
 
+        console.log('서버 응답:', res.data);
+
         if (res.data?.statusCode === 200) {
           const allReports = res.data.result.reports || [];
-          const referredDocs = allReports.filter(
+          // DRAFT, RECALLED 상태의 문서는 목록에 표시하지 않음
+          const filteredReports = allReports.filter(
             (report) =>
-              report.referrers &&
-              report.referrers.some((referrer) => referrer.id === userId),
+              report.reportStatus !== 'DRAFT' &&
+              report.reportStatus !== 'RECALLED',
           );
-          setCcDocs(referredDocs);
+          setCcDocs(filteredReports);
         } else {
           setError(
             res.data?.statusMessage || '수신 참조 문서를 불러오지 못했습니다.',

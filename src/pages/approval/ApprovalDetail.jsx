@@ -54,6 +54,20 @@ const ApprovalDetail = () => {
       const historyData = historyResponse.data?.result;
 
       if (reportData) {
+        // --- 접근 제어 로직 추가 ---
+        const { reportStatus, writer } = reportData;
+        const currentUserIsWriter = writer?.id === user?.id;
+
+        if (
+          (reportStatus === 'DRAFT' || reportStatus === 'RECALLED') &&
+          !currentUserIsWriter
+        ) {
+          alert('해당 문서에 대한 접근 권한이 없습니다.');
+          navigate(-1); // 이전 페이지로 돌아가기
+          return;
+        }
+        // --- 로직 끝 ---
+
         setReport(reportData);
       } else {
         throw new Error('보고서 정보를 찾을 수 없습니다.');

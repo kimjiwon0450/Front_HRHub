@@ -26,7 +26,13 @@ const ApprovalPendingList = () => {
           },
         );
         if (res.data?.statusCode === 200) {
-          setPendingReports(res.data.result.reports || []);
+          const allReports = res.data.result.reports || [];
+          const filteredReports = allReports.filter(
+            (report) =>
+              report.reportStatus !== 'DRAFT' &&
+              report.reportStatus !== 'RECALLED',
+          );
+          setPendingReports(filteredReports);
         } else {
           setError(
             res.data?.statusMessage ||

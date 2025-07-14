@@ -28,7 +28,11 @@ const MyReportsList = () => {
         );
 
         if (response.data?.statusCode === 200) {
-          setReports(response.data.result.reports || []);
+          const allReports = response.data.result.reports || [];
+          const inProgressReports = allReports.filter(
+            (report) => report.reportStatus === 'IN_PROGRESS',
+          );
+          setReports(inProgressReports);
         } else {
           setReports([]);
           setError(response.data?.statusMessage || '진행 중인 문서를 불러오는 데 실패했습니다.');
