@@ -15,7 +15,7 @@ const ApprovalForm = () => {
 
   // 템플릿 정보
   const [template, setTemplate] = useState(null); // 로드된 템플릿 정보
-  const [formData, setFormData] = useState({}); // 템플릿 기반 동적 폼 데이터
+  const [templateFormData, setTemplateFormData] = useState({}); // 템플릿 기반 동적 폼 데이터
 
   // 기존 상태
   const [title, setTitle] = useState('');
@@ -73,7 +73,7 @@ const ApprovalForm = () => {
             acc[field.header] = '';
             return acc;
           }, {});
-          setFormData(initialFormData);
+          setTemplateFormData(initialFormData);
         } catch (error) {
           console.error('Failed to fetch template:', error);
           alert('템플릿을 불러오는 데 실패했습니다.');
@@ -111,7 +111,7 @@ const ApprovalForm = () => {
   };
 
   const handleFormDataChange = (header, value) => {
-    setFormData((prev) => ({ ...prev, [header]: value }));
+    setTemplateFormData((prev) => ({ ...prev, [header]: value }));
   };
 
   // 템플릿 기반 동적 폼 렌더링 함수
@@ -134,7 +134,7 @@ const ApprovalForm = () => {
           <input
             type='text'
             id={fieldId}
-            value={formData[field.header] || ''}
+            value={templateFormData[field.header] || ''}
             onChange={(e) => handleFormDataChange(field.header, e.target.value)}
           />
         );
@@ -143,7 +143,7 @@ const ApprovalForm = () => {
           <input
             type='number'
             id={fieldId}
-            value={formData[field.header] || ''}
+            value={templateFormData[field.header] || ''}
             onChange={(e) => handleFormDataChange(field.header, e.target.value)}
           />
         );
@@ -152,7 +152,7 @@ const ApprovalForm = () => {
           <input
             type='date'
             id={fieldId}
-            value={formData[field.header] || ''}
+            value={templateFormData[field.header] || ''}
             onChange={(e) => handleFormDataChange(field.header, e.target.value)}
           />
         );
@@ -161,7 +161,7 @@ const ApprovalForm = () => {
           <textarea
             id={fieldId}
             rows='5'
-            value={formData[field.header] || ''}
+            value={templateFormData[field.header] || ''}
             onChange={(e) => handleFormDataChange(field.header, e.target.value)}
           ></textarea>
         );
@@ -183,6 +183,29 @@ const ApprovalForm = () => {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', content);
+
+    // reportTemplateData를 올바른 JSON 구조로 생성
+    if (template) {
+      // 1. 사용자의 입력 값을 포함하는 새로운 content 배열 생성
+      const contentWithValues = template.content.map((field) => ({
+        ...field,
+        value: templateFormData[field.header] || '',
+      }));
+
+      // 2. 템플릿의 title, description을 포함한 전체 객체 구조 생성
+      const reportTemplateDataObject = {
+        title: template.title,
+        description: template.description,
+        content: contentWithValues,
+      };
+
+      // 3. 완성된 객체를 JSON 문자열로 변환하여 추가
+      formData.append(
+        'reportTemplateData',
+        JSON.stringify(reportTemplateDataObject),
+      );
+    }
+
     approvers.forEach((a, idx) => {
       formData.append(`approvalLine[${idx}].employeeId`, a.id);
     });
@@ -226,6 +249,24 @@ const ApprovalForm = () => {
     const formDataObj = new FormData();
     formDataObj.append('title', title);
     formDataObj.append('content', content);
+
+    // reportTemplateData를 올바른 JSON 구조로 생성 (임시저장과 동일하게)
+    if (template) {
+      const contentWithValues = template.content.map((field) => ({
+        ...field,
+        value: templateFormData[field.header] || '',
+      }));
+      const reportTemplateDataObject = {
+        title: template.title,
+        description: template.description,
+        content: contentWithValues,
+      };
+      formDataObj.append(
+        'reportTemplateData',
+        JSON.stringify(reportTemplateDataObject),
+      );
+    }
+
     approvers.forEach((a, idx) => {
       formDataObj.append(`approvalLine[${idx}].employeeId`, a.id);
     });
