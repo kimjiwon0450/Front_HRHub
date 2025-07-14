@@ -1,46 +1,59 @@
 .draftbox-card {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  padding: 16px 20px;
   background-color: #fff;
+  border: 1px solid #e9ecef;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
   cursor: pointer;
   transition: box-shadow 0.2s, border-color 0.2s;
+  width: 100%;
+
+  &:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
 }
 
-.draftbox-card:hover {
-  border-color: #007bff;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
-}
-
-.card-left {
+.left-section {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  width: 200px; /* 양식명 영역 너비 고정 */
 }
 
-.draftbox-title {
-  font-size: 18px;
-  font-weight: 600;
+.doc-icon {
+  font-size: 24px;
+  color: #868e96;
+}
+
+.template-name {
+  font-size: 15px;
+  font-weight: 500;
   color: #333;
 }
 
-.draftbox-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 14px;
-  color: #666;
-}
-
-.draftbox-status {
-  font-weight: bold;
-}
-
-.card-right {
+.center-section {
   flex-grow: 1;
-  margin-left: 40px;
-  min-width: 300px;
+  min-width: 0;
+  padding: 0 24px;
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-info {
+  font-size: 13px;
+  color: #888;
+}
+
+.right-section {
+  flex-shrink: 0;
 } 

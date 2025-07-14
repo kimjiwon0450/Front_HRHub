@@ -54,16 +54,28 @@ const ApprovalDetail = () => {
       const historyData = historyResponse.data?.result;
 
       if (reportData) {
-        // [임시 수정] 백엔드에서 reportStatus가 올바르게 오지 않는 문제에 대한 임시 해결책입니다.
-        // 결재선에 반려가 한 명이라도 있으면, 문서 전체 상태를 '반려'로 간주합니다.
-        const hasRejection = reportData.approvalLine?.some(
-          (approver) => approver.approvalStatus === 'REJECTED',
-        );
+        // --- 접근 제어 로직 추가 ---
+        const { reportStatus, writer, approvalLine } = reportData;
+        const currentUserIsWriter = writer?.id === user?.id;
 
-        if (hasRejection) {
+        // --- 백엔드 상태 보정 로직 ---
+        // 결재선에 'REJECTED'가 있는데 최종 상태가 'APPROVED'로 오는 경우를 대비
+        const hasRejection = approvalLine?.some(a => a.approvalStatus === 'REJECTED');
+        if (hasRejection && reportData.reportStatus !== 'REJECTED') {
+          console.warn('백엔드 상태 불일치: REJECTED 결재선이 있으나 최종 상태가 REJECTED가 아님. 상태를 강제 조정합니다.');
           reportData.reportStatus = 'REJECTED';
         }
-        
+
+        if (
+          (reportStatus === 'DRAFT' || reportStatus === 'RECALLED') &&
+          !currentUserIsWriter
+        ) {
+          alert('해당 문서에 대한 접근 권한이 없습니다.');
+          navigate(-1); // 이전 페이지로 돌아가기
+          return;
+        }
+        // --- 로직 끝 ---
+
         setReport(reportData);
       } else {
         throw new Error('보고서 정보를 찾을 수 없습니다.');
@@ -162,7 +174,9 @@ const ApprovalDetail = () => {
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>기안일</span>
-              <span className={styles.infoValue}>{new Date(report.createdAt).toLocaleString()}</span>
+              <span className={styles.infoValue}>
+                {new Date(report.createdAt || report.reportCreatedAt).toLocaleString()}
+              </span>
             </div>
           </section>
 

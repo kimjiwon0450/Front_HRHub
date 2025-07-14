@@ -4,7 +4,38 @@ import VisualApprovalLine from './VisualApprovalLine';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import defaultProfileImage from '../../assets/pin.jpg';
+import {
+  CheckCircleFill,
+  XCircleFill,
+  ClockFill,
+} from 'react-bootstrap-icons';
 
+// 상태별 아이콘과 텍스트를 반환하는 작은 컴포넌트
+const StatusIcon = ({ status }) => {
+  switch (status) {
+    case 'APPROVED':
+      return (
+        <div className={`${styles.statusBadge} ${styles.approved}`}>
+          <CheckCircleFill />
+          <span>승인</span>
+        </div>
+      );
+    case 'REJECTED':
+      return (
+        <div className={`${styles.statusBadge} ${styles.rejected}`}>
+          <XCircleFill />
+          <span>반려</span>
+        </div>
+      );
+    default:
+      return (
+        <div className={`${styles.statusBadge} ${styles.pending}`}>
+          <ClockFill />
+          <span>대기</span>
+        </div>
+      );
+  }
+};
 
 const ApprovalLineModal = ({ approvalLine, reportStatus, onClose }) => {
   const [approverDetails, setApproverDetails] = useState([]);
@@ -18,66 +49,41 @@ const ApprovalLineModal = ({ approvalLine, reportStatus, onClose }) => {
       }
       try {
         setLoading(true);
-        // 1. 모든 결재자의 ID를 수집합니다.
         const employeeIds = approvalLine.map((a) => a.employeeId);
-
-        // 2. [수정] 단 한 번의 API 호출로 모든 직원 정보를 가져옵니다.
-        // 백엔드에 `/hr-service/employees/details?ids=1,2,3` 형태의 API가 필요합니다.
         const response = await axiosInstance.get(
-          `${API_BASE_URL}${HR_SERVICE}/employees/details`, 
+          `${API_BASE_URL}${HR_SERVICE}/employees/details`,
           {
-            params: {
-              ids: employeeIds.join(','), // [101, 102] -> "101,102"
-            },
-          }
+            params: { ids: employeeIds.join(',') },
+          },
         );
-
-        // 3. [수정] 받아온 데이터를 Map으로 변환하여 빠르게 찾을 수 있도록 합니다.
-        // 백엔드 응답이 { result: [...] } 형태라고 가정합니다.
         const detailsMap = new Map(
-          response.data.result.map((detail) => [detail.employeeId, detail])
+          response.data.result.map((detail) => [detail.employeeId, detail]),
         );
-
-        // 4. 받아온 직원 정보와 기존 결재선 정보를 병합합니다.
         const mergedDetails = approvalLine.map((approver) => {
           const detail = detailsMap.get(approver.employeeId) || {};
           return { ...approver, ...detail };
         });
-
         setApproverDetails(mergedDetails);
       } catch (error) {
         console.error('결재자 정보를 불러오는 데 실패했습니다:', error);
-        setApproverDetails(approvalLine); // 에러 시 이름 등은 없지만 기본 정보는 표시
+        setApproverDetails(approvalLine);
       } finally {
         setLoading(false);
       }
     };
-
     fetchApproverDetails();
   }, [approvalLine]);
 
-
   if (!approvalLine) return null;
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'APPROVED':
-        return '승인';
-      case 'REJECTED':
-        return '반려';
-      case 'PENDING':
-        return '대기';
-      default:
-        return status;
-    }
-  };
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h3>결재선 정보</h3>
-          <button onClick={onClose} className={styles.closeButton}>&times;</button>
+          <button onClick={onClose} className={styles.closeButton}>
+            &times;
+          </button>
         </div>
         <div className={styles.modalBody}>
           <div className={styles.visualLineWrapper}>
@@ -90,48 +96,50 @@ const ApprovalLineModal = ({ approvalLine, reportStatus, onClose }) => {
           {loading ? (
             <div className={styles.loading}>로딩 중...</div>
           ) : (
-            <div className={styles.approverList}>
-              {approverDetails.map((approver) => (
-                <div key={approver.employeeId} className={styles.approverItem}>
-                  <div className={styles.approverMain}>
-                    <img
-                      src={approver.profileImageUri || defaultProfileImage}
-                      alt='profile'
-                      className={styles.profileImage}
-                    />
-                    <div className={styles.approverInfo}>
-                      <div className={styles.nameAndDept}>
-                        <span className={styles.name}>{approver.name}</span>
+            <ul className={styles.approverList}>
+              {approverDetails.map((approver, index) => (
+                <li key={approver.employeeId} className={styles.approverItem}>
+                  <div className={styles.statusIconWrapper}>
+                    <StatusIcon status={approver.approvalStatus} />
+                  </div>
+                  <div className={styles.approverDetails}>
+                    <div className={styles.profile}>
+                      <img
+                        src={approver.profileImageUri || defaultProfileImage}
+                        alt='profile'
+                        className={styles.profileImage}
+                      />
+                      <div className={styles.info}>
+                        <div className={styles.nameAndTimestamp}>
+                          <span className={styles.name}>{approver.name}</span>
+                          {approver.approvalDateTime && (
+                            <span className={styles.timestamp}>
+                              {new Date(
+                                approver.approvalDateTime,
+                              ).toLocaleString('ko-KR', {
+                                year: '2-digit',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </span>
+                          )}
+                        </div>
                         <span className={styles.dept}>
                           {approver.department}
                         </span>
                       </div>
-                      <div className={styles.statusAndTime}>
-                         <span
-                          className={`${styles.status} ${
-                            styles[approver.approvalStatus?.toLowerCase()]
-                          }`}
-                        >
-                          {getStatusText(approver.approvalStatus)}
-                        </span>
-                        {approver.approvalDateTime && (
-                          <span className={styles.dateTime}>
-                            {new Date(
-                              approver.approvalDateTime,
-                            ).toLocaleString()}
-                          </span>
-                        )}
+                    </div>
+                    {approver.approvalComment && (
+                      <div className={styles.comment}>
+                        {approver.approvalComment}
                       </div>
-                    </div>
+                    )}
                   </div>
-                  {approver.approvalComment && (
-                    <div className={styles.comment}>
-                      {approver.approvalComment}
-                    </div>
-                  )}
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </div>
       </div>

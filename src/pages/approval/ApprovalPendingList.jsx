@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../configs/axios-config';
 import styles from './ApprovalPendingList.module.scss';
 import ApprovalPendingCard from './ApprovalPendingCard';
+import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 
 const ApprovalPendingList = () => {
   const [pendingReports, setPendingReports] = useState([]);
@@ -14,18 +15,31 @@ const ApprovalPendingList = () => {
       setError(null);
       try {
         const res = await axiosInstance.get(
-          '/approval-service/reports',
+          `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
           {
-            params: { role: 'approver', status: 'IN_PROGRESS', page: 0, size: 10 },
-          }
+            params: {
+              role: 'approver', // '내가 결재할 차례인 문서'를 의미
+              status: 'IN_PROGRESS', // 반려/완료된 문서를 제외하기 위해 반드시 필요
+              page: 0,
+              size: 10,
+            },
+          },
         );
         if (res.data?.statusCode === 200) {
-          setPendingReports(res.data.result.reports || []);
+          const allReports = res.data.result.reports || [];
+          // 이중 필터링: API가 IN_PROGRESS 외 다른 상태를 보내주는 경우를 대비
+          const filteredReports = allReports.filter(
+            (report) => report.reportStatus === 'IN_PROGRESS',
+          );
+          setPendingReports(filteredReports);
         } else {
-          setError(res.data?.statusMessage || '결재 대기 목록을 불러오지 못했습니다.');
+          setError(
+            res.data?.statusMessage ||
+              '결재할 문서를 불러오는 데 실패했습니다.',
+          );
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
         setError('네트워크 오류 또는 서버 오류');
       } finally {
         setLoading(false);
@@ -35,14 +49,18 @@ const ApprovalPendingList = () => {
   }, []);
 
   return (
-    <div className={styles['approval-pending-list']}>
-      <h2>결재 대기/요청</h2>
-      <div className={styles['approval-pending-list-inner']}>
-        {loading && <div>로딩 중...</div>}
-        {error && <div className={styles['error-message']}>{error}</div>}
-        {!loading && !error && pendingReports.map(report => (
-          <ApprovalPendingCard key={report.id} report={report} />
-        ))}
+    <div className={styles.container}>
+      <h2>결재할 문서</h2>
+      <div className={styles.list}>
+        {loading && <p>로딩 중...</p>}
+        {error && <p className={styles.error}>{error}</p>}
+        {!loading && !error && pendingReports.length > 0 ? (
+          pendingReports.map((report) => (
+            <ApprovalPendingCard key={report.id} report={report} />
+          ))
+        ) : (
+          !loading && !error && <p>결재할 문서가 없습니다.</p>
+        )}
       </div>
     </div>
   );
