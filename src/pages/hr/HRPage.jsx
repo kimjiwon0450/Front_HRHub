@@ -37,6 +37,9 @@ export default function HRPage() {
 
   const [deptNotices, setDeptNotices] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [noticeTab, setNoticeTab] = useState('전체'); // or '부서'
+  const [allNotices, setAllNotices] = useState([]);
+
 
   // 달력 상태 및 유틸
   const today = new Date();
@@ -147,7 +150,7 @@ export default function HRPage() {
         const data = await res.json();
         console.log('부서 공지 응답 data : ', data);
 
-        setDeptNotices(data.result || []);
+        setDeptNotices(data || []);
       } catch (err) {
         console.error('부서 공지 가져오기 실패', err);
         setDeptNotices([]);
@@ -158,6 +161,31 @@ export default function HRPage() {
 
     fetchDeptNotices();
   }, [departmentId, accessToken]);
+
+  // 전체 공지 불러오기 useEffect
+  useEffect(() => {
+    if (!accessToken) return;
+
+    const fetchAllNotices = async () => {
+      try {
+        const url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard`;
+        const res = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const data = await res.json();
+        console.log('전체 공지 응답 data.notices : ', data.notices);
+        setAllNotices(data.notices || []);
+      } catch (err) {
+        console.error('전체 공지 가져오기 실패', err);
+        setAllNotices([]);
+      }
+    };
+
+    fetchAllNotices();
+  }, [accessToken]);
+
 
   // 이달의 사원 예시 데이터
   const eomList = [
@@ -329,16 +357,29 @@ export default function HRPage() {
           {/* 공지사항 */}
           <div className='hr-card hr-tab-card' style={{ flex: 2 }}>
             <div className='tabs'>
-              <button className='active'>공지사항</button>
-              <div
-                className='menu-icon'
-                onClick={() => navigate(`/noticeboard`)}
+              <button
+                className={noticeTab === '전체' ? 'active' : ''}
+                onClick={() => setNoticeTab('전체')}
               >
+                전체공지
+              </button>
+              <button
+                className={noticeTab === '부서' ? 'active' : ''}
+                onClick={() => setNoticeTab('부서')}
+              >
+                부서공지
+              </button>
+              <div className='menu-icon' onClick={() => navigate(`/noticeboard`)}>
                 ≡
               </div>
             </div>
+
             <NoticeList
-              notices={(deptNotices || []).slice(0, 4)}
+              notices={
+                noticeTab === '전체'
+                  ? (allNotices || []).slice(0, 4)
+                  : (deptNotices || []).slice(0, 4)
+              }
               load={loading}
             />
           </div>
