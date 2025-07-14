@@ -192,7 +192,7 @@ const ApprovalForm = () => {
 
     try {
       await axiosInstance.post(
-        `${API_BASE_URL}${APPROVAL_SERVICE}/create`,
+        `${API_BASE_URL}${APPROVAL_SERVICE}/save`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } },
       );
@@ -205,41 +205,54 @@ const ApprovalForm = () => {
     }
   };
 
-  // const handleResubmit = async () => {
-  //   if (!window.confirm('이 내용으로 재상신하시겠습니까?')) {
-  //     return;
-  //   }
+  // 결재 제출 함수
+  const handleSubmitApproval = async () => {
+    if (!title) {
+      alert('제목을 입력해주세요.');
+      return;
+    }
+    if (!content) {
+      alert('상세 내용을 입력해주세요.');
+      return;
+    }
+    if (!approvers || approvers.length === 0) {
+      alert('결재선을 선택해주세요.');
+      return;
+    }
+    // 참조자, 첨부파일은 공란이어도 됨
+    setIsSubmitting(true);
+    setError(null);
 
-  //   setIsSubmitting(true);
-  //   setError(null);
+    const formDataObj = new FormData();
+    formDataObj.append('title', title);
+    formDataObj.append('content', content);
+    approvers.forEach((a, idx) => {
+      formDataObj.append(`approvalLine[${idx}].employeeId`, a.id);
+    });
+    references.forEach((a, idx) => {
+      formDataObj.append(`references[${idx}].employeeId`, a.id);
+    });
+    // 첨부파일 추가
+    selectedFiles.forEach((file) => {
+      formDataObj.append('attachments', file);
+    });
+    // 상태를 SUBMITTED로 명시
+    formDataObj.append('status', 'SUBMITTED');
 
-  //   const formData = new FormData();
-  //   formData.append('newTitle', title);
-  //   formData.append('newContent', content);
-  //   approvers.forEach((a, idx) => {
-  //     formData.append(`approvalLine[${idx}].employeeId`, a.id);
-  //   });
-  //   references.forEach((a, idx) => {
-  //     formData.append(`references[${idx}].employeeId`, a.id);
-  //   });
-  //   selectedFiles.forEach((file) => {
-  //     formData.append('attachments', file);
-  //   });
-
-  //   try {
-  //     await axiosInstance.post(
-  //       `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/resubmit`,
-  //       formData,
-  //       { headers: { 'Content-Type': 'multipart/form-data' } },
-  //     );
-  //     alert('성공적으로 재상신되었습니다.');
-  //     navigate('/approval/drafts');
-  //   } catch (err) {
-  //     setError(err.response?.data?.message || '재상신 중 오류가 발생했습니다.');
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
+    try {
+      await axiosInstance.post(
+        `${API_BASE_URL}${APPROVAL_SERVICE}/submit`,
+        formDataObj,
+        { headers: { 'Content-Type': 'multipart/form-data' } },
+      );
+      alert('결재가 상신되었습니다.');
+      navigate('/approval/pending');
+    } catch (err) {
+      setError(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // 화면 타이틀 함수 복구
   const getPageTitle = () => '기안서 작성';
@@ -360,6 +373,13 @@ const ApprovalForm = () => {
       <div className={styles.buttonGroup}>
         <button onClick={handleSaveDraft} disabled={isSubmitting}>
           {isSubmitting ? '저장 중...' : '임시 저장하기'}
+        </button>
+        <button
+          onClick={handleSubmitApproval}
+          disabled={isSubmitting}
+          style={{ marginLeft: '10px' }}
+        >
+          {isSubmitting ? '결재 중...' : '결재'}
         </button>
       </div>
     </div>
