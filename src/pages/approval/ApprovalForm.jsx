@@ -103,7 +103,7 @@ const ApprovalForm = () => {
           // content가 JSON 형태일 경우, 파싱하여 템플릿 폼 데이터로 설정
           const parsedContent = JSON.parse(report.content);
           if (Array.isArray(parsedContent)) {
-             const templateData = parsedContent.reduce((acc, field) => {
+            const templateData = parsedContent.reduce((acc, field) => {
               acc[field.header] = field.value || '';
               return acc;
             }, {});
@@ -120,11 +120,15 @@ const ApprovalForm = () => {
         }
 
         // 결재선과 참조자 정보를 객체 배열로 변환하여 상태에 저장
-        setApprovers(report.approvalLine.map(a => ({ id: a.employeeId, name: a.name })));
-        setReferences(report.references.map(r => ({ id: r.employeeId, name: r.name })));
-        
+        setApprovers(
+          report.approvalLine.map((a) => ({ id: a.employeeId, name: a.name })),
+        );
+        setReferences(
+          report.references.map((r) => ({ id: r.employeeId, name: r.name })),
+        );
+
         setOriginalReport(report); // 원본 문서 저장
-        
+
         // 재상신인지, 임시저장 수정인지 구분
         if (report.reportStatus === 'REJECTED') {
           setIsResubmitMode(true);
@@ -136,7 +140,6 @@ const ApprovalForm = () => {
     }
   };
 
-<<<<<<< HEAD
   const handleFormDataChange = (header, value) => {
     setTemplateFormData((prev) => ({ ...prev, [header]: value }));
   };
@@ -199,15 +202,10 @@ const ApprovalForm = () => {
 
   // '임시 저장' (상태: DRAFT)만 남김
   const handleSaveDraft = async () => {
-=======
-  // 신규/임시/재상신 모두 처리하는 핸들러
-  const handleSubmit = async (isDraft) => {
->>>>>>> approval-service
     if (!title) {
       alert('제목을 입력해주세요.');
       return;
     }
-<<<<<<< HEAD
 
     setIsSubmitting(true); // 중복으로 버튼을 여러번 누르지 못하게 하기위해서
     setError(null);
@@ -253,46 +251,6 @@ const ApprovalForm = () => {
       );
       alert('임시 저장되었습니다.');
       navigate('/approval/drafts');
-=======
-    setIsSubmitting(true);
-    setError(null);
-
-    const reportData = {
-      title,
-      content: template ? JSON.stringify(formData) : content,
-      approvalLine: approvers.map((a, index) => ({ employeeId: a.id, approvalOrder: index })),
-      references: references.map(r => ({ employeeId: r.id })),
-      reportStatus: isDraft ? 'DRAFT' : 'IN_PROGRESS',
-      templateId: template?.id || null,
-    };
-
-    // FormData 생성 (첨부파일 때문에 필요)
-    const payload = new FormData();
-    payload.append(
-      'report',
-      new Blob([JSON.stringify(reportData)], { type: 'application/json' }),
-    );
-    selectedFiles.forEach(file => {
-      payload.append('attachments', file);
-    });
-
-    try {
-      let url = `${API_BASE_URL}${APPROVAL_SERVICE}/reports`;
-      if (isEditMode) { // 임시저장 수정 또는 재상신
-        url += `/${reportId}`;
-        await axiosInstance.put(url, payload, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-      } else { // 신규 작성
-        await axiosInstance.post(url, payload, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-      }
-
-      alert(isDraft ? '임시 저장되었습니다.' : '성공적으로 상신되었습니다.');
-      navigate(isDraft ? '/approval/drafts' : '/approval/in-progress');
-
->>>>>>> approval-service
     } catch (err) {
       setError(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
     } finally {
@@ -372,32 +330,6 @@ const ApprovalForm = () => {
     if (isResubmitMode) return '기안서 재작성';
     if (isEditMode) return '기안서 수정';
     return '기안서 작성';
-  };
-
-  const renderTemplateForm = () => {
-    return (
-      <div className={styles.templateForm}>
-        {template.content.map((field, index) => (
-          <div key={index} className={styles.templateField}>
-            <label>{field.header}</label>
-            {field.type === 'textarea' ? (
-              <textarea
-                value={formData[field.header] || ''}
-                onChange={(e) => setFormData({ ...formData, [field.header]: e.target.value })}
-                placeholder={`${field.header}을 입력하세요`}
-              />
-            ) : (
-              <input
-                type='text'
-                value={formData[field.header] || ''}
-                onChange={(e) => setFormData({ ...formData, [field.header]: e.target.value })}
-                placeholder={`${field.header}을 입력하세요`}
-              />
-            )}
-          </div>
-        ))}
-      </div>
-    );
   };
 
   return (
