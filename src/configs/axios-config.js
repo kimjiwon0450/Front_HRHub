@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { HR_SERVICE } from './host-config';
+import { removeLocalStorageForLogout } from '../common/common';
 
 const axiosInstance = axios.create({
   headers: {
@@ -31,7 +32,6 @@ axiosInstance.interceptors.response.use(
   },
 
   async (error) => {
-    
     if (error.response?.data.message === 'NO_LOGIN') {
       console.log('아예 로그인을 하지 않아서 재발급 요청 들어갈 수 없음!');
       return Promise.reject(error);
@@ -65,7 +65,9 @@ axiosInstance.interceptors.response.use(
         console.log(error);
         alert('로그인 정보가 만료되었습니다. 다시 로그인을 해주세요.');
         // 백엔드에서 401을 보낸거 -> Refresh도 만료된 상황 (로그아웃처럼 처리해줘야 함.)
-        localStorage.clear();
+        // localStorage.clear();
+        removeLocalStorageForLogout();
+        window.location.href = '/';
         // navigate('/');
         // 재발급 요청도 거절당하면 인스턴스를 호출한 곳으로 에러 정보 리턴.
         return Promise.reject(error);

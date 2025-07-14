@@ -35,15 +35,15 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
       setCurrentEmployeeId(employee.employeeId);
       setEmail(employee.email || '');
       setEmployeeName(employee.name || '');
-      setBirth(employee.birthday.split('T')[0] || ''); // API에 따라 birth or birthday
+      setBirth(employee.birthday ? employee.birthday.split('T')[0] : '');
       setDepartmentId(employee.departmentId || 1);
       setAddress(employee.address || '');
       setRole(employee.role || '');
       setPhone(employee.phone || '');
-      setPosition(employee.position || ''); // 직급
+      setPosition(employee.position || '');
       setMemo(employee.memo || '');
-      setIsNewEmployee(employee.isNewEmployee !== false); // true(신입), false(경력)
-      setHireDate(employee.hireDate ? employee.hireDate.split('T')[0] : ''); // 입사일 초기화
+      setIsNewEmployee(employee.isNewEmployee !== false);
+      setHireDate(employee.hireDate ? employee.hireDate.split('T')[0] : '');
     } else if (userId) {
       // prop이 없을 때, userId로 본인 정보를 조회
       const fetchMyData = async () => {
@@ -117,6 +117,14 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
     } finally {
       setIsDeptLoading(false);
     }
+  };
+
+  const handleAddressSearch = () => {
+    new window.daum.Postcode({
+      oncomplete: function (data) {
+        setAddress(data.address);
+      },
+    }).open();
   };
 
   function isValidEmail(email) {
@@ -294,12 +302,23 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
             </div>
             <div>
               <label className='reg-label'>주소</label>
-              <input
-                className='reg-input'
-                type='text'
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
+              <div style={{ display: 'flex', gap: 4 }}>
+                <input
+                  className='reg-input'
+                  type='text'
+                  value={address}
+                  readOnly
+                  placeholder='주소'
+                  style={{ flex: 1 }}
+                />
+                <button
+                  type='button'
+                  onClick={handleAddressSearch}
+                  className='btn blue'
+                >
+                  주소 찾기
+                </button>
+              </div>
             </div>
             <div>
               <label className='reg-label'>핸드폰</label>

@@ -56,26 +56,70 @@
 
 .emp-list-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
   margin-bottom: 2.5rem;
+  background: transparent;
   th,
   td {
-    border: 1px solid #c6d3e1;
-    padding: 0.9em 1em;
-    text-align: center;
-    background: #f9fcff;
-    font-size: 1rem;
+    background: #fff;
+    border: none;
+    padding: 1.05em 1.2em;
+    font-size: 1.07rem;
+    box-shadow: none;
+    transition:
+      background 0.18s,
+      color 0.18s;
   }
   th {
-    background: #e6eff9;
+    background: #eaf3fa;
     color: #1766ad;
-    font-weight: 700;
+    font-weight: 800;
+    font-size: 1.09rem;
+    border-top-left-radius: 0.7rem;
+    border-top-right-radius: 0.7rem;
+    letter-spacing: 0.01em;
+    border-bottom: 2.5px solid #b6d3f6;
+    box-shadow: 0 2px 8px 0 rgba(40, 60, 120, 0.07);
   }
-  tr.selected,
-  tr:hover {
-    background: #cde8ff !important;
-    font-weight: 700;
-    color: #2196f3;
+  tbody tr {
+    background: #fff;
+    border-radius: 0.7rem;
+    box-shadow: 0 2px 10px 0 rgba(40, 60, 120, 0.08);
+    transition:
+      box-shadow 0.18s,
+      background 0.18s;
+    cursor: pointer;
+    &:hover {
+      background: #d2e7ff;
+      box-shadow: 0 8px 32px 0 rgba(33, 150, 243, 0.18);
+      color: #1766ad;
+      font-weight: 700;
+      z-index: 2;
+      position: relative;
+    }
+    &.selected {
+      background: #e3f0ff !important;
+      box-shadow: 0 6px 24px 0 rgba(33, 150, 243, 0.13);
+      font-weight: 700;
+      color: #1766ad;
+    }
+    td {
+      border-radius: 0.5rem;
+      border-bottom: 1.5px solid #eaf3fa;
+    }
+  }
+}
+
+// 모바일 가독성 개선
+@media (max-width: 700px) {
+  .emp-list-table th,
+  .emp-list-table td {
+    font-size: 0.97rem;
+    padding: 0.7em 0.5em;
+  }
+  .emp-list-table {
+    border-spacing: 0 0.3rem;
   }
 }
 

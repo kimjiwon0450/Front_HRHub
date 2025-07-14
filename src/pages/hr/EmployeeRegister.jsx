@@ -99,6 +99,14 @@ export default function EmployeeRegister() {
     }
   };
 
+  const handleAddressSearch = () => {
+    new window.daum.Postcode({
+      oncomplete: function (data) {
+        setAddress(data.address);
+      },
+    }).open();
+  };
+
   // 부서 등록 핸들러
   const handleAddDepartment = async () => {
     if (!newDeptName.trim()) {
@@ -258,12 +266,23 @@ export default function EmployeeRegister() {
             </div>
             <div>
               <label className='reg-label'>주소</label>
-              <input
-                className='reg-input'
-                type='text'
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
+              <div style={{ display: 'flex', gap: 4 }}>
+                <input
+                  className='reg-input'
+                  type='text'
+                  value={address}
+                  readOnly
+                  placeholder='주소'
+                  style={{ flex: 1 }}
+                />
+                <button
+                  type='button'
+                  onClick={handleAddressSearch}
+                  className='btn blue'
+                >
+                  주소 찾기
+                </button>
+              </div>
             </div>
             <div>
               <label className='reg-label'>핸드폰</label>

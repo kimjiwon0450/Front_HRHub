@@ -137,14 +137,15 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
           onClose={() => setShowTransferHistory(false)}
         />
       )}
-      <div className='emp-detail-root'>
-        <div className='emp-detail-main'>
-          <div className='emp-profile'>
+      <div className='emp-detail-card'>
+        <div className='emp-profile-main'>
+          <div className='emp-profile-img'>
             <input
               className={canEdit ? '' : 'disabled'}
               type='file'
               ref={fileInputRef}
               onChange={uploadFile}
+              style={{ display: 'none' }}
             />
             <img
               className={canEdit ? '' : 'disabled'}
@@ -153,6 +154,25 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
               onClick={handleProfileImageClick}
             />
           </div>
+          <div className='emp-main-info'>
+            <div className='emp-name'>{employee.name}</div>
+            <div className='emp-meta'>
+              <span className='emp-position'>{employee.position}</span>
+              <span className='emp-role'>{employee.role}</span>
+              <span className='emp-dept'>{employee.department}</span>
+            </div>
+            <div
+              className={`emp-status${employee.status === 'INACTIVE' ? ' inactive' : ''}`}
+            >
+              {employee.status}
+            </div>
+            <div className='emp-contact'>
+              <span>📞 {employee.phone}</span>
+              <span>✉️ {employee.email}</span>
+            </div>
+          </div>
+        </div>
+        <div className='emp-detail-extra'>
           <table className='emp-info-table'>
             <tbody>
               <tr>
@@ -160,7 +180,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
                 <td>{employee.name}</td>
                 <th>생년월일</th>
                 <td>
-                  {!employee.birthday ? null : employee.birthday.split('T')[0]}
+                  {employee.birthday ? employee.birthday.split('T')[0] : ''}
                 </td>
                 <th>나이</th>
                 <td>{getAge(employee?.birthday)}</td>
@@ -176,7 +196,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
               <tr>
                 <th>입사일</th>
                 <td>
-                  {!employee.hireDate ? null : employee.hireDate.split('T')[0]}
+                  {employee.hireDate ? employee.hireDate.split('T')[0] : ''}
                 </td>
                 <th>근속년월</th>
                 <td>{getServicePeriod(employee.hireDate)}</td>
@@ -212,9 +232,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
             </tbody>
           </table>
         </div>
-
-        {/* 하단 버튼 */}
-        <div className='emp-btns'>
+        <div className='emp-btns modern'>
           {canEdit && (
             <button className='btn blue' onClick={onEdit}>
               직원정보 수정
@@ -238,9 +256,6 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
           >
             인사이동 이력
           </button>
-          {/* <button className='btn gray' onClick={onClose}>
-            목록
-          </button> */}
         </div>
       </div>
     </>

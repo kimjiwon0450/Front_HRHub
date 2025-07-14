@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../configs/host-config';
+import { removeLocalStorageForLogout } from '../common/common';
 
 export const UserContext = React.createContext({
   isLoggedIn: false,
@@ -46,7 +47,15 @@ export const UserContextProvider = (props) => {
     } else {
       setUser(null);
     }
-  }, [isLoggedIn, userId, userRole, userName, userPosition, departmentId, userImage]);
+  }, [
+    isLoggedIn,
+    userId,
+    userRole,
+    userName,
+    userPosition,
+    departmentId,
+    userImage,
+  ]);
 
   // 로그인 함수: 상태 + 배지까지 한 번에처리리
   const loginHandler = async (loginData) => {
@@ -81,14 +90,7 @@ export const UserContextProvider = (props) => {
   const logoutHandler = () => {
     console.log('[logoutHandler] 로그아웃 수행');
     // localStorage.clear();
-    localStorage.removeItem('ACCESS_TOKEN');
-    localStorage.removeItem('USER_ID');
-    localStorage.removeItem('USER_ROLE');
-    localStorage.removeItem('USER_NAME');
-    localStorage.removeItem('USER_DEPARTMENT_ID');
-    localStorage.removeItem('USER_POSITION');
-    localStorage.removeItem('USER_IMAGE');
-    localStorage.removeItem('USER_ICON');
+    removeLocalStorageForLogout();
     setIsLoggedIn(false);
     setUserRole('');
     setUserRole('');
