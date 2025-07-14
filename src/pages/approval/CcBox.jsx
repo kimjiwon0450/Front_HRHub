@@ -18,18 +18,17 @@ const CcBox = () => {
       setLoading(true);
       setError(null);
       try {
+        // 'role=reference'를 사용하여 내가 참조자인 문서만 명확하게 요청
         const res = await axiosInstance.get(
           `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
           {
             params: {
               role: 'reference',
               page: 0,
-              size: 10,
+              size: 20,
             },
           },
         );
-
-        console.log('서버 응답:', res.data);
 
         if (res.data?.statusCode === 200) {
           const allReports = res.data.result.reports || [];

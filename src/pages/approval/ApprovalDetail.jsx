@@ -55,8 +55,16 @@ const ApprovalDetail = () => {
 
       if (reportData) {
         // --- 접근 제어 로직 추가 ---
-        const { reportStatus, writer } = reportData;
+        const { reportStatus, writer, approvalLine } = reportData;
         const currentUserIsWriter = writer?.id === user?.id;
+
+        // --- 백엔드 상태 보정 로직 ---
+        // 결재선에 'REJECTED'가 있는데 최종 상태가 'APPROVED'로 오는 경우를 대비
+        const hasRejection = approvalLine?.some(a => a.approvalStatus === 'REJECTED');
+        if (hasRejection && reportData.reportStatus !== 'REJECTED') {
+          console.warn('백엔드 상태 불일치: REJECTED 결재선이 있으나 최종 상태가 REJECTED가 아님. 상태를 강제 조정합니다.');
+          reportData.reportStatus = 'REJECTED';
+        }
 
         if (
           (reportStatus === 'DRAFT' || reportStatus === 'RECALLED') &&

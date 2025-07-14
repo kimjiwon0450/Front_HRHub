@@ -19,7 +19,7 @@ const ApprovalPendingList = () => {
           {
             params: {
               role: 'approver', // '내가 결재할 차례인 문서'를 의미
-              // status: 'IN_PROGRESS', // ApprovalStatus가 PENDING인 것을 찾아야 하므로 제거
+              status: 'IN_PROGRESS', // 반려/완료된 문서를 제외하기 위해 반드시 필요
               page: 0,
               size: 10,
             },
@@ -27,10 +27,9 @@ const ApprovalPendingList = () => {
         );
         if (res.data?.statusCode === 200) {
           const allReports = res.data.result.reports || [];
+          // 이중 필터링: API가 IN_PROGRESS 외 다른 상태를 보내주는 경우를 대비
           const filteredReports = allReports.filter(
-            (report) =>
-              report.reportStatus !== 'DRAFT' &&
-              report.reportStatus !== 'RECALLED',
+            (report) => report.reportStatus === 'IN_PROGRESS',
           );
           setPendingReports(filteredReports);
         } else {
