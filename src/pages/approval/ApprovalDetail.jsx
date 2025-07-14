@@ -166,7 +166,9 @@ const ApprovalDetail = () => {
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>기안일</span>
-              <span className={styles.infoValue}>{new Date(report.createdAt).toLocaleString()}</span>
+              <span className={styles.infoValue}>
+                {new Date(report.createdAt || report.reportCreatedAt).toLocaleString()}
+              </span>
             </div>
           </section>
 

@@ -1,23 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './DraftBoxCard.module.scss';
 import { useNavigate } from 'react-router-dom';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
-import ApprovalLineModal from '../../components/approval/ApprovalLineModal';
-
-const reportStatusMap = {
-  DRAFT: '임시 저장',
-  IN_PROGRESS: '결재 진행 중',
-  APPROVED: '최종 승인',
-  REJECTED: '반려',
-  RECALLED: '상신 후 회수',
-};
 
 const DraftBoxCard = ({ draft }) => {
-
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
+    // 임시저장/회수 문서는 수정 페이지로, 나머지는 상세 페이지로 이동
     if (draft.reportStatus === 'DRAFT' || draft.reportStatus === 'RECALLED') {
       navigate(`/approval/edit/${draft.id}`);
     } else {
@@ -25,53 +15,35 @@ const DraftBoxCard = ({ draft }) => {
     }
   };
   
-  const handleLineClick = (e) => {
-    e.stopPropagation();
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+  const docIcon = draft.templateName?.includes('휴가') ? '🌴' : '📄';
 
   return (
-    <>
-      <div className={styles['draftbox-card']} onClick={handleCardClick}>
-        <div className={styles['card-header']}>
-          <span className={styles['template-name']}>
-            {draft.templateName || '일반 문서'}
-          </span>
-          <span
-            className={`${styles['draftbox-status']} ${
-              styles[draft.reportStatus?.toLowerCase()]
-            }`}
-          >
-            {reportStatusMap[draft.reportStatus] || draft.reportStatus}
-          </span>
-        </div>
-        <div className={styles['card-body']}>
-          <div className={styles['draftbox-title']}>{draft.title}</div>
-          <div className={styles['draftbox-info']}>
-            <span>{draft.writer?.name}</span>
-            <span>{new Date(draft.createdAt).toLocaleDateString()}</span>
-          </div>
-        </div>
-        <div className={styles['card-right']} onClick={handleLineClick}>
-          <VisualApprovalLine
-            approvalLine={draft.approvalLines || []}
-            reportStatus={draft.reportStatus}
-            mode='summary'
-          />
+    <div className={styles['draftbox-card']} onClick={handleCardClick}>
+      {/* Left Section: 아이콘 및 양식명 */}
+      <div className={styles['left-section']}>
+        <span className={styles['doc-icon']}>{docIcon}</span>
+        <span className={styles['template-name']}>{draft.templateName || '일반 문서'}</span>
+      </div>
+
+      {/* Center Section: 제목 및 정보 */}
+      <div className={styles['center-section']}>
+        <div className={styles['card-title']}>{draft.title}</div>
+        <div className={styles['card-info']}>
+          <span>기안일: {new Date(draft.createdAt || draft.reportCreatedAt).toLocaleDateString()}</span>
+          <span style={{ margin: '0 8px' }}>|</span>
+          <span>기안자: {draft.writer?.name || draft.name}</span>
         </div>
       </div>
-      {isModalOpen && (
-        <ApprovalLineModal
-          approvalLine={draft.approvalLines || []}
+
+      {/* Right Section: 시각적 결재선 */}
+      <div className={styles['right-section']}>
+        <VisualApprovalLine
+          approvalLine={draft.approvalLine || []}
           reportStatus={draft.reportStatus}
-          onClose={handleCloseModal}
+          mode='summary'
         />
-      )}
-    </>
+      </div>
+    </div>
   );
 };
 

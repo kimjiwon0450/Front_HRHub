@@ -3,86 +3,50 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  overflow-x: auto;
-  white-space: nowrap;
 }
 
 .approverNode {
   display: flex;
   flex-direction: row;
-  gap: 6px;
   align-items: center;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  min-width: 70px;
+  gap: 4px; // 아이콘과 이름 사이 간격
 }
 
 .statusIcon {
-  font-size: 14px;
+  font-size: 18px; // 아이콘 크기 살짝 키움
   line-height: 1;
 }
 
 .approverName {
-  font-weight: 600;
-  font-size: 13px;
+  font-weight: 500;
+  font-size: 14px;
 }
 
 .arrow {
   font-size: 16px;
-  color: #999;
+  color: #ccc; // 화살표 색상 연하게
 }
 
+/* 상태별 색상 */
 .approved {
-  background-color: #e8f5e9;
-  border-color: #4caf50;
-  color: #2e7d32;
+  color: #28a745; // 승인: 녹색
 }
-
 .rejected {
-  background-color: #ffebee;
-  border-color: #f44336;
-  color: #c62828;
+  color: #dc3545; // 반려: 빨간색
 }
-
 .pending {
-  background-color: #fffde7;
-  border-color: #fdd835;
-  color: #f57f17;
+  color: #007bff; // 진행: 파란색
 }
 
-.finalNode {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 13px;
-}
-
-.finalApproved {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.finalRejected {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
-.finalIcon {
-  font-size: 16px;
-  line-height: 1;
+/* 더 이상 사용하지 않는 스타일 제거 또는 주석 처리 */
+.finalNode, .finalApproved, .finalRejected, .finalIcon {
+  display: none;
 }
 
 .ellipsis {
-    color: #999;
-    font-weight: bold;
-    align-self: center;
+  color: #999;
+  font-weight: bold;
+  align-self: center;
 }
 
 .noApprovers {
@@ -90,4 +54,5 @@
   color: #888;
   padding: 20px;
   text-align: center;
+  width: 100%;
 } 

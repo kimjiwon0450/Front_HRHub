@@ -28,7 +28,8 @@ const ApprovalPendingCard = ({ report }) => {
       <div className={styles['approvalpending-title']}>{report.title}</div>
       <div className={styles['approvalpending-info']}>
         <span className={styles['approvalpending-status']}>{reportStatusMap[report.reportStatus] || report.reportStatus}</span>
-        <span className={styles['approvalpending-date']}>{new Date(report.createdAt).toLocaleDateString()}</span>
+        {/* 목록(reportCreatedAt)과 상세(createdAt)에서 오는 날짜 데이터를 모두 처리 */}
+        <span className={styles['approvalpending-date']}>{new Date(report.createdAt || report.reportCreatedAt).toLocaleDateString()}</span>
         <span className={styles['approvalpending-writer']}>{report.name}</span>
       </div>
       {report.approvalLine && (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axiosInstance from '../../configs/axios-config';
-import DraftBoxCard from './DraftBoxCard'; // 재사용 가능한 카드 컴포넌트
+import CcBoxCard from './CcBoxCard'; // DraftBoxCard 대신 CcBoxCard를 임포트
 import styles from './ApprovalBoxList.module.scss'; // 재사용 가능한 스타일
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import { UserContext } from '../../context/UserContext';
@@ -68,7 +68,7 @@ const CcBox = () => {
         {loading && <p>로딩 중...</p>}
         {error && <p className={styles.error}>{error}</p>}
         {!loading && !error && ccDocs.length > 0 ? (
-          ccDocs.map((doc) => <DraftBoxCard key={doc.id} draft={doc} />)
+          ccDocs.map((doc) => <CcBoxCard key={doc.id} doc={doc} />)
         ) : (
           !loading &&
           !error && (
