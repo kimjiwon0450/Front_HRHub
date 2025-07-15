@@ -10,11 +10,12 @@ const EmployeeOfMonthCarousel = () => {
     try {
       // 이달의 사원 조회회
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/top/employee`,
+        `${API_BASE_URL}${HR_SERVICE}/eom/top3`,
       );
+      console.log('이달의 사원 조회 성공', res.data);
       // 부서명 조회
       const eomList = await Promise.all(
-        res.data.result.map(async (eom) => {
+        res.data.map(async (eom) => {
           const deptName = await axiosInstance.get(
             `${API_BASE_URL}${HR_SERVICE}/departments/${eom.departmentId}`,
           );
