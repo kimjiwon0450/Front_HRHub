@@ -45,61 +45,104 @@
   }
   
   .modalBody {
-    padding: 20px 30px;
+    padding: 20px;
+    max-height: 60vh;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
   }
   
   .infoText {
-    background-color: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 20px;
-  }
-  
-  .infoText p {
-    margin: 0 0 5px 0;
+    margin-bottom: 15px;
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
+    }
   }
   
   .searchBar {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 15px;
+    }
   }
   
-  .searchBar input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 15px;
+  .mainContainer {
+    display: flex;
+    flex-grow: 1;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    min-height: 40vh;
+  }
+  
+  .sidebar {
+    width: 180px;
+    background-color: #f9f9f9;
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+  }
+  
+  .categoryList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  
+    li {
+      padding: 12px 15px;
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 1px solid #eee;
+  
+      &:hover {
+        background-color: #f0f0f0;
+      }
+  
+      &.active {
+        background-color: #e0eaf6;
+        font-weight: bold;
+        color: #0056b3;
+      }
+    }
+  }
+  
+  .templateSelection {
+    flex-grow: 1;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
   }
   
   .templateList {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    max-height: 300px;
+    flex-grow: 1;
     overflow-y: auto;
-    padding-right: 10px;
+    padding-right: 10px; /* For scrollbar */
   }
   
   .templateItem {
-    background-color: #fff;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid #eee;
-  }
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    
+    label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 15px;
   
-  .templateItem label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    font-size: 15px;
+      input {
+        margin-right: 10px;
+      }
+    }
   }
   
   .modalFooter {
-    padding: 20px 30px;
+    padding: 15px 20px;
     border-top: 1px solid #eee;
     display: flex;
     justify-content: flex-end;

@@ -3,8 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styles from './ApprovalNew.module.scss';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
-import ReactQuill from '@adrianhelvik/react-quill';
-import 'quill/dist/quill.snow.css'; // Quill snow theme
 import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
 
@@ -36,11 +34,20 @@ function ApprovalNew() {
         const res = await axiosInstance.get(
           `${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`,
         );
-        if (res.data && res.data.data && res.data.data.template) {
-          const fetchedTemplate = res.data.data.template;
+        if (res.data && res.data.result && res.data.result.template) {
+          const fetchedTemplate = res.data.result.template;
           setTemplate(fetchedTemplate);
-          setTitle(fetchedTemplate.templateName); // Set initial title
-          setContent(fetchedTemplate.contentTemplate || ''); // Set initial content from template
+          setTitle(fetchedTemplate.title); // template.title을 기본 제목으로 사용
+
+          // content 필드에서 에디터 내용을 추출하여 상태에 설정
+          let initialContent = '';
+          if (Array.isArray(fetchedTemplate.content)) {
+            const editorField = fetchedTemplate.content.find(f => f.type === 'editor');
+            if (editorField) {
+              initialContent = editorField.value || '';
+            }
+          }
+          setContent(initialContent);
 
           if (fetchedTemplate.formSchema) {
             const initialValues = fetchedTemplate.formSchema.reduce(
@@ -105,6 +112,7 @@ function ApprovalNew() {
     const reportData = {
       templateId: parseInt(templateId, 10),
       title,
+      content, // Add editor content to the submission
       values: formValues,
       approvalLine: approvers.map(a => ({ employeeId: a.id, context: a.context || '검토' })),
       references: references.map(r => ({ employeeId: r.id })),
@@ -217,7 +225,10 @@ function ApprovalNew() {
 
         <div className={styles.formGroup}>
           <label>내용</label>
-          <ReactQuill theme='snow' value={content} onChange={setContent} />
+          <TiptapEditor
+            content={content}
+            onUpdate={setContent}
+          />
         </div>
 
         <div className={styles.formGroup}>

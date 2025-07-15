@@ -22,10 +22,13 @@ const TemplateAdminPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL', 'ACTIVE', 'INACTIVE'
 
+  const [editingCategory, setEditingCategory] = useState(null);
+
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/category`);
+      console.log('서버에서 받은 카테고리 목록:', res.data);
       setCategories(res.data?.result || []);
     } catch (err) {
       setError('카테고리 목록을 불러오는 데 실패했습니다.');
@@ -94,15 +97,50 @@ const TemplateAdminPage = () => {
     fetchTemplates();
   }, []);
 
-  const handleAddCategory = async (categoryData) => {
+  const handleOpenCreateModal = () => {
+    setEditingCategory(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (category) => {
+    setEditingCategory(category);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveCategory = async (categoryData, isDelete = false) => {
     try {
-      await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/category/create`, categoryData);
-      alert('카테고리가 추가되었습니다.');
+      if (isDelete) {
+        // 삭제
+        await axiosInstance.delete(`${API_BASE_URL}${APPROVAL_SERVICE}/category/${editingCategory.id}`);
+        alert('카테고리가 삭제되었습니다.');
+      } else if (editingCategory && editingCategory.id) {
+        // 수정
+        await axiosInstance.put(`${API_BASE_URL}${APPROVAL_SERVICE}/category/${editingCategory.id}`, categoryData);
+        alert('카테고리가 수정되었습니다.');
+      } else {
+        // 생성
+        await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/category/create`, categoryData);
+        alert('카테고리가 추가되었습니다.');
+      }
       setIsModalOpen(false);
-      fetchCategories(); // Refresh list
+      fetchCategories();
     } catch (err) {
-      alert('카테고리 추가에 실패했습니다.');
+      alert('카테고리 처리 중 오류가 발생했습니다.');
       console.error(err);
+    }
+  };
+
+  const handleDelete = async (templateId) => {
+    if (window.confirm('정말로 이 템플릿을 삭제하시겠습니까?')) {
+      try {
+        await axiosInstance.delete(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`);
+        alert('템플릿이 삭제되었습니다.');
+        // 삭제 후 목록을 다시 불러오기 위해 allTemplates 상태를 업데이트합니다.
+        setAllTemplates(prevTemplates => prevTemplates.filter(t => t.templateId !== templateId));
+      } catch (error) {
+        console.error('Failed to delete template:', error);
+        alert('템플릿 삭제에 실패했습니다.');
+      }
     }
   };
 
@@ -131,11 +169,23 @@ const TemplateAdminPage = () => {
       </li>,
       ...categories.map((cat) => (
         <li
-          key={cat.categoryId}
-          className={`${styles.categoryItem} ${selectedCategory === cat.categoryId ? styles.active : ''}`}
-          onClick={() => handleCategoryClick(cat.categoryId)}
+          key={cat.id}
+          className={`${styles.categoryItem} ${selectedCategory === cat.id ? styles.active : ''}`}
+          onClick={() => handleCategoryClick(cat.id)}
         >
-          {cat.categoryName}
+          <div className={styles.categoryInfo}>
+            <span className={styles.categoryName}>{cat.categoryName}</span>
+            {cat.categoryDescription && <span className={styles.categoryDesc}>{cat.categoryDescription}</span>}
+          </div>
+          <button 
+            className={styles.editButton}
+            onClick={(e) => {
+              e.stopPropagation(); // li의 onClick 이벤트 전파 방지
+              handleOpenEditModal(cat);
+            }}
+          >
+            수정
+          </button>
         </li>
       )),
     ];
@@ -150,7 +200,7 @@ const TemplateAdminPage = () => {
         <ul className={styles.categoryList}>
           {renderCategoryList()}
         </ul>
-        <button onClick={() => setIsModalOpen(true)} className={styles.addCategoryButton}>+ 카테고리 추가</button>
+        <button onClick={handleOpenCreateModal} className={styles.addCategoryButton}>+ 카테고리 추가</button>
       </aside>
       <main className={styles.mainContent}>
         <div className={styles.mainHeader}>
@@ -211,6 +261,7 @@ const TemplateAdminPage = () => {
               </div>
               <div className={styles.templateActions}>
                   <button onClick={() => navigate(`/approval/templates/edit/${template.templateId}`)}>수정</button>
+                  <button onClick={() => handleDelete(template.templateId)} className={styles.deleteButton}>삭제</button>
               </div>
             </div>
           ))}
@@ -224,7 +275,8 @@ const TemplateAdminPage = () => {
       <CategoryModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleAddCategory}
+        onSubmit={handleSaveCategory}
+        category={editingCategory}
       />
     </div>
   );

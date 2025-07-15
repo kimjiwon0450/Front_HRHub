@@ -31,14 +31,15 @@ const ApprovalHome = () => {
     const fetchAllTemplates = async () => {
       try {
         const response = await axiosInstance.get(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/templates`
+          `${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`
         );
-        if (response.data && Array.isArray(response.data.data)) {
-          setAllTemplates(response.data.data);
+        if (response.data && Array.isArray(response.data.result)) {
+          setAllTemplates(response.data.result);
         } else {
           setAllTemplates([]);
         }
       } catch (error) {
+        console.error("Error fetching all templates:", error);
         setAllTemplates([]);
       }
     };

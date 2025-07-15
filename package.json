@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@adrianhelvik/react-quill": "^5.1.0",
+    "@ckeditor/ckeditor5-build-classic": "^44.3.0",
+    "@ckeditor/ckeditor5-react": "^11.0.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
@@ -23,8 +24,9 @@
     "react": "^19.0.0",
     "react-bootstrap-icons": "^1.11.6",
     "react-datepicker": "^8.4.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.0.0",
-    "react-quill": "^2.0.0",
     "react-router-dom": "^7.5.3",
     "react-slick": "^0.30.3",
     "sass": "^1.87.0",
