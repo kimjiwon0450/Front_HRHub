@@ -51,19 +51,27 @@ const NoticeAlertPage = () => {
 
             <section>
                 <h3>📢 읽지 않은 공지글</h3>
-                {alerts.unreadNotices.length > 0 ? (
-                    <ul>
-                        {alerts.unreadNotices.map(notice => (
+
+                {alerts.unreadNotices.map(notice =>
+                    notice.departmentId === 0 ? (
+                        <ul>
                             <li key={notice.id} onClick={() => navigate(`/noticeboard/${notice.id}`)}>
-                                <div className="title">{notice.title}</div>
+                                <div className="title" style={{ color: '#28c309', fontWeight: 'bold' }}>{notice.title}</div>
                                 <div className="writer">{notice.name}</div>
                                 <div className="date">{notice.createdAt?.substring(0, 10)}</div>
                             </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>읽지 않은 공지글이 없습니다.</p>
+                        </ul>
+                    ) : (
+                        <ul>
+                            <li key={notice.id} onClick={() => navigate(`/noticeboard/${notice.id}`)}>
+                                <div className="title" style={{ color: '#21429e', fontWeight: 'bold' }}>{notice.title}</div>
+                                <div className="writer">{notice.name}</div>
+                                <div className="date">{notice.createdAt?.substring(0, 10)}</div>
+                            </li>
+                        </ul>
+                    )
                 )}
+
             </section>
 
             <section>
