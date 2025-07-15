@@ -109,25 +109,25 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   };
 
   // 두 컴포넌트 중 하나라도 활성화되면 해당 컴포넌트만 표시
-  if (showEdit) {
-    return (
-      <EmployeeEdit
-        employee={employee}
-        onClose={(updatedEmployee) => {
-          if (updatedEmployee) {
-            setLocalEmployee(updatedEmployee);
-            setImageUri(updatedEmployee.profileImageUri);
-          }
-          setShowEdit(false);
-        }}
-      />
-    );
-  }
-  if (showEval) {
-    return (
-      <EvaluationForm employee={employee} onClose={() => setShowEval(false)} />
-    );
-  }
+  // if (showEdit) {
+  //   return (
+  //     <EmployeeEdit
+  //       employee={employee}
+  //       onClose={(updatedEmployee) => {
+  //         if (updatedEmployee) {
+  //           setLocalEmployee(updatedEmployee);
+  //           setImageUri(updatedEmployee.profileImageUri);
+  //         }
+  //         setShowEdit(false);
+  //       }}
+  //     />
+  //   );
+  // }
+  // if (showEval) {
+  //   return (
+  //     <EvaluationForm employee={employee} onClose={() => setShowEval(false)} />
+  //   );
+  // }
 
   return (
     <>

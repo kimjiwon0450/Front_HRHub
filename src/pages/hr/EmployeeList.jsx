@@ -6,6 +6,7 @@ import HRHeader from './HRHeader';
 import './EmployeeList.scss';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
+import { getDepartmentNameById, getEmployeeList } from '../../common/hr';
 
 // 부서 목록을 서버에서 받아옴
 
@@ -31,33 +32,6 @@ export default function EmployeeList() {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
 
-  // 서버에서 직원 목록 조회 (필터 포함)
-  const getEmployeeList = async ({
-    field = searchField,
-    keyword = searchText,
-    department = searchDept,
-    page: reqPage = page,
-    size: reqSize = size,
-    sortField: reqSortField = sortField,
-    sortOrder: reqSortOrder = sortOrder,
-  } = {}) => {
-    try {
-      let params = `?page=${reqPage}&size=${reqSize}`;
-      if (keyword.trim())
-        params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
-      if (department !== '전체')
-        params += `&department=${encodeURIComponent(department)}`;
-      if (reqSortField) params += `&sort=${reqSortField},${reqSortOrder}`;
-      const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
-      );
-      setEmployees(res.data.result.content);
-      setTotalPages(res.data.result.totalPages || 1);
-    } catch (error) {
-      alert(error?.response?.data?.statusMessage || error.message);
-    }
-  };
-
   // 정렬 핸들러
   const handleSort = (field) => {
     if (sortField === field) {
@@ -71,7 +45,14 @@ export default function EmployeeList() {
 
   // 정렬 상태 변화, 페이지, 페이지 크기 변화 시 목록 재요청
   useEffect(() => {
-    getEmployeeList({ page, size, sortField, sortOrder });
+    getEmployeeList({
+      page,
+      size,
+      sortField,
+      sortOrder,
+      setEmployees,
+      setTotalPages,
+    });
     // eslint-disable-next-line
   }, [page, size, sortField, sortOrder]);
 
@@ -113,7 +94,27 @@ export default function EmployeeList() {
   };
 
   // Edit/Eval 화면 종료 시 목록+상세 복귀
-  const handleClose = () => setMode('list');
+  const handleClose = (updatedEmployee) => {
+    setMode('list');
+    if (updatedEmployee) {
+      setSelectedDetail({ ...updatedEmployee });
+      const employees2 = employees.map((employee) => {
+        if (employee.id === updatedEmployee.employeeId) {
+          employee.name = updatedEmployee.name;
+          employee.department = getDepartmentNameById(
+            updatedEmployee.departmentId,
+          );
+          employee.position = updatedEmployee.position;
+          employee.role = updatedEmployee.role;
+          employee.phone = updatedEmployee.phone;
+        }
+        return employee;
+      });
+      console.log(employees2);
+      setEmployees(employees2);
+    }
+  };
+
   const handleEdit = () => setMode('edit');
   const handleEval = () => setMode('eval');
 
