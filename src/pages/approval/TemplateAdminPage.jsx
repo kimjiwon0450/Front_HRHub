@@ -12,9 +12,15 @@ const TemplateAdminPage = () => {
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [templates, setTemplates] = useState([]);
+  
+  const [allTemplates, setAllTemplates] = useState([]); // 모든 템플릿 원본
+  const [filteredTemplates, setFilteredTemplates] = useState([]); // 화면에 표시될 템플릿
+  
   const [templatesLoading, setTemplatesLoading] = useState(true);
   const [templatesError, setTemplatesError] = useState(null);
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL', 'ACTIVE', 'INACTIVE'
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -34,15 +40,50 @@ const TemplateAdminPage = () => {
   }, [fetchCategories]);
 
   useEffect(() => {
+    // 카테고리 또는 전체 템플릿 목록이 변경될 때 필터링 다시 적용
+    const applyFilters = () => {
+      let templates = allTemplates;
+
+      // 1. 카테고리 필터
+      if (selectedCategory) {
+        templates = templates.filter(t => t.categoryId === selectedCategory);
+      }
+
+      // 2. 상태 필터 (API에 status 필드가 추가되어야 함)
+      // 현재는 임시로 모든 템플릿에 'ACTIVE' 상태가 있다고 가정
+      if (statusFilter !== 'ALL') {
+        templates = templates.filter(t => (statusFilter === 'ACTIVE' ? t.status === 'Y' : t.status === 'N'));
+      }
+      
+      // 3. 검색어 필터
+      if (searchTerm) {
+        templates = templates.filter(t =>
+          (t.template.title && t.template.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (t.template.description && t.template.description.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+      }
+      
+      setFilteredTemplates(templates);
+    };
+
+    applyFilters();
+  }, [selectedCategory, statusFilter, searchTerm, allTemplates]);
+
+
+  useEffect(() => {
     const fetchTemplates = async () => {
       try {
         setTemplatesLoading(true);
-        const params = {};
-        if (selectedCategory) {
-          params.categoryId = selectedCategory;
-        }
-        const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`, { params });
-        setTemplates(res.data?.result || []);
+        const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`);
+        
+        // 임시로 status 필드 추가
+        const templatesWithStatus = res.data?.result.map((t, index) => ({
+          ...t,
+          status: index % 2 === 0 ? 'Y' : 'N' // 'Y' for '사용중', 'N' for '미사용'
+        })) || [];
+
+        setAllTemplates(templatesWithStatus);
+
       } catch (err) {
         setTemplatesError('양식 목록을 불러오는 데 실패했습니다.');
         console.error(err);
@@ -51,7 +92,7 @@ const TemplateAdminPage = () => {
       }
     };
     fetchTemplates();
-  }, [selectedCategory]);
+  }, []);
 
   const handleAddCategory = async (categoryData) => {
     try {
@@ -69,6 +110,37 @@ const TemplateAdminPage = () => {
     setSelectedCategory(categoryId);
   };
 
+  const renderCategoryList = () => {
+    if (loading) {
+      return <li key="loading">로딩 중...</li>;
+    }
+    if (error) {
+      return <li key="error" className={styles.error}>{error}</li>;
+    }
+    if (categories.length === 0) {
+      return <li key="no-category">카테고리가 없습니다.</li>;
+    }
+
+    return [
+      <li
+        key="all"
+        className={`${styles.categoryItem} ${selectedCategory === null ? styles.active : ''}`}
+        onClick={() => handleCategoryClick(null)}
+      >
+        전체
+      </li>,
+      ...categories.map((cat) => (
+        <li
+          key={cat.categoryId}
+          className={`${styles.categoryItem} ${selectedCategory === cat.categoryId ? styles.active : ''}`}
+          onClick={() => handleCategoryClick(cat.categoryId)}
+        >
+          {cat.categoryName}
+        </li>
+      )),
+    ];
+  };
+
   return (
     <div className={styles.pageContainer}>
       <aside className={styles.sidebar}>
@@ -76,54 +148,77 @@ const TemplateAdminPage = () => {
           <h4>카테고리</h4>
         </div>
         <ul className={styles.categoryList}>
-          {loading && <li>로딩 중...</li>}
-          {error && <li className={styles.error}>{error}</li>}
-          {!loading && !error && (
-            <>
-              <li 
-                className={`${styles.categoryItem} ${selectedCategory === null ? styles.active : ''}`}
-                onClick={() => handleCategoryClick(null)}
-              >
-                전체
-              </li>
-              {categories.map(cat => (
-                <li 
-                  key={cat.categoryId} 
-                  className={`${styles.categoryItem} ${selectedCategory === cat.categoryId ? styles.active : ''}`}
-                  onClick={() => handleCategoryClick(cat.categoryId)}
-                >
-                  {cat.categoryName}
-                </li>
-              ))}
-            </>
-          )}
-          {!loading && !error && categories.length === 0 && (
-              <li>카테고리가 없습니다.</li>
-          )}
+          {renderCategoryList()}
         </ul>
         <button onClick={() => setIsModalOpen(true)} className={styles.addCategoryButton}>+ 카테고리 추가</button>
       </aside>
       <main className={styles.mainContent}>
         <div className={styles.mainHeader}>
           <h2>문서양식관리</h2>
-          <p>결재양식을 생성하고 관리합니다.</p>
+          {/* <p>결재양식을 생성하고 관리합니다.</p> */}
         </div>
         <div className={styles.controls}>
-            <div className={styles.actions}>
-              <button className={styles.addButton} onClick={() => navigate('/approval/templates/form')}>+ 양식 추가하기</button>
-            </div>
+          <div className={styles.searchBar}>
+            <input 
+              type="text"
+              placeholder="카테고리, 문서명으로 검색하세요."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className={styles.filterTabs}>
+            <button 
+              className={statusFilter === 'ALL' ? styles.active : ''}
+              onClick={() => setStatusFilter('ALL')}
+            >
+              전체
+            </button>
+            <button 
+              className={statusFilter === 'ACTIVE' ? styles.active : ''}
+              onClick={() => setStatusFilter('ACTIVE')}
+            >
+              사용중
+            </button>
+            <button 
+              className={statusFilter === 'INACTIVE' ? styles.active : ''}
+              onClick={() => setStatusFilter('INACTIVE')}
+            >
+              미사용
+            </button>
+          </div>
+          <div className={styles.actions}>
+            <button className={styles.addButton} onClick={() => navigate('/approval/templates/form')}>+ 양식 추가하기</button>
+          </div>
         </div>
         <div className={styles.templateListContainer}>
-            {templatesLoading && <p>로딩 중...</p>}
-            {templatesError && <p className={styles.error}>{templatesError}</p>}
-            {!templatesLoading && !templatesError && templates.map(template => (
-              <div key={template.id} className={styles.templateItem}>
-                {/* This will be replaced by a TemplateListItem component */}
-                <span>{template.templateName}</span>
-                <span>{template.description}</span>
-                <button>사용</button>
+          {templatesLoading && <p>로딩 중...</p>}
+          {templatesError && <p className={styles.error}>{templatesError}</p>}
+          {!templatesLoading && !templatesError && filteredTemplates.map(template => (
+            <div key={template.templateId} className={styles.templateItem}>
+              <div className={styles.checkboxContainer}>
+                <input type="checkbox" />
               </div>
-            ))}
+              <div className={styles.templateDetails}>
+                <div className={styles.templateTitle}>
+                  {template.template.title}
+                  <span className={`${styles.statusTag} ${template.status === 'Y' ? styles.active : styles.inactive}`}>
+                    {template.status === 'Y' ? '사용중' : '미사용'}
+                  </span>
+                </div>
+                <div className={styles.templateDescription}>
+                  {template.template.description}
+                </div>
+              </div>
+              <div className={styles.templateActions}>
+                  <button onClick={() => navigate(`/approval/templates/edit/${template.templateId}`)}>수정</button>
+              </div>
+            </div>
+          ))}
+          {!templatesLoading && filteredTemplates.length === 0 && (
+            <div className={styles.noResults}>
+              <p>표시할 문서 양식이 없습니다.</p>
+            </div>
+          )}
         </div>
       </main>
       <CategoryModal

@@ -194,19 +194,15 @@ function ApprovalNew() {
     }
   };
 
-  if (loading) {
-    return <div className={styles.container}>로딩 중...</div>;
-  }
-
-  if (error) {
-    return <div className={`${styles.container} ${styles.error}`}>{error}</div>;
-  }
+  if (loading) return <p>로딩 중...</p>;
+  if (error) return <p>오류: {error}</p>;
 
   return (
-    <div className={styles.container}>
-      <form className={styles.formContainer} onSubmit={handleSubmit}>
+    <div className={styles.pageContainer}>
+      {template && <h2>{template.templateName}</h2>}
+      <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
-          <label htmlFor='title'>제목</label>
+          <label>제목</label>
           <input
             type='text'
             id='title'
