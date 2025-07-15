@@ -124,13 +124,31 @@ const NoticeAlertPage = () => {
 
             <section>
                 <h3>📌 결재 알림</h3>
+
                 {!loading && !error && pendingReports.length > 0 ? (
+                    pendingReports.map((report) => (
+                        <ul>
+                            <li key={report.id} onClick={() => navigate(`/approval/reports/${report.id}`)}>
+                                <div className="title" style={{ color: '#f46d14', fontWeight: 'bold' }}>{report.title}</div>
+                                <div className="writer">{report.name}</div>
+                                <div className="date">{report.createdAt?.substring(0, 10)}</div>
+                            </li>
+                        </ul>
+                        // <ApprovalPendingCard key={report.id} report={report} />
+                    ))
+                ) : (
+                    !loading && !error && <p>결재할 문서가 없습니다.</p>
+                )}
+
+
+
+                {/* {!loading && !error && pendingReports.length > 0 ? (
                     pendingReports.map((report) => (
                         <ApprovalPendingCard key={report.id} report={report} />
                     ))
                 ) : (
                     !loading && !error && <p>결재할 문서가 없습니다.</p>
-                )}
+                )} */}
             </section>
 
             <section>
