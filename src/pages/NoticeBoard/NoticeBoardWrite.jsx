@@ -140,8 +140,14 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
             const combinedFiles = [...existingFiles, ...uploadedFileUrls];
 
             // ✅ 게시글 데이터 구성
+            let finalTitle = title.trim();
+            if (type === 'notice') {
+                if (!finalTitle.startsWith('[공지]')) {
+                    finalTitle = `[공지] ${finalTitle}`;
+                }
+            }
             const noticeData = {
-                title,
+                title: finalTitle,
                 content,
                 notice: type === 'notice',
                 departmentId: departmentId || null, // 🔥 부서 ID 포함
@@ -187,6 +193,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                 type="text"
                 placeholder="제목을 입력하세요"
                 className="title-input"
+
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
             />

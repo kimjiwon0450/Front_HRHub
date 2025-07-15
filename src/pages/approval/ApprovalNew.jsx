@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styles from './ApprovalNew.module.scss';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
-import ReactQuill from '@adrianhelvik/react-quill';
-import 'quill/dist/quill.snow.css'; // Quill snow theme
+
+// import 'quill/dist/quill.snow.css'; // Quill snow theme
 import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
 
@@ -225,27 +225,27 @@ function ApprovalNew() {
         </div>
 
         <div className={styles.formGroup}>
-            <label>결재선</label>
-            <VisualApprovalLine approvalLine={approvers} mode='summary' />
-            <button type="button" onClick={() => setIsApproverModalOpen(true)} className={styles.actionButton}>결재선 지정</button>
+          <label>결재선</label>
+          <VisualApprovalLine approvalLine={approvers} mode='summary' />
+          <button type="button" onClick={() => setIsApproverModalOpen(true)} className={styles.actionButton}>결재선 지정</button>
         </div>
 
         <div className={styles.formGroup}>
-            <label>참조</label>
-            {/* Simple display for references for now */}
-            <div className={styles.participantDisplay}>
-                {references.map(r => r.name).join(', ')}
-            </div>
-            <button type="button" onClick={() => setIsReferenceModalOpen(true)} className={styles.actionButton}>참조자 지정</button>
+          <label>참조</label>
+          {/* Simple display for references for now */}
+          <div className={styles.participantDisplay}>
+            {references.map(r => r.name).join(', ')}
+          </div>
+          <button type="button" onClick={() => setIsReferenceModalOpen(true)} className={styles.actionButton}>참조자 지정</button>
         </div>
 
         <div className={styles.formGroup}>
-            <label htmlFor="files">첨부파일</label>
-            <input type="file" id="files" multiple onChange={handleFileChange} />
-             {/* Display selected files */}
-            <ul>
-                {files.map((file, index) => <li key={index}>{file.name}</li>)}
-            </ul>
+          <label htmlFor="files">첨부파일</label>
+          <input type="file" id="files" multiple onChange={handleFileChange} />
+          {/* Display selected files */}
+          <ul>
+            {files.map((file, index) => <li key={index}>{file.name}</li>)}
+          </ul>
         </div>
 
         <div className={styles.actionButtons}>
