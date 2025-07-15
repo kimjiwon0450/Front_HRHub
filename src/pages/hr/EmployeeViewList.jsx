@@ -6,6 +6,7 @@ import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import EvaluationView from './EvaluationView';
 import EvaluationForm from './EvaluationForm';
 import { useNavigate } from 'react-router-dom';
+import { getEmployeeList } from '../../common/hr';
 
 export default function EmployeeViewList() {
   const [selectedId, setSelectedId] = useState(null);
@@ -28,32 +29,6 @@ export default function EmployeeViewList() {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
 
-  const getEmployeeList = async ({
-    field = searchField,
-    keyword = searchText,
-    department = searchDept,
-    page: reqPage = page,
-    size: reqSize = size,
-    sortField: reqSortField = sortField,
-    sortOrder: reqSortOrder = sortOrder,
-  } = {}) => {
-    try {
-      let params = `?page=${reqPage}&size=${reqSize}`;
-      if (keyword.trim())
-        params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
-      if (department !== '전체')
-        params += `&department=${encodeURIComponent(department)}`;
-      if (reqSortField) params += `&sort=${reqSortField},${reqSortOrder}`;
-      const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
-      );
-      setEmployees(res.data.result.content);
-      setTotalPages(res.data.result.totalPages || 1);
-    } catch (error) {
-      alert(error?.response?.data?.statusMessage || error.message);
-    }
-  };
-
   // 정렬 핸들러
   const handleSort = (field) => {
     if (sortField === field) {
@@ -67,7 +42,14 @@ export default function EmployeeViewList() {
 
   // 정렬/페이지/페이지크기 변화 시 목록 재요청
   useEffect(() => {
-    getEmployeeList({ page, size, sortField, sortOrder });
+    getEmployeeList({
+      page,
+      size,
+      sortField,
+      sortOrder,
+      setEmployees,
+      setTotalPages,
+    });
     // eslint-disable-next-line
   }, [page, size, sortField, sortOrder]);
 

@@ -112,13 +112,12 @@ export default function TransferHistoryModal({ employeeId, onClose }) {
                 <th>순번</th>
                 <th>부서</th>
                 <th>직급</th>
-                <th>메모</th>
               </tr>
             </thead>
             <tbody>
               {histories.length === 0 ? (
                 <tr>
-                  <td colSpan={4}>이력이 없습니다.</td>
+                  <td colSpan={3}>이력이 없습니다.</td>
                 </tr>
               ) : (
                 histories.map((history) => (
@@ -126,7 +125,6 @@ export default function TransferHistoryModal({ employeeId, onClose }) {
                     <td>{history.sequenceId}</td>
                     <td>{getDeptName(history.departmentId)}</td>
                     <td>{history.positionName}</td>
-                    <td>{history.memo}</td>
                   </tr>
                 ))
               )}
