@@ -79,11 +79,11 @@ const TemplateList = () => {
               <div className={styles.buttonGroup}>
                 <button
                   onClick={() =>
-                    navigate(`/approval/form?templateId=${template.templateId}`)
+                    navigate(`/approval/reports/new/${template.templateId}`)
                   }
                   className={styles.useButton}
                 >
-                  사용하기
+                  사용
                 </button>
                 {userRole === 'ADMIN' && (
                   <>

@@ -1,0 +1,140 @@
+.container {
+  padding: 2rem;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.error {
+  color: #d9534f;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.formContainer {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.formGroup input[type='text'],
+.formGroup input[type='date'],
+.formGroup textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+.formGroup textarea {
+  resize: vertical;
+}
+
+.required {
+  color: #d9534f;
+  margin-left: 0.25rem;
+}
+
+.debugSection {
+  background-color: #2d2d2d;
+  color: #f0f0f0;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+}
+
+.debugSection h3 {
+  border-bottom: 1px solid #555;
+  padding-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+.debugSection pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.actionButton {
+  background-color: #0275d8;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+
+  &:hover {
+    background-color: #025aa5;
+  }
+}
+
+.participantDisplay {
+  padding: 0.5rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  min-height: 2.5rem;
+  background-color: #f8f9fa;
+  margin-bottom: 0.5rem;
+}
+
+.actionButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.submitButton, .draftButton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submitButton {
+  background-color: #337ab7;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: #286090;
+  }
+
+  &:disabled {
+    background-color: #a9cce3;
+    cursor: not-allowed;
+  }
+}
+
+.draftButton {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+
+  &:hover:not(:disabled) {
+    background-color: #e0e0e0;
+  }
+
+  &:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+  }
+} 
