@@ -168,15 +168,15 @@ export default function HRPage() {
 
     const fetchAllNotices = async () => {
       try {
-        const url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard`;
+        const url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/generalnotice`;
         const res = await fetch(url, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
         const data = await res.json();
-        console.log('전체 공지 응답 data.notices : ', data.notices);
-        setAllNotices(data.notices || []);
+        console.log('전체 공지 응답 data : ', data);
+        setAllNotices(data || []);
       } catch (err) {
         console.error('전체 공지 가져오기 실패', err);
         setAllNotices([]);

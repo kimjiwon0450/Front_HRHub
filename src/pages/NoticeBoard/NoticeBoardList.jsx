@@ -14,6 +14,7 @@ const NoticeBoardList = () => {
     const [viewMode, setViewMode] = useState('ALL'); // ALL | MY | DEPT
     const [posts, setPosts] = useState([]);
     const [notices, setNotices] = useState([]);
+    const [generalNotices, setGeneralNotices] = useState([]);
     const [filters, setFilters] = useState({
         startDate: '',
         endDate: '',
@@ -57,7 +58,7 @@ const NoticeBoardList = () => {
                 } else if (viewMode === 'DEPT') {
                     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/mydepartment`;
                 } else {
-                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;  
+                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
                 }
 
                 const res = await fetch(url, {
@@ -74,10 +75,12 @@ const NoticeBoardList = () => {
                 console.log('data.posts : ', data.posts);
 
                 if (viewMode === 'MY' || viewMode === 'DEPT') {
+                    setGeneralNotices([])
                     setNotices([]);
                     setPosts(data || []); // 서버에서 단일 배열을 반환하므로 전체를 posts로 처리
                     setTotalPages(1); // 페이징 미적용이므로 1로 고정
                 } else {
+                    setGeneralNotices(data.generalNotices || []);
                     setNotices(data.notices || []);
                     setPosts(data.posts || []);
                     setTotalPages(data.totalPages || 1);
@@ -153,7 +156,7 @@ const NoticeBoardList = () => {
                         </button>
                     </div>
 
-                    
+
                     <button onClick={handleSearch}>검색</button>
                     <button
                         className="reset-button"
@@ -207,8 +210,28 @@ const NoticeBoardList = () => {
                             </tr>
                         </thead>
                         <tbody>
+                            {generalNotices.map(post => (
+                                <tr
+                                    key={`generalnotice-${post.id}`} className="generalnotice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
+                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>{post.id}</td>
+                                    <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri != '[]' ? '📎' : ''}</td>
+                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>{post.title}</td>
+                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>
+                                        {post.employStatus === 'INACTIVE' ?
+                                            (<span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
+                                                `${post.name}(퇴사)`
+                                            </span>)
+                                            : `${post.name}`
+                                        }
+                                    </td>
+                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>{post.viewCount}</td>
+                                </tr>
+                            ))}
+
+
                             {notices.map(post => (
-                                <tr 
+                                <tr
                                     key={`notice-${post.id}`} className="notice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
                                     <td>{post.id}</td>
                                     <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri != '[]' ? '📎' : ''}</td>
@@ -218,7 +241,7 @@ const NoticeBoardList = () => {
                                             (<span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
                                                 `${post.name}(퇴사)`
                                             </span>)
-                                        : `${post.name}`
+                                            : `${post.name}`
                                         }
                                     </td>
                                     <td>{new Date(post.createdAt).toLocaleDateString()}</td>
