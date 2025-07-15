@@ -22,6 +22,12 @@ export default function EmployeeList() {
   const [searchField, setSearchField] = useState('name');
   const [searchText, setSearchText] = useState('');
   const [searchDept, setSearchDept] = useState('전체');
+  // 실제 검색에 사용되는 state
+  const [appliedSearch, setAppliedSearch] = useState({
+    field: 'name',
+    keyword: '',
+    department: '전체',
+  });
 
   // 페이징 state
   const [page, setPage] = useState(0);
@@ -34,18 +40,31 @@ export default function EmployeeList() {
 
   // 정렬 핸들러
   const handleSort = (field) => {
+    let nextSortOrder = 'asc';
     if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
+      nextSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     }
-    setPage(0); // 정렬 시 첫 페이지로
+    setSortField(field);
+    setSortOrder(nextSortOrder);
+    setPage(0);
+    // 정렬 시에도 현재 검색 조건을 반영해서 getEmployeeList 호출
+    getEmployeeList({
+      field: appliedSearch.field,
+      keyword: appliedSearch.keyword,
+      department: appliedSearch.department,
+      sortField: field,
+      sortOrder: nextSortOrder,
+      setEmployees,
+      setTotalPages,
+    });
   };
 
-  // 정렬 상태 변화, 페이지, 페이지 크기 변화 시 목록 재요청
+  // 정렬, 페이지, 페이지 크기 변화 시 목록 재요청 (검색 조건은 appliedSearch 기준)
   useEffect(() => {
     getEmployeeList({
+      field: appliedSearch.field,
+      keyword: appliedSearch.keyword,
+      department: appliedSearch.department,
       page,
       size,
       sortField,
@@ -54,7 +73,7 @@ export default function EmployeeList() {
       setTotalPages,
     });
     // eslint-disable-next-line
-  }, [page, size, sortField, sortOrder]);
+  }, [page, size, sortField, sortOrder, appliedSearch]);
 
   // 직원 선택시 상세 조회
   useEffect(() => {
@@ -121,11 +140,12 @@ export default function EmployeeList() {
   // 검색 버튼 or 폼 submit시
   const handleSearch = (e) => {
     e.preventDefault();
-    getEmployeeList({
+    setAppliedSearch({
       field: searchField,
       keyword: searchText,
       department: searchDept,
     });
+    setPage(0); // 검색 시 첫 페이지로
     setSelectedId(null); // 검색하면 상세 닫기
   };
 
@@ -136,13 +156,12 @@ export default function EmployeeList() {
     setSearchDept('전체');
     setSortField(null); // 정렬 초기화
     setSortOrder('asc'); // 정렬 초기화
-    getEmployeeList({
+    setAppliedSearch({
       field: 'name',
       keyword: '',
       department: '전체',
-      sortField: null,
-      sortOrder: 'asc',
     });
+    setPage(0);
     setSelectedId(null);
   };
 

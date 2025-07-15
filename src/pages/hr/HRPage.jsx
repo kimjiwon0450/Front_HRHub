@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HRHeader from './HRHeader';
 import './HRPage.scss';
@@ -34,12 +34,14 @@ export default function HRPage() {
   const [currentUserEmployee, setCurrentUserEmployee] = useState(null); // 현재 사용자 정보 상태
   const [teamEmployees, setTeamEmployees] = useState([]); // 우리팀 직원 목록
   const [teamPage, setTeamPage] = useState(0); // 우리팀 직원 슬라이드 페이지
+  const [pendingPage, setPendingPage] = useState(null);
+  const [fade, setFade] = useState(true);
+  const autoSlideRef = useRef();
 
   const [deptNotices, setDeptNotices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [noticeTab, setNoticeTab] = useState('전체'); // or '부서'
   const [allNotices, setAllNotices] = useState([]);
-
 
   // 달력 상태 및 유틸
   const today = new Date();
@@ -186,7 +188,6 @@ export default function HRPage() {
     fetchAllNotices();
   }, [accessToken]);
 
-
   // 이달의 사원 예시 데이터
   const eomList = [
     {
@@ -237,23 +238,45 @@ export default function HRPage() {
     fetchTeamEmployees();
   }, [departmentName]);
 
-  // 팀 직원 자동 슬라이드
+  // 자동 슬라이드 타이머 관리
   useEffect(() => {
     if (teamEmployees.length <= 3) {
       setTeamPage(0);
       return;
     }
-    const timer = setInterval(() => {
-      setTeamPage((prev) => (prev + 1) % Math.ceil(teamEmployees.length / 3));
+    autoSlideRef.current = setInterval(() => {
+      const nextPage = (teamPage + 1) % Math.ceil(teamEmployees.length / 3);
+      changeTeamPage(nextPage);
     }, 3000);
-    return () => clearInterval(timer);
-  }, [teamEmployees]);
+    return () => clearInterval(autoSlideRef.current);
+    // eslint-disable-next-line
+  }, [teamEmployees, teamPage]);
+
+  // 자연스러운 페이드 전환 함수
+  const changeTeamPage = (nextPage) => {
+    if (nextPage === teamPage) return;
+    setFade(false);
+    setPendingPage(nextPage);
+  };
+
+  // fade-out 후 실제 페이지 변경 및 fade-in
+  useEffect(() => {
+    if (fade === false && pendingPage !== null) {
+      const timeout = setTimeout(() => {
+        setTeamPage(pendingPage);
+        setFade(true);
+        setPendingPage(null);
+      }, 800); // 300 → 800ms로 변경
+      return () => clearTimeout(timeout);
+    }
+  }, [fade, pendingPage]);
+
+  // dot 클릭 핸들러도 변경
+  const handleTeamDotClick = (idx) => changeTeamPage(idx);
 
   // 현재 보여줄 직원 3명 slice
   const teamSlice = teamEmployees.slice(teamPage * 3, teamPage * 3 + 3);
   const teamTotalPages = Math.ceil(teamEmployees.length / 3);
-
-  const handleTeamDotClick = (idx) => setTeamPage(idx);
 
   // 수정 컴포넌트가 활성화되면 해당 컴포넌트만 렌더링
   if (showEdit) {
@@ -369,7 +392,10 @@ export default function HRPage() {
               >
                 부서공지
               </button>
-              <div className='menu-icon' onClick={() => navigate(`/noticeboard`)}>
+              <div
+                className='menu-icon'
+                onClick={() => navigate(`/noticeboard`)}
+              >
                 ≡
               </div>
             </div>
@@ -392,7 +418,9 @@ export default function HRPage() {
               <button className='active'>우리팀 직원</button>
               <div className='menu-icon'>≡</div>
             </div>
-            <table className='mini-table'>
+            <table
+              className={`mini-table team-fade${fade ? ' team-fade-active' : ''}`}
+            >
               <thead>
                 <tr>
                   <th>성명</th>

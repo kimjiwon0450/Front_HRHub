@@ -15,6 +15,12 @@ export default function EmployeeViewList() {
   const [searchField, setSearchField] = useState('name');
   const [searchText, setSearchText] = useState('');
   const [searchDept, setSearchDept] = useState('전체');
+  // 실제 검색에 사용되는 state
+  const [appliedSearch, setAppliedSearch] = useState({
+    field: 'name',
+    keyword: '',
+    department: '전체',
+  });
   const [evaluation, setEvaluation] = useState(null);
   const [showEvaluationForm, setShowEvaluationForm] = useState(false);
   const [departments, setDepartments] = useState([]);
@@ -31,18 +37,31 @@ export default function EmployeeViewList() {
 
   // 정렬 핸들러
   const handleSort = (field) => {
+    let nextSortOrder = 'asc';
     if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
+      nextSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     }
-    setPage(0); // 정렬 시 첫 페이지로
+    setSortField(field);
+    setSortOrder(nextSortOrder);
+    setPage(0);
+    // 정렬 시에도 현재 검색 조건을 반영해서 getEmployeeList 호출
+    getEmployeeList({
+      field: searchField,
+      keyword: searchText,
+      department: searchDept,
+      sortField: field,
+      sortOrder: nextSortOrder,
+      setEmployees,
+      setTotalPages,
+    });
   };
 
-  // 정렬/페이지/페이지크기 변화 시 목록 재요청
+  // 정렬, 페이지, 페이지 크기 변화 시 목록 재요청 (검색 조건은 appliedSearch 기준)
   useEffect(() => {
     getEmployeeList({
+      field: appliedSearch.field,
+      keyword: appliedSearch.keyword,
+      department: appliedSearch.department,
       page,
       size,
       sortField,
@@ -51,7 +70,7 @@ export default function EmployeeViewList() {
       setTotalPages,
     });
     // eslint-disable-next-line
-  }, [page, size, sortField, sortOrder]);
+  }, [page, size, sortField, sortOrder, appliedSearch]);
 
   useEffect(() => {
     if (selectedId == null) return;
@@ -98,11 +117,12 @@ export default function EmployeeViewList() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    getEmployeeList({
+    setAppliedSearch({
       field: searchField,
       keyword: searchText,
       department: searchDept,
     });
+    setPage(0); // 검색 시 첫 페이지로
     setSelectedId(null);
     setEvaluation(null);
   };
@@ -113,13 +133,12 @@ export default function EmployeeViewList() {
     setSearchDept('전체');
     setSortField(null); // 정렬 초기화
     setSortOrder('asc'); // 정렬 초기화
-    getEmployeeList({
+    setAppliedSearch({
       field: 'name',
       keyword: '',
       department: '전체',
-      sortField: null,
-      sortOrder: 'asc',
     });
+    setPage(0);
     setSelectedId(null);
     setEvaluation(null);
   };
