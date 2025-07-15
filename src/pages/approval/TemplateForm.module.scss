@@ -1,172 +1,282 @@
-.pageContainer {
+/* 전체 페이지 래퍼 */
+.formBuilderPage {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   background-color: #f4f6f8;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-.formBuilder {
-    flex: 1;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-right: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
+/* 메인 컨텐츠 영역 (좌/우 패널 포함) */
+.mainContent {
+  display: flex;
+  flex-grow: 1;
+  gap: 20px;
+  overflow: hidden;
 }
 
-.contentFieldContainer {
-    flex-grow: 1;
-    overflow-y: auto;
+/* 좌측 패널 (양식 구조 정의) */
+.leftPane {
+  flex: 3;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.contentField {
-    background-color: white;
-    padding: 15px;
-    border: 1px solid #eee;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* 우측 패널 (설정 및 라이브러리) */
+.rightPane {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.settingsPanel {
-    width: 350px;
-    padding: 20px;
-    background-color: #ffffff;
-    display: flex;
-    flex-direction: column;
+/* 섹션 제목 스타일 */
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e9ecef;
+  color: #333;
 }
 
-.settingsSection {
-    margin-bottom: 30px;
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 4px;
+/* 필드 섹션 (e.g., 등록된 입력 정보) */
+.fieldSection {
+  margin-bottom: 30px;
+}
 
-    h4 {
-        margin-top: 0;
-        margin-bottom: 15px;
-        font-size: 16px;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
+/* 개별 필드 아이템 */
+.fieldItem {
+  background-color: #fdfdfd;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+
+  &.disabled {
+    background-color: #f1f3f5;
+    color: #adb5bd;
+  }
+}
+
+.draggableField {
+  cursor: grab;
+}
+
+/* 필드 헤더 (이름, 설명) */
+.fieldHeader {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldName {
+  font-weight: 500;
+  color: #495057;
+}
+
+.fieldDesc {
+  font-size: 0.85rem;
+  color: #868e96;
+  margin-top: 4px;
+}
+
+/* 필드 컨트롤 (버튼, 토글) */
+.fieldControls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.controlButton {
+  background-color: #e9ecef;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  &:hover {
+    background-color: #dee2e6;
+  }
+}
+
+.addButton {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 10px;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+}
+
+
+/* 토글 그룹 (라벨 + 스위치) */
+.toggleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+/* 커스텀 토글 스위치 */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 22px;
+
+    &:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
     }
+  }
+
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(18px);
+  }
 }
 
-.fieldButtons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-
-    button {
-        padding: 10px;
-        border: 1px solid #ccc;
-        background-color: #f0f0f0;
-        cursor: pointer;
-        border-radius: 4px;
-        text-align: left;
-
-        &:hover {
-            background-color: #e0e0e0;
-        }
-    }
-}
-
-.radioGroup, .formGroup {
-    margin-bottom: 15px;
+/* 우측 패널 설정 섹션 */
+.settingSection {
+  margin-bottom: 25px;
 }
 
 .formGroup {
-  margin-bottom: 1rem;
+  margin-bottom: 15px;
+
   label {
     display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    font-weight: bold;
+    font-weight: 500;
+    margin-bottom: 5px;
+    font-size: 0.95rem;
   }
+
   input[type="text"],
-  textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  textarea {
-    min-height: 80px;
-    resize: vertical;
-  }
+  textarea,
   select {
     width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
+    padding: 8px;
+    border: 1px solid #ced4da;
     border-radius: 4px;
     box-sizing: border-box;
-    background-color: white;
+  }
+  
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  div {
+    display: flex;
+    gap: 10px;
+    align-items: center;
   }
 }
 
-.radioGroup {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
 
-    label {
-        font-size: 0.9rem;
-        font-weight: bold;
-    }
-
-    div {
-        display: flex;
-        align-items: center;
-
-        input[type="radio"] {
-            margin-right: 0.25rem;
-        }
-
-        label {
-            margin-right: 1rem;
-            font-weight: normal;
-        }
-    }
+/* 컴포넌트 라이브러리 */
+.componentLibrary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
-.actionButtons {
-  margin-top: auto;
+.componentButton {
   display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    color: #007bff;
+  }
 }
 
-.saveButton, .cancelButton {
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+/* 페이지 하단 푸터 */
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px;
+  background-color: #ffffff;
+  border-top: 1px solid #e9ecef;
+  border-radius: 0 0 8px 8px;
+  margin-top: -8px; /* to align with bottom of panes */
+  box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+}
+
+.cancelButton, .saveButton {
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  font-weight: bold;
+}
+
+.cancelButton {
+  background-color: #6c757d;
+  color: white;
+  &:hover { background-color: #5a6268; }
 }
 
 .saveButton {
-    background-color: #337ab7;
-    color: white;
-    border-color: #337ab7;
-}
-
-/* Styles for the dynamic field builder */
-.settingButton, .removeButton {
-    padding: 0.3rem 0.8rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    margin-left: 0.5rem;
-}
-
-.settingButton {
-    background-color: #f0f0f0;
-}
-
-.removeButton {
-    background-color: #f8d7da;
-    color: #721c24;
-    border-color: #f5c6cb;
+  background-color: #007bff;
+  color: white;
+  &:hover { background-color: #0056b3; }
 } 
