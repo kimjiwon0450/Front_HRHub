@@ -3,7 +3,7 @@ import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import './NoticeBoardWrite.scss';
 import { UserContext, UserContextProvider } from '../../context/UserContext';
-import { API_BASE_URL, NOTICE_SERVICE } from '../../configs/host-config';
+import { API_BASE_URL, NOTICE_SERVICE, HR_SERVICE } from '../../configs/host-config';
 
 const NoticeBoardWrite = ({ isEdit = false }) => {
     const { id } = useParams();
@@ -23,14 +23,14 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
 
     const parseAttachmentUri = (raw) => {
         try {
-          const parsed = JSON.parse(raw);
-          return Array.isArray(parsed) ? parsed : [parsed];
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [parsed];
         } catch (e) {
-          // 이미 JSON이 아닌 단일 문자열일 경우
-          return [raw];
+            // 이미 JSON이 아닌 단일 문자열일 경우
+            return [raw];
         }
-      };
-      
+    };
+
 
     // 수정 모드일 경우 게시글 불러오기
     useEffect(() => {
@@ -45,6 +45,8 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     setTitle(res.data.title ?? '');
                     setContent(res.data.content ?? '');
                     setType(res.data.notice ? 'notice' : 'post');
+                    setDepartmentId(res.data.departmentId || '');
+
                     console.log('res.data.attachmentUri : ', res.data.attachmentUri);
 
                     if (res.data.attachmentUri) {
@@ -63,6 +65,29 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
         }
     }, [isEdit, id, accessToken]);
 
+
+    // 부서 리스트 불러오기
+    useEffect(() => {
+        async function fetchDepartments() {
+            try {
+                const res = await axios.get(`${API_BASE_URL}${HR_SERVICE}/departments`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setDepartments(res.data.result || []);
+            } catch (err) {
+                console.error('부서 목록 불러오기 실패', err);
+            }
+        }
+
+        if (type === 'notice') {
+            fetchDepartments();
+        }
+    }, [type, accessToken]);
+
+
+
     const handleDeleteExistingFile = (urlToDelete) => {
         setExistingFiles(prev => prev.filter(url => url !== urlToDelete));
     };
@@ -76,12 +101,12 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
             if (files.length > 0) {
                 for (const file of files) {
                     // 1. presigned URL 요청
-                    console.log('file.name, file.type : ',file.name, file.type);
+                    console.log('file.name, file.type : ', file.name, file.type);
 
                     const res = await axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/upload-url`, {
-                        params: { 
+                        params: {
                             fileName: file.name,
-                            contentType: file.type  || 'application/octet-stream',
+                            contentType: file.type || 'application/octet-stream',
                             // 'x-amz-acl': 'private',  // ✅ 꼭 필요
                         },
                         headers: {
@@ -92,8 +117,8 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
 
                     const presignedUrl = res.data;
                     console.log('presignedUrl: ', presignedUrl);
-                    
-                    const fileContentType = file.type  || 'application/octet-stream';
+
+                    const fileContentType = file.type || 'application/octet-stream';
 
                     // 2. S3에 파일 업로드
                     await axios.put(presignedUrl, file, {
@@ -119,6 +144,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                 title,
                 content,
                 notice: type === 'notice',
+                departmentId: departmentId || null, // 🔥 부서 ID 포함
                 attachmentUri: combinedFiles.length > 0 ? JSON.stringify(combinedFiles) : null,
             };
             console.log('noticeData : ', noticeData);
@@ -143,7 +169,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                 navigate('/noticeboard');
             }
 
-            
+
         } catch (err) {
             console.error(err);
             alert('저장 또는 수정에 실패했습니다.');
@@ -194,6 +220,25 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     일반글
                 </label>
             </div>
+
+            {type === 'notice' && (
+                <div className="department-select">
+                    <label htmlFor="department">공지 대상 부서 (선택사항):</label>
+                    <select
+                        id="department"
+                        value={departmentId}
+                        onChange={(e) => setDepartmentId(e.target.value)}
+                    >
+                        <option value="">전체 공지 (기본값)</option>
+                        {departments.map((dept) => (
+                            <option key={dept.id} value={dept.id}>
+                                {dept.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
+
 
             {/* ✅ 기존 파일 목록 */}
             {isEdit && existingFiles.length > 0 && (

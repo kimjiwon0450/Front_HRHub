@@ -56,6 +56,7 @@ const NoticeAlertPage = () => {
                         {alerts.unreadNotices.map(notice => (
                             <li key={notice.id} onClick={() => navigate(`/noticeboard/${notice.id}`)}>
                                 <div className="title">{notice.title}</div>
+                                <div className="writer">{notice.name}</div>
                                 <div className="date">{notice.createdAt?.substring(0, 10)}</div>
                             </li>
                         ))}
@@ -63,6 +64,11 @@ const NoticeAlertPage = () => {
                 ) : (
                     <p>읽지 않은 공지글이 없습니다.</p>
                 )}
+            </section>
+
+            <section>
+                <h3>📌 결재 알림</h3>
+                <p>아직 알림이 없습니다.</p>
             </section>
 
             <section>
