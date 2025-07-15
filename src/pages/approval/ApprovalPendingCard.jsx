@@ -10,6 +10,10 @@ const reportStatusMap = {
   RECALLED: '상신 후 회수',
 };
 
+const handleBack = () => {
+  navigate(-1); // 뒤로가기
+};
+
 const approvalStatusMap = {
   PENDING: { color: '#bdbdbd', text: '대기', icon: '⏳' },
   APPROVED: { color: '#4caf50', text: '승인', icon: '✔️' },
@@ -47,6 +51,7 @@ const ApprovalPendingCard = ({ report }) => {
           })}
         </div>
       )}
+
     </div>
   );
 };
