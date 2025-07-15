@@ -1,0 +1,183 @@
+.pageContainer {
+    display: flex;
+    height: calc(100vh - 120px); // Adjust based on actual header height
+    background-color: #f4f6f8;
+}
+
+.sidebar {
+    width: 280px;
+    background-color: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.sidebarHeader {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    
+    h4 {
+        margin: 0 0 0.5rem 0;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+}
+
+.categoryList {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-top: 1rem;
+    list-style-type: none;
+    margin: 0;
+    padding: 1rem 0;
+}
+
+.categoryItem {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+
+    &:hover {
+        background-color: #f0f0f0;
+    }
+
+    &.active {
+        background-color: #e0e7ff;
+        color: #3366ff;
+        font-weight: bold;
+    }
+}
+
+.error {
+    color: #d9534f;
+    padding: 0.75rem 1rem;
+}
+
+.addCategoryButton {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    margin-top: auto; // Pushes button to the bottom
+    
+    &:hover {
+        background-color: #e0e0e0;
+    }
+}
+
+
+.mainContent {
+    flex-grow: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.mainHeader {
+    margin-bottom: 1.5rem;
+    h2 {
+        margin: 0;
+    }
+    p {
+        color: #666;
+    }
+}
+
+.controls, .templateList {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.tabs button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    margin-right: -1px; /* Creates a "button group" effect */
+}
+
+.tabs button:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.tabs button:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.tabs button.activeTab {
+    background-color: #337ab7;
+    color: white;
+    border-color: #337ab7;
+    z-index: 2;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.actions input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.actions .addButton {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+
+    &:hover {
+        background-color: #4cae4c;
+    }
+}
+
+.templateListContainer {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.templateItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+
+    &:last-child {
+        border-bottom: none;
+    }
+} 

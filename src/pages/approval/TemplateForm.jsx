@@ -2,8 +2,9 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
-import styles from './ApprovalForm.module.scss'; // 재사용
+import styles from './TemplateForm.module.scss'; // New SCSS module needed
 import { UserContext } from '../../context/UserContext';
+import FieldSettingModal from '../../components/approval/FieldSettingModal';
 
 const TemplateForm = () => {
   const navigate = useNavigate();
@@ -16,6 +17,17 @@ const TemplateForm = () => {
   const [content, setContent] = useState([]); // 템플릿 본문 (배열로 변경)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+
+  // New state for right-side settings
+  const [usageStatus, setUsageStatus] = useState('Y');
+  const [editorUsage, setEditorUsage] = useState('Y');
+  const [attachmentRequired, setAttachmentRequired] = useState('N');
+  const [category, setCategory] = useState('');
+  const [tags, setTags] = useState('');
+  const [categories, setCategories] = useState([]);
+
+  const [isFieldModalOpen, setIsFieldModalOpen] = useState(false);
+  const [currentFieldIndex, setCurrentFieldIndex] = useState(null);
 
   useEffect(() => {
     // isInit은 UserContext가 초기화되었는지(로컬스토리지에서 값 불러왔는지) 확인
@@ -68,6 +80,18 @@ const TemplateForm = () => {
     }
   }, [templateId, isEditMode, userRole, isInit, navigate]);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/category`);
+        setCategories(res.data?.result || []);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const handleSubmit = async () => {
     if (!title) {
       alert('템플릿 제목을 입력해주세요.');
@@ -101,24 +125,56 @@ const TemplateForm = () => {
     }
   };
 
-  const addContentField = () => {
-    setContent([...content, { type: 'text', header: '' }]);
-  };
+  const addContentField = (type) => {
+    let newField = { type: type, header: '', required: false };
+    switch (type) {
+        case 'text':
+            newField.header = '텍스트';
+            break;
+        case 'date':
+            newField.header = '날짜';
+            break;
+        case 'datetime':
+            newField.header = '날짜+시간';
+            break;
+        case 'period':
+            newField.header = '기간';
+            break;
+        case 'textarea':
+            newField.header = '상세내용';
+            break;
+        default:
+            newField.header = '새 항목';
+    }
+    setContent([...content, newField]);
+};
 
-  const removeContentField = (index) => {
+const removeContentField = (index) => {
     const newContent = content.filter((_, i) => i !== index);
     setContent(newContent);
-  };
+};
 
-  const handleContentChange = (index, field, value) => {
-    const newContent = content.map((item, i) => {
-      if (i === index) {
-        return { ...item, [field]: value };
-      }
-      return item;
-    });
+const updateContentField = (index, newFieldData) => {
+    const newContent = content.map((item, i) =>
+        i === index ? newFieldData : item
+    );
     setContent(newContent);
-  };
+};
+
+const openFieldSettings = (index) => {
+    setCurrentFieldIndex(index);
+    setIsFieldModalOpen(true);
+};
+
+const closeFieldSettings = () => {
+    setCurrentFieldIndex(null);
+    setIsFieldModalOpen(false);
+};
+
+const handleFieldSettingsSave = (newFieldData) => {
+    updateContentField(currentFieldIndex, newFieldData);
+    closeFieldSettings();
+};
 
   // UserContext가 아직 로딩 중이면 아무것도 표시하지 않음
   if (!isInit) {
@@ -126,77 +182,109 @@ const TemplateForm = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <h2>{isEditMode ? '템플릿 수정' : '새 템플릿 작성'}</h2>
-      {error && <div className={styles.error}>{error}</div>}
-
-      <div className={styles.formGroup}>
-        <label htmlFor='title'>템플릿 제목</label>
-        <input
-          type='text'
-          id='title'
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </div>
-
-      <div className={styles.formGroup}>
-        <label htmlFor='description'>템플릿 설명</label>
-        <textarea
-          id='description'
-          rows='3'
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        ></textarea>
-      </div>
-
-      <div className={styles.formGroup}>
-        <label>템플릿 내용</label>
+    <div className={styles.pageContainer}>
+      <div className={styles.formBuilder}>
+        <h3>등록된 입력 정보</h3>
         <div className={styles.contentFieldContainer}>
           {content.map((field, index) => (
             <div key={index} className={styles.contentField}>
-              <select
-                value={field.type}
-                onChange={(e) =>
-                  handleContentChange(index, 'type', e.target.value)
-                }
-              >
-                <option value='text'>텍스트</option>
-                <option value='number'>숫자</option>
-                <option value='date'>날짜</option>
-                <option value='textarea'>장문 텍스트</option>
-              </select>
-              <input
-                type='text'
-                placeholder='항목 이름'
-                value={field.header}
-                onChange={(e) =>
-                  handleContentChange(index, 'header', e.target.value)
-                }
-              />
-              <button
-                onClick={() => removeContentField(index)}
-                className={styles.removeButton}
-              >
-                삭제
-              </button>
+              <span>{field.header || '새 항목'}</span>
+              <div>
+                <button
+                  className={styles.settingButton}
+                  onClick={() => openFieldSettings(index)}
+                >
+                  설정
+                </button>
+                <button
+                  onClick={() => removeContentField(index)}
+                  className={styles.removeButton}
+                >
+                  삭제
+                </button>
+              </div>
             </div>
           ))}
-          <button onClick={addContentField} className={styles.addButton}>
-            항목 추가
-          </button>
         </div>
+         {/* This button will be removed or repurposed */}
       </div>
+      <aside className={styles.settingsPanel}>
+        <div className={styles.settingsSection}>
+            <h4>입력항목 추가</h4>
+            <div className={styles.fieldButtons}>
+                <button onClick={() => addContentField('text')}>텍스트</button>
+                <button onClick={() => addContentField('date')}>날짜</button>
+                <button onClick={() => addContentField('datetime')}>날짜+시간</button>
+                <button onClick={() => addContentField('period')}>기간</button>
+                <button onClick={() => addContentField('textarea')}>상세내용</button>
+            </div>
+        </div>
+        <div className={styles.settingsSection}>
+          <h4>양식 기초설정</h4>
+          <div className={styles.radioGroup}>
+            <label>문서 사용여부</label>
+            <div>
+              <input type="radio" id="use" name="usageStatus" value="Y" checked={usageStatus === 'Y'} onChange={(e) => setUsageStatus(e.target.value)} />
+              <label htmlFor="use">사용</label>
+              <input type="radio" id="unuse" name="usageStatus" value="N" checked={usageStatus === 'N'} onChange={(e) => setUsageStatus(e.target.value)} />
+              <label htmlFor="unuse">미사용</label>
+            </div>
+          </div>
+          <div className={styles.radioGroup}>
+            <label>편집기 사용여부</label>
+            <div>
+              <input type="radio" id="editorUse" name="editorUsage" value="Y" checked={editorUsage === 'Y'} onChange={(e) => setEditorUsage(e.target.value)} />
+              <label htmlFor="editorUse">사용</label>
+              <input type="radio" id="editorUnuse" name="editorUsage" value="N" checked={editorUsage === 'N'} onChange={(e) => setEditorUsage(e.target.value)} />
+              <label htmlFor="editorUnuse">미사용</label>
+            </div>
+          </div>
+          <div className={styles.radioGroup}>
+            <label>첨부파일 필수여부</label>
+            <div>
+              <input type="radio" id="attachmentRequired" name="attachmentRequired" value="Y" checked={attachmentRequired === 'Y'} onChange={(e) => setAttachmentRequired(e.target.value)} />
+              <label htmlFor="attachmentRequired">필수</label>
+              <input type="radio" id="attachmentNotRequired" name="attachmentRequired" value="N" checked={attachmentRequired === 'N'} onChange={(e) => setAttachmentRequired(e.target.value)} />
+              <label htmlFor="attachmentNotRequired">선택</label>
+            </div>
+          </div>
+        </div>
+        <div className={styles.settingsSection}>
+          <h4>양식정보 입력</h4>
+          <div className={styles.formGroup}>
+            <label>양식명</label>
+            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+          </div>
+          <div className={styles.formGroup}>
+            <label>카테고리</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="">카테고리 선택</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.formGroup}>
+            <label>양식설명</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
+          </div>
+          <div className={styles.formGroup}>
+            <label>양식태그</label>
+            <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} />
+          </div>
+        </div>
 
-      <div className={styles.buttonGroup}>
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className={styles.submitButton}
-        >
-          {isSubmitting ? '저장 중...' : isEditMode ? '수정 완료' : '생성하기'}
-        </button>
-      </div>
+         <div className={styles.actionButtons}>
+            <button className={styles.cancelButton}>취소</button>
+            <button className={styles.saveButton} onClick={handleSubmit}>저장</button>
+        </div>
+      </aside>
+      <FieldSettingModal 
+          open={isFieldModalOpen}
+          onClose={closeFieldSettings}
+          onSave={handleFieldSettingsSave}
+          fieldData={currentFieldIndex !== null ? content[currentFieldIndex] : null}
+      />
     </div>
   );
 };

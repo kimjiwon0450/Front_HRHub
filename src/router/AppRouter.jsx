@@ -30,6 +30,9 @@ import ApprovalHome from '../pages/approval/ApprovalHome';
 import CompletedBox from '../pages/approval/CompletedBox';
 import CcBox from '../pages/approval/CcBox';
 import MyReportsList from '../pages/approval/MyReportsList';
+import ApprovalNew from '../pages/approval/ApprovalNew';
+import TemplateAdminPage from '../pages/approval/TemplateAdminPage';
+import AdminRoute from './AdminRoute';
 
 const AppRouter = () => {
   const { user, loading } = useContext(UserContext);
@@ -55,6 +58,7 @@ const AppRouter = () => {
           <Route index element={<Navigate to='home' replace />} />
           <Route path='home' element={<ApprovalHome />} />
           <Route path='new' element={<ApprovalForm />} />
+          <Route path='reports/new/:templateId' element={<ApprovalNew />} />
           <Route path='drafts' element={<DraftBoxList />} />
           <Route path='in-progress' element={<MyReportsList />} />
           <Route path='completed' element={<CompletedBox />} />
@@ -68,6 +72,10 @@ const AppRouter = () => {
           <Route path='templates/form' element={<TemplateForm />} />
           <Route path='templates/form/:templateId' element={<TemplateForm />} />
           <Route path='templates/edit/:templateId' element={<TemplateForm />} />
+          
+          <Route element={<AdminRoute />}>
+            <Route path='admin/templates' element={<TemplateAdminPage />} />
+          </Route>
         </Route>
 
         <Route path='/noticeboard' element={<NoticeBoardList />} />
