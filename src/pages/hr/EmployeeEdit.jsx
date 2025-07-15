@@ -6,6 +6,7 @@ import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
+import { getDepartmentNameById } from '../../common/hr';
 
 export default function EmployeeEdit({ employee, onClose, hideHeader }) {
   // 기존 employee prop을 state로 복사 (혹은 useEffect로 세팅)
@@ -155,7 +156,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
       return;
     }
     try {
-      await axiosInstance.patch(
+      const res = await axiosInstance.patch(
         `${API_BASE_URL}${HR_SERVICE}/employees/${currentEmployeeId}`,
         {
           email,
@@ -174,9 +175,11 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
       );
       alert('수정 성공!');
       if (onClose) {
-        onClose(); // 모달로 사용될 경우 닫기 함수 호출
-      } else {
-        window.location.reload(); // 페이지로 사용될 경우 새로고침
+        console.log(res.data.result);
+        onClose({
+          ...res.data.result,
+          department: getDepartmentNameById(departmentId),
+        });
       }
     } catch (error) {
       alert(error?.response?.data?.statusMessage || error.message);

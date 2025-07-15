@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styles from './Sidebar.module.scss';
+import { UserContext } from '../../context/UserContext';
+import { GearFill } from 'react-bootstrap-icons';
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const { userRole } = useContext(UserContext);
 
   return (
     <aside className={styles.sidebar}>
@@ -29,6 +32,16 @@ const Sidebar = () => {
         >
           + 새 결재 작성
         </button>
+
+        {userRole === 'ADMIN' && (
+            <button 
+                className={styles.adminSettingsBtn}
+                onClick={() => navigate('/approval/admin/templates')}
+            >
+                <GearFill />
+                <span>문서양식관리</span>
+            </button>
+        )}
 
         <div className={styles.menuGroup}>
           <div className={styles.menuGroupHeader}>결재함</div>
