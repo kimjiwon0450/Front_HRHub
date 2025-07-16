@@ -5,7 +5,7 @@ import { API_BASE_URL, APPROVAL_SERVICE } from '../configs/host-config';
 
 export const useApprovalForm = (templateId, reportId) => {
   const navigate = useNavigate();
-
+  console.log(`%c[2단계: 훅 수신]`, 'color: green; font-weight: bold;', { templateId, reportId });
   // API 응답 데이터를 한 번에 관리
   const [template, setTemplate] = useState(null);
   const [formData, setFormData] = useState({});
@@ -40,7 +40,9 @@ export const useApprovalForm = (templateId, reportId) => {
           `${API_BASE_URL}${APPROVAL_SERVICE}/form`,
           { params },
         );
-        console.log("서버로부터 받은 /form API 응답 전체:", res.data);
+
+        console.log(`%c[3단계: API 응답]`, 'color: orange; font-weight: bold;', res.data.result);
+
         if (res.data && res.data.statusCode === 200) {
           const { template, formData, approvalLine, attachments, references } = res.data.result; // 'data' -> 'result'
           
@@ -56,6 +58,7 @@ export const useApprovalForm = (templateId, reportId) => {
         }
       } catch (err) {
         console.error('Failed to fetch form data:', err);
+        console.error('Failed to fetch form data (에러 객체 전체):', err);
         setError(err.message);
         // 필요시 에러 페이지로 이동
         // navigate('/error'); 

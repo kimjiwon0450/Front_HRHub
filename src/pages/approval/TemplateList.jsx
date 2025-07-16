@@ -19,6 +19,8 @@ const TemplateList = () => {
       const res = await axiosInstance.get(
         `${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`,
       );
+      console.log("템플릿 목록 API 응답:", res.data.result); // <--- 이 로그!
+      
       // API 명세에 따라 'data' 키에서 배열을 가져오도록 수정
       console.log(res.data.result);
       if (res.data && Array.isArray(res.data.result)) {
