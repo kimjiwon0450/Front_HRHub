@@ -17,6 +17,7 @@ import NoticeList from './NoticeList';
 import EmployeeEdit from './EmployeeEdit'; // EmployeeEdit 컴포넌트 임포트
 import Weather from './Weather';
 import ChatbotCard from './ChatbotCard';
+import ApprovalRequestTabs from '../../components/approval/ApprovalRequestTabs';
 
 export default function HRPage() {
   const navigate = useNavigate();
@@ -44,6 +45,28 @@ export default function HRPage() {
   const [loading, setLoading] = useState(false);
   const [noticeTab, setNoticeTab] = useState('전체'); // or '부서'
   const [allNotices, setAllNotices] = useState([]);
+
+  // 결재요청/미승인결재 탭 상태
+  const [approvalTab, setApprovalTab] = useState('결재요청');
+
+  // 결재요청 목록 상태
+  const [reportList, setReportList] = useState([]);
+  const [reportLoading, setReportLoading] = useState(false);
+
+  // 결재요청 목록 API 호출
+  useEffect(() => {
+    if (approvalTab !== '결재요청') return;
+    setReportLoading(true);
+    fetch('http://localhost:60696/approval/reports?role=writer&page=0&size=4', {
+      credentials: 'include',
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setReportList(data.reports || []);
+      })
+      .catch(() => setReportList([]))
+      .finally(() => setReportLoading(false));
+  }, [approvalTab]);
 
   // 달력 상태 및 유틸
   const today = new Date();
@@ -342,49 +365,7 @@ export default function HRPage() {
       <div className='hr-main-cards'>
         <div className='hr-row'>
           {/* 신청한내역 */}
-          <div className='hr-card hr-tab-card'>
-            <div className='tabs'>
-              <button className='active'>신청한내역</button>
-              <button>결재한내역</button>
-              <div className='menu-icon'>≡</div>
-            </div>
-            <table className='mini-table'>
-              <thead>
-                <tr>
-                  <th>종류</th>
-                  <th>신청일</th>
-                  <th>상태</th>
-                  <th>결재자</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>당직근무</td>
-                  <td>24.12.12</td>
-                  <td className='status-approve'>처리완료</td>
-                  <td>김**</td>
-                </tr>
-                <tr>
-                  <td>당직근무</td>
-                  <td>25.02.05</td>
-                  <td className='status-approve'>처리완료</td>
-                  <td>김**</td>
-                </tr>
-                <tr>
-                  <td>휴일근무</td>
-                  <td>25.03.08</td>
-                  <td className='status-approve'>처리완료</td>
-                  <td>김**</td>
-                </tr>
-                <tr>
-                  <td>야간근무</td>
-                  <td>25.06.10</td>
-                  <td className='status-pending'>수신반려</td>
-                  <td>김**</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <ApprovalRequestTabs />
           {/* 공지사항 */}
           <div className='hr-card hr-tab-card' style={{ flex: 2 }}>
             <div className='tabs'>
