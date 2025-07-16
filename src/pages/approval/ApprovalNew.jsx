@@ -3,8 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styles from './ApprovalNew.module.scss';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
-
-// import 'quill/dist/quill.snow.css'; // Quill snow theme
 import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
 
@@ -36,11 +34,22 @@ function ApprovalNew() {
         const res = await axiosInstance.get(
           `${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`,
         );
-        if (res.data && res.data.data && res.data.data.template) {
-          const fetchedTemplate = res.data.data.template;
+        if (res.data && res.data.result && res.data.result.template) {
+          const fetchedTemplate = res.data.result.template;
           setTemplate(fetchedTemplate);
-          setTitle(fetchedTemplate.templateName); // Set initial title
-          setContent(fetchedTemplate.contentTemplate || ''); // Set initial content from template
+          setTitle(fetchedTemplate.title); // template.title을 기본 제목으로 사용
+
+          // content 필드에서 에디터 내용을 추출하여 상태에 설정
+          let initialContent = '';
+          if (Array.isArray(fetchedTemplate.content)) {
+            const editorField = fetchedTemplate.content.find(
+              (f) => f.type === 'editor',
+            );
+            if (editorField) {
+              initialContent = editorField.value || '';
+            }
+          }
+          setContent(initialContent);
 
           if (fetchedTemplate.formSchema) {
             const initialValues = fetchedTemplate.formSchema.reduce(
@@ -73,7 +82,10 @@ function ApprovalNew() {
 
   const handleSelectApprovers = (selected) => {
     // API 명세에 따라 context 필드 추가
-    const approversWithContext = selected.map(emp => ({ ...emp, context: '검토' }));
+    const approversWithContext = selected.map((emp) => ({
+      ...emp,
+      context: '검토',
+    }));
     setApprovers(approversWithContext);
   };
 
@@ -105,16 +117,23 @@ function ApprovalNew() {
     const reportData = {
       templateId: parseInt(templateId, 10),
       title,
+      content, // Add editor content to the submission
       values: formValues,
-      approvalLine: approvers.map(a => ({ employeeId: a.id, context: a.context || '검토' })),
-      references: references.map(r => ({ employeeId: r.id })),
+      approvalLine: approvers.map((a) => ({
+        employeeId: a.id,
+        context: a.context || '검토',
+      })),
+      references: references.map((r) => ({ employeeId: r.id })),
     };
 
     const formData = new FormData();
-    formData.append('req', new Blob([JSON.stringify(reportData)], { type: 'application/json' }));
+    formData.append(
+      'req',
+      new Blob([JSON.stringify(reportData)], { type: 'application/json' }),
+    );
 
     if (files.length > 0) {
-      files.forEach(file => {
+      files.forEach((file) => {
         formData.append('files', file);
       });
     }
@@ -123,7 +142,7 @@ function ApprovalNew() {
       const res = await axiosInstance.post(
         `${API_BASE_URL}${APPROVAL_SERVICE}/reports/category`,
         formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        { headers: { 'Content-Type': 'multipart/form-data' } },
       );
 
       if (res.status === 201) {
@@ -134,7 +153,11 @@ function ApprovalNew() {
       }
     } catch (err) {
       console.error('Submission failed:', err);
-      setError(err.response?.data?.message || err.message || '서버 오류가 발생했습니다.');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          '서버 오류가 발생했습니다.',
+      );
       alert(`오류: ${error}`);
     } finally {
       setIsSubmitting(false);
@@ -194,19 +217,15 @@ function ApprovalNew() {
     }
   };
 
-  if (loading) {
-    return <div className={styles.container}>로딩 중...</div>;
-  }
-
-  if (error) {
-    return <div className={`${styles.container} ${styles.error}`}>{error}</div>;
-  }
+  if (loading) return <p>로딩 중...</p>;
+  if (error) return <p>오류: {error}</p>;
 
   return (
-    <div className={styles.container}>
-      <form className={styles.formContainer} onSubmit={handleSubmit}>
+    <div className={styles.pageContainer}>
+      {template && <h2>{template.templateName}</h2>}
+      <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
-          <label htmlFor='title'>제목</label>
+          <label>제목</label>
           <input
             type='text'
             id='title'
@@ -221,38 +240,60 @@ function ApprovalNew() {
 
         <div className={styles.formGroup}>
           <label>내용</label>
-          <ReactQuill theme='snow' value={content} onChange={setContent} />
+          <TiptapEditor content={content} onUpdate={setContent} />
         </div>
 
         <div className={styles.formGroup}>
           <label>결재선</label>
           <VisualApprovalLine approvalLine={approvers} mode='summary' />
-          <button type="button" onClick={() => setIsApproverModalOpen(true)} className={styles.actionButton}>결재선 지정</button>
+          <button
+            type='button'
+            onClick={() => setIsApproverModalOpen(true)}
+            className={styles.actionButton}
+          >
+            결재선 지정
+          </button>
         </div>
 
         <div className={styles.formGroup}>
           <label>참조</label>
           {/* Simple display for references for now */}
           <div className={styles.participantDisplay}>
-            {references.map(r => r.name).join(', ')}
+            {references.map((r) => r.name).join(', ')}
           </div>
-          <button type="button" onClick={() => setIsReferenceModalOpen(true)} className={styles.actionButton}>참조자 지정</button>
+          <button
+            type='button'
+            onClick={() => setIsReferenceModalOpen(true)}
+            className={styles.actionButton}
+          >
+            참조자 지정
+          </button>
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="files">첨부파일</label>
-          <input type="file" id="files" multiple onChange={handleFileChange} />
+          <label htmlFor='files'>첨부파일</label>
+          <input type='file' id='files' multiple onChange={handleFileChange} />
           {/* Display selected files */}
           <ul>
-            {files.map((file, index) => <li key={index}>{file.name}</li>)}
+            {files.map((file, index) => (
+              <li key={index}>{file.name}</li>
+            ))}
           </ul>
         </div>
 
         <div className={styles.actionButtons}>
-          <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+          <button
+            type='submit'
+            className={styles.submitButton}
+            disabled={isSubmitting}
+          >
             {isSubmitting ? '상신 중...' : '상신하기'}
           </button>
-          <button type="button" className={styles.draftButton} disabled={isSubmitting}>
+          <button
+            type='button'
+            className={styles.draftButton}
+            disabled={isSubmitting}
+          >
             임시저장
           </button>
         </div>

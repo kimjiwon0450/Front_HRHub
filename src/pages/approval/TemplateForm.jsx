@@ -1,291 +1,428 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
-import styles from './TemplateForm.module.scss'; // New SCSS module needed
-import { UserContext } from '../../context/UserContext';
-import FieldSettingModal from '../../components/approval/FieldSettingModal';
+import styles from './TemplateForm.module.scss';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import CustomFieldModal from '../../components/approval/CustomFieldModal';
+import InfoChangeModal from '../../components/approval/InfoChangeModal';
+import AddFieldModal from '../../components/approval/AddFieldModal';
+
+const ItemTypes = {
+  FIELD: 'field',
+};
+
+const DraggableField = ({ field, index, moveField, children }) => {
+  const ref = React.useRef(null);
+  const [, drop] = useDrop({
+    accept: ItemTypes.FIELD,
+    hover(item, monitor) {
+      if (!ref.current) return;
+      const dragIndex = item.index;
+      const hoverIndex = index;
+      if (dragIndex === hoverIndex) return;
+      moveField(dragIndex, hoverIndex);
+      item.index = hoverIndex;
+    },
+  });
+  const [{ isDragging }, drag] = useDrag({
+    type: ItemTypes.FIELD,
+    item: { id: field.id, index },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+  drag(drop(ref));
+  return (
+    <div ref={ref} style={{ opacity: isDragging ? 0.5 : 1 }} className={styles.draggableField}>
+      {children}
+    </div>
+  );
+};
+
+const initialDefaultFields = [
+    { id: 'title', name: '제목', desc: '결재문서의 제목입니다.', multiSelect: false, required: true, enabled: true, isDefault: true },
+    { id: 'recipient', name: '수신참조', desc: '결재정보를 공유할 참조자입니다.', multiSelect: true, required: false, enabled: true, isDefault: true },
+    { id: 'ref_doc', name: '참조문서', desc: '관련 결재문서를 첨부합니다.', multiSelect: false, required: false, enabled: true, isDefault: true },
+    { id: 'enforcer', name: '시행자', desc: '결재문서의 시행자입니다.', multiSelect: true, required: false, enabled: true, isDefault: true },
+];
+
+const componentLibrary = [
+    { id: 'text', name: '텍스트' },
+    { id: 'date_ym', name: '날짜(년.월)' },
+    { id: 'date_ymd', name: '날짜(년.월.일)' },
+    { id: 'period', name: '기간' },
+    { id: 'number', name: '숫자' },
+];
+
 
 const TemplateForm = () => {
   const navigate = useNavigate();
   const { templateId } = useParams();
   const isEditMode = !!templateId;
-  const { userRole, isInit } = useContext(UserContext);
 
+  // --- Right Pane State ---
+  const [useEditor, setUseEditor] = useState('Y');
+  const [requireAttachment, setRequireAttachment] = useState('N');
   const [title, setTitle] = useState('');
+  const [categoryId, setCategoryId] = useState('');
   const [description, setDescription] = useState('');
-  const [content, setContent] = useState([]); // 템플릿 본문 (배열로 변경)
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-
-  // New state for right-side settings
-  const [usageStatus, setUsageStatus] = useState('Y');
-  const [editorUsage, setEditorUsage] = useState('Y');
-  const [attachmentRequired, setAttachmentRequired] = useState('N');
-  const [category, setCategory] = useState('');
-  const [tags, setTags] = useState('');
+  const [tags, setTags] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  const [isFieldModalOpen, setIsFieldModalOpen] = useState(false);
-  const [currentFieldIndex, setCurrentFieldIndex] = useState(null);
+  // --- Left Pane State ---
+  const [defaultFields, setDefaultFields] = useState(initialDefaultFields);
+  const [customFields, setCustomFields] = useState([]);
+  const [editorContent, setEditorContent] = useState('');
+  
+  // --- Modal State ---
+  const [isCustomFieldModalOpen, setIsCustomFieldModalOpen] = useState(false);
+  const [isInfoChangeModalOpen, setIsInfoChangeModalOpen] = useState(false);
+  const [isAddFieldModalOpen, setIsAddFieldModalOpen] = useState(false);
+  const [editingField, setEditingField] = useState(null);
 
+
+  // --- Data Fetching ---
   useEffect(() => {
-    // isInit은 UserContext가 초기화되었는지(로컬스토리지에서 값 불러왔는지) 확인
-    if (isInit && userRole !== 'ADMIN') {
-      alert('접근 권한이 없습니다.');
-      navigate('/approval/templates/list');
-      return;
-    }
+    // Reset form states when mode changes
+    setTitle('');
+    setDescription('');
+    setTags([]);
+    setUseEditor('Y');
+    setRequireAttachment('N');
+    setDefaultFields(initialDefaultFields);
+    setCustomFields([]);
+    setEditorContent('');
 
-    if (isEditMode) {
-      const fetchTemplate = async () => {
-        try {
-          const res = await axiosInstance.get(
-            `${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`,
-          );
-          const template = res.data.result;
-          console.log(template);
-          setTitle(template.template.title);
-          setDescription(template.template.description);
-
-          // content가 문자열화된 JSON일 경우 파싱
-          let parsedContent = [];
-          if (
-            template.template.content &&
-            typeof template.template.content === 'string'
-          ) {
-            try {
-              parsedContent = JSON.parse(template.template.content);
-            } catch (error) {
-              console.error('JSON 파싱 오류:', error);
-              // 파싱 실패 시, 기존 문자열을 텍스트 필드로 변환
-              parsedContent = [
-                {
-                  type: 'textarea',
-                  header: '내용',
-                  value: template.template.content,
-                },
-              ];
-            }
-          } else if (Array.isArray(template.template.content)) {
-            parsedContent = template.template.content;
-          }
-
-          setContent(Array.isArray(parsedContent) ? parsedContent : []);
-        } catch (err) {
-          setError('템플릿 정보를 불러오는 데 실패했습니다.');
-        }
-      };
-      fetchTemplate();
-    }
-  }, [templateId, isEditMode, userRole, isInit, navigate]);
-
-  useEffect(() => {
     const fetchCategories = async () => {
-      try {
-        const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/category`);
-        setCategories(res.data?.result || []);
-      } catch (err) {
-        console.error("Failed to fetch categories", err);
-      }
+        try {
+            const catRes = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/category`);
+            const categoriesData = (catRes?.data?.result && Array.isArray(catRes.data.result)) ? catRes.data.result : [];
+            setCategories(categoriesData);
+            return categoriesData;
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+            setCategories([]);
+            return [];
+        }
     };
-    fetchCategories();
+    
+    const fetchTemplateData = async (templateId) => {
+        try {
+            const tplRes = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`);
+            console.log("수정 페이지 데이터 로딩 응답:", JSON.stringify(tplRes.data, null, 2));
+            const data = tplRes?.data?.result; // 백엔드 응답 형식에 따라 .data 또는 .result를 사용해야 할 수 있습니다.
+
+            if (data) {
+                setCategoryId(data.categoryId || '');
+                if (data.template) {
+                    const { title, description, tags, useEditor, requireAttachment, defaultFields, content } = data.template;
+                    setTitle(title || '');
+                    setDescription(description || '');
+                    setTags(tags || []);
+                    setUseEditor(useEditor || 'Y');
+                    setRequireAttachment(requireAttachment || 'N');
+                    if (defaultFields && defaultFields.length > 0) {
+                        setDefaultFields(defaultFields);
+                    }
+                    const customFieldData = content?.filter(c => c.type !== 'editor') || [];
+                    const editorData = content?.find(c => c.type === 'editor');
+                    setCustomFields(customFieldData);
+                    if (editorData) setEditorContent(editorData.value);
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching template data:", error);
+        }
+    };
+
+    const initializeForm = async () => {
+        const categoriesData = await fetchCategories();
+        
+        if (isEditMode) {
+            await fetchTemplateData(templateId);
+        } else {
+            if (categoriesData.length > 0) {
+                setCategoryId(categoriesData[0].id);
+            }
+        }
+    };
+
+    initializeForm();
+  }, [templateId, isEditMode]);
+
+
+  // --- Field Handlers ---
+  const handleDefaultFieldChange = (id, prop, value) => {
+    setDefaultFields(prev => prev.map(f => f.id === id ? { ...f, [prop]: value } : f));
+  };
+  
+  const handleSaveDefaultFieldInfo = (id, data) => {
+    setDefaultFields(prev => prev.map(f => f.id === id ? { ...f, name: data.name, desc: data.desc } : f));
+  };
+
+  const handleCustomFieldChange = (id, prop, value) => {
+    setCustomFields(prev => prev.map(f => f.id === id ? { ...f, [prop]: value } : f));
+  }
+
+  const handleOpenAddFieldModal = () => {
+    setIsAddFieldModalOpen(true);
+  };
+
+  const handleAddFieldSelection = (type) => {
+    setIsAddFieldModalOpen(false);
+    if (type === 'custom') {
+      handleOpenCustomFieldModal(null); // Open custom field modal for creation
+    }
+    // Handle 'basic' type later
+  };
+
+  const handleOpenCustomFieldModal = (field = null) => {
+    setEditingField(field);
+    setIsCustomFieldModalOpen(true);
+  };
+
+  const handleOpenInfoChangeModal = (field) => {
+    setEditingField(field);
+    setIsInfoChangeModalOpen(true);
+  };
+
+  const handleSaveCustomField = (fieldData) => {
+    if (editingField) { // Update existing field
+      setCustomFields(prev => prev.map(f => f.id === fieldData.id ? fieldData : f));
+    } else { // Add new field
+      const newField = {
+        ...fieldData,
+        id: `custom_${Date.now()}`,
+      };
+      setCustomFields(prev => [...prev, newField]);
+    }
+  };
+  
+  const removeCustomField = (id) => {
+    setCustomFields(prev => prev.filter(f => f.id !== id));
+  };
+
+  const moveCustomField = useCallback((dragIndex, hoverIndex) => {
+    setCustomFields(prev => {
+      const newFields = [...prev];
+      const [draggedItem] = newFields.splice(dragIndex, 1);
+      newFields.splice(hoverIndex, 0, draggedItem);
+      return newFields;
+    });
   }, []);
 
-  const handleSubmit = async () => {
-    if (!title) {
-      alert('템플릿 제목을 입력해주세요.');
-      return;
+  const addComponentFromLibrary = (component) => {
+    const newField = { 
+      id: `custom_${Date.now()}`, 
+      libraryId: component.id, // Link to library
+      type: component.id.split('_')[0], // text, date etc.
+      header: component.name, 
+      description: '',
+      required: false,
+      // ...other default properties from Modal 3
+    };
+    setCustomFields(prev => [...prev, newField]);
+  };
+
+  const handleSave = async () => {
+    // 1. Nest all form builder data into a 'template' object
+    const content = [
+      ...customFields,
+    ];
+    if (useEditor === 'Y') {
+        content.push({ type: 'editor', value: editorContent });
     }
 
-    setIsSubmitting(true);
-    setError(null);
+    const templateData = {
+      title,
+      description,
+      tags,
+      useEditor,
+      requireAttachment,
+      defaultFields: defaultFields.filter(f => f.enabled),
+      content,
+    };
 
-    const payload = { template: { title, description, content } };
+    // 2. Final payload matches backend DTO
+    const payload = {
+      categoryId: Number(categoryId),
+      template: templateData,
+    };
+
+    console.log('서버로 전송하는 최종 데이터(payload):', JSON.stringify(payload, null, 2));
 
     try {
       if (isEditMode) {
-        await axiosInstance.put(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`,
-          payload,
-        );
-        alert('템플릿이 수정되었습니다.');
+        const response = await axiosInstance.put(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`, payload);
+        console.log('Server response:', response.data);
       } else {
-        await axiosInstance.post(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/templates/create`,
-          payload,
-        );
-        alert('새 템플릿이 생성되었습니다.');
+        const response = await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/create`, payload);
+        console.log('Server response:', response.data);
       }
-      navigate('/approval/templates/list');
-    } catch (err) {
-      setError(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
-    } finally {
-      setIsSubmitting(false);
+      alert('템플릿이 저장되었습니다.');
+      navigate('/approval/admin/templates');
+    } catch (error) {
+      console.error('Failed to save template:', error.response ? error.response.data : error.message);
+      alert('템플릿 저장에 실패했습니다.');
     }
   };
 
-  const addContentField = (type) => {
-    let newField = { type: type, header: '', required: false };
-    switch (type) {
-        case 'text':
-            newField.header = '텍스트';
-            break;
-        case 'date':
-            newField.header = '날짜';
-            break;
-        case 'datetime':
-            newField.header = '날짜+시간';
-            break;
-        case 'period':
-            newField.header = '기간';
-            break;
-        case 'textarea':
-            newField.header = '상세내용';
-            break;
-        default:
-            newField.header = '새 항목';
-    }
-    setContent([...content, newField]);
-};
+  // --- Render Methods ---
+  const renderLeftPane = () => (
+    <div className={styles.leftPane}>
+      {/* A. Default Fields */}
+      <div className={styles.fieldSection}>
+        <h3 className={styles.sectionTitle}>등록된 입력 정보 (기본 결재 필드)</h3>
+        {defaultFields.map(field => (
+          <div key={field.id} className={`${styles.fieldItem} ${!field.enabled && styles.disabled}`}>
+            <div className={styles.fieldHeader}>
+                <span className={styles.fieldName}>{field.name}</span>
+                <span className={styles.fieldDesc}>{field.desc}</span>
+            </div>
+            <div className={styles.fieldControls}>
+                <button className={styles.controlButton} onClick={() => handleOpenInfoChangeModal(field)}>정보변경</button>
+                <div className={styles.toggleGroup}>
+                    <span>필수정보</span>
+                    <label className={styles.switch}>
+                        <input type="checkbox" checked={field.required} onChange={e => handleDefaultFieldChange(field.id, 'required', e.target.checked)} />
+                        <span className={styles.slider}></span>
+                    </label>
+                </div>
+                 <div className={styles.toggleGroup}>
+                    <span>필드활성화</span>
+                    <label className={styles.switch}>
+                        <input type="checkbox" checked={field.enabled} onChange={e => handleDefaultFieldChange(field.id, 'enabled', e.target.checked)} />
+                        <span className={styles.slider}></span>
+                    </label>
+                </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
-const removeContentField = (index) => {
-    const newContent = content.filter((_, i) => i !== index);
-    setContent(newContent);
-};
+      {/* B. Custom Fields */}
+       <div className={styles.fieldSection}>
+          <h3 className={styles.sectionTitle}>양식 입력 정보 추가 (동적 커스텀 필드)</h3>
+           <DndProvider backend={HTML5Backend}>
+            {customFields.map((field, index) => (
+               <DraggableField key={field.id} index={index} field={field} moveField={moveCustomField}>
+                <div className={styles.fieldItem}>
+                    {/* ... similar structure to default fields ... */}
+                    <div className={styles.fieldHeader}>
+                        <span className={styles.fieldName}>{field.header}</span>
+                        <span className={styles.fieldDesc}>{field.description}</span>
+                    </div>
+                     <div className={styles.fieldControls}>
+                        <button className={styles.controlButton} onClick={() => handleOpenCustomFieldModal(field)}>수정</button>
+                        <button className={`${styles.controlButton} ${styles.danger}`} onClick={() => removeCustomField(field.id)}>삭제</button>
+                         {/* ... toggles ... */}
+                    </div>
+                </div>
+              </DraggableField>
+            ))}
+          </DndProvider>
+          <button className={styles.addButton} onClick={handleOpenAddFieldModal}>+ 입력정보 추가</button>
+      </div>
 
-const updateContentField = (index, newFieldData) => {
-    const newContent = content.map((item, i) =>
-        i === index ? newFieldData : item
-    );
-    setContent(newContent);
-};
+      {/* C. WYSIWYG Editor */}
+      {useEditor === 'Y' && (
+        <div className={styles.fieldSection}>
+          <h3 className={styles.sectionTitle}>본문</h3>
+          <CKEditor editor={ClassicEditor} data={editorContent} onChange={(e, editor) => setEditorContent(editor.getData())} />
+        </div>
+      )}
+    </div>
+  );
 
-const openFieldSettings = (index) => {
-    setCurrentFieldIndex(index);
-    setIsFieldModalOpen(true);
-};
+  const renderRightPane = () => (
+    <div className={styles.rightPane}>
+        {/* A. Basic Settings */}
+        <div className={styles.settingSection}>
+            <h3 className={styles.sectionTitle}>양식 기초 정보</h3>
+            <div className={styles.formGroup}>
+                <label>양식 사용여부</label> {/* This is for UI only, won't be sent */}
+                <div>
+                    <input type="radio" id="usage_y" name="usage" value="Y" defaultChecked /><label htmlFor="usage_y">사용</label>
+                    <input type="radio" id="usage_n" name="usage" value="N" /><label htmlFor="usage_n">미사용</label>
+                </div>
+            </div>
+             <div className={styles.formGroup}>
+                <label>Editor 사용여부</label>
+                <div>
+                    <input type="radio" id="editor_y" name="editor" value="Y" checked={useEditor === 'Y'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_y">사용</label>
+                    <input type="radio" id="editor_n" name="editor" value="N" checked={useEditor === 'N'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_n">미사용</label>
+                </div>
+            </div>
+             <div className={styles.formGroup}>
+                <label>첨부파일 필수</label>
+                <div>
+                    <input type="radio" id="attach_y" name="attach" value="Y" checked={requireAttachment === 'Y'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_y">필수</label>
+                    <input type="radio" id="attach_n" name="attach" value="N" checked={requireAttachment === 'N'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_n">미필수</label>
+                </div>
+            </div>
+        </div>
 
-const closeFieldSettings = () => {
-    setCurrentFieldIndex(null);
-    setIsFieldModalOpen(false);
-};
-
-const handleFieldSettingsSave = (newFieldData) => {
-    updateContentField(currentFieldIndex, newFieldData);
-    closeFieldSettings();
-};
-
-  // UserContext가 아직 로딩 중이면 아무것도 표시하지 않음
-  if (!isInit) {
-    return null;
-  }
+        {/* B. Form Info */}
+        <div className={styles.settingSection}>
+            <h3 className={styles.sectionTitle}>양식 정보 입력</h3>
+            <div className={styles.formGroup}><label>양식명</label><input type="text" value={title} onChange={e => setTitle(e.target.value)} /></div>
+            <div className={styles.formGroup}><label>카테고리</label>
+                 <select value={categoryId} onChange={e => setCategoryId(e.target.value)}>
+                    <option value="" disabled>카테고리 선택</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.categoryName}</option>)}
+                </select>
+            </div>
+            <div className={styles.formGroup}><label>양식설명</label><textarea value={description} onChange={e => setDescription(e.target.value)} /></div>
+            <div className={styles.formGroup}><label>양식태그</label><input type="text" placeholder="태그, 로, 구분" value={tags.join(', ')} onChange={e => setTags(e.target.value.split(',').map(t => t.trim()))} /></div>
+        </div>
+        
+        {/* C. Component Library */}
+        <div className={styles.settingSection}>
+            <h3 className={styles.sectionTitle}>기본 정보블록 선택</h3>
+            <div className={styles.componentLibrary}>
+            {componentLibrary.map(comp => (
+                <button key={comp.id} className={styles.componentButton} onClick={() => addComponentFromLibrary(comp)}>
+                    {/* Icon can be added here */}
+                    <span>{comp.name}</span>
+                </button>
+            ))}
+            </div>
+        </div>
+    </div>
+  );
 
   return (
-    <div className={styles.pageContainer}>
-      <div className={styles.formBuilder}>
-        <h3>등록된 입력 정보</h3>
-        <div className={styles.contentFieldContainer}>
-          {content.map((field, index) => (
-            <div key={index} className={styles.contentField}>
-              <span>{field.header || '새 항목'}</span>
-              <div>
-                <button
-                  className={styles.settingButton}
-                  onClick={() => openFieldSettings(index)}
-                >
-                  설정
-                </button>
-                <button
-                  onClick={() => removeContentField(index)}
-                  className={styles.removeButton}
-                >
-                  삭제
-                </button>
-              </div>
-            </div>
-          ))}
+     <div className={styles.formBuilderPage}>
+        <div className={styles.mainContent}>
+          {renderLeftPane()}
+          {renderRightPane()}
         </div>
-         {/* This button will be removed or repurposed */}
-      </div>
-      <aside className={styles.settingsPanel}>
-        <div className={styles.settingsSection}>
-            <h4>입력항목 추가</h4>
-            <div className={styles.fieldButtons}>
-                <button onClick={() => addContentField('text')}>텍스트</button>
-                <button onClick={() => addContentField('date')}>날짜</button>
-                <button onClick={() => addContentField('datetime')}>날짜+시간</button>
-                <button onClick={() => addContentField('period')}>기간</button>
-                <button onClick={() => addContentField('textarea')}>상세내용</button>
-            </div>
+        <div className={styles.footer}>
+            <button className={styles.cancelButton} onClick={() => navigate('/approval/admin/templates')}>취소</button>
+            <button className={styles.saveButton} onClick={handleSave}>저장</button>
         </div>
-        <div className={styles.settingsSection}>
-          <h4>양식 기초설정</h4>
-          <div className={styles.radioGroup}>
-            <label>문서 사용여부</label>
-            <div>
-              <input type="radio" id="use" name="usageStatus" value="Y" checked={usageStatus === 'Y'} onChange={(e) => setUsageStatus(e.target.value)} />
-              <label htmlFor="use">사용</label>
-              <input type="radio" id="unuse" name="usageStatus" value="N" checked={usageStatus === 'N'} onChange={(e) => setUsageStatus(e.target.value)} />
-              <label htmlFor="unuse">미사용</label>
-            </div>
-          </div>
-          <div className={styles.radioGroup}>
-            <label>편집기 사용여부</label>
-            <div>
-              <input type="radio" id="editorUse" name="editorUsage" value="Y" checked={editorUsage === 'Y'} onChange={(e) => setEditorUsage(e.target.value)} />
-              <label htmlFor="editorUse">사용</label>
-              <input type="radio" id="editorUnuse" name="editorUsage" value="N" checked={editorUsage === 'N'} onChange={(e) => setEditorUsage(e.target.value)} />
-              <label htmlFor="editorUnuse">미사용</label>
-            </div>
-          </div>
-          <div className={styles.radioGroup}>
-            <label>첨부파일 필수여부</label>
-            <div>
-              <input type="radio" id="attachmentRequired" name="attachmentRequired" value="Y" checked={attachmentRequired === 'Y'} onChange={(e) => setAttachmentRequired(e.target.value)} />
-              <label htmlFor="attachmentRequired">필수</label>
-              <input type="radio" id="attachmentNotRequired" name="attachmentRequired" value="N" checked={attachmentRequired === 'N'} onChange={(e) => setAttachmentRequired(e.target.value)} />
-              <label htmlFor="attachmentNotRequired">선택</label>
-            </div>
-          </div>
-        </div>
-        <div className={styles.settingsSection}>
-          <h4>양식정보 입력</h4>
-          <div className={styles.formGroup}>
-            <label>양식명</label>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
-          </div>
-          <div className={styles.formGroup}>
-            <label>카테고리</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value)}>
-              <option value="">카테고리 선택</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.formGroup}>
-            <label>양식설명</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-          </div>
-          <div className={styles.formGroup}>
-            <label>양식태그</label>
-            <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} />
-          </div>
-        </div>
-
-         <div className={styles.actionButtons}>
-            <button className={styles.cancelButton}>취소</button>
-            <button className={styles.saveButton} onClick={handleSubmit}>저장</button>
-        </div>
-      </aside>
-      <FieldSettingModal 
-          open={isFieldModalOpen}
-          onClose={closeFieldSettings}
-          onSave={handleFieldSettingsSave}
-          fieldData={currentFieldIndex !== null ? content[currentFieldIndex] : null}
-      />
-    </div>
+        <CustomFieldModal 
+          isOpen={isCustomFieldModalOpen}
+          onClose={() => setIsCustomFieldModalOpen(false)}
+          onSave={handleSaveCustomField}
+          field={editingField}
+        />
+        <InfoChangeModal
+          isOpen={isInfoChangeModalOpen}
+          onClose={() => setIsInfoChangeModalOpen(false)}
+          onSave={handleSaveDefaultFieldInfo}
+          field={editingField}
+        />
+        <AddFieldModal
+          isOpen={isAddFieldModalOpen}
+          onClose={() => setIsAddFieldModalOpen(false)}
+          onSelect={handleAddFieldSelection}
+        />
+     </div>
   );
 };
 

@@ -4,38 +4,59 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 
 const FrequentTemplatesModal = ({ onClose, onSave }) => {
-  const [templates, setTemplates] = useState([]);
+  const [allTemplates, setAllTemplates] = useState([]); // 원본 템플릿 목록
+  const [filteredTemplates, setFilteredTemplates] = useState([]); // 화면에 표시될 템플릿 목록
+
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
   const [selected, setSelected] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-
+  
   useEffect(() => {
-    // 모든 양식 템플릿을 불러옵니다.
-    const fetchTemplates = async () => {
+    const fetchInitialData = async () => {
       try {
-        // 엔드포인트를 명세에 맞게 '/templates'로 수정
-        const response = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates`);
-        // API 명세에 따라 'data' 키에서 배열을 가져오도록 수정
-        if (response.data && Array.isArray(response.data.data)) {
-            setTemplates(response.data.data);
-        } else {
-            console.error('템플릿 데이터가 배열이 아닙니다:', response.data);
-            setTemplates([]);
-        }
+        // 카테고리 목록 가져오기
+        const catResponse = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/category`);
+        setCategories(catResponse.data?.result || []);
+
+        // 전체 템플릿 목록 가져오기 ('/templates/list' 사용)
+        const tplResponse = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`);
+        setAllTemplates(tplResponse.data?.result || []);
+
       } catch (error) {
-        console.error('Failed to fetch templates:', error);
-        setTemplates([]);
+        console.error('Failed to fetch initial data:', error);
       }
     };
-    
-    // localStorage에서 현재 설정을 불러옵니다.
+
     const loadFrequentTemplatesFromStorage = () => {
-        const stored = localStorage.getItem('frequentTemplates');
-        setSelected(stored ? JSON.parse(stored) : []);
+      const stored = localStorage.getItem('frequentTemplates');
+      setSelected(stored ? JSON.parse(stored) : []);
     };
 
-    fetchTemplates();
+    fetchInitialData();
     loadFrequentTemplatesFromStorage();
   }, []);
+  
+  // 필터링 로직
+  useEffect(() => {
+    let templates = allTemplates;
+
+    // 1. 카테고리 필터
+    if (selectedCategory) {
+      templates = templates.filter(t => t.category && t.category.id === selectedCategory);
+    }
+
+    // 2. 검색어 필터
+    if (searchTerm) {
+      templates = templates.filter(t =>
+        t.template.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredTemplates(templates);
+  }, [selectedCategory, searchTerm, allTemplates]);
+
 
   const handleSelect = (templateId) => {
     setSelected(prev => 
@@ -50,10 +71,6 @@ const FrequentTemplatesModal = ({ onClose, onSave }) => {
     onClose();
   };
 
-  const filteredTemplates = Array.isArray(templates) ? templates.filter(t => 
-    t.title.toLowerCase().includes(searchTerm.toLowerCase())
-  ) : [];
-
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
@@ -64,29 +81,51 @@ const FrequentTemplatesModal = ({ onClose, onSave }) => {
         <div className={styles.modalBody}>
           <div className={styles.infoText}>
             <p>자주 쓰는 결재 양식을 추가하여 홈 화면에 바로가기를 추가합니다.</p>
-            <p>자주 쓰는 결재 순서를 변경해보세요. 최대 10개까지 지정 가능하며, 기본은 사용량이 많은 결재양식 순으로 반영됩니다.</p>
           </div>
-          <div className={styles.searchBar}>
-            <input 
-              type="text" 
-              placeholder="양식명을 검색하세요"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className={styles.templateList}>
-            {filteredTemplates.map(template => (
-              <div key={template.id} className={styles.templateItem}>
-                <label>
-                  <input 
-                    type="checkbox" 
-                    checked={selected.includes(template.id)}
-                    onChange={() => handleSelect(template.id)}
-                  />
-                  {template.title}
-                </label>
+          <div className={styles.mainContainer}>
+            <aside className={styles.sidebar}>
+              <ul className={styles.categoryList}>
+                <li 
+                  className={!selectedCategory ? styles.active : ''}
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  전체
+                </li>
+                {categories.map(cat => (
+                  <li 
+                    key={cat.id}
+                    className={selectedCategory === cat.id ? styles.active : ''}
+                    onClick={() => setSelectedCategory(cat.id)}
+                  >
+                    {cat.categoryName}
+                  </li>
+                ))}
+              </ul>
+            </aside>
+            <main className={styles.templateSelection}>
+              <div className={styles.searchBar}>
+                <input 
+                  type="text" 
+                  placeholder="양식명을 검색하세요"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-            ))}
+              <div className={styles.templateList}>
+                {filteredTemplates.map(template => (
+                  <div key={template.templateId} className={styles.templateItem}>
+                    <label>
+                      <input 
+                        type="checkbox" 
+                        checked={selected.includes(template.templateId)}
+                        onChange={() => handleSelect(template.templateId)}
+                      />
+                      {template.template.title}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </main>
           </div>
         </div>
         <div className={styles.modalFooter}>

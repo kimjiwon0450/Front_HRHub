@@ -44,7 +44,7 @@ const AppRouter = () => {
   return (
     <Routes>
       <Route path='/' element={<Login />} />
-      <Route element={<MainLayout />}>
+      <Route element={<MainLayout />}>       
         <Route path='/dashboard' element={<HRPage />} />
         <Route path='/hr' element={<EmployeeList />} />
         <Route path='/hr/employee-list' element={<EmployeeList />} />
@@ -75,6 +75,8 @@ const AppRouter = () => {
           
           <Route element={<AdminRoute />}>
             <Route path='admin/templates' element={<TemplateAdminPage />} />
+            <Route path='admin/templates/new' element={<TemplateForm />} />
+            <Route path='admin/templates/edit/:templateId' element={<TemplateForm />} />
           </Route>
         </Route>
 

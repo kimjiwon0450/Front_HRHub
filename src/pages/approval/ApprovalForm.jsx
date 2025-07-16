@@ -195,6 +195,13 @@ const ApprovalForm = () => {
             onChange={(e) => handleFormDataChange(field.header, e.target.value)}
           ></textarea>
         );
+      case 'editor':
+        return (
+          <SimpleWysiwygEditor
+            value={templateFormData[field.header] || ''}
+            onChange={(value) => handleFormDataChange(field.header, value)}
+          />
+        );
       default:
         return <p>지원하지 않는 필드 타입입니다: {field.type}</p>;
     }
