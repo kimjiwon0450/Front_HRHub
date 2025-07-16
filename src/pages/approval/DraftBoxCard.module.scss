@@ -6,7 +6,9 @@
   border: 1px solid #e9ecef;
   border-radius: 8px;
   cursor: pointer;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
   width: 100%;
 
   &:hover {
@@ -52,8 +54,36 @@
 .card-info {
   font-size: 13px;
   color: #888;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.card-info span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  display: inline-block;
+}
+
+@media (max-width: 700px) {
+  .center-section {
+    padding: 0 8px;
+  }
+  .card-title,
+  .card-info {
+    max-width: 100%;
+  }
+  .card-title {
+    font-size: 15px;
+  }
+  .card-info span {
+    max-width: 60px;
+  }
 }
 
 .right-section {
   flex-shrink: 0;
-} 
+}

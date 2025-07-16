@@ -140,26 +140,26 @@
 }
 
 .adminSettingsBtn {
-    width: 100%;
-    padding: 12px 15px;
-    margin: 10px 0 20px 0;
-    border-radius: 6px;
-    background-color: #6c757d; // A neutral, admin-like color
-    color: white;
-    font-size: 1rem;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background-color 0.2s;
+  width: 100%;
+  padding: 12px 15px;
+  margin: 10px 0 20px 0;
+  border-radius: 6px;
+  background-color: #6c757d; // A neutral, admin-like color
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s;
 
-    &:hover {
-        background-color: #5a6268;
-    }
+  &:hover {
+    background-color: #5a6268;
+  }
 }
 
 .menuGroup {
@@ -177,7 +177,7 @@
 .menuList {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 0 20px 0; // Add bottom margin to separate from the button
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -190,7 +190,9 @@
   text-decoration: none;
   border-radius: 6px;
   font-weight: 500;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 
   &:hover {
     background-color: #e9ecef;
