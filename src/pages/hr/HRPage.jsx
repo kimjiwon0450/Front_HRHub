@@ -16,6 +16,7 @@ import CalendarWidget from './CalendarWidget';
 import NoticeList from './NoticeList';
 import EmployeeEdit from './EmployeeEdit'; // EmployeeEdit 컴포넌트 임포트
 import Weather from './Weather';
+import ChatbotCard from './ChatbotCard';
 
 export default function HRPage() {
   const navigate = useNavigate();
@@ -309,7 +310,10 @@ export default function HRPage() {
     <div className='hrpage-root'>
       {/* <HRHeader /> */}
       {/* 유저 카드 + 검색/달력 */}
-      <div className='hr-top'>
+      <div
+        className='hr-top'
+        style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}
+      >
         <UserCard
           userName={userName}
           userPosition={userPosition}
@@ -317,18 +321,21 @@ export default function HRPage() {
           profileImageUri={profileImageUri}
           onEditProfile={() => setShowEdit(true)} // 수정 버튼 클릭 시 토글
         />
-        <div className='hr-tools'>
-          <CalendarWidget
-            calendarDate={calendarDate}
-            setCalendarDate={setCalendarDate}
-            today={today}
-            calendarMatrix={calendarMatrix}
-            monthNames={monthNames}
-            handlePrevMonth={handlePrevMonth}
-            handleNextMonth={handleNextMonth}
-            year={year}
-            month={month}
-          />
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+          <div className='hr-tools'>
+            <CalendarWidget
+              calendarDate={calendarDate}
+              setCalendarDate={setCalendarDate}
+              today={today}
+              calendarMatrix={calendarMatrix}
+              monthNames={monthNames}
+              handlePrevMonth={handlePrevMonth}
+              handleNextMonth={handleNextMonth}
+              year={year}
+              month={month}
+            />
+          </div>
+          <ChatbotCard />
         </div>
       </div>
       {/* 메인 카드 섹션 */}
