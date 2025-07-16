@@ -15,6 +15,7 @@ import UserCard from './UserCard';
 import CalendarWidget from './CalendarWidget';
 import NoticeList from './NoticeList';
 import EmployeeEdit from './EmployeeEdit'; // EmployeeEdit 컴포넌트 임포트
+import Weather from './Weather';
 
 export default function HRPage() {
   const navigate = useNavigate();
@@ -479,15 +480,9 @@ export default function HRPage() {
             </div>
             <EmployeeOfMonthCarousel />
           </div>
-          {/* 자주 방문하는 메뉴 */}
-          <div className='hr-card hr-tab-card'>
-            <div className='tabs'>
-              <button className='active'>자주 방문하는 메뉴</button>
-              <div className='menu-icon'>≡</div>
-            </div>
-            <div className='visit-link'>
-              <span className='icon-book'></span> 교육과정관리
-            </div>
+          {/* 날씨 위젯 */}
+          <div className='hr-card'>
+            <Weather />
           </div>
         </div>
       </div>
