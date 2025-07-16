@@ -6,6 +6,7 @@ import {
 } from '../../configs/host-config';
 import { UserContext } from '../../context/UserContext';
 import './NoticeBoardDetail.scss';
+import CommentSection from './CommentSection';
 
 const NoticeBoardDetail = () => {
     const { id } = useParams();
@@ -13,9 +14,14 @@ const NoticeBoardDetail = () => {
     const [loading, setLoading] = useState(true);
     const [isAuthor, setIsAuthor] = useState(false); // ✅ 상태값으로 분리
     const [attachments, setAttachments] = useState([]);
-    
 
-    const { accessToken, userId, isInit } = useContext(UserContext);
+    // ✅ 댓글 관련 상태
+    const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState('');
+    const [editCommentId, setEditCommentId] = useState(null);
+    const [editContent, setEditContent] = useState('');
+
+    const { accessToken, userId, isInit, userName } = useContext(UserContext);
     const navigate = useNavigate();
 
     const handleDelete = async () => {
@@ -72,7 +78,7 @@ const NoticeBoardDetail = () => {
     const handleDownloadClick = async (url) => {
         const fileName = url.split('/').pop();
         const presignedUrl = await getDownloadUrl(fileName);
-        console.log('다운로드 fileName : ',fileName);
+        console.log('다운로드 fileName : ', fileName);
         if (!presignedUrl) {
             alert('파일 다운로드 URL 생성에 실패했습니다.');
             return;
@@ -93,6 +99,86 @@ const NoticeBoardDetail = () => {
         } catch (error) {
             alert('파일 다운로드에 실패했습니다.');
             console.error(error);
+        }
+    };
+
+    const fetchComments = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments`, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            const data = await res.json();
+            setComments(data);
+        } catch (err) {
+            console.error('댓글 불러오기 실패:', err);
+        }
+    };
+
+    // 댓글 작성
+    const handleAddComment = async () => {
+        if (!newComment.trim()) return;
+
+        try {
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({
+                    content: newComment,
+                    writerId: `${userId}`,
+                    writerName: `${userName}`
+                })
+            });
+
+            if (!res.ok) throw new Error('댓글 작성 실패');
+
+            setNewComment('');
+            fetchComments(); // 목록 갱신
+        } catch (err) {
+            console.error(err);
+            alert('댓글 작성 중 오류 발생');
+        }
+    };
+
+    // 댓글 삭제
+    const handleDeleteComment = async (commentId) => {
+        if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
+
+        try {
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+
+            if (!res.ok) throw new Error('댓글 삭제 실패');
+            fetchComments();
+        } catch (err) {
+            console.error(err);
+            alert('댓글 삭제 중 오류 발생');
+        }
+    };
+
+    // 댓글 수정
+    const handleEditComment = async (commentId) => {
+        try {
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments/${commentId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ content: editContent })
+            });
+
+            if (!res.ok) throw new Error('댓글 수정 실패');
+            setEditCommentId(null);
+            setEditContent('');
+            fetchComments();
+        } catch (err) {
+            console.error(err);
+            alert('댓글 수정 중 오류 발생');
         }
     };
 
@@ -142,6 +228,8 @@ const NoticeBoardDetail = () => {
                         'Authorization': `Bearer ${accessToken}`
                     }
                 });
+
+                fetchComments(); // ✅ 댓글 불러오기
             } catch (err) {
                 console.error('상세글 조회 실패 또는 읽음 처리 실패:', err);
             } finally {
@@ -183,23 +271,22 @@ const NoticeBoardDetail = () => {
                 {attachments.length > 0 && (
                     <div className="attachment-link">
                         {attachments.map((url, idx) => (
-                        <div key={idx} >
-                            <a
-                                href="#!"
-                                onClick={() => handleDownloadClick(url)}
-                                rel="noopener noreferrer"
-                            >
-                            📎 {url.split('/').pop()}
-                            </a>
-                        </div>
+                            <div key={idx} >
+                                <a
+                                    href="#!"
+                                    onClick={() => handleDownloadClick(url)}
+                                    rel="noopener noreferrer"
+                                >
+                                    📎 {url.split('/').pop()}
+                                </a>
+                            </div>
                         ))}
                     </div>
-                    )
+                )
                 }
             </div>
             <hr />
             <div className="content">{posts.content}</div>
-
             <hr />
 
             {/* ✅ 첨부파일 미리보기 */}
@@ -213,12 +300,12 @@ const NoticeBoardDetail = () => {
                                     alt={`attachment-${idx}`}
                                     style={{ maxWidth: '100%', borderRadius: '8px' }}
                                 />
-                                
-                                ) : (
+
+                            ) : (
                                 <a href="#!" onClick={() => forceDownload(url, url.split('/').pop())}>
                                     📎 파일 다운로드 {url.split('/').pop()}
                                 </a>
-                                )
+                            )
                             }
                         </div>
                     ))}
@@ -231,6 +318,51 @@ const NoticeBoardDetail = () => {
                     <button onClick={handleDelete}>삭제</button>
                 </div>
             )}
+
+            {/* ✅ 댓글 영역 시작 */}
+            <div className="comment-section">
+                <h3>댓글</h3>
+                <div className="comment-input">
+                    <textarea
+                        placeholder="댓글을 입력하세요..."
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                    />
+                    <button onClick={handleAddComment}>등록</button>
+                </div>
+
+                <div className="comment-list">
+                    {comments.length === 0 && <p>아직 댓글이 없습니다.</p>}
+                    {comments.map((comment) => (
+                        <div key={comment.id} className="comment-item">
+                            <p><strong>{comment.writerName}</strong> • {comment.createdAt?.substring(0, 10)}</p>
+                            {editCommentId === comment.id ? (
+                                <>
+                                    <textarea
+                                        value={editContent}
+                                        onChange={(e) => setEditContent(e.target.value)}
+                                    />
+                                    <button onClick={() => handleEditComment(comment.id)}>저장</button>
+                                    <button onClick={() => setEditCommentId(null)}>취소</button>
+                                </>
+                            ) : (
+                                <>
+                                    <p>{comment.content}</p>
+                                    {String(userId) === String(posts.employeeId) || comment.writerName === userName ? (
+                                        <div className="comment-buttons">
+                                            <button onClick={() => {
+                                                setEditCommentId(comment.id);
+                                                setEditContent(comment.content);
+                                            }}>수정</button>
+                                            <button onClick={() => handleDeleteComment(comment.id)}>삭제</button>
+                                        </div>
+                                    ) : null}
+                                </>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
 
             <div className="buttons">
                 <button onClick={handleBack}>뒤로가기</button>
