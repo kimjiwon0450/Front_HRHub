@@ -24,6 +24,91 @@
   padding: 20px;
   overflow-y: auto;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+  .fieldSection {
+    margin-bottom: 30px;
+
+    .draggableField {
+      margin-bottom: 10px;
+    }
+
+    .fieldItem {
+      background-color: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: grab;
+
+      &:hover {
+        border-color: #1890ff;
+      }
+    }
+
+    .fieldHeader {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .fieldName {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .fieldDesc {
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .fieldControls {
+      display: flex;
+      gap: 10px;
+
+      .controlButton {
+        background: none;
+        border: 1px solid #d9d9d9;
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+
+        &:hover {
+          background-color: #f5f5f5;
+          border-color: #1890ff;
+          color: #1890ff;
+        }
+
+        &.danger {
+          &:hover {
+            border-color: #ff4d4f;
+            color: #ff4d4f;
+          }
+        }
+      }
+    }
+
+    .addButton {
+      width: 100%;
+      padding: 12px;
+      background-color: #f7f7f7;
+      border: 1px dashed #d9d9d9;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #555;
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: #e6f7ff;
+        border-color: #1890ff;
+        color: #1890ff;
+      }
+    }
+  }
 }
 
 /* 우측 패널 (설정 및 라이브러리) */

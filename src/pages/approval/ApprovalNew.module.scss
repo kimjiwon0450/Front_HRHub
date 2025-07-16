@@ -19,33 +19,43 @@
 }
 
 .formGroup {
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    font-weight: 500;
+    color: #444;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #dcdcdc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
 }
 
-.formGroup label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
+.periodContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 
-.formGroup input[type='text'],
-.formGroup input[type='date'],
-.formGroup textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
-  box-sizing: border-box; /* Ensures padding doesn't affect width */
-}
+  input {
+    flex: 1;
+  }
 
-.formGroup textarea {
-  resize: vertical;
+  span {
+    font-size: 14px;
+    color: #888;
+  }
 }
 
 .required {
-  color: #d9534f;
-  margin-left: 0.25rem;
+  color: #ff4d4f;
+  margin-left: 4px;
 }
 
 .debugSection {
@@ -125,16 +135,109 @@
 }
 
 .draftButton {
-  background-color: #f0f0f0;
-  color: #333;
-  border: 1px solid #ccc;
-
-  &:hover:not(:disabled) {
-    background-color: #e0e0e0;
+  @extend .submitButton; // 기본 스타일 상속
+  background-color: #6c757d; // 회색 계열
+  
+  &:hover {
+    background-color: #5a6268;
   }
+}
 
-  &:disabled {
-    background-color: #f5f5f5;
-    cursor: not-allowed;
+.cancelButton {
+  @extend .submitButton;
+  background-color: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+
+  &:hover {
+    background-color: #e9ecef;
+  }
+}
+
+.approvalFormTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-family: 'Malgun Gothic', sans-serif;
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: middle;
+  }
+  
+  th {
+    width: 120px;
+    background-color: #f7f7f7;
+    font-weight: bold;
+  }
+  
+  td {
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    textarea {
+      width: 98%;
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .periodContainer {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        input {
+            width: 150px;
+        }
+    }
+  }
+}
+
+.section {
+    margin-top: 2rem;
+    h3 {
+        font-size: 18px;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #333;
+    }
+} 
+
+.actionButton {
+  margin-left: 10px;
+}
+
+.fileList {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fileTag {
+  background-color: #e9ecef;
+  border-radius: 4px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  font-size: 0.9em;
+}
+
+.removeTagButton {
+  background: none;
+  border: none;
+  color: #868e96;
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 1.2em;
+  line-height: 1;
+  padding: 0;
+
+  &:hover {
+    color: #343a40;
   }
 } 

@@ -44,7 +44,7 @@ const FrequentTemplatesModal = ({ onClose, onSave }) => {
 
     // 1. 카테고리 필터
     if (selectedCategory) {
-      templates = templates.filter(t => t.category && t.category.id === selectedCategory);
+      templates = templates.filter(t => t.categoryId === selectedCategory);
     }
 
     // 2. 검색어 필터

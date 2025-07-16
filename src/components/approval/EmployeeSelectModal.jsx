@@ -195,7 +195,14 @@ const EmployeeSelectModal = ({
         <div className={styles.buttonGroup}>
           <button
             onClick={() => {
-              onSelect(selected);
+              // 선택된 직원 배열을 서버가 기대하는 형태로 변환
+              const transformedSelection = selected.map((emp, index) => ({
+                ...emp,
+                employeeId: emp.id,           // id → employeeId
+                approvalContext: index + 1,   // 결재 순서 부여
+              }));
+
+              onSelect(transformedSelection); // 변환된 배열 전달
               onClose();
             }}
             className={styles.confirmButton}
