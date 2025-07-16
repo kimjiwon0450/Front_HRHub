@@ -57,17 +57,15 @@ const AppRouter = () => {
         <Route path='/approval' element={<ApprovalPage />}>
           <Route index element={<Navigate to='home' replace />} />
           <Route path='home' element={<ApprovalHome />} />
-          <Route path='new' element={<ApprovalForm />} />
-          <Route path='reports/new/:templateId' element={<ApprovalNew />} />
+          <Route path='new' element={<ApprovalNew />} /> {/* 새 문서 작성 */}
+          <Route path='reports/new/:templateId' element={<ApprovalNew />} /> {/* 템플릿 기반 새 문서 작성 */}
+          <Route path='edit/:reportId' element={<ApprovalNew />} /> {/* 임시 저장 문서 수정 */}
           <Route path='drafts' element={<DraftBoxList />} />
           <Route path='in-progress' element={<MyReportsList />} />
           <Route path='completed' element={<CompletedBox />} />
           <Route path='cc' element={<CcBox />} />
           <Route path='pending' element={<ApprovalPendingList />} />
           <Route path='reports/:reportId' element={<ApprovalDetail />} />
-          <Route path='form' element={<ApprovalForm />} />
-          <Route path='form/:reportId' element={<ApprovalForm />} />
-          <Route path='edit/:reportId' element={<ApprovalForm />} />
           <Route path='templates/list' element={<TemplateList />} />
           <Route path='templates/form' element={<TemplateForm />} />
           <Route path='templates/form/:templateId' element={<TemplateForm />} />

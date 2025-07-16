@@ -5,8 +5,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import styles from './TemplateForm.module.scss';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import QuillEditor from '../../components/editor/QuillEditor'; // 새로 만든 에디터 컴포넌트 import
 import CustomFieldModal from '../../components/approval/CustomFieldModal';
 import InfoChangeModal from '../../components/approval/InfoChangeModal';
 import AddFieldModal from '../../components/approval/AddFieldModal';
@@ -63,7 +62,7 @@ const TemplateForm = () => {
   const navigate = useNavigate();
   const { templateId } = useParams();
   const isEditMode = !!templateId;
-
+  
   // --- Right Pane State ---
   const [useEditor, setUseEditor] = useState('Y');
   const [requireAttachment, setRequireAttachment] = useState('N');
@@ -98,7 +97,7 @@ const TemplateForm = () => {
     setEditorContent('');
 
     const fetchCategories = async () => {
-        try {
+      try {
             const catRes = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/category`);
             const categoriesData = (catRes?.data?.result && Array.isArray(catRes.data.result)) ? catRes.data.result : [];
             setCategories(categoriesData);
@@ -142,9 +141,9 @@ const TemplateForm = () => {
     const initializeForm = async () => {
         const categoriesData = await fetchCategories();
         
-        if (isEditMode) {
+      if (isEditMode) {
             await fetchTemplateData(templateId);
-        } else {
+      } else {
             if (categoriesData.length > 0) {
                 setCategoryId(categoriesData[0].id);
             }
@@ -278,31 +277,17 @@ const TemplateForm = () => {
       <div className={styles.fieldSection}>
         <h3 className={styles.sectionTitle}>등록된 입력 정보 (기본 결재 필드)</h3>
         {defaultFields.map(field => (
-          <div key={field.id} className={`${styles.fieldItem} ${!field.enabled && styles.disabled}`}>
+          <div key={field.id} className={`${styles.fieldItem}`}>
             <div className={styles.fieldHeader}>
                 <span className={styles.fieldName}>{field.name}</span>
                 <span className={styles.fieldDesc}>{field.desc}</span>
-            </div>
+          </div>
             <div className={styles.fieldControls}>
                 <button className={styles.controlButton} onClick={() => handleOpenInfoChangeModal(field)}>정보변경</button>
-                <div className={styles.toggleGroup}>
-                    <span>필수정보</span>
-                    <label className={styles.switch}>
-                        <input type="checkbox" checked={field.required} onChange={e => handleDefaultFieldChange(field.id, 'required', e.target.checked)} />
-                        <span className={styles.slider}></span>
-                    </label>
-                </div>
-                 <div className={styles.toggleGroup}>
-                    <span>필드활성화</span>
-                    <label className={styles.switch}>
-                        <input type="checkbox" checked={field.enabled} onChange={e => handleDefaultFieldChange(field.id, 'enabled', e.target.checked)} />
-                        <span className={styles.slider}></span>
-                    </label>
-                </div>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
       {/* B. Custom Fields */}
        <div className={styles.fieldSection}>
@@ -311,31 +296,33 @@ const TemplateForm = () => {
             {customFields.map((field, index) => (
                <DraggableField key={field.id} index={index} field={field} moveField={moveCustomField}>
                 <div className={styles.fieldItem}>
-                    {/* ... similar structure to default fields ... */}
                     <div className={styles.fieldHeader}>
                         <span className={styles.fieldName}>{field.header}</span>
                         <span className={styles.fieldDesc}>{field.description}</span>
-                    </div>
+        </div>
                      <div className={styles.fieldControls}>
                         <button className={styles.controlButton} onClick={() => handleOpenCustomFieldModal(field)}>수정</button>
                         <button className={`${styles.controlButton} ${styles.danger}`} onClick={() => removeCustomField(field.id)}>삭제</button>
-                         {/* ... toggles ... */}
-                    </div>
+                  </div>
                 </div>
               </DraggableField>
             ))}
           </DndProvider>
           <button className={styles.addButton} onClick={handleOpenAddFieldModal}>+ 입력정보 추가</button>
-      </div>
+                  </div>
 
       {/* C. WYSIWYG Editor */}
       {useEditor === 'Y' && (
         <div className={styles.fieldSection}>
           <h3 className={styles.sectionTitle}>본문</h3>
-          <CKEditor editor={ClassicEditor} data={editorContent} onChange={(e, editor) => setEditorContent(editor.getData())} />
-        </div>
+          <QuillEditor 
+            value={editorContent} 
+            onChange={setEditorContent} 
+            placeholder="양식의 기본 내용을 입력하세요..."
+          />
+                  </div>
       )}
-    </div>
+                </div>
   );
 
   const renderRightPane = () => (
@@ -343,28 +330,21 @@ const TemplateForm = () => {
         {/* A. Basic Settings */}
         <div className={styles.settingSection}>
             <h3 className={styles.sectionTitle}>양식 기초 정보</h3>
-            <div className={styles.formGroup}>
-                <label>양식 사용여부</label> {/* This is for UI only, won't be sent */}
-                <div>
-                    <input type="radio" id="usage_y" name="usage" value="Y" defaultChecked /><label htmlFor="usage_y">사용</label>
-                    <input type="radio" id="usage_n" name="usage" value="N" /><label htmlFor="usage_n">미사용</label>
-                </div>
-            </div>
-             <div className={styles.formGroup}>
+                 <div className={styles.formGroup}>
                 <label>Editor 사용여부</label>
                 <div>
                     <input type="radio" id="editor_y" name="editor" value="Y" checked={useEditor === 'Y'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_y">사용</label>
                     <input type="radio" id="editor_n" name="editor" value="N" checked={useEditor === 'N'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_n">미사용</label>
                 </div>
-            </div>
-             <div className={styles.formGroup}>
+                </div>
+                <div className={styles.formGroup}>
                 <label>첨부파일 필수</label>
                 <div>
                     <input type="radio" id="attach_y" name="attach" value="Y" checked={requireAttachment === 'Y'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_y">필수</label>
                     <input type="radio" id="attach_n" name="attach" value="N" checked={requireAttachment === 'N'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_n">미필수</label>
                 </div>
-            </div>
-        </div>
+                </div>
+              </div>
 
         {/* B. Form Info */}
         <div className={styles.settingSection}>
@@ -375,10 +355,9 @@ const TemplateForm = () => {
                     <option value="" disabled>카테고리 선택</option>
                     {categories.map(c => <option key={c.id} value={c.id}>{c.categoryName}</option>)}
                 </select>
-            </div>
+              </div>
             <div className={styles.formGroup}><label>양식설명</label><textarea value={description} onChange={e => setDescription(e.target.value)} /></div>
-            <div className={styles.formGroup}><label>양식태그</label><input type="text" placeholder="태그, 로, 구분" value={tags.join(', ')} onChange={e => setTags(e.target.value.split(',').map(t => t.trim()))} /></div>
-        </div>
+                  </div>
         
         {/* C. Component Library */}
         <div className={styles.settingSection}>
@@ -389,11 +368,11 @@ const TemplateForm = () => {
                     {/* Icon can be added here */}
                     <span>{comp.name}</span>
                 </button>
-            ))}
+                ))}
+              </div>
             </div>
-        </div>
-    </div>
-  );
+      </div>
+    );
 
   return (
      <div className={styles.formBuilderPage}>
@@ -402,7 +381,7 @@ const TemplateForm = () => {
           {renderRightPane()}
         </div>
         <div className={styles.footer}>
-            <button className={styles.cancelButton} onClick={() => navigate('/approval/admin/templates')}>취소</button>
+        <button className={styles.cancelButton} onClick={() => navigate('/approval/admin/templates')}>취소</button>
             <button className={styles.saveButton} onClick={handleSave}>저장</button>
         </div>
         <CustomFieldModal 
@@ -422,7 +401,7 @@ const TemplateForm = () => {
           onClose={() => setIsAddFieldModalOpen(false)}
           onSelect={handleAddFieldSelection}
         />
-     </div>
+    </div>
   );
 };
 

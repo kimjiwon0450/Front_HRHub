@@ -28,31 +28,37 @@ const ApprovalHome = () => {
   useEffect(() => {
     if (!user) return;
 
-    const fetchAllTemplates = async () => {
+    const initialize = async () => {
+      setLoading(true);
+      let serverTemplates = [];
       try {
         const response = await axiosInstance.get(
           `${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`
         );
         if (response.data && Array.isArray(response.data.result)) {
-          setAllTemplates(response.data.result);
-        } else {
-          setAllTemplates([]);
+          serverTemplates = response.data.result;
+          setAllTemplates(serverTemplates);
         }
       } catch (error) {
         console.error("Error fetching all templates:", error);
-        setAllTemplates([]);
       }
+
+      // 로컬 스토리지에서 자주 쓰는 양식 ID 로드
+      const storedIds = JSON.parse(localStorage.getItem('frequentTemplates') || '[]');
+      
+      // 서버에 존재하는 양식 ID만 필터링
+      const serverTemplateIds = new Set(serverTemplates.map(t => t.templateId));
+      const validFrequentIds = storedIds.filter(id => serverTemplateIds.has(id));
+      
+      // 유효한 ID로 상태 및 로컬 스토리지 업데이트
+      setFrequentTemplates(validFrequentIds);
+      localStorage.setItem('frequentTemplates', JSON.stringify(validFrequentIds));
+
+      setSummaryData({ delayed: 5, unchecked: 2, cc: 0, total: 27 }); // 임시 데이터
+      setLoading(false);
     };
 
-    const loadFrequentTemplatesFromStorage = () => {
-      const stored = localStorage.getItem('frequentTemplates');
-      setFrequentTemplates(stored ? JSON.parse(stored) : []);
-    };
-
-    fetchAllTemplates();
-    loadFrequentTemplatesFromStorage(); // localStorage에서 데이터 로드
-    setSummaryData({ delayed: 5, unchecked: 2, cc: 0, total: 27 }); // 임시 데이터
-    setLoading(false);
+    initialize();
   }, [user]);
 
   const handleSaveTemplates = (selectedTemplateIds) => {
@@ -60,10 +66,17 @@ const ApprovalHome = () => {
     setFrequentTemplates(selectedTemplateIds);
     console.log('localStorage에 저장된 템플릿 ID:', selectedTemplateIds);
   };
+
+  const handleRemoveFrequentTemplate = (e, templateIdToRemove) => {
+    e.stopPropagation(); // 부모 요소(카드)의 navigate onClick 이벤트를 막습니다.
+    const updatedIds = frequentTemplates.filter(id => id !== templateIdToRemove);
+    setFrequentTemplates(updatedIds);
+    localStorage.setItem('frequentTemplates', JSON.stringify(updatedIds));
+  };
   
   const getTemplateTitle = (templateId) => {
-    const template = allTemplates.find(t => t.id === templateId);
-    return template ? template.title : '알 수 없는 양식';
+    const template = allTemplates.find(t => t.templateId === templateId);
+    return template ? template.template.title : '알 수 없는 양식';
   };
 
   return (
@@ -84,7 +97,13 @@ const ApprovalHome = () => {
         {frequentTemplates.length > 0 ? (
           <div className={styles.templatesGrid}>
             {frequentTemplates.map(templateId => (
-              <div key={templateId} className={styles.templateCard} onClick={() => navigate(`/approval/new?templateId=${templateId}`)}>
+              <div key={templateId} className={styles.templateCard} onClick={() => navigate(`/approval/reports/new/${templateId}`)}>
+                <button 
+                  className={styles.removeButton} 
+                  onClick={(e) => handleRemoveFrequentTemplate(e, templateId)}
+                >
+                  &times;
+                </button>
                 <img src={templateIcon} alt="양식" />
                 <span>{getTemplateTitle(templateId)}</span>
               </div>

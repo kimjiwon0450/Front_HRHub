@@ -11,12 +11,12 @@ import DraftBoxCard from './DraftBoxCard';
  * - ... 등 필요한 필드 매핑
  */
 const CcBoxCard = ({ doc }) => {
-  // DraftBoxCard가 기대하는 데이터 구조로 변환
+
   const adaptedDraft = {
     ...doc,
-    approvalLines: doc.approvalLine || [], // 백엔드 응답에 없으므로, 빈 배열로 안전하게 처리
-    createdAt: doc.reportCreatedAt, // 'reportCreatedAt'을 'createdAt'으로 매핑
-    writer: { name: doc.name },       // 'name'을 'writer.name' 구조로 매핑
+    // id: doc.reportId, 
+    approvalLines: doc.approvalLine, 
+    createdAt: doc.submittedAt,     
   };
 
   return <DraftBoxCard draft={adaptedDraft} />;

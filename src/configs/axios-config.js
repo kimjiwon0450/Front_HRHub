@@ -2,11 +2,7 @@ import axios from 'axios';
 import { HR_SERVICE } from './host-config';
 import { removeLocalStorageForLogout } from '../common/common';
 
-const axiosInstance = axios.create({
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+const axiosInstance = axios.create({});
 
 // 요청용 인터셉터
 // 1번째 콜백에는 정상 동작 로직, 2번째 콜백에는 과정 중 에러 발생 시 실행할 함수
@@ -17,6 +13,11 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Content-Type 조건부 설정
+    if (!(config.data instanceof FormData)) {
+      config.headers['Content-Type'] = 'application/json';
+    }
+    // FormData일 때는 Content-Type을 건드리지 않음
     return config;
   },
 
