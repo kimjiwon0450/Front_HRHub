@@ -221,3 +221,51 @@ $border: #eceff3;
     min-width: 18px;
   }
 }
+
+// 챗봇 플로팅 버튼
+.chatbot-fab {
+  position: fixed;
+  right: 2.5rem;
+  bottom: 2.5rem;
+  z-index: 1000;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #2b80ff;
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 16px rgba(30, 65, 112, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.chatbot-fab:hover {
+  background: #1d5bbf;
+}
+
+// 챗봇 팝업 위치
+.chatbot-popup {
+  position: fixed;
+  right: 2.5rem;
+  bottom: 6.5rem;
+  z-index: 1001;
+  box-shadow: 0 8px 32px rgba(30, 65, 112, 0.18);
+}
+
+@media (max-width: 600px) {
+  .chatbot-fab {
+    right: 1rem;
+    bottom: 1rem;
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+  }
+  .chatbot-popup {
+    right: 1rem;
+    bottom: 5.5rem;
+    max-width: 95vw;
+  }
+}

@@ -16,7 +16,6 @@ import CalendarWidget from './CalendarWidget';
 import NoticeList from './NoticeList';
 import EmployeeEdit from './EmployeeEdit'; // EmployeeEdit 컴포넌트 임포트
 import Weather from './Weather';
-import ChatbotCard from './ChatbotCard';
 import ApprovalRequestTabs from '../../components/approval/ApprovalRequestTabs';
 
 export default function HRPage() {
@@ -358,7 +357,6 @@ export default function HRPage() {
               month={month}
             />
           </div>
-          <ChatbotCard />
         </div>
       </div>
       {/* 메인 카드 섹션 */}
