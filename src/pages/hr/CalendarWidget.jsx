@@ -12,66 +12,52 @@ export default function CalendarWidget({
   month,
 }) {
   return (
-    <div className='calendar-mock'>
-      <div className='calendar-title'>
-        <button
-          style={{
-            border: 'none',
-            background: 'none',
-            fontSize: '1.1em',
-            cursor: 'pointer',
-          }}
-          onClick={handlePrevMonth}
-        >
+    <div className='calendar-mock calendar-horizontal'>
+      <div className='calendar-title calendar-title-horizontal'>
+        <button className='calendar-nav-btn' onClick={handlePrevMonth}>
           &lt;
         </button>
-        {monthNames[month]} {year}
-        <button
-          style={{
-            border: 'none',
-            background: 'none',
-            fontSize: '1.1em',
-            cursor: 'pointer',
-          }}
-          onClick={handleNextMonth}
-        >
+        <span className='calendar-month-label'>
+          {monthNames[month]} {year}
+        </span>
+        <button className='calendar-nav-btn' onClick={handleNextMonth}>
           &gt;
         </button>
       </div>
-      <table>
+      <table className='calendar-table-horizontal'>
         <thead>
           <tr>
-            <th>Mo</th>
+            <th className='calendar-th-mo'>Mo</th>
             <th>Tu</th>
             <th>We</th>
             <th>Th</th>
             <th>Fr</th>
-            <th>Sa</th>
-            <th>Su</th>
+            <th className='calendar-th-sa'>Sa</th>
+            <th className='calendar-th-su'>Su</th>
           </tr>
         </thead>
         <tbody>
           {calendarMatrix.map((row, i) => (
             <tr key={i}>
-              {row.map((date, j) => (
-                <td
-                  key={j}
-                  style={
-                    date &&
-                    today.getFullYear() === year &&
-                    today.getMonth() === month &&
-                    today.getDate() === date
-                      ? {
-                          background: '#2b80ff',
-                          color: '#fff',
-                          borderRadius: '50%',
-                        }
-                      : undefined
-                  }
-                >
-                  {date || ''}
-                </td>
-              ))}
+              {row.map((date, j) => {
+                const isToday =
+                  date &&
+                  today.getFullYear() === year &&
+                  today.getMonth() === month &&
+                  today.getDate() === date;
+                return (
+                  <td
+                    key={j}
+                    className={
+                      (isToday ? 'calendar-today ' : '') +
+                      (j === 5 ? 'calendar-sa ' : '') +
+                      (j === 6 ? 'calendar-su ' : '')
+                    }
+                  >
+                    {date || ''}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
