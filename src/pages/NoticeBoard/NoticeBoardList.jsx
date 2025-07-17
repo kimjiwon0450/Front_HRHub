@@ -265,7 +265,7 @@ const NoticeBoardList = () => {
                                         className={post.notice ? 'bold-row' : ''}
                                     >
                                         <td>{post.id}</td>
-                                        <td>{post.attachmentUri && post.attachmentUri.length > 0 ? '📎' : ''}</td>
+                                        <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri != '[]' ? '📎' : ''}</td>
                                         <td>{post.title}</td>
                                         <td>
                                             {post.employStatus === 'INACTIVE' ? (

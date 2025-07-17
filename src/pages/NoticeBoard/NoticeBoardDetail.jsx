@@ -4,6 +4,8 @@ import {
     API_BASE_URL,
     NOTICE_SERVICE
 } from '../../configs/host-config';
+import Swal from 'sweetalert2';
+import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
 import './NoticeBoardDetail.scss';
 import CommentSection from './CommentSection';
@@ -24,26 +26,35 @@ const NoticeBoardDetail = () => {
     const { accessToken, userId, isInit, userName } = useContext(UserContext);
     const navigate = useNavigate();
 
-    const handleDelete = async () => {
-        if (!window.confirm('정말 삭제하시겠습니까?')) return;
-
-        try {
-            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
+    const handleDelete = () => {
+        Swal.fire({
+            title: '게시글을 삭제하시겠어요?',
+            text: '삭제된 게시글은 복구할 수 없습니다.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '삭제',
+            cancelButtonText: '취소',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            reverseButtons: true,
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await axios.delete(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    });
+                    Swal.fire('삭제 완료!', '게시글이 삭제되었습니다.', 'success');
+                    navigate('/noticeboard');
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire('오류 발생', '삭제 중 오류가 발생했습니다.', 'error');
                 }
-            });
-
-            if (!res.ok) throw new Error('삭제 실패');
-
-            alert('삭제 완료');
-            navigate('/noticeboard');
-        } catch (err) {
-            console.error('삭제 실패:', err);
-            alert('삭제 중 오류 발생');
-        }
+            }
+        });
     };
+
 
     const handleEdit = () => {
         navigate(`/noticeboard/edit/${id}`);
@@ -80,7 +91,12 @@ const NoticeBoardDetail = () => {
         const presignedUrl = await getDownloadUrl(fileName);
         console.log('다운로드 fileName : ', fileName);
         if (!presignedUrl) {
-            alert('파일 다운로드 URL 생성에 실패했습니다.');
+            Swal.fire({
+                title: '에러',
+                text: '파일 다운로드에 실패했습니다.',
+                icon: 'error',
+                confirmButtonText: '확인',
+            });
             return;
         }
 
@@ -144,20 +160,36 @@ const NoticeBoardDetail = () => {
 
     // 댓글 삭제
     const handleDeleteComment = async (commentId) => {
-        if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
-
-        try {
-            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments/${commentId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${accessToken}` }
-            });
-
-            if (!res.ok) throw new Error('댓글 삭제 실패');
-            fetchComments();
-        } catch (err) {
-            console.error(err);
-            alert('댓글 삭제 중 오류 발생');
-        }
+        Swal.fire({
+            title: '댓글을 삭제하시겠어요?',
+            // text: '삭제된 게시글은 복구할 수 없습니다.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '삭제',
+            cancelButtonText: '취소',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            reverseButtons: true,
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments/${commentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                        },
+                    });
+                    // Swal.fire('삭제 완료!', '댓글이 삭제되었습니다.', 'success');
+                    Swal.fire('삭제 완료!', '댓글이 삭제되었습니다.', 'success').then(() => {
+                        window.location.reload(); // 또는 window.location.href = `/noticeboard/${id}`;
+                    });
+                    // navigate(`/noticeboard/${id}`);
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire('오류 발생', '삭제 중 오류가 발생했습니다.', 'error');
+                }
+            }
+        });
     };
 
     // 댓글 수정
