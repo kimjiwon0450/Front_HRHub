@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import './NoticeBoardWrite.scss';
+import Swal from 'sweetalert2';
 import { UserContext, UserContextProvider } from '../../context/UserContext';
 import { API_BASE_URL, NOTICE_SERVICE, HR_SERVICE } from '../../configs/host-config';
 
@@ -156,29 +157,46 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
             console.log('noticeData : ', noticeData);
 
             if (isEdit) {
-                await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, noticeData, {
+                const response = await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, noticeData, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`
                     },
                 });
-                alert('수정되었습니다!');
+                const { message, type } = response.data;
+                Swal.fire({
+                    title: '알림',
+                    text: message,
+                    icon: type,
+                    confirmButtonText: '확인',
+                });
                 navigate('/noticeboard');
             } else {
-                await axios.post(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/write`, noticeData, {
+                const response = await axios.post(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/write`, noticeData, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`
                     },
                 });
-                alert('저장되었습니다!');
+                const { message, type } = response.data;
+                Swal.fire({
+                    title: '알림',
+                    text: message,
+                    icon: type,
+                    confirmButtonText: '확인',
+                });
                 navigate('/noticeboard');
             }
 
-
         } catch (err) {
             console.error(err);
-            alert('저장 또는 수정에 실패했습니다.');
+            const errorData = err.response?.data;
+            Swal.fire({
+                title: '오류',
+                text: errorData?.message || '처리 중 오류가 발생했습니다.',
+                icon: errorData?.type || 'error',
+                confirmButtonText: '확인',
+            });
         }
     };
 
