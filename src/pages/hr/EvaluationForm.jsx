@@ -115,7 +115,7 @@ export default function EvaluationForm({
           .then((res) =>
             setForm((prev) => ({ ...prev, name: res.data.result })),
           )
-          .catch(() => {});
+          .catch(() => { });
       }
       if (!evaluation.evaluateeDept && evaluation.evaluateeId) {
         axiosInstance
@@ -125,7 +125,7 @@ export default function EvaluationForm({
           .then((res) =>
             setForm((prev) => ({ ...prev, dept: res.data.result })),
           )
-          .catch(() => {});
+          .catch(() => { });
       }
     }
   }, [employee, evaluation]);
@@ -305,7 +305,7 @@ export default function EvaluationForm({
                   className='eval-date-picker'
                   title='달력 선택'
                   tabIndex={-1}
-                  // react-datepicker 사용 중이면 필요 없음
+                // react-datepicker 사용 중이면 필요 없음
                 >
                   🗓️
                 </button>
