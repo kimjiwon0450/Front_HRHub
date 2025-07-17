@@ -11,11 +11,6 @@ const AddFieldModal = ({ isOpen, onClose, onSelect }) => {
         <p className={styles.description}>추가할 정보의 종류를 선택해주세요.</p>
         
         <div className={styles.selectionContainer}>
-          <div className={`${styles.selectionBox} ${styles.disabled}`}>
-            <h3>기본 정보 선택</h3>
-            <p>조직도, 직책, 부서 등 시스템에 미리 정의된 정보를 가져옵니다.</p>
-            <button disabled>선택 (준비중)</button>
-          </div>
           <div className={styles.selectionBox} onClick={() => onSelect('custom')}>
             <h3>사용자 설정 선택</h3>
             <p>텍스트, 숫자, 날짜 등 필요에 맞는 입력 항목을 직접 설정합니다.</p>

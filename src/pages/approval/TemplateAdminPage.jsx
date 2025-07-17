@@ -78,15 +78,8 @@ const TemplateAdminPage = () => {
       try {
         setTemplatesLoading(true);
         const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`);
+        setAllTemplates(res.data?.result || []); 
         
-        // 임시로 status 필드 추가
-        const templatesWithStatus = res.data?.result.map((t, index) => ({
-          ...t,
-          status: index % 2 === 0 ? 'Y' : 'N' // 'Y' for '사용중', 'N' for '미사용'
-        })) || [];
-
-        setAllTemplates(templatesWithStatus);
-
       } catch (err) {
         setTemplatesError('양식 목록을 불러오는 데 실패했습니다.');
         console.error(err);
@@ -223,18 +216,6 @@ const TemplateAdminPage = () => {
             >
               전체
             </button>
-            <button 
-              className={statusFilter === 'ACTIVE' ? styles.active : ''}
-              onClick={() => setStatusFilter('ACTIVE')}
-            >
-              사용중
-            </button>
-            <button 
-              className={statusFilter === 'INACTIVE' ? styles.active : ''}
-              onClick={() => setStatusFilter('INACTIVE')}
-            >
-              미사용
-            </button>
           </div>
           <div className={styles.actions}>
             <button className={styles.addButton} onClick={() => navigate('/approval/templates/form')}>+ 양식 추가하기</button>
@@ -251,9 +232,7 @@ const TemplateAdminPage = () => {
               <div className={styles.templateDetails}>
                 <div className={styles.templateTitle}>
                   {template.template.title}
-                  <span className={`${styles.statusTag} ${template.status === 'Y' ? styles.active : styles.inactive}`}>
-                    {template.status === 'Y' ? '사용중' : '미사용'}
-                  </span>
+
                 </div>
                 <div className={styles.templateDescription}>
                   {template.template.description}
