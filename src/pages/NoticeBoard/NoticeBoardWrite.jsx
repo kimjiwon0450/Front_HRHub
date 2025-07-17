@@ -95,6 +95,26 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
 
 
     const handleSubmit = async () => {
+
+        // ✅ 제목 또는 내용이 비어있을 경우 알림
+        if (!title.trim()) {
+            Swal.fire({
+                icon: 'warning',
+                title: '제목을 입력해주세요.',
+                confirmButtonText: '확인',
+            });
+            return;
+        }
+
+        if (!content.trim()) {
+            Swal.fire({
+                icon: 'warning',
+                title: '내용을 입력해주세요.',
+                confirmButtonText: '확인',
+            });
+            return;
+        }
+
         const uploadedFileUrls = [];
 
         try {
