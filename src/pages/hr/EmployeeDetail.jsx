@@ -8,6 +8,7 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import pin from '../../assets/pin.jpg';
 import { UserContext } from '../../context/UserContext';
+import { succeed, swalConfirm, swalError } from '../../common/common';
 
 export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   const [showEdit, setShowEdit] = useState(false);
@@ -91,19 +92,20 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
 
   // 직원 삭제 함수
   const handleDelete = async () => {
-    if (!window.confirm('정말로 이 직원을 삭제하시겠습니까?')) return;
+    const result = await swalConfirm('정말로 이 직원을 삭제하시겠습니까?');
+    if (result.isDismissed) return;
     try {
       const res = await axiosInstance.patch(
         `${API_BASE_URL}${HR_SERVICE}/employee/${employee.employeeId}/retire`,
       );
-      alert('직원이 퇴사처리 되었습니다.');
+      succeed('직원이 퇴사처리 되었습니다.');
       setLocalEmployee((prev) => ({
         ...prev,
         status: 'INACTIVE',
         retireDate: new Date().toISOString(), // 또는 res.data.retireDate
       }));
     } catch (error) {
-      alert('퇴사처리에 실패하였습니다.');
+      swalError('퇴사처리에 실패하였습니다.');
       console.error(error);
     }
   };

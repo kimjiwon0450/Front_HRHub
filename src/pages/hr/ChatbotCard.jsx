@@ -5,13 +5,20 @@ import axiosInstance from '../../configs/axios-config.js';
 
 const SYSTEM_PROMPT = '너는 HR 업무를 도와주는 챗봇이야.';
 
-const ChatbotCard = () => {
-  const [messages, setMessages] = useState([
-    // { role: 'system', content: SYSTEM_PROMPT },
-  ]);
-  const [question, setQuestion] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+const ChatbotCard = ({
+  messages,
+  setMessages,
+  question,
+  setQuestion,
+  loading,
+  setLoading,
+  error,
+  setError,
+}) => {
+  // const [messages, setMessages] = useState([]);
+  // const [question, setQuestion] = useState('');
+  // const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState('');
   // chatWindowRef로 변경
   const chatWindowRef = useRef(null);
   // inputRef 추가
