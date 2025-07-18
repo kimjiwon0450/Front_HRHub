@@ -6,6 +6,7 @@ import styles from './ApprovalDetail.module.scss';
 import { UserContext } from '../../context/UserContext';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
 import ApprovalLineModal from '../../components/approval/ApprovalLineModal';
+import AttachmentList from '../../components/approval/AttachmentList';
 
 const ApprovalDetail = () => {
   const { reportId } = useParams();
@@ -183,6 +184,16 @@ const ApprovalDetail = () => {
           <section className={styles.content}>
             <div dangerouslySetInnerHTML={{ __html: report.content }} />
           </section>
+
+          {/* 첨부파일 섹션 추가 */}
+          {report.attachments && report.attachments.length > 0 && (
+            <section className={styles.attachmentSection}>
+              <AttachmentList 
+                attachments={report.attachments} 
+                readonly={true}
+              />
+            </section>
+          )}
 
           <section className={styles.historySection}>
             <h4 className={styles.sectionTitle}>결재 이력</h4>

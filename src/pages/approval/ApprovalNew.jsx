@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import styles from './ApprovalNew.module.scss';
 import { useApprovalForm } from '../../hooks/useApprovalForm';
 import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
+import AttachmentList from '../../components/approval/AttachmentList';
 import FormField from './FormField'; // FormField 컴포넌트 임포트
 import QuillEditor from '../../components/editor/QuillEditor'; // 새로 만든 에디터 컴포넌트 import
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
+import TemplateSelectionModal from '../../components/approval/TemplateSelectionModal';
 
 function ApprovalNew() {
-  const { templateId, reportId } = useParams();
+  const { reportId } = useParams();
+  const [searchParams] = useSearchParams();
+  const templateId = searchParams.get('templateId') || reportId;
 
-  console.log(`%c[1단계: useParams]`, 'color: blue; font-weight: bold;', { templateId, reportId });
+  console.log(`%c[1단계: 파라미터 확인]`, 'color: blue; font-weight: bold;', { 
+    templateId, 
+    reportId, 
+    searchParams: Object.fromEntries(searchParams.entries()) 
+  });
 
   const navigate = useNavigate();
 
@@ -34,6 +42,7 @@ function ApprovalNew() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false); // 임시 저장 로딩 상태
   const [files, setFiles] = useState([]);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
 
   const handleValueChange = (id, value) => {
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -109,7 +118,9 @@ function ApprovalNew() {
         res.data &&
         (res.data.statusCode === 201 || res.data.statusCode === 200)
       ) {
-        alert(successMessage);
+        console.log(`%c[6단계: API 응답]`, 'color: green; font-weight: bold;', res.data);
+        
+        // 성공 시 다른 페이지로 이동
         const nextUrl = isSubmit
           ? `/approval/reports/${res.data.result.id}`
           : '/approval/drafts';
@@ -129,8 +140,25 @@ function ApprovalNew() {
     }
   };
 
+
+
   if (loading) return <p>로딩 중...</p>;
   if (error) return <p>오류: {error}</p>;
+
+  // 디버깅 정보 출력
+  console.log(`%c[8단계: 렌더링 시 데이터 상태]`, 'color: purple; font-weight: bold;', {
+    template,
+    formData,
+    approvalLine,
+    references,
+    attachments,
+    reportId
+  });
+  console.log('[렌더링 시점] template:', template);
+console.log('[렌더링 시점] formData:', formData);
+console.log('[렌더링 시점] approvalLine:', approvalLine);
+console.log('[렌더링 시점] references:', references);
+console.log('[렌더링 시점] attachments:', attachments);
 
   return (
     <div className={styles.pageContainer}>
@@ -139,19 +167,6 @@ function ApprovalNew() {
           <h3>{template ? template.title : '결재 문서 작성'}</h3>
           <table className={styles.approvalFormTable}>
             <tbody>
-              <tr>
-                <th>제목</th>
-                <td>
-                  <input
-                    type="text"
-                    id="title"
-                    value={formData.title || ''}
-                    onChange={(e) => handleValueChange('title', e.target.value)}
-                    placeholder="결재 문서의 제목을 입력하세요."
-                    required
-                  />
-                </td>
-              </tr>
               {template?.content
                 ?.filter((field) => field.type !== 'editor')
                 .map((field) => (
@@ -185,7 +200,14 @@ function ApprovalNew() {
               <tr>
                 <th>결재선</th>
                 <td>
-                  <VisualApprovalLine approvalLine={approvalLine} mode="full" />
+                  {approvalLine.length > 0 ? (
+                    <div>
+                      <strong>결재자 ({approvalLine.length}명):</strong>
+                      <VisualApprovalLine approvalLine={approvalLine} mode="full" />
+                    </div>
+                  ) : (
+                    <span style={{ color: '#999', fontStyle: 'italic' }}>결재선이 지정되지 않았습니다.</span>
+                  )}
                   <button type="button" onClick={() => setIsApproverModalOpen(true)} className={styles.actionButton}>
                     결재선 지정
                   </button>
@@ -195,7 +217,20 @@ function ApprovalNew() {
                 <th>참조</th>
                 <td>
                   <div className={styles.referenceContainer}>
-                    {references.length > 0 ? references.map(r => r.name).join(', ') : ''}
+                    {references.length > 0 ? (
+                      <div>
+                        <strong>참조자 ({references.length}명):</strong>
+                        <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
+                          {references.map((r, index) => (
+                            <li key={index}>
+                              {r.name ? r.name : `직원ID: ${r.employeeId}`}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : (
+                      <span style={{ color: '#999', fontStyle: 'italic' }}>참조자가 지정되지 않았습니다.</span>
+                    )}
                   </div>
                   <button type="button" onClick={() => setIsReferenceModalOpen(true)} className={styles.actionButton}>
                     참조자 지정
@@ -213,22 +248,60 @@ function ApprovalNew() {
                <tr>
                 <th>첨부파일</th>
                 <td>
-                  <input type="file" id="files" multiple onChange={handleFileChange} />
-                  <div className={styles.fileList}>
-                    {files.map((file, index) => (
-                      <span key={index} className={styles.fileTag}>
-                        {file.name}
-                        <button type="button" onClick={() => handleRemoveFile(index)} className={styles.removeTagButton}>
-                          &times;
-                        </button>
-                      </span>
-                    ))}
-                    {attachments.map((file) => (
-                      <span key={file.id} className={styles.fileTag}>
-                        {file.fileName} (기존 파일)
-                      </span>
-                    ))}
+                  <div className={styles.fileUploadArea}>
+                    <input 
+                      type="file" 
+                      id="files" 
+                      multiple 
+                      onChange={handleFileChange}
+                      className={styles.fileInput}
+                    />
+                    <label htmlFor="files" className={styles.fileUploadButton}>
+                      📁 파일 선택
+                    </label>
+                    <span className={styles.fileUploadHint}>
+                      여러 파일을 선택할 수 있습니다
+                    </span>
                   </div>
+                  
+                  {/* 새로 선택한 파일들 */}
+                  {files.length > 0 && (
+                    <div className={styles.selectedFilesSection}>
+                      <h4>선택된 파일 ({files.length}개)</h4>
+                      <div className={styles.fileList}>
+                        {files.map((file, index) => (
+                          <div key={index} className={styles.fileItem}>
+                            <span className={styles.fileName}>{file.name}</span>
+                            <span className={styles.fileSize}>
+                              ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                            </span>
+                            <button 
+                              type="button" 
+                              onClick={() => handleRemoveFile(index)} 
+                              className={styles.removeFileButton}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 기존 첨부파일 표시 */}
+                  {attachments.length > 0 ? (
+                    <div className={styles.existingFilesSection}>
+                      <h4>기존 첨부파일 ({attachments.length}개)</h4>
+                      <AttachmentList 
+                        attachments={attachments} 
+                        readonly={true}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ marginTop: '12px', color: '#999', fontStyle: 'italic' }}>
+                      기존 첨부파일이 없습니다.
+                    </div>
+                  )}
                 </td>
               </tr>
             </tbody>
@@ -265,6 +338,14 @@ function ApprovalNew() {
           onClose={() => setIsReferenceModalOpen(false)}
           onSelect={handleSelectReferences}
           multiple // isMulti -> multiple로 수정
+        />
+      )}
+
+      {isTemplateModalOpen && (
+        <TemplateSelectionModal
+          open={isTemplateModalOpen}
+          onClose={() => setIsTemplateModalOpen(false)}
+          onStartWriting={handleStartWriting}
         />
       )}
     </div>
