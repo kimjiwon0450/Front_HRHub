@@ -159,7 +159,7 @@ const ApprovalDetail = () => {
               {isWriter && report.reportStatus === 'REJECTED' && (
                 <button className={styles.defaultBtn} onClick={() => navigate(`/approval/edit/${reportId}`)}>재작성</button>
               )}
-              {isCurrentApprover && (
+              {isCurrentApprover && report.reportStatus === 'IN_PROGRESS' && (
                 <>
                   <button className={styles.approveBtn} onClick={() => handleApprovalAction(true)}>승인</button>
                   <button className={styles.rejectBtn} onClick={() => handleApprovalAction(false)}>반려</button>

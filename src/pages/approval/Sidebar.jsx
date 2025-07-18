@@ -93,6 +93,16 @@ const Sidebar = () => {
                   완료 문서함
                 </NavLink>
               </li>
+              <li> {/* 반려 문서함 메뉴 아이템 추가 */}
+                <NavLink
+                  to="/approval/rejected"
+                  className={({ isActive }) =>
+                    `${styles.menuItem} ${isActive ? styles.active : ''}`
+                  }
+                >
+                  반려 문서함
+                </NavLink>
+              </li>
               <li>
                 <NavLink
                   to="/approval/drafts"
