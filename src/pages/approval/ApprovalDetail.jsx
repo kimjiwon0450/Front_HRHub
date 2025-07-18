@@ -12,6 +12,7 @@ const ApprovalDetail = () => {
   const { reportId } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
+
   const [report, setReport] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,44 +44,26 @@ const ApprovalDetail = () => {
       setLoading(true);
       setError(null);
       const [reportResponse, historyResponse] = await Promise.all([
-        axiosInstance.get(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`,
-        ),
-        axiosInstance.get(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/history`,
-        ),
+        axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`),
+        axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/history`),
       ]);
 
       const reportData = reportResponse.data?.result;
       const historyData = historyResponse.data?.result;
 
       if (reportData) {
-        // --- 접근 제어 로직 추가 ---
-        const { reportStatus, writer, approvalLine } = reportData;
+        const { reportStatus, writer } = reportData;
         const currentUserIsWriter = writer?.id === user?.id;
-
-        // --- 백엔드 상태 보정 로직 ---
-        // 결재선에 'REJECTED'가 있는데 최종 상태가 'APPROVED'로 오는 경우를 대비
-        const hasRejection = approvalLine?.some(a => a.approvalStatus === 'REJECTED');
-        if (hasRejection && reportData.reportStatus !== 'REJECTED') {
-          console.warn('백엔드 상태 불일치: REJECTED 결재선이 있으나 최종 상태가 REJECTED가 아님. 상태를 강제 조정합니다.');
-          reportData.reportStatus = 'REJECTED';
-        }
-
-        if (
-          (reportStatus === 'DRAFT' || reportStatus === 'RECALLED') &&
-          !currentUserIsWriter
-        ) {
+        if ((reportStatus === 'DRAFT' || reportStatus === 'RECALLED') && !currentUserIsWriter) {
           alert('해당 문서에 대한 접근 권한이 없습니다.');
-          navigate(-1); // 이전 페이지로 돌아가기
+          navigate(-1);
           return;
         }
-        // --- 로직 끝 ---
-
         setReport(reportData);
       } else {
         throw new Error('보고서 정보를 찾을 수 없습니다.');
       }
+
       if (historyData) {
         setHistory(historyData);
       }
@@ -93,27 +76,24 @@ const ApprovalDetail = () => {
   };
 
   useEffect(() => {
-    fetchReportDetail();
-  }, [reportId]);
+    if(user?.id) {
+        fetchReportDetail();
+    }
+  }, [reportId, user?.id]);
 
   const handleApprovalAction = async (isApproved) => {
-    const comment = prompt(
-      isApproved ? '승인 의견을 입력하세요.' : '반려 사유를 입력하세요.',
-    );
+    const comment = prompt(isApproved ? '승인 의견을 입력하세요.' : '반려 사유를 입력하세요.');
     if (!isApproved && !comment) {
       alert('반려 시에는 사유를 반드시 입력해야 합니다.');
       return;
     }
     try {
-      await axiosInstance.post(
-        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/approvals`,
-        {
-          approvalStatus: isApproved ? 'APPROVED' : 'REJECTED',
-          comment: comment || (isApproved ? '승인합니다.' : ''),
-        },
-      );
+      await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/approvals`, {
+        approvalStatus: isApproved ? 'APPROVED' : 'REJECTED',
+        comment: comment || (isApproved ? '승인합니다.' : ''),
+      });
       alert('성공적으로 처리되었습니다.');
-      fetchReportDetail(); // 처리 후 데이터 새로고침
+      fetchReportDetail();
     } catch (err) {
       alert(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
     }
@@ -136,10 +116,19 @@ const ApprovalDetail = () => {
   if (!report) return <div className={styles.noData}>데이터가 없습니다.</div>;
 
   const isWriter = report.writer?.id === user?.id;
-  const currentApproverLine = report.approvalLine?.find(
-    (line) => line.approvalStatus === 'PENDING',
-  );
+  const currentApproverLine = report.approvalLine?.find((line) => line.approvalStatus === 'PENDING');
   const isCurrentApprover = currentApproverLine?.employeeId === user?.id;
+
+  // ★★★ 1. 첨부파일을 이미지와 그 외 파일로 분리하는 로직 ★★★
+  const isImageFile = (fileName) => {
+    if (!fileName) return false;
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(extension);
+  };
+
+  const imageAttachments = report.attachments?.filter(file => isImageFile(file.fileName)) || [];
+  const nonImageAttachments = report.attachments?.filter(file => !isImageFile(file.fileName)) || [];
+  // ★★★ ----------------------------------------------- ★★★
 
   return (
     <>
@@ -153,12 +142,8 @@ const ApprovalDetail = () => {
               </span>
             </div>
             <div className={styles.buttonGroup}>
-              {isWriter && report.reportStatus === 'IN_PROGRESS' && (
-                <button className={styles.recallBtn} onClick={handleRecall}>회수</button>
-              )}
-              {isWriter && report.reportStatus === 'REJECTED' && (
-                <button className={styles.defaultBtn} onClick={() => navigate(`/approval/edit/${reportId}`)}>재작성</button>
-              )}
+              {isWriter && report.reportStatus === 'IN_PROGRESS' && <button className={styles.recallBtn} onClick={handleRecall}>회수</button>}
+              {isWriter && report.reportStatus === 'REJECTED' && <button className={styles.defaultBtn} onClick={() => navigate(`/approval/edit/${reportId}`)}>재작성</button>}
               {isCurrentApprover && report.reportStatus === 'IN_PROGRESS' && (
                 <>
                   <button className={styles.approveBtn} onClick={() => handleApprovalAction(true)}>승인</button>
@@ -175,21 +160,31 @@ const ApprovalDetail = () => {
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>기안일</span>
-              <span className={styles.infoValue}>
-                {new Date(report.createdAt || report.reportCreatedAt).toLocaleString()}
-              </span>
+              <span className={styles.infoValue}>{new Date(report.createdAt || report.reportCreatedAt).toLocaleString()}</span>
             </div>
           </section>
 
           <section className={styles.content}>
             <div dangerouslySetInnerHTML={{ __html: report.content }} />
-          </section>
 
-          {/* 첨부파일 섹션 추가 */}
-          {report.attachments && report.attachments.length > 0 && (
+            {/* ★★★ 2. 본문 하단에 이미지 갤러리 섹션 추가 ★★★ */}
+            {imageAttachments.length > 0 && (
+              <div className={styles.imageGallery}>
+                {imageAttachments.map((file, index) => (
+                  <div key={index} className={styles.imageWrapper}>
+                    <img src={file.url} alt={file.fileName} className={styles.attachedImage} />
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* ★★★ ------------------------------------ ★★★ */}
+          </section>
+          
+          {/* ★★★ 3. 이미지 외 다른 파일이 있을 경우에만 첨부파일 목록 표시 ★★★ */}
+          {nonImageAttachments.length > 0 && (
             <section className={styles.attachmentSection}>
               <AttachmentList 
-                attachments={report.attachments} 
+                attachments={nonImageAttachments} 
                 readonly={true}
               />
             </section>
@@ -203,9 +198,7 @@ const ApprovalDetail = () => {
                   <li key={h.employeeId + '-' + index} className={styles.historyItem}>
                     <div className={styles.historyInfo}>
                       <span className={styles.historyApprover}>{h.employeeName}</span>
-                      <span className={`${styles.historyStatus} ${styles[h.approvalStatus?.toLowerCase()]}`}>
-                        {approvalStatusMap[h.approvalStatus]}
-                      </span>
+                      <span className={`${styles.historyStatus} ${styles[h.approvalStatus?.toLowerCase()]}`}>{approvalStatusMap[h.approvalStatus]}</span>
                     </div>
                     <div className={styles.historyComment}>{h.comment}</div>
                     <div className={styles.historyTimestamp}>{h.approvalDateTime ? new Date(h.approvalDateTime).toLocaleString() : ''}</div>

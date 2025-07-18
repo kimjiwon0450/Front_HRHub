@@ -4,8 +4,8 @@ import styles from './AttachmentList.module.scss';
 const AttachmentList = ({ attachments = [], onRemove, readonly = false }) => {
   const handleDownload = async (file) => {
     try {
-      // 파일 다운로드 로직
       const response = await fetch(file.url);
+      if (!response.ok) throw new Error('Network response was not ok');
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -21,35 +21,28 @@ const AttachmentList = ({ attachments = [], onRemove, readonly = false }) => {
     }
   };
 
+  // ★★★ 추가: 파일 이름으로 이미지 여부를 판단하는 헬퍼 함수 ★★★
   const isImageFile = (fileName) => {
+    if (!fileName) return false;
     const extension = fileName.split('.').pop()?.toLowerCase();
     return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(extension);
   };
 
   const getFileIcon = (fileName) => {
+    if (!fileName) return '📎';
     const extension = fileName.split('.').pop()?.toLowerCase();
     switch (extension) {
-      case 'pdf':
-        return '📄';
-      case 'doc':
-      case 'docx':
-        return '📝';
-      case 'xls':
-      case 'xlsx':
-        return '📊';
-      case 'ppt':
-      case 'pptx':
-        return '📈';
-      case 'zip':
-      case 'rar':
-        return '📦';
-      default:
-        return '📎';
+      case 'pdf': return '📄';
+      case 'doc': case 'docx': return '📝';
+      case 'xls': case 'xlsx': return '📊';
+      case 'ppt': case 'pptx': return '📈';
+      case 'zip': case 'rar': return '📦';
+      default: return '📎';
     }
   };
 
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
+    if (!bytes || bytes === 0) return '';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -72,6 +65,7 @@ const AttachmentList = ({ attachments = [], onRemove, readonly = false }) => {
         {attachments.map((file, index) => (
           <div key={index} className={styles.fileItem}>
             <div className={styles.fileInfo}>
+              {/* ★★★ 수정: 이미지 파일일 경우 썸네일을, 아닐 경우 아이콘을 보여주는 조건부 렌더링 ★★★ */}
               {isImageFile(file.fileName || file.name) ? (
                 <div className={styles.imageThumbnail}>
                   <img
@@ -81,7 +75,8 @@ const AttachmentList = ({ attachments = [], onRemove, readonly = false }) => {
                     onError={(e) => {
                       // 이미지 로드 실패 시 아이콘으로 대체
                       e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'inline';
+                      const fallback = e.target.nextSibling;
+                      if (fallback) fallback.style.display = 'inline';
                     }}
                   />
                   <span className={styles.fallbackIcon} style={{ display: 'none' }}>
@@ -131,4 +126,4 @@ const AttachmentList = ({ attachments = [], onRemove, readonly = false }) => {
   );
 };
 
-export default AttachmentList; 
+export default AttachmentList;
