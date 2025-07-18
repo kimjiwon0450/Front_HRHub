@@ -154,6 +154,21 @@
   }
 }
 
+.formInput {
+  width: 98%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  
+  &:focus {
+    outline: none;
+    border-color: #4a7ae5;
+    box-shadow: 0 0 0 2px rgba(74, 122, 229, 0.25);
+  }
+}
+
 .approvalFormTable {
   width: 100%;
   border-collapse: collapse;

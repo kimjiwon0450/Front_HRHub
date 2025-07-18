@@ -167,8 +167,24 @@ console.log('[렌더링 시점] attachments:', attachments);
           <h3>{template ? template.title : '결재 문서 작성'}</h3>
           <table className={styles.approvalFormTable}>
             <tbody>
+              {/* 제목 필드 - 항상 표시 */}
+              <tr>
+                <th>제목</th>
+                <td>
+                  <input
+                    type="text"
+                    id="title"
+                    value={formData.title || ''}
+                    onChange={(e) => handleValueChange('title', e.target.value)}
+                    placeholder="결재 문서의 제목을 입력하세요."
+                    required
+                    className={styles.formInput}
+                  />
+                </td>
+              </tr>
+              {/* 템플릿의 다른 필드들 (제목 제외) */}
               {template?.content
-                ?.filter((field) => field.type !== 'editor')
+                ?.filter((field) => field.type !== 'editor' && field.id !== 'title')
                 .map((field) => (
                   <FormField
                     key={field.id}
