@@ -143,7 +143,9 @@ const ApprovalDetail = () => {
             </div>
             <div className={styles.buttonGroup}>
               {isWriter && report.reportStatus === 'IN_PROGRESS' && <button className={styles.recallBtn} onClick={handleRecall}>회수</button>}
-              {isWriter && report.reportStatus === 'REJECTED' && <button className={styles.defaultBtn} onClick={() => navigate(`/approval/edit/${reportId}`)}>재작성</button>}
+              {isWriter && (report.reportStatus === 'REJECTED' || report.reportStatus === 'RECALLED') && (
+                <button className={styles.defaultBtn} onClick={() => navigate(`/approval/edit/${reportId}`)}>재작성</button>
+              )}
               {isCurrentApprover && report.reportStatus === 'IN_PROGRESS' && (
                 <>
                   <button className={styles.approveBtn} onClick={() => handleApprovalAction(true)}>승인</button>

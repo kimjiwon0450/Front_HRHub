@@ -6,7 +6,6 @@ const ReportFilter = ({ onFilterChange, showCategory = true }) => {
     dateFrom: '',
     dateTo: '',
     title: '',
-    category: ''
   });
 
   const handleFilterChange = (key, value) => {
@@ -20,7 +19,6 @@ const ReportFilter = ({ onFilterChange, showCategory = true }) => {
       dateFrom: '',
       dateTo: '',
       title: '',
-      category: ''
     };
     setFilters(clearedFilters);
     onFilterChange(clearedFilters);
@@ -73,25 +71,7 @@ const ReportFilter = ({ onFilterChange, showCategory = true }) => {
             />
           </div>
         </div>
-        
-        {showCategory && (
-          <div className={styles.filterRow}>
-            <div className={styles.filterItem}>
-              <label>카테고리</label>
-              <select
-                value={filters.category}
-                onChange={(e) => handleFilterChange('category', e.target.value)}
-                className={styles.categorySelect}
-              >
-                <option value="">전체</option>
-                <option value="휴가신청">휴가신청</option>
-                <option value="지출신청">지출신청</option>
-                <option value="업무보고">업무보고</option>
-                <option value="기타">기타</option>
-              </select>
-            </div>
-          </div>
-        )}
+      
       </div>
     </div>
   );
