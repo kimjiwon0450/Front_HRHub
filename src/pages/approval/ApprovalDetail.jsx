@@ -7,6 +7,14 @@ import { UserContext } from '../../context/UserContext';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
 import ApprovalLineModal from '../../components/approval/ApprovalLineModal';
 import AttachmentList from '../../components/approval/AttachmentList';
+import ModalPortal from '../../components/approval/ModalPortal';
+
+const COMMON_COMMENTS = [
+  '승인합니다.',
+  '수고하셨습니다.',
+  '반려합니다.',
+  '보완 후 재상신 바랍니다.'
+];
 
 const ApprovalDetail = () => {
   const { reportId } = useParams();
@@ -18,6 +26,10 @@ const ApprovalDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [approvalComment, setApprovalComment] = useState('');
+  const [actionType, setActionType] = useState(''); // 'approve' | 'reject'
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [commentError, setCommentError] = useState('');
 
   // 백엔드 Enum과 프론트엔드 표시 텍스트 매핑
   const reportStatusMap = {
@@ -81,18 +93,28 @@ const ApprovalDetail = () => {
     }
   }, [reportId, user?.id]);
 
-  const handleApprovalAction = async (isApproved) => {
-    const comment = prompt(isApproved ? '승인 의견을 입력하세요.' : '반려 사유를 입력하세요.');
-    if (!isApproved && !comment) {
-      alert('반려 시에는 사유를 반드시 입력해야 합니다.');
+  // 승인/반려 버튼 클릭 시(모달 오픈만)
+  const handleActionClick = (type) => {
+    setActionType(type);
+    setConfirmModalOpen(true);
+    setCommentError('');
+    setApprovalComment(''); // 모달 열 때 입력란 초기화
+  };
+
+  // 2차 모달에서 최종 확인
+  const handleConfirm = async () => {
+    if (!approvalComment.trim()) {
+      setCommentError('사유를 입력해주세요.');
       return;
     }
     try {
       await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/approvals`, {
-        approvalStatus: isApproved ? 'APPROVED' : 'REJECTED',
-        comment: comment || (isApproved ? '승인합니다.' : ''),
+        approvalStatus: actionType === 'approve' ? 'APPROVED' : 'REJECTED',
+        comment: approvalComment,
       });
       alert('성공적으로 처리되었습니다.');
+      setConfirmModalOpen(false);
+      setApprovalComment('');
       fetchReportDetail();
     } catch (err) {
       alert(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
@@ -148,8 +170,8 @@ const ApprovalDetail = () => {
               )}
               {isCurrentApprover && report.reportStatus === 'IN_PROGRESS' && (
                 <>
-                  <button className={styles.approveBtn} onClick={() => handleApprovalAction(true)}>승인</button>
-                  <button className={styles.rejectBtn} onClick={() => handleApprovalAction(false)}>반려</button>
+                  <button className={styles.approveBtn} onClick={() => handleActionClick('approve')}>승인</button>
+                  <button className={styles.rejectBtn} onClick={() => handleActionClick('reject')}>반려</button>
                 </>
               )}
             </div>
@@ -233,6 +255,35 @@ const ApprovalDetail = () => {
           reportStatus={report.reportStatus}
           onClose={() => setIsModalOpen(false)}
         />
+      )}
+      {/* 2차 확인 모달 */}
+      {confirmModalOpen && (
+        <ModalPortal>
+          <div className={styles.confirmModalOverlay}>
+            <div className={styles.confirmModal}>
+              <h3>정말 {actionType === 'approve' ? '승인' : '반려'}하시겠습니까?</h3>
+              {/* 자주 쓰는 멘트 버튼 */}
+              <div className={styles.commonComments}>
+                {COMMON_COMMENTS.map((c) => (
+                  <button type="button" key={c} onClick={() => setApprovalComment(c)} className={styles.commentBtn}>{c}</button>
+                ))}
+              </div>
+              {/* 멘트 입력란 */}
+              <textarea
+                className={styles.commentInput}
+                value={approvalComment}
+                onChange={e => setApprovalComment(e.target.value)}
+                placeholder="사유를 입력하세요"
+                required
+              />
+              {commentError && <div className={styles.commentError}>{commentError}</div>}
+              <div className={styles.confirmModalBtns}>
+                <button className={styles.confirmBtn} onClick={handleConfirm}>확인</button>
+                <button className={styles.cancelBtn} onClick={() => setConfirmModalOpen(false)}>취소</button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </>
   );
