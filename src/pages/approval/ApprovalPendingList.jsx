@@ -3,11 +3,15 @@ import axiosInstance from '../../configs/axios-config';
 import styles from './ApprovalPendingList.module.scss';
 import ApprovalPendingCard from './ApprovalPendingCard';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
+import ReportFilter from '../../components/approval/ReportFilter';
+import { useReportFilter } from '../../hooks/useReportFilter';
 
 const ApprovalPendingList = () => {
   const [pendingReports, setPendingReports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  const { filteredReports, handleFilterChange } = useReportFilter(pendingReports);
 
   useEffect(() => {
     const fetchPending = async () => {
@@ -18,25 +22,26 @@ const ApprovalPendingList = () => {
           `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
           {
             params: {
-              role: 'approver', // '내가 결재할 차례인 문서'를 의미
-              status: 'IN_PROGRESS', // 반려/완료된 문서를 제외하기 위해 반드시 필요
+              role: 'approver',
+              status: 'IN_PROGRESS',
+              // ★★★ sortBy 값을 'createdAt'으로 통일합니다. ★★★
+              sortBy: 'reportCreatedAt', 
+              sortOrder: 'desc',
               page: 0,
-              size: 10,
+              size: 50,
             },
           },
         );
         if (res.data?.statusCode === 200) {
           const allReports = res.data.result.reports || [];
-          // 이중 필터링: API가 IN_PROGRESS 외 다른 상태를 보내주는 경우를 대비
-          const filteredReports = allReports.filter(
+          const filteredApiReports = allReports.filter( // 변수명 충돌 방지
             (report) => report.reportStatus === 'IN_PROGRESS',
           );
-          console.log('filteredReports : ', filteredReports);
-          setPendingReports(filteredReports);
+          setPendingReports(filteredApiReports);
         } else {
           setError(
             res.data?.statusMessage ||
-            '결재할 문서를 불러오는 데 실패했습니다.',
+            '결재 예정 문서를 불러오는 데 실패했습니다.',
           );
         }
       } catch (err) {
@@ -51,20 +56,28 @@ const ApprovalPendingList = () => {
 
   return (
     <div className={styles.container}>
-      <h2>결재할 문서</h2>
+      <h2>결재 예정 문서함</h2>
+      
+      <ReportFilter onFilterChange={handleFilterChange} />
+      
       <div className={styles.list}>
         {loading && <p>로딩 중...</p>}
         {error && <p className={styles.error}>{error}</p>}
-        {!loading && !error && pendingReports.length > 0 ? (
-          pendingReports.map((report) => (
-            <ApprovalPendingCard key={report.id} report={report} />
-          ))
+        {!loading && !error && filteredReports.length > 0 ? (
+          <>
+            <div className={styles.resultInfo}>
+              총 {filteredReports.length}건의 문서가 있습니다.
+            </div>
+            {filteredReports.map((report) => (
+              <ApprovalPendingCard key={report.id} report={report} />
+            ))}
+          </>
         ) : (
-          !loading && !error && <p>결재할 문서가 없습니다.</p>
+          !loading && !error && <p>결재 예정 문서가 없습니다.</p>
         )}
       </div>
     </div>
   );
 };
 
-export default ApprovalPendingList; 
+export default ApprovalPendingList;

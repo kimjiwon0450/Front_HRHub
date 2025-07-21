@@ -37,7 +37,13 @@ const ApprovalBoxList = () => {
       try {
         setLoading(true);
         
-        const params = { role: 'approver' };
+        const params = { 
+          role: 'approver', 
+          sortBy: 'reportCreatedAt',
+          sortOrder: 'desc',
+          page: 0,
+          size: 50,
+        };
         // '진행중' 탭일 때만 status 파라미터를 추가합니다.
         if (activeTab === 'IN_PROGRESS') {
           params.status = 'IN_PROGRESS';
@@ -132,7 +138,15 @@ const ApprovalBoxList = () => {
                     onClick={() => navigate(`/approval/reports/${report.id}`)}
                   >
                     <div className={styles.itemCell} style={{ flex: 3 }}>
-                      {report.title}
+                      <div className={styles.titleContainer}>
+                        <span className={styles.title}>{report.title}</span>
+                        {/* 첨부파일 표시 */}
+                        {report.attachments && report.attachments.length > 0 && (
+                          <span className={styles.attachmentBadge} title={`첨부파일 ${report.attachments.length}개`}>
+                            📎 {report.attachments.length}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className={styles.itemCell} style={{ flex: 1 }}>
                       {report.name || '정보 없음'}
@@ -152,7 +166,7 @@ const ApprovalBoxList = () => {
         ) : (
           <div className={styles.noReports}>
             <div className={styles.noReportsIcon}>📂</div>
-            <p>결재할 문서가 없습니다.</p>
+            <p>결재 예정 문서가 없습니다.</p>
           </div>
         )}
       </div>

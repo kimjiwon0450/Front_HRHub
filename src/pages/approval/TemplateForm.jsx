@@ -173,11 +173,15 @@ const TemplateForm = () => {
   };
 
   const handleAddFieldSelection = (type) => {
-    setIsAddFieldModalOpen(false);
+    setIsAddFieldModalOpen(false); // 모달 닫기
+    
     if (type === 'custom') {
-      handleOpenCustomFieldModal(null); // Open custom field modal for creation
+      // '새 항목 직접 만들기'를 선택한 경우, 기존의 커스텀 필드 생성 모달을 엽니다.
+      handleOpenCustomFieldModal(null);
+    } else {
+      // 기본 컴포넌트(text, date 등)를 선택한 경우, 해당 컴포넌트를 바로 필드에 추가합니다.
+      addComponentFromLibrary(type);
     }
-    // Handle 'basic' type later
   };
 
   const handleOpenCustomFieldModal = (field = null) => {
@@ -215,15 +219,18 @@ const TemplateForm = () => {
     });
   }, []);
 
-  const addComponentFromLibrary = (component) => {
-    const newField = {
-      id: `custom_${Date.now()}`,
-      libraryId: component.id, // Link to library
-      type: component.id.split('_')[0], // text, date etc.
-      header: component.name,
+  const addComponentFromLibrary = (componentType) => {
+    // componentLibrary에서 선택된 타입에 맞는 정보를 찾습니다.
+    const component = componentLibrary.find(c => c.id === componentType);
+    if (!component) return;
+
+    const newField = { 
+      id: `custom_${Date.now()}`, 
+      libraryId: component.id,
+      type: component.id, // type을 libraryId와 동일하게 설정 (예: 'text', 'date_ymd')
+      header: component.name, 
       description: '',
       required: false,
-      // ...other default properties from Modal 3
     };
     setCustomFields(prev => [...prev, newField]);
   };
@@ -336,23 +343,38 @@ const TemplateForm = () => {
 
   const renderRightPane = () => (
     <div className={styles.rightPane}>
-      {/* A. Basic Settings */}
-      <div className={styles.settingSection}>
-        <h3 className={styles.sectionTitle}>양식 기초 정보</h3>
-        <div className={styles.formGroup}>
-          <label>Editor 사용여부</label>
-          <div>
-            <input type="radio" id="editor_y" name="editor" value="Y" checked={useEditor === 'Y'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_y">사용</label>
-            <input type="radio" id="editor_n" name="editor" value="N" checked={useEditor === 'N'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_n">미사용</label>
-          </div>
-        </div>
-        <div className={styles.formGroup}>
-          <label>첨부파일 필수</label>
-          <div>
-            <input type="radio" id="attach_y" name="attach" value="Y" checked={requireAttachment === 'Y'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_y">필수</label>
-            <input type="radio" id="attach_n" name="attach" value="N" checked={requireAttachment === 'N'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_n">미필수</label>
-          </div>
-        </div>
+        {/* A. Basic Settings */}
+        <div className={styles.settingSection}>
+            <h3 className={styles.sectionTitle}>양식 기초 정보</h3>
+                 <div className={styles.formGroup}>
+                <label>Editor 사용여부</label>
+                <div>
+                    <input type="radio" id="editor_y" name="editor" value="Y" checked={useEditor === 'Y'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_y">사용</label>
+                    <input type="radio" id="editor_n" name="editor" value="N" checked={useEditor === 'N'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_n">미사용</label>
+                </div>
+                </div>
+                <div className={styles.formGroup}>
+                <label>첨부파일 필수</label>
+                <div>
+                    <input type="radio" id="attach_y" name="attach" value="Y" checked={requireAttachment === 'Y'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_y">필수</label>
+                    <input type="radio" id="attach_n" name="attach" value="N" checked={requireAttachment === 'N'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_n">미필수</label>
+                </div>
+                </div>
+              </div>
+
+        {/* B. Form Info */}
+        <div className={styles.settingSection}>
+            <h3 className={styles.sectionTitle}>양식 정보 입력</h3>
+            <div className={styles.formGroup}><label>양식명</label><input type="text" value={title} onChange={e => setTitle(e.target.value)} /></div>
+            <div className={styles.formGroup}><label>카테고리</label>
+                 <select value={categoryId} onChange={e => setCategoryId(e.target.value)}>
+                    <option value="" disabled>카테고리 선택</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.categoryName}</option>)}
+                </select>
+              </div>
+            <div className={styles.formGroup}><label>양식설명</label><textarea value={description} onChange={e => setDescription(e.target.value)} /></div>
+                  </div>
+      
       </div>
 
       {/* B. Form Info */}

@@ -7,16 +7,30 @@ import { UserContext } from '../../context/UserContext';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
 import ApprovalLineModal from '../../components/approval/ApprovalLineModal';
 import Swal from 'sweetalert2';
+import AttachmentList from '../../components/approval/AttachmentList';
+import ModalPortal from '../../components/approval/ModalPortal';
+
+const COMMON_COMMENTS = [
+  '승인합니다.',
+  '수고하셨습니다.',
+  '반려합니다.',
+  '보완 후 재상신 바랍니다.'
+];
 
 const ApprovalDetail = () => {
   const { reportId } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
+
   const [report, setReport] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [approvalComment, setApprovalComment] = useState('');
+  const [actionType, setActionType] = useState(''); // 'approve' | 'reject'
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [commentError, setCommentError] = useState('');
 
   // 백엔드 Enum과 프론트엔드 표시 텍스트 매핑
   const reportStatusMap = {
@@ -43,20 +57,15 @@ const ApprovalDetail = () => {
       setLoading(true);
       setError(null);
       const [reportResponse, historyResponse] = await Promise.all([
-        axiosInstance.get(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`,
-        ),
-        axiosInstance.get(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/history`,
-        ),
+        axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`),
+        axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/history`),
       ]);
 
       const reportData = reportResponse.data?.result;
       const historyData = historyResponse.data?.result;
 
       if (reportData) {
-        // --- 접근 제어 로직 추가 ---
-        const { reportStatus, writer, approvalLine } = reportData;
+        const { reportStatus, writer } = reportData;
         const currentUserIsWriter = writer?.id === user?.id;
 
         // --- 백엔드 상태 보정 로직 ---
@@ -77,14 +86,16 @@ const ApprovalDetail = () => {
             confirmButtonText: '확인',
           });
           navigate(-1); // 이전 페이지로 돌아가기
+        if ((reportStatus === 'DRAFT' || reportStatus === 'RECALLED') && !currentUserIsWriter) {
+          alert('해당 문서에 대한 접근 권한이 없습니다.');
+          navigate(-1);
           return;
         }
-        // --- 로직 끝 ---
-
         setReport(reportData);
       } else {
         throw new Error('보고서 정보를 찾을 수 없습니다.');
       }
+
       if (historyData) {
         setHistory(historyData);
       }
@@ -97,8 +108,10 @@ const ApprovalDetail = () => {
   };
 
   useEffect(() => {
-    fetchReportDetail();
-  }, [reportId]);
+    if(user?.id) {
+        fetchReportDetail();
+    }
+  }, [reportId, user?.id]);
 
   const handleApprovalAction = async (isApproved) => {
     const { value: comment } = await Swal.fire({
@@ -138,6 +151,29 @@ const ApprovalDetail = () => {
         confirmButtonText: '확인',
       });
       fetchReportDetail(); // 처리 후 데이터 새로고침
+  // 승인/반려 버튼 클릭 시(모달 오픈만)
+  const handleActionClick = (type) => {
+    setActionType(type);
+    setConfirmModalOpen(true);
+    setCommentError('');
+    setApprovalComment(''); // 모달 열 때 입력란 초기화
+  };
+
+  // 2차 모달에서 최종 확인
+  const handleConfirm = async () => {
+    if (!approvalComment.trim()) {
+      setCommentError('사유를 입력해주세요.');
+      return;
+    }
+    try {
+      await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/approvals`, {
+        approvalStatus: actionType === 'approve' ? 'APPROVED' : 'REJECTED',
+        comment: approvalComment,
+      });
+      alert('성공적으로 처리되었습니다.');
+      setConfirmModalOpen(false);
+      setApprovalComment('');
+      fetchReportDetail();
     } catch (err) {
       await Swal.fire({
         icon: 'error',
@@ -184,10 +220,19 @@ const ApprovalDetail = () => {
   if (!report) return <div className={styles.noData}>데이터가 없습니다.</div>;
 
   const isWriter = report.writer?.id === user?.id;
-  const currentApproverLine = report.approvalLine?.find(
-    (line) => line.approvalStatus === 'PENDING',
-  );
+  const currentApproverLine = report.approvalLine?.find((line) => line.approvalStatus === 'PENDING');
   const isCurrentApprover = currentApproverLine?.employeeId === user?.id;
+
+  // ★★★ 1. 첨부파일을 이미지와 그 외 파일로 분리하는 로직 ★★★
+  const isImageFile = (fileName) => {
+    if (!fileName) return false;
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(extension);
+  };
+
+  const imageAttachments = report.attachments?.filter(file => isImageFile(file.fileName)) || [];
+  const nonImageAttachments = report.attachments?.filter(file => !isImageFile(file.fileName)) || [];
+  // ★★★ ----------------------------------------------- ★★★
 
   return (
     <>
@@ -201,16 +246,14 @@ const ApprovalDetail = () => {
               </span>
             </div>
             <div className={styles.buttonGroup}>
-              {isWriter && report.reportStatus === 'IN_PROGRESS' && (
-                <button className={styles.recallBtn} onClick={handleRecall}>회수</button>
-              )}
-              {isWriter && report.reportStatus === 'REJECTED' && (
+              {isWriter && report.reportStatus === 'IN_PROGRESS' && <button className={styles.recallBtn} onClick={handleRecall}>회수</button>}
+              {isWriter && (report.reportStatus === 'REJECTED' || report.reportStatus === 'RECALLED') && (
                 <button className={styles.defaultBtn} onClick={() => navigate(`/approval/edit/${reportId}`)}>재작성</button>
               )}
-              {isCurrentApprover && (
+              {isCurrentApprover && report.reportStatus === 'IN_PROGRESS' && (
                 <>
-                  <button className={styles.approveBtn} onClick={() => handleApprovalAction(true)}>승인</button>
-                  <button className={styles.rejectBtn} onClick={() => handleApprovalAction(false)}>반려</button>
+                  <button className={styles.approveBtn} onClick={() => handleActionClick('approve')}>승인</button>
+                  <button className={styles.rejectBtn} onClick={() => handleActionClick('reject')}>반려</button>
                 </>
               )}
             </div>
@@ -223,15 +266,35 @@ const ApprovalDetail = () => {
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>기안일</span>
-              <span className={styles.infoValue}>
-                {new Date(report.createdAt || report.reportCreatedAt).toLocaleString()}
-              </span>
+              <span className={styles.infoValue}>{new Date(report.createdAt || report.reportCreatedAt).toLocaleString()}</span>
             </div>
           </section>
 
           <section className={styles.content}>
             <div dangerouslySetInnerHTML={{ __html: report.content }} />
+
+            {/* ★★★ 2. 본문 하단에 이미지 갤러리 섹션 추가 ★★★ */}
+            {imageAttachments.length > 0 && (
+              <div className={styles.imageGallery}>
+                {imageAttachments.map((file, index) => (
+                  <div key={index} className={styles.imageWrapper}>
+                    <img src={file.url} alt={file.fileName} className={styles.attachedImage} />
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* ★★★ ------------------------------------ ★★★ */}
           </section>
+          
+          {/* ★★★ 3. 이미지 외 다른 파일이 있을 경우에만 첨부파일 목록 표시 ★★★ */}
+          {nonImageAttachments.length > 0 && (
+            <section className={styles.attachmentSection}>
+              <AttachmentList 
+                attachments={nonImageAttachments} 
+                readonly={true}
+              />
+            </section>
+          )}
 
           <section className={styles.historySection}>
             <h4 className={styles.sectionTitle}>결재 이력</h4>
@@ -241,9 +304,7 @@ const ApprovalDetail = () => {
                   <li key={h.employeeId + '-' + index} className={styles.historyItem}>
                     <div className={styles.historyInfo}>
                       <span className={styles.historyApprover}>{h.employeeName}</span>
-                      <span className={`${styles.historyStatus} ${styles[h.approvalStatus?.toLowerCase()]}`}>
-                        {approvalStatusMap[h.approvalStatus]}
-                      </span>
+                      <span className={`${styles.historyStatus} ${styles[h.approvalStatus?.toLowerCase()]}`}>{approvalStatusMap[h.approvalStatus]}</span>
                     </div>
                     <div className={styles.historyComment}>{h.comment}</div>
                     <div className={styles.historyTimestamp}>{h.approvalDateTime ? new Date(h.approvalDateTime).toLocaleString() : ''}</div>
@@ -276,6 +337,35 @@ const ApprovalDetail = () => {
           reportStatus={report.reportStatus}
           onClose={() => setIsModalOpen(false)}
         />
+      )}
+      {/* 2차 확인 모달 */}
+      {confirmModalOpen && (
+        <ModalPortal>
+          <div className={styles.confirmModalOverlay}>
+            <div className={styles.confirmModal}>
+              <h3>정말 {actionType === 'approve' ? '승인' : '반려'}하시겠습니까?</h3>
+              {/* 자주 쓰는 멘트 버튼 */}
+              <div className={styles.commonComments}>
+                {COMMON_COMMENTS.map((c) => (
+                  <button type="button" key={c} onClick={() => setApprovalComment(c)} className={styles.commentBtn}>{c}</button>
+                ))}
+              </div>
+              {/* 멘트 입력란 */}
+              <textarea
+                className={styles.commentInput}
+                value={approvalComment}
+                onChange={e => setApprovalComment(e.target.value)}
+                placeholder="사유를 입력하세요"
+                required
+              />
+              {commentError && <div className={styles.commentError}>{commentError}</div>}
+              <div className={styles.confirmModalBtns}>
+                <button className={styles.confirmBtn} onClick={handleConfirm}>확인</button>
+                <button className={styles.cancelBtn} onClick={() => setConfirmModalOpen(false)}>취소</button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </>
   );

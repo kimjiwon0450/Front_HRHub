@@ -70,7 +70,7 @@ const NoticeAlertPage = () => {
                 } else {
                     setError(
                         res.data?.statusMessage ||
-                        '결재할 문서를 불러오는 데 실패했습니다.',
+                        '결재 예정 문서를 불러오는 데 실패했습니다.',
                     );
                 }
             } catch (err) {
@@ -137,18 +137,8 @@ const NoticeAlertPage = () => {
                         // <ApprovalPendingCard key={report.id} report={report} />
                     ))
                 ) : (
-                    !loading && !error && <p>결재할 문서가 없습니다.</p>
+                    !loading && !error && <p>결재 예정 문서가 없습니다.</p>
                 )}
-
-
-
-                {/* {!loading && !error && pendingReports.length > 0 ? (
-                    pendingReports.map((report) => (
-                        <ApprovalPendingCard key={report.id} report={report} />
-                    ))
-                ) : (
-                    !loading && !error && <p>결재할 문서가 없습니다.</p>
-                )} */}
             </section>
 
             <section>
