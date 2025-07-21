@@ -6,6 +6,7 @@ import styles from './ApprovalDetail.module.scss';
 import { UserContext } from '../../context/UserContext';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
 import ApprovalLineModal from '../../components/approval/ApprovalLineModal';
+import Swal from 'sweetalert2';
 
 const ApprovalDetail = () => {
   const { reportId } = useParams();
@@ -31,7 +32,7 @@ const ApprovalDetail = () => {
     APPROVED: '승인',
     REJECTED: '반려',
   };
-  
+
   const fetchReportDetail = async () => {
     if (!reportId || isNaN(reportId)) {
       setLoading(false);
@@ -70,7 +71,11 @@ const ApprovalDetail = () => {
           (reportStatus === 'DRAFT' || reportStatus === 'RECALLED') &&
           !currentUserIsWriter
         ) {
-          alert('해당 문서에 대한 접근 권한이 없습니다.');
+          Swal.fire({
+            icon: 'warning',
+            title: '해당 문서에 대한 접근 권한이 없습니다.',
+            confirmButtonText: '확인',
+          });
           navigate(-1); // 이전 페이지로 돌아가기
           return;
         }
@@ -96,13 +101,29 @@ const ApprovalDetail = () => {
   }, [reportId]);
 
   const handleApprovalAction = async (isApproved) => {
-    const comment = prompt(
-      isApproved ? '승인 의견을 입력하세요.' : '반려 사유를 입력하세요.',
-    );
-    if (!isApproved && !comment) {
-      alert('반려 시에는 사유를 반드시 입력해야 합니다.');
-      return;
-    }
+    const { value: comment } = await Swal.fire({
+      title: isApproved ? '승인 의견을 입력하세요.' : '반려 사유를 입력하세요.',
+      input: 'textarea',
+      inputPlaceholder: isApproved ? '예: 승인합니다.' : '반려 사유를 입력해주세요.',
+      inputAttributes: {
+        'aria-label': '입력',
+      },
+      showCancelButton: true,
+      confirmButtonText: isApproved ? '승인' : '반려',
+      cancelButtonText: '취소',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      reverseButtons: true,
+      inputValidator: (value) => {
+        if (!isApproved && !value) {
+          return '반려 시에는 사유를 반드시 입력해야 합니다.';
+        }
+        return null;
+      }
+    });
+
+    if (comment === undefined) return; // 취소 클릭 시
+
     try {
       await axiosInstance.post(
         `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/approvals`,
@@ -111,22 +132,50 @@ const ApprovalDetail = () => {
           comment: comment || (isApproved ? '승인합니다.' : ''),
         },
       );
-      alert('성공적으로 처리되었습니다.');
+      await Swal.fire({
+        icon: 'success',
+        title: '성공적으로 처리되었습니다.',
+        confirmButtonText: '확인',
+      });
       fetchReportDetail(); // 처리 후 데이터 새로고침
     } catch (err) {
-      alert(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
+      await Swal.fire({
+        icon: 'error',
+        title: err.response?.data?.message || '처리 중 오류가 발생했습니다.',
+        confirmButtonText: '확인',
+      });
     }
   };
 
   const handleRecall = async () => {
-    if (window.confirm('정말로 회수하시겠습니까?')) {
-      try {
-        await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/recall`);
-        alert('회수 처리되었습니다.');
-        navigate('/approval/drafts');
-      } catch (err) {
-        alert(err.response?.data?.message || '회수 중 오류가 발생했습니다.');
-      }
+    const result = await Swal.fire({
+      title: '회수하시겠습니까?',
+      text: '문서를 회수하면 결재가 중단됩니다.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: '예',
+      cancelButtonText: '아니오',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/recall`);
+      await Swal.fire({
+        icon: 'success',
+        title: '회수 처리되었습니다.',
+        confirmButtonText: '확인',
+      });
+      navigate('/approval/drafts');
+    } catch (err) {
+      await Swal.fire({
+        icon: 'error',
+        title: err.response?.data?.message || '회수 중 오류가 발생했습니다.',
+        confirmButtonText: '확인',
+      });
     }
   };
 

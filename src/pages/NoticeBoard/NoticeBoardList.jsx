@@ -235,7 +235,13 @@ const NoticeBoardList = () => {
                                     key={`notice-${post.id}`} className="notice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
                                     <td>{post.id}</td>
                                     <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri != '[]' ? '📎' : ''}</td>
-                                    <td>{post.title}</td>
+                                    {/* <td>{post.title}</td> */}
+                                    <td>
+                                        {post.commentCount === 0 ?
+                                            (`${post.title}`)
+                                            : `${post.title}(${post.commentCount})`
+                                        }
+                                    </td>
                                     <td>
                                         {post.employStatus === 'INACTIVE' ?
                                             (<span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>

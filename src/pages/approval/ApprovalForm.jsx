@@ -4,6 +4,7 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import styles from './ApprovalForm.module.scss';
 import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
+import Swal from 'sweetalert2';
 
 const ApprovalForm = () => {
   const navigate = useNavigate();
@@ -76,7 +77,11 @@ const ApprovalForm = () => {
           setTemplateFormData(initialFormData);
         } catch (error) {
           console.error('Failed to fetch template:', error);
-          alert('템플릿을 불러오는 데 실패했습니다.');
+          await Swal.fire({
+            icon: 'warning',
+            title: '템플릿을 불러오는 데 실패했습니다.',
+            confirmButtonText: '확인',
+          });
           navigate('/approval/home');
         }
       };
@@ -209,8 +214,12 @@ const ApprovalForm = () => {
 
   // '임시 저장' (상태: DRAFT)만 남김
   const handleSaveDraft = async () => {
-    if (!title) {
-      alert('제목을 입력해주세요.');
+    if (!title.trim()) {
+      await Swal.fire({
+        icon: 'warning',
+        title: '제목을 입력해주세요.',
+        confirmButtonText: '확인',
+      });
       return;
     }
 
@@ -256,9 +265,19 @@ const ApprovalForm = () => {
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } },
       );
-      alert('임시 저장되었습니다.');
+      await Swal.fire({
+        icon: 'success',
+        title: '임시 저장되었습니다.',
+        confirmButtonText: '확인',
+      });
       navigate('/approval/drafts');
     } catch (err) {
+      await Swal.fire({
+        icon: 'error',
+        title: '오류',
+        text: err.response?.data?.message || '처리 중 오류가 발생했습니다.',
+        confirmButtonText: '확인',
+      });
       setError(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
     } finally {
       setIsSubmitting(false);
@@ -267,16 +286,28 @@ const ApprovalForm = () => {
 
   // 결재 제출 함수
   const handleSubmitApproval = async () => {
-    if (!title) {
-      alert('제목을 입력해주세요.');
+    if (!title.trim()) {
+      await Swal.fire({
+        icon: 'warning',
+        title: '제목을 입력해주세요.',
+        confirmButtonText: '확인',
+      });
       return;
     }
-    if (!content) {
-      alert('상세 내용을 입력해주세요.');
+    if (!content.trim()) {
+      await Swal.fire({
+        icon: 'warning',
+        title: '상세 내용을 입력해주세요.',
+        confirmButtonText: '확인',
+      });
       return;
     }
     if (!approvers || approvers.length === 0) {
-      alert('결재선을 선택해주세요.');
+      await Swal.fire({
+        icon: 'warning',
+        title: '결재선을 선택해주세요.',
+        confirmButtonText: '확인',
+      });
       return;
     }
     // 참조자, 첨부파일은 공란이어도 됨
@@ -323,9 +354,19 @@ const ApprovalForm = () => {
         formDataObj,
         { headers: { 'Content-Type': 'multipart/form-data' } },
       );
-      alert('결재가 상신되었습니다.');
+      await Swal.fire({
+        icon: 'success',
+        title: '결재가 상신되었습니다.',
+        confirmButtonText: '확인',
+      });
       navigate('/approval/pending');
     } catch (err) {
+      await Swal.fire({
+        icon: 'error',
+        title: '오류',
+        text: err.response?.data?.message || '처리 중 오류가 발생했습니다.',
+        confirmButtonText: '확인',
+      });
       setError(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
     } finally {
       setIsSubmitting(false);

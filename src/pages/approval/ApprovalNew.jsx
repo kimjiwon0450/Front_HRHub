@@ -8,6 +8,7 @@ import FormField from './FormField'; // FormField 컴포넌트 임포트
 import QuillEditor from '../../components/editor/QuillEditor'; // 새로 만든 에디터 컴포넌트 import
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
+import Swal from 'sweetalert2';
 
 function ApprovalNew() {
   const { templateId, reportId } = useParams();
@@ -54,8 +55,20 @@ function ApprovalNew() {
     setFiles(Array.from(e.target.files));
   };
 
-  const handleRemoveFile = (indexToRemove) => {
-    setFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
+  const handleRemoveFile = async (indexToRemove) => {
+    const result = await Swal.fire({
+      title: '파일을 삭제하시겠습니까?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: '예',
+      cancelButtonText: '아니요',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    });
+
+    if (result.isConfirmed) {
+      setFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
+    }
   };
 
   const handleFinalSubmit = async (isSubmit = false) => {
@@ -109,7 +122,12 @@ function ApprovalNew() {
         res.data &&
         (res.data.statusCode === 201 || res.data.statusCode === 200)
       ) {
-        alert(successMessage);
+        await Swal.fire({
+          icon: 'success',
+          title: successMessage,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+        });
         const nextUrl = isSubmit
           ? `/approval/reports/${res.data.result.id}`
           : '/approval/drafts';
@@ -119,7 +137,13 @@ function ApprovalNew() {
       }
     } catch (err) {
       console.error(`요청 실패: ${url}`, err);
-      alert(`오류: ${err.response?.data?.statusMessage || err.message}`);
+      Swal.fire({
+        icon: 'error',
+        title: '오류',
+        text: err.response?.data?.statusMessage || err.message,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+      });
     } finally {
       if (isSubmit) {
         setIsSubmitting(false);
@@ -209,8 +233,8 @@ function ApprovalNew() {
         <div className={styles.section}>
           <h3>파일 첨부</h3>
           <table className={styles.approvalFormTable}>
-             <tbody>
-               <tr>
+            <tbody>
+              <tr>
                 <th>첨부파일</th>
                 <td>
                   <input type="file" id="files" multiple onChange={handleFileChange} />

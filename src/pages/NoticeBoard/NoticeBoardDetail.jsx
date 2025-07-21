@@ -8,7 +8,6 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
 import './NoticeBoardDetail.scss';
-import CommentSection from './CommentSection';
 
 const NoticeBoardDetail = () => {
     const { id } = useParams();
@@ -113,7 +112,12 @@ const NoticeBoardDetail = () => {
             link.remove();
             window.URL.revokeObjectURL(blobUrl);
         } catch (error) {
-            alert('파일 다운로드에 실패했습니다.');
+            await Swal.fire({
+                title: '에러',
+                text: '파일 다운로드에 실패했습니다.',
+                icon: 'error',
+                confirmButtonText: '확인',
+            });
             console.error(error);
         }
     };
@@ -127,12 +131,27 @@ const NoticeBoardDetail = () => {
             setComments(data);
         } catch (err) {
             console.error('댓글 불러오기 실패:', err);
+            await Swal.fire({
+                title: '오류',
+                text: '댓글 불러오기 중 오류가 발생했습니다.',
+                icon: 'error',
+                confirmButtonText: '확인',
+            });
         }
     };
 
     // 댓글 작성
     const handleAddComment = async () => {
-        if (!newComment.trim()) return;
+        if (!newComment.trim()) {
+            await Swal.fire({
+                icon: 'warning',
+                title: '입력 오류',
+                text: '댓글 내용을 입력해 주세요.',
+                confirmButtonText: '확인',
+                confirmButtonColor: '#3085d6',
+            });
+            return;
+        }
 
         try {
             const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments`, {
@@ -154,7 +173,12 @@ const NoticeBoardDetail = () => {
             fetchComments(); // 목록 갱신
         } catch (err) {
             console.error(err);
-            alert('댓글 작성 중 오류 발생');
+            await Swal.fire({
+                title: '오류',
+                text: '댓글 작성 중 오류가 발생했습니다.',
+                icon: 'error',
+                confirmButtonText: '확인',
+            });
         }
     };
 
@@ -194,6 +218,16 @@ const NoticeBoardDetail = () => {
 
     // 댓글 수정
     const handleEditComment = async (commentId) => {
+        if (!editContent.trim()) {
+            await Swal.fire({
+                icon: 'warning',
+                title: '입력 오류',
+                text: '수정할 댓글 내용을 입력해 주세요.',
+                confirmButtonText: '확인',
+                confirmButtonColor: '#3085d6',
+            });
+            return;
+        }
         try {
             const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments/${commentId}`, {
                 method: 'PUT',
@@ -210,7 +244,12 @@ const NoticeBoardDetail = () => {
             fetchComments();
         } catch (err) {
             console.error(err);
-            alert('댓글 수정 중 오류 발생');
+            await Swal.fire({
+                title: '오류',
+                text: '댓글 수정 중 오류가 발생했습니다.',
+                icon: 'error',
+                confirmButtonText: '확인',
+            });
         }
     };
 

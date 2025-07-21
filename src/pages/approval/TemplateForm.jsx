@@ -9,6 +9,7 @@ import QuillEditor from '../../components/editor/QuillEditor'; // 새로 만든 
 import CustomFieldModal from '../../components/approval/CustomFieldModal';
 import InfoChangeModal from '../../components/approval/InfoChangeModal';
 import AddFieldModal from '../../components/approval/AddFieldModal';
+import Swal from 'sweetalert2';
 
 const ItemTypes = {
   FIELD: 'field',
@@ -43,18 +44,18 @@ const DraggableField = ({ field, index, moveField, children }) => {
 };
 
 const initialDefaultFields = [
-    { id: 'title', name: '제목', desc: '결재문서의 제목입니다.', multiSelect: false, required: true, enabled: true, isDefault: true },
-    { id: 'recipient', name: '수신참조', desc: '결재정보를 공유할 참조자입니다.', multiSelect: true, required: false, enabled: true, isDefault: true },
-    { id: 'ref_doc', name: '참조문서', desc: '관련 결재문서를 첨부합니다.', multiSelect: false, required: false, enabled: true, isDefault: true },
-    { id: 'enforcer', name: '시행자', desc: '결재문서의 시행자입니다.', multiSelect: true, required: false, enabled: true, isDefault: true },
+  { id: 'title', name: '제목', desc: '결재문서의 제목입니다.', multiSelect: false, required: true, enabled: true, isDefault: true },
+  { id: 'recipient', name: '수신참조', desc: '결재정보를 공유할 참조자입니다.', multiSelect: true, required: false, enabled: true, isDefault: true },
+  { id: 'ref_doc', name: '참조문서', desc: '관련 결재문서를 첨부합니다.', multiSelect: false, required: false, enabled: true, isDefault: true },
+  { id: 'enforcer', name: '시행자', desc: '결재문서의 시행자입니다.', multiSelect: true, required: false, enabled: true, isDefault: true },
 ];
 
 const componentLibrary = [
-    { id: 'text', name: '텍스트' },
-    { id: 'date_ym', name: '날짜(년.월)' },
-    { id: 'date_ymd', name: '날짜(년.월.일)' },
-    { id: 'period', name: '기간' },
-    { id: 'number', name: '숫자' },
+  { id: 'text', name: '텍스트' },
+  { id: 'date_ym', name: '날짜(년.월)' },
+  { id: 'date_ymd', name: '날짜(년.월.일)' },
+  { id: 'period', name: '기간' },
+  { id: 'number', name: '숫자' },
 ];
 
 
@@ -62,7 +63,7 @@ const TemplateForm = () => {
   const navigate = useNavigate();
   const { templateId } = useParams();
   const isEditMode = !!templateId;
-  
+
   // --- Right Pane State ---
   const [useEditor, setUseEditor] = useState('Y');
   const [requireAttachment, setRequireAttachment] = useState('N');
@@ -76,7 +77,7 @@ const TemplateForm = () => {
   const [defaultFields, setDefaultFields] = useState(initialDefaultFields);
   const [customFields, setCustomFields] = useState([]);
   const [editorContent, setEditorContent] = useState('');
-  
+
   // --- Modal State ---
   const [isCustomFieldModalOpen, setIsCustomFieldModalOpen] = useState(false);
   const [isInfoChangeModalOpen, setIsInfoChangeModalOpen] = useState(false);
@@ -98,56 +99,56 @@ const TemplateForm = () => {
 
     const fetchCategories = async () => {
       try {
-            const catRes = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/category`);
-            const categoriesData = (catRes?.data?.result && Array.isArray(catRes.data.result)) ? catRes.data.result : [];
-            setCategories(categoriesData);
-            return categoriesData;
-        } catch (error) {
-            console.error("Error fetching categories:", error);
-            setCategories([]);
-            return [];
-        }
+        const catRes = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/category`);
+        const categoriesData = (catRes?.data?.result && Array.isArray(catRes.data.result)) ? catRes.data.result : [];
+        setCategories(categoriesData);
+        return categoriesData;
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setCategories([]);
+        return [];
+      }
     };
-    
-    const fetchTemplateData = async (templateId) => {
-        try {
-            const tplRes = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`);
-            console.log("수정 페이지 데이터 로딩 응답:", JSON.stringify(tplRes.data, null, 2));
-            const data = tplRes?.data?.result; // 백엔드 응답 형식에 따라 .data 또는 .result를 사용해야 할 수 있습니다.
 
-            if (data) {
-                setCategoryId(data.categoryId || '');
-                if (data.template) {
-                    const { title, description, tags, useEditor, requireAttachment, defaultFields, content } = data.template;
-                    setTitle(title || '');
-                    setDescription(description || '');
-                    setTags(tags || []);
-                    setUseEditor(useEditor || 'Y');
-                    setRequireAttachment(requireAttachment || 'N');
-                    if (defaultFields && defaultFields.length > 0) {
-                        setDefaultFields(defaultFields);
-                    }
-                    const customFieldData = content?.filter(c => c.type !== 'editor') || [];
-                    const editorData = content?.find(c => c.type === 'editor');
-                    setCustomFields(customFieldData);
-                    if (editorData) setEditorContent(editorData.value);
-                }
+    const fetchTemplateData = async (templateId) => {
+      try {
+        const tplRes = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`);
+        console.log("수정 페이지 데이터 로딩 응답:", JSON.stringify(tplRes.data, null, 2));
+        const data = tplRes?.data?.result; // 백엔드 응답 형식에 따라 .data 또는 .result를 사용해야 할 수 있습니다.
+
+        if (data) {
+          setCategoryId(data.categoryId || '');
+          if (data.template) {
+            const { title, description, tags, useEditor, requireAttachment, defaultFields, content } = data.template;
+            setTitle(title || '');
+            setDescription(description || '');
+            setTags(tags || []);
+            setUseEditor(useEditor || 'Y');
+            setRequireAttachment(requireAttachment || 'N');
+            if (defaultFields && defaultFields.length > 0) {
+              setDefaultFields(defaultFields);
             }
-        } catch (error) {
-            console.error("Error fetching template data:", error);
+            const customFieldData = content?.filter(c => c.type !== 'editor') || [];
+            const editorData = content?.find(c => c.type === 'editor');
+            setCustomFields(customFieldData);
+            if (editorData) setEditorContent(editorData.value);
+          }
         }
+      } catch (error) {
+        console.error("Error fetching template data:", error);
+      }
     };
 
     const initializeForm = async () => {
-        const categoriesData = await fetchCategories();
-        
+      const categoriesData = await fetchCategories();
+
       if (isEditMode) {
-            await fetchTemplateData(templateId);
+        await fetchTemplateData(templateId);
       } else {
-            if (categoriesData.length > 0) {
-                setCategoryId(categoriesData[0].id);
-            }
+        if (categoriesData.length > 0) {
+          setCategoryId(categoriesData[0].id);
         }
+      }
     };
 
     initializeForm();
@@ -158,7 +159,7 @@ const TemplateForm = () => {
   const handleDefaultFieldChange = (id, prop, value) => {
     setDefaultFields(prev => prev.map(f => f.id === id ? { ...f, [prop]: value } : f));
   };
-  
+
   const handleSaveDefaultFieldInfo = (id, data) => {
     setDefaultFields(prev => prev.map(f => f.id === id ? { ...f, name: data.name, desc: data.desc } : f));
   };
@@ -200,7 +201,7 @@ const TemplateForm = () => {
       setCustomFields(prev => [...prev, newField]);
     }
   };
-  
+
   const removeCustomField = (id) => {
     setCustomFields(prev => prev.filter(f => f.id !== id));
   };
@@ -215,11 +216,11 @@ const TemplateForm = () => {
   }, []);
 
   const addComponentFromLibrary = (component) => {
-    const newField = { 
-      id: `custom_${Date.now()}`, 
+    const newField = {
+      id: `custom_${Date.now()}`,
       libraryId: component.id, // Link to library
       type: component.id.split('_')[0], // text, date etc.
-      header: component.name, 
+      header: component.name,
       description: '',
       required: false,
       // ...other default properties from Modal 3
@@ -228,12 +229,20 @@ const TemplateForm = () => {
   };
 
   const handleSave = async () => {
+    if (!title.trim()) {
+      await Swal.fire('입력 필요', '양식명을 입력해주세요.', 'warning');
+      return;
+    }
+    if (!categoryId) {
+      await Swal.fire('선택 필요', '카테고리를 선택해주세요.', 'warning');
+      return;
+    }
     // 1. Nest all form builder data into a 'template' object
     const content = [
       ...customFields,
     ];
     if (useEditor === 'Y') {
-        content.push({ type: 'editor', value: editorContent });
+      content.push({ type: 'editor', value: editorContent });
     }
 
     const templateData = {
@@ -262,11 +271,11 @@ const TemplateForm = () => {
         const response = await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/create`, payload);
         console.log('Server response:', response.data);
       }
-      alert('템플릿이 저장되었습니다.');
+      await Swal.fire('성공', '템플릿이 저장되었습니다.', 'success');
       navigate('/approval/admin/templates');
     } catch (error) {
       console.error('Failed to save template:', error.response ? error.response.data : error.message);
-      alert('템플릿 저장에 실패했습니다.');
+      await Swal.fire('실패', '템플릿 저장에 실패했습니다.', 'error');
     }
   };
 
@@ -279,128 +288,128 @@ const TemplateForm = () => {
         {defaultFields.map(field => (
           <div key={field.id} className={`${styles.fieldItem}`}>
             <div className={styles.fieldHeader}>
-                <span className={styles.fieldName}>{field.name}</span>
-                <span className={styles.fieldDesc}>{field.desc}</span>
-          </div>
-            <div className={styles.fieldControls}>
-                <button className={styles.controlButton} onClick={() => handleOpenInfoChangeModal(field)}>정보변경</button>
-              </div>
+              <span className={styles.fieldName}>{field.name}</span>
+              <span className={styles.fieldDesc}>{field.desc}</span>
             </div>
-          ))}
-        </div>
+            <div className={styles.fieldControls}>
+              <button className={styles.controlButton} onClick={() => handleOpenInfoChangeModal(field)}>정보변경</button>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* B. Custom Fields */}
-       <div className={styles.fieldSection}>
-          <h3 className={styles.sectionTitle}>양식 입력 정보 추가 (동적 커스텀 필드)</h3>
-           <DndProvider backend={HTML5Backend}>
-            {customFields.map((field, index) => (
-               <DraggableField key={field.id} index={index} field={field} moveField={moveCustomField}>
-                <div className={styles.fieldItem}>
-                    <div className={styles.fieldHeader}>
-                        <span className={styles.fieldName}>{field.header}</span>
-                        <span className={styles.fieldDesc}>{field.description}</span>
-        </div>
-                     <div className={styles.fieldControls}>
-                        <button className={styles.controlButton} onClick={() => handleOpenCustomFieldModal(field)}>수정</button>
-                        <button className={`${styles.controlButton} ${styles.danger}`} onClick={() => removeCustomField(field.id)}>삭제</button>
-                  </div>
+      <div className={styles.fieldSection}>
+        <h3 className={styles.sectionTitle}>양식 입력 정보 추가 (동적 커스텀 필드)</h3>
+        <DndProvider backend={HTML5Backend}>
+          {customFields.map((field, index) => (
+            <DraggableField key={field.id} index={index} field={field} moveField={moveCustomField}>
+              <div className={styles.fieldItem}>
+                <div className={styles.fieldHeader}>
+                  <span className={styles.fieldName}>{field.header}</span>
+                  <span className={styles.fieldDesc}>{field.description}</span>
                 </div>
-              </DraggableField>
-            ))}
-          </DndProvider>
-          <button className={styles.addButton} onClick={handleOpenAddFieldModal}>+ 입력정보 추가</button>
-                  </div>
+                <div className={styles.fieldControls}>
+                  <button className={styles.controlButton} onClick={() => handleOpenCustomFieldModal(field)}>수정</button>
+                  <button className={`${styles.controlButton} ${styles.danger}`} onClick={() => removeCustomField(field.id)}>삭제</button>
+                </div>
+              </div>
+            </DraggableField>
+          ))}
+        </DndProvider>
+        <button className={styles.addButton} onClick={handleOpenAddFieldModal}>+ 입력정보 추가</button>
+      </div>
 
       {/* C. WYSIWYG Editor */}
       {useEditor === 'Y' && (
         <div className={styles.fieldSection}>
           <h3 className={styles.sectionTitle}>본문</h3>
-          <QuillEditor 
-            value={editorContent} 
-            onChange={setEditorContent} 
+          <QuillEditor
+            value={editorContent}
+            onChange={setEditorContent}
             placeholder="양식의 기본 내용을 입력하세요..."
           />
-                  </div>
+        </div>
       )}
-                </div>
+    </div>
   );
 
   const renderRightPane = () => (
     <div className={styles.rightPane}>
-        {/* A. Basic Settings */}
-        <div className={styles.settingSection}>
-            <h3 className={styles.sectionTitle}>양식 기초 정보</h3>
-                 <div className={styles.formGroup}>
-                <label>Editor 사용여부</label>
-                <div>
-                    <input type="radio" id="editor_y" name="editor" value="Y" checked={useEditor === 'Y'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_y">사용</label>
-                    <input type="radio" id="editor_n" name="editor" value="N" checked={useEditor === 'N'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_n">미사용</label>
-                </div>
-                </div>
-                <div className={styles.formGroup}>
-                <label>첨부파일 필수</label>
-                <div>
-                    <input type="radio" id="attach_y" name="attach" value="Y" checked={requireAttachment === 'Y'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_y">필수</label>
-                    <input type="radio" id="attach_n" name="attach" value="N" checked={requireAttachment === 'N'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_n">미필수</label>
-                </div>
-                </div>
-              </div>
-
-        {/* B. Form Info */}
-        <div className={styles.settingSection}>
-            <h3 className={styles.sectionTitle}>양식 정보 입력</h3>
-            <div className={styles.formGroup}><label>양식명</label><input type="text" value={title} onChange={e => setTitle(e.target.value)} /></div>
-            <div className={styles.formGroup}><label>카테고리</label>
-                 <select value={categoryId} onChange={e => setCategoryId(e.target.value)}>
-                    <option value="" disabled>카테고리 선택</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.categoryName}</option>)}
-                </select>
-              </div>
-            <div className={styles.formGroup}><label>양식설명</label><textarea value={description} onChange={e => setDescription(e.target.value)} /></div>
-                  </div>
-        
-        {/* C. Component Library */}
-        <div className={styles.settingSection}>
-            <h3 className={styles.sectionTitle}>기본 정보블록 선택</h3>
-            <div className={styles.componentLibrary}>
-            {componentLibrary.map(comp => (
-                <button key={comp.id} className={styles.componentButton} onClick={() => addComponentFromLibrary(comp)}>
-                    {/* Icon can be added here */}
-                    <span>{comp.name}</span>
-                </button>
-                ))}
-              </div>
-            </div>
+      {/* A. Basic Settings */}
+      <div className={styles.settingSection}>
+        <h3 className={styles.sectionTitle}>양식 기초 정보</h3>
+        <div className={styles.formGroup}>
+          <label>Editor 사용여부</label>
+          <div>
+            <input type="radio" id="editor_y" name="editor" value="Y" checked={useEditor === 'Y'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_y">사용</label>
+            <input type="radio" id="editor_n" name="editor" value="N" checked={useEditor === 'N'} onChange={e => setUseEditor(e.target.value)} /><label htmlFor="editor_n">미사용</label>
+          </div>
+        </div>
+        <div className={styles.formGroup}>
+          <label>첨부파일 필수</label>
+          <div>
+            <input type="radio" id="attach_y" name="attach" value="Y" checked={requireAttachment === 'Y'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_y">필수</label>
+            <input type="radio" id="attach_n" name="attach" value="N" checked={requireAttachment === 'N'} onChange={e => setRequireAttachment(e.target.value)} /><label htmlFor="attach_n">미필수</label>
+          </div>
+        </div>
       </div>
-    );
+
+      {/* B. Form Info */}
+      <div className={styles.settingSection}>
+        <h3 className={styles.sectionTitle}>양식 정보 입력</h3>
+        <div className={styles.formGroup}><label>양식명</label><input type="text" value={title} onChange={e => setTitle(e.target.value)} /></div>
+        <div className={styles.formGroup}><label>카테고리</label>
+          <select value={categoryId} onChange={e => setCategoryId(e.target.value)}>
+            <option value="" disabled>카테고리 선택</option>
+            {categories.map(c => <option key={c.id} value={c.id}>{c.categoryName}</option>)}
+          </select>
+        </div>
+        <div className={styles.formGroup}><label>양식설명</label><textarea value={description} onChange={e => setDescription(e.target.value)} /></div>
+      </div>
+
+      {/* C. Component Library */}
+      <div className={styles.settingSection}>
+        <h3 className={styles.sectionTitle}>기본 정보블록 선택</h3>
+        <div className={styles.componentLibrary}>
+          {componentLibrary.map(comp => (
+            <button key={comp.id} className={styles.componentButton} onClick={() => addComponentFromLibrary(comp)}>
+              {/* Icon can be added here */}
+              <span>{comp.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-     <div className={styles.formBuilderPage}>
-        <div className={styles.mainContent}>
-          {renderLeftPane()}
-          {renderRightPane()}
-        </div>
-        <div className={styles.footer}>
+    <div className={styles.formBuilderPage}>
+      <div className={styles.mainContent}>
+        {renderLeftPane()}
+        {renderRightPane()}
+      </div>
+      <div className={styles.footer}>
         <button className={styles.cancelButton} onClick={() => navigate('/approval/admin/templates')}>취소</button>
-            <button className={styles.saveButton} onClick={handleSave}>저장</button>
-        </div>
-        <CustomFieldModal 
-          isOpen={isCustomFieldModalOpen}
-          onClose={() => setIsCustomFieldModalOpen(false)}
-          onSave={handleSaveCustomField}
-          field={editingField}
-        />
-        <InfoChangeModal
-          isOpen={isInfoChangeModalOpen}
-          onClose={() => setIsInfoChangeModalOpen(false)}
-          onSave={handleSaveDefaultFieldInfo}
-          field={editingField}
-        />
-        <AddFieldModal
-          isOpen={isAddFieldModalOpen}
-          onClose={() => setIsAddFieldModalOpen(false)}
-          onSelect={handleAddFieldSelection}
-        />
+        <button className={styles.saveButton} onClick={handleSave}>저장</button>
+      </div>
+      <CustomFieldModal
+        isOpen={isCustomFieldModalOpen}
+        onClose={() => setIsCustomFieldModalOpen(false)}
+        onSave={handleSaveCustomField}
+        field={editingField}
+      />
+      <InfoChangeModal
+        isOpen={isInfoChangeModalOpen}
+        onClose={() => setIsInfoChangeModalOpen(false)}
+        onSave={handleSaveDefaultFieldInfo}
+        field={editingField}
+      />
+      <AddFieldModal
+        isOpen={isAddFieldModalOpen}
+        onClose={() => setIsAddFieldModalOpen(false)}
+        onSelect={handleAddFieldSelection}
+      />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { HR_SERVICE } from './host-config';
 import { removeLocalStorageForLogout } from '../common/common';
+import Swal from 'sweetalert2';
 
 const axiosInstance = axios.create({});
 
@@ -70,7 +71,12 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (error) {
         console.log(error);
-        alert('로그인 정보가 만료되었습니다. 다시 로그인을 해주세요.');
+        await Swal.fire({
+          icon: 'warning',
+          title: '로그인 만료',
+          text: '로그인 정보가 만료되었습니다. 다시 로그인을 해주세요.',
+          confirmButtonColor: '#3085d6',
+        });
         // 백엔드에서 401을 보낸거 -> Refresh도 만료된 상황 (로그아웃처럼 처리해줘야 함.)
         // localStorage.clear();
         removeLocalStorageForLogout();

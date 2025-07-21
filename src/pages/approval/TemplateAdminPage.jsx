@@ -4,6 +4,7 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import CategoryModal from '../../components/approval/CategoryModal';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const TemplateAdminPage = () => {
   const navigate = useNavigate();
@@ -12,13 +13,13 @@ const TemplateAdminPage = () => {
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const [allTemplates, setAllTemplates] = useState([]); // 모든 템플릿 원본
   const [filteredTemplates, setFilteredTemplates] = useState([]); // 화면에 표시될 템플릿
-  
+
   const [templatesLoading, setTemplatesLoading] = useState(true);
   const [templatesError, setTemplatesError] = useState(null);
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL', 'ACTIVE', 'INACTIVE'
 
@@ -57,7 +58,7 @@ const TemplateAdminPage = () => {
       if (statusFilter !== 'ALL') {
         templates = templates.filter(t => (statusFilter === 'ACTIVE' ? t.status === 'Y' : t.status === 'N'));
       }
-      
+
       // 3. 검색어 필터
       if (searchTerm) {
         templates = templates.filter(t =>
@@ -65,7 +66,7 @@ const TemplateAdminPage = () => {
           (t.template.description && t.template.description.toLowerCase().includes(searchTerm.toLowerCase()))
         );
       }
-      
+
       setFilteredTemplates(templates);
     };
 
@@ -78,8 +79,8 @@ const TemplateAdminPage = () => {
       try {
         setTemplatesLoading(true);
         const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`);
-        setAllTemplates(res.data?.result || []); 
-        
+        setAllTemplates(res.data?.result || []);
+
       } catch (err) {
         setTemplatesError('양식 목록을 불러오는 데 실패했습니다.');
         console.error(err);
@@ -103,37 +104,61 @@ const TemplateAdminPage = () => {
   const handleSaveCategory = async (categoryData, isDelete = false) => {
     try {
       if (isDelete) {
-        // 삭제
+        const result = await Swal.fire({
+          title: '정말로 이 카테고리를 삭제하시겠습니까?',
+          text: '해당 카테고리에 포함된 템플릿도 함께 삭제됩니다.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: '예',
+          cancelButtonText: '아니요',
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+        });
+
+        if (!result.isConfirmed) return;
+
         await axiosInstance.delete(`${API_BASE_URL}${APPROVAL_SERVICE}/category/${editingCategory.id}`);
-        alert('카테고리가 삭제되었습니다.');
+        await Swal.fire({
+          icon: 'success',
+          title: '삭제 완료',
+          text: '카테고리가 삭제되었습니다.',
+        });
       } else if (editingCategory && editingCategory.id) {
-        // 수정
         await axiosInstance.put(`${API_BASE_URL}${APPROVAL_SERVICE}/category/${editingCategory.id}`, categoryData);
-        alert('카테고리가 수정되었습니다.');
+        await Swal.fire('수정 완료', '카테고리가 수정되었습니다.', 'success');
       } else {
-        // 생성
         await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/category/create`, categoryData);
-        alert('카테고리가 추가되었습니다.');
+        await Swal.fire('등록 완료', '카테고리가 추가되었습니다.', 'success');
       }
+
       setIsModalOpen(false);
       fetchCategories();
     } catch (err) {
-      alert('카테고리 처리 중 오류가 발생했습니다.');
       console.error(err);
+      Swal.fire('오류', '카테고리 처리 중 오류가 발생했습니다.', 'error');
     }
   };
 
   const handleDelete = async (templateId) => {
-    if (window.confirm('정말로 이 템플릿을 삭제하시겠습니까?')) {
-      try {
-        await axiosInstance.delete(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`);
-        alert('템플릿이 삭제되었습니다.');
-        // 삭제 후 목록을 다시 불러오기 위해 allTemplates 상태를 업데이트합니다.
-        setAllTemplates(prevTemplates => prevTemplates.filter(t => t.templateId !== templateId));
-      } catch (error) {
-        console.error('Failed to delete template:', error);
-        alert('템플릿 삭제에 실패했습니다.');
-      }
+    const result = await Swal.fire({
+      title: '정말로 이 템플릿을 삭제하시겠습니까?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: '예',
+      cancelButtonText: '아니요',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await axiosInstance.delete(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`);
+      await Swal.fire('삭제 완료', '템플릿이 삭제되었습니다.', 'success');
+      setAllTemplates(prevTemplates => prevTemplates.filter(t => t.templateId !== templateId));
+    } catch (error) {
+      console.error('Failed to delete template:', error);
+      Swal.fire('삭제 실패', '템플릿 삭제에 실패했습니다.', 'error');
     }
   };
 
@@ -170,7 +195,7 @@ const TemplateAdminPage = () => {
             <span className={styles.categoryName}>{cat.categoryName}</span>
             {cat.categoryDescription && <span className={styles.categoryDesc}>{cat.categoryDescription}</span>}
           </div>
-          <button 
+          <button
             className={styles.editButton}
             onClick={(e) => {
               e.stopPropagation(); // li의 onClick 이벤트 전파 방지
@@ -202,7 +227,7 @@ const TemplateAdminPage = () => {
         </div>
         <div className={styles.controls}>
           <div className={styles.searchBar}>
-            <input 
+            <input
               type="text"
               placeholder="카테고리, 문서명으로 검색하세요."
               value={searchTerm}
@@ -210,7 +235,7 @@ const TemplateAdminPage = () => {
             />
           </div>
           <div className={styles.filterTabs}>
-            <button 
+            <button
               className={statusFilter === 'ALL' ? styles.active : ''}
               onClick={() => setStatusFilter('ALL')}
             >
@@ -239,8 +264,8 @@ const TemplateAdminPage = () => {
                 </div>
               </div>
               <div className={styles.templateActions}>
-                  <button onClick={() => navigate(`/approval/templates/edit/${template.templateId}`)}>수정</button>
-                  <button onClick={() => handleDelete(template.templateId)} className={styles.deleteButton}>삭제</button>
+                <button onClick={() => navigate(`/approval/templates/edit/${template.templateId}`)}>수정</button>
+                <button onClick={() => handleDelete(template.templateId)} className={styles.deleteButton}>삭제</button>
               </div>
             </div>
           ))}
