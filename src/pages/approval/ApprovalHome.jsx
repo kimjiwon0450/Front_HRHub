@@ -7,6 +7,7 @@ import SummaryCard from './SummaryCard';
 import MyReportsList from './MyReportsList'; // ApprovalBoxList 대신 MyReportsList를 임포트
 import FrequentTemplatesModal from './FrequentTemplatesModal';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
+import Swal from 'sweetalert2';
 
 // 아이콘 임포트
 import delayedIcon from '/icons/advanced.png';
@@ -45,11 +46,11 @@ const ApprovalHome = () => {
 
       // 로컬 스토리지에서 자주 쓰는 양식 ID 로드
       const storedIds = JSON.parse(localStorage.getItem('frequentTemplates') || '[]');
-      
+
       // 서버에 존재하는 양식 ID만 필터링
       const serverTemplateIds = new Set(serverTemplates.map(t => t.templateId));
       const validFrequentIds = storedIds.filter(id => serverTemplateIds.has(id));
-      
+
       // 유효한 ID로 상태 및 로컬 스토리지 업데이트
       setFrequentTemplates(validFrequentIds);
       localStorage.setItem('frequentTemplates', JSON.stringify(validFrequentIds));
@@ -73,7 +74,7 @@ const ApprovalHome = () => {
     setFrequentTemplates(updatedIds);
     localStorage.setItem('frequentTemplates', JSON.stringify(updatedIds));
   };
-  
+
   const getTemplateTitle = (templateId) => {
     const template = allTemplates.find(t => t.templateId === templateId);
     return template ? template.template.title : '알 수 없는 양식';
@@ -82,7 +83,7 @@ const ApprovalHome = () => {
   return (
     <div className={styles.approvalHomeContainer}>
       {isModalOpen && (
-        <FrequentTemplatesModal 
+        <FrequentTemplatesModal
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveTemplates}
         />
@@ -98,8 +99,8 @@ const ApprovalHome = () => {
           <div className={styles.templatesGrid}>
             {frequentTemplates.map(templateId => (
               <div key={templateId} className={styles.templateCard} onClick={() => navigate(`/approval/reports/new/${templateId}`)}>
-                <button 
-                  className={styles.removeButton} 
+                <button
+                  className={styles.removeButton}
                   onClick={(e) => handleRemoveFrequentTemplate(e, templateId)}
                 >
                   &times;
@@ -116,7 +117,7 @@ const ApprovalHome = () => {
           </div>
         )}
       </div>
-      
+
       {/* 요약 카드 */}
       <div className={styles.summarySection}>
         <SummaryCard title="일주일 이상 지연된 수신결재" count={`${summaryData.delayed}건`} icon={delayedIcon} />

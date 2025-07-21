@@ -4,6 +4,7 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import styles from './ApprovalForm.module.scss';
 import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
+import Swal from 'sweetalert2';
 
 const ApprovalForm = () => {
   const navigate = useNavigate();
@@ -76,7 +77,11 @@ const ApprovalForm = () => {
           setTemplateFormData(initialFormData);
         } catch (error) {
           console.error('Failed to fetch template:', error);
-          alert('템플릿을 불러오는 데 실패했습니다.');
+          Swal.fire({
+            icon: 'warning',
+            title: '템플릿을 불러오는 데 실패했습니다.',
+            confirmButtonText: '확인',
+          });
           navigate('/approval/home');
         }
       };
