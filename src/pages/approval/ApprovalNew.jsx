@@ -1,27 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useParams, useSearchParams, useBlocker } from 'react-router-dom';
 import styles from './ApprovalNew.module.scss';
 import { useApprovalForm } from '../../hooks/useApprovalForm';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
 import AttachmentList from '../../components/approval/AttachmentList';
-import FormField from './FormField'; // FormField 컴포넌트 임포트
-import QuillEditor from '../../components/editor/QuillEditor'; // 새로 만든 에디터 컴포넌트 import
+import FormField from './FormField';
+import QuillEditor from '../../components/editor/QuillEditor';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import TemplateSelectionModal from '../../components/approval/TemplateSelectionModal';
+
+const MySwal = withReactContent(Swal);
 
 function ApprovalNew() {
   const { reportId } = useParams();
   const [searchParams] = useSearchParams();
   const templateId = searchParams.get('templateId') || reportId;
-
-  console.log(`%c[1단계: 파라미터 확인]`, 'color: blue; font-weight: bold;', { 
-    templateId, 
-    reportId, 
-    searchParams: Object.fromEntries(searchParams.entries()) 
-  });
-
   const navigate = useNavigate();
 
   const {
@@ -40,43 +37,17 @@ function ApprovalNew() {
   const [isApproverModalOpen, setIsApproverModalOpen] = useState(false);
   const [isReferenceModalOpen, setIsReferenceModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); // 임시 저장 로딩 상태
+  const [isSaving, setIsSaving] = useState(false);
   const [files, setFiles] = useState([]);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isDirty, setIsDirty] = useState(false); // 폼 내용 변경 여부
 
-  const handleValueChange = (id, value) => {
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
+  // useCallback을 사용하여 함수가 항상 최신 상태를 참조하도록 함
+  const handleFinalSubmit = useCallback(async (isSubmit = false, isMovingAway = false) => {
+    // ... (이 함수는 이전과 동일)
+     if (isSubmit) setIsSubmitting(true);
+    else setIsSaving(true);
 
-  const handleSelectApprovers = (selected) => {
-    setApprovalLine(selected);
-    setIsApproverModalOpen(false); // 모달 닫기 추가
-  };
-
-  const handleSelectReferences = (selected) => {
-    setReferences(selected);
-    setIsReferenceModalOpen(false); // 모달 닫기 추가
-  };
-
-  const handleFileChange = (e) => {
-    // 새로 선택한 파일들로 기존 목록을 완전히 교체합니다.
-    setFiles(Array.from(e.target.files));
-  };
-
-  const handleRemoveFile = (indexToRemove) => {
-    setFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
-  };
-
-  const handleFinalSubmit = async (isSubmit = false) => {
-    if (isSubmit) {
-      setIsSubmitting(true);
-    } else {
-      setIsSaving(true);
-    }
-
-    console.log(`%c[4단계: 저장 직전 template 상태]`, 'color: red; font-weight: bold;', template);
-
-    // 1. DTO와 정확히 일치하는 구조의 자바스크립트 객체를 먼저 만듭니다.
     const reqDto = {
       title: formData.title,
       content: formData.content,
@@ -85,89 +56,109 @@ function ApprovalNew() {
       approvalLine: approvalLine,
       references: references,
     };
-
-    // 2. 최종적으로 서버에 보낼 FormData 객체를 생성합니다.
     const submissionData = new FormData();
-    console.log(`%c[5단계: 최종 전송 DTO]`, 'color: purple; font-weight: bold;', reqDto);
-    // 3. 위에서 만든 자바스크립트 객체(reqDto)를 'req'라는 이름의 파트로 추가합니다.
-    //    Blob을 사용하여 Content-Type을 'application/json'으로 명시해줍니다.
-    submissionData.append(
-      'req',
-      new Blob([JSON.stringify(reqDto)], {
-        type: 'application/json',
-      }),
-    );
+    submissionData.append('req', new Blob([JSON.stringify(reqDto)], { type: 'application/json' }));
+    files.forEach((file) => submissionData.append('files', file));
 
-    // 4. 파일들을 'files'라는 이름의 파트로 추가합니다.
-    files.forEach((file) => {
-      submissionData.append('files', file);
-    });
-
-    // 5. API를 호출합니다.
     const url = isSubmit
       ? `${API_BASE_URL}${APPROVAL_SERVICE}/submit`
       : `${API_BASE_URL}${APPROVAL_SERVICE}/save`;
-    const successMessage = isSubmit
-      ? '성공적으로 상신되었습니다.'
-      : '임시 저장되었습니다.';
+      
+    const successMessage = isSubmit ? '성공적으로 상신되었습니다.' : '임시 저장되었습니다.';
 
     try {
       const res = await axiosInstance.post(url, submissionData);
-
-      if (
-        res.data &&
-        (res.data.statusCode === 201 || res.data.statusCode === 200)
-      ) {
-        console.log(`%c[6단계: API 응답]`, 'color: green; font-weight: bold;', res.data);
-        
-        // 성공 시 다른 페이지로 이동
-        const nextUrl = isSubmit
-          ? `/approval/reports/${res.data.result.id}`
-          : '/approval/drafts';
-        navigate(nextUrl);
+      if (res.data && (res.data.statusCode === 201 || res.data.statusCode === 200)) {
+        setIsDirty(false);
+        if (!isMovingAway) {
+          alert(successMessage);
+          const nextUrl = isSubmit ? `/approval/reports/${res.data.result.id}` : '/approval/drafts';
+          navigate(nextUrl);
+        }
       } else {
         throw new Error(res.data.statusMessage || '요청에 실패했습니다.');
       }
     } catch (err) {
       console.error(`요청 실패: ${url}`, err);
-      alert(`오류: ${err.response?.data?.statusMessage || err.message}`);
-    } finally {
-      if (isSubmit) {
-        setIsSubmitting(false);
-      } else {
-        setIsSaving(false);
+      if (!isMovingAway) {
+        alert(`오류: ${err.response?.data?.statusMessage || err.message}`);
       }
+    } finally {
+      if (isSubmit) setIsSubmitting(false);
+      else setIsSaving(false);
     }
+  }, [formData, template, approvalLine, references, files, navigate, reportId]);
+
+  // React Router v7의 useBlocker로 페이지 이탈 감지
+  const blocker = useBlocker(isDirty);
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      MySwal.fire({
+        title: '작성중인 내용이 있습니다.',
+        text: "페이지를 떠나기 전에 임시저장 하시겠습니까?",
+        icon: 'question',
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: '예 (임시저장)',
+        denyButtonText: '아니오 (그냥 이동)',
+        cancelButtonText: '취소 (머무르기)',
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          await handleFinalSubmit(false, true);
+          blocker.proceed();
+        } else if (result.isDenied) {
+          blocker.proceed();
+        } else {
+          blocker.reset();
+        }
+      });
+    }
+  }, [blocker, handleFinalSubmit]);
+
+  // ★★★ 핵심 수정: 폼을 수정하는 모든 핸들러에 setIsDirty(true)를 추가합니다. ★★★
+  const handleValueChange = (id, value) => {
+    setIsDirty(true);
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  const handleSelectApprovers = (selected) => {
+    setIsDirty(true);
+    setApprovalLine(selected);
+    setIsApproverModalOpen(false);
+  };
 
+  const handleSelectReferences = (selected) => {
+    setIsDirty(true);
+    setReferences(selected);
+    setIsReferenceModalOpen(false);
+  };
+
+  const handleFileChange = (e) => {
+    setIsDirty(true);
+    setFiles(Array.from(e.target.files));
+  };
+
+  const handleRemoveFile = (indexToRemove) => {
+    setIsDirty(true);
+    setFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
+  };
 
   if (loading) return <p>로딩 중...</p>;
   if (error) return <p>오류: {error}</p>;
 
-  // 디버깅 정보 출력
-  console.log(`%c[8단계: 렌더링 시 데이터 상태]`, 'color: purple; font-weight: bold;', {
-    template,
-    formData,
-    approvalLine,
-    references,
-    attachments,
-    reportId
-  });
-  console.log('[렌더링 시점] template:', template);
-console.log('[렌더링 시점] formData:', formData);
-console.log('[렌더링 시점] approvalLine:', approvalLine);
-console.log('[렌더링 시점] references:', references);
-console.log('[렌더링 시점] attachments:', attachments);
-
   return (
     <div className={styles.pageContainer}>
+      {/* 
+        각 input, QuillEditor, EmployeeSelectModal 등이 
+        위에서 수정한 핸들러 함수들(handleValueChange, handleSelectApprovers 등)을 
+        props로 잘 전달받고 있는지 확인하는 것이 중요합니다.
+      */}
       <form onSubmit={(e) => { e.preventDefault(); handleFinalSubmit(true); }}>
         <div className={styles.section}>
           <h3>{template ? template.title : '결재 문서 작성'}</h3>
           <table className={styles.approvalFormTable}>
             <tbody>
-              {/* 제목 필드 - 항상 표시 */}
               <tr>
                 <th>제목</th>
                 <td>
@@ -182,7 +173,6 @@ console.log('[렌더링 시점] attachments:', attachments);
                   />
                 </td>
               </tr>
-              {/* 템플릿의 다른 필드들 (제목 제외) */}
               {template?.content
                 ?.filter((field) => field.type !== 'editor' && field.id !== 'title')
                 .map((field) => (
@@ -196,11 +186,10 @@ console.log('[렌더링 시점] attachments:', attachments);
               <tr>
                 <td className={styles.formLabel}>내용</td>
                 <td colSpan="3" className={styles.formField}>
+                  {console.log('QuillEditor 렌더링')}
                   <QuillEditor
                     value={formData.content || ""}
-                    onChange={(content) =>
-                      handleValueChange("content", content)
-                    }
+                    onChange={(content) => handleValueChange("content", content)}
                     placeholder="내용을 입력하세요..."
                   />
                 </td>
@@ -209,6 +198,7 @@ console.log('[렌더링 시점] attachments:', attachments);
           </table>
         </div>
 
+        {/* ... (이하 결재선, 파일첨부, 버튼 등 렌더링 코드는 동일) ... */}
         <div className={styles.section}>
           <h3>결재선 정보</h3>
           <table className={styles.approvalFormTable}>
@@ -280,7 +270,6 @@ console.log('[렌더링 시점] attachments:', attachments);
                     </span>
                   </div>
                   
-                  {/* 새로 선택한 파일들 */}
                   {files.length > 0 && (
                     <div className={styles.selectedFilesSection}>
                       <h4>선택된 파일 ({files.length}개)</h4>
@@ -304,18 +293,13 @@ console.log('[렌더링 시점] attachments:', attachments);
                     </div>
                   )}
                   
-                  {/* 기존 첨부파일 표시 */}
-                  {attachments.length > 0 ? (
+                  {attachments.length > 0 && (
                     <div className={styles.existingFilesSection}>
                       <h4>기존 첨부파일 ({attachments.length}개)</h4>
                       <AttachmentList 
                         attachments={attachments} 
                         readonly={true}
                       />
-                    </div>
-                  ) : (
-                    <div style={{ marginTop: '12px', color: '#999', fontStyle: 'italic' }}>
-                      기존 첨부파일이 없습니다.
                     </div>
                   )}
                 </td>
@@ -334,34 +318,27 @@ console.log('[렌더링 시점] attachments:', attachments);
           <button type="button" onClick={() => navigate(-1)} className={styles.cancelButton}>취소</button>
         </div>
       </form>
-
-      {/* --- DEBUG CODE START --- */}
-      {isApproverModalOpen && <h3 style={{ color: 'red' }}>[DEBUG] 결재선 모달 열림 상태입니다.</h3>}
-      {isReferenceModalOpen && <h3 style={{ color: 'red' }}>[DEBUG] 참조자 모달 열림 상태입니다.</h3>}
-      {/* --- DEBUG CODE END --- */}
-
       {isApproverModalOpen && (
         <EmployeeSelectModal
-          open={isApproverModalOpen} // prop 이름 isOpen -> open으로 수정
+          open={isApproverModalOpen}
           onClose={() => setIsApproverModalOpen(false)}
           onSelect={handleSelectApprovers}
-          multiple // isMulti -> multiple로 수정
+          multiple
         />
       )}
       {isReferenceModalOpen && (
         <EmployeeSelectModal
-          open={isReferenceModalOpen} // prop 이름 isOpen -> open으로 수정
+          open={isReferenceModalOpen}
           onClose={() => setIsReferenceModalOpen(false)}
           onSelect={handleSelectReferences}
-          multiple // isMulti -> multiple로 수정
+          multiple
         />
       )}
-
-      {isTemplateModalOpen && (
+       {isTemplateModalOpen && (
         <TemplateSelectionModal
           open={isTemplateModalOpen}
           onClose={() => setIsTemplateModalOpen(false)}
-          onStartWriting={handleStartWriting}
+          onStartWriting={(templateId) => navigate(`/approval/new?templateId=${templateId}`)}
         />
       )}
     </div>
