@@ -29,7 +29,7 @@ import TemplateForm from '../pages/approval/TemplateForm';
 import ApprovalHome from '../pages/approval/ApprovalHome';
 import CompletedBox from '../pages/approval/CompletedBox';
 import CcBox from '../pages/approval/CcBox';
-import MyReportsList from '../pages/approval/MyReportsList';
+import ApprovalInProgressBox from '../pages/approval/ApprovalInProgressBox';
 import ApprovalNew from '../pages/approval/ApprovalNew';
 import TemplateAdminPage from '../pages/approval/TemplateAdminPage';
 import AdminRoute from './AdminRoute';
@@ -62,7 +62,7 @@ const AppRouter = () => {
           <Route path='reports/new/:templateId' element={<ApprovalNew />} /> {/* 템플릿 기반 새 문서 작성 */}
           <Route path='edit/:reportId' element={<ApprovalNew />} /> {/* 임시 저장 문서 수정 */}
           <Route path='drafts' element={<DraftBoxList />} />
-          <Route path='in-progress' element={<MyReportsList />} />
+          <Route path='in-progress' element={<ApprovalInProgressBox />} />
           <Route path='completed' element={<CompletedBox />} />
           <Route path='rejected' element={<RejectedBox />} />
           <Route path='cc' element={<CcBox />} />
