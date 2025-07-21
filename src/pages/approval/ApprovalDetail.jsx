@@ -14,7 +14,7 @@ const COMMON_COMMENTS = [
   '승인합니다.',
   '수고하셨습니다.',
   '반려합니다.',
-  '보완 후 재상신 바랍니다.'
+  '보완 후 재상신 바랍니다.',
 ];
 
 const ApprovalDetail = () => {
@@ -57,22 +57,29 @@ const ApprovalDetail = () => {
       setLoading(true);
       setError(null);
       const [reportResponse, historyResponse] = await Promise.all([
-        axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`),
-        axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/history`),
+        axiosInstance.get(
+          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`,
+        ),
+        axiosInstance.get(
+          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/history`,
+        ),
       ]);
 
       const reportData = reportResponse.data?.result;
       const historyData = historyResponse.data?.result;
 
       if (reportData) {
-        const { reportStatus, writer } = reportData;
+        const { reportStatus, writer, approvalLine } = reportData;
         const currentUserIsWriter = writer?.id === user?.id;
 
         // --- 백엔드 상태 보정 로직 ---
-        // 결재선에 'REJECTED'가 있는데 최종 상태가 'APPROVED'로 오는 경우를 대비
-        const hasRejection = approvalLine?.some(a => a.approvalStatus === 'REJECTED');
+        const hasRejection = approvalLine?.some(
+          (a) => a.approvalStatus === 'REJECTED',
+        );
         if (hasRejection && reportData.reportStatus !== 'REJECTED') {
-          console.warn('백엔드 상태 불일치: REJECTED 결재선이 있으나 최종 상태가 REJECTED가 아님. 상태를 강제 조정합니다.');
+          console.warn(
+            '백엔드 상태 불일치: REJECTED 결재선이 있으나 최종 상태가 REJECTED가 아님. 상태를 강제 조정합니다.',
+          );
           reportData.reportStatus = 'REJECTED';
         }
 
@@ -86,9 +93,6 @@ const ApprovalDetail = () => {
             confirmButtonText: '확인',
           });
           navigate(-1); // 이전 페이지로 돌아가기
-        if ((reportStatus === 'DRAFT' || reportStatus === 'RECALLED') && !currentUserIsWriter) {
-          alert('해당 문서에 대한 접근 권한이 없습니다.');
-          navigate(-1);
           return;
         }
         setReport(reportData);
@@ -100,43 +104,33 @@ const ApprovalDetail = () => {
         setHistory(historyData);
       }
     } catch (err) {
-      console.error("상세 정보 로딩 실패:", err);
-      setError(err.response?.data?.statusMessage || err.message || "데이터를 불러오는 데 실패했습니다.");
+      console.error('상세 정보 로딩 실패:', err);
+      setError(
+        err.response?.data?.statusMessage ||
+          err.message ||
+          '데이터를 불러오는 데 실패했습니다.',
+      );
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if(user?.id) {
-        fetchReportDetail();
+    if (user?.id) {
+      fetchReportDetail();
     }
   }, [reportId, user?.id]);
 
   const handleApprovalAction = async (isApproved) => {
     const { value: comment } = await Swal.fire({
-      title: isApproved ? '승인 의견을 입력하세요.' : '반려 사유를 입력하세요.',
+      title: isApproved ? '승인 사유를 입력하세요' : '반려 사유를 입력하세요',
       input: 'textarea',
-      inputPlaceholder: isApproved ? '예: 승인합니다.' : '반려 사유를 입력해주세요.',
-      inputAttributes: {
-        'aria-label': '입력',
-      },
+      inputPlaceholder: '사유를 입력하세요',
       showCancelButton: true,
-      confirmButtonText: isApproved ? '승인' : '반려',
+      confirmButtonText: '확인',
       cancelButtonText: '취소',
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      reverseButtons: true,
-      inputValidator: (value) => {
-        if (!isApproved && !value) {
-          return '반려 시에는 사유를 반드시 입력해야 합니다.';
-        }
-        return null;
-      }
     });
-
-    if (comment === undefined) return; // 취소 클릭 시
-
+    if (comment === undefined) return;
     try {
       await axiosInstance.post(
         `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/approvals`,
@@ -150,7 +144,16 @@ const ApprovalDetail = () => {
         title: '성공적으로 처리되었습니다.',
         confirmButtonText: '확인',
       });
-      fetchReportDetail(); // 처리 후 데이터 새로고침
+      fetchReportDetail();
+    } catch (err) {
+      await Swal.fire({
+        icon: 'error',
+        title: err.response?.data?.message || '처리 중 오류가 발생했습니다.',
+        confirmButtonText: '확인',
+      });
+    }
+  };
+
   // 승인/반려 버튼 클릭 시(모달 오픈만)
   const handleActionClick = (type) => {
     setActionType(type);
@@ -166,10 +169,13 @@ const ApprovalDetail = () => {
       return;
     }
     try {
-      await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/approvals`, {
-        approvalStatus: actionType === 'approve' ? 'APPROVED' : 'REJECTED',
-        comment: approvalComment,
-      });
+      await axiosInstance.post(
+        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/approvals`,
+        {
+          approvalStatus: actionType === 'approve' ? 'APPROVED' : 'REJECTED',
+          comment: approvalComment,
+        },
+      );
       alert('성공적으로 처리되었습니다.');
       setConfirmModalOpen(false);
       setApprovalComment('');
@@ -199,7 +205,9 @@ const ApprovalDetail = () => {
     if (!result.isConfirmed) return;
 
     try {
-      await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/recall`);
+      await axiosInstance.post(
+        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/recall`,
+      );
       await Swal.fire({
         icon: 'success',
         title: '회수 처리되었습니다.',
@@ -220,7 +228,9 @@ const ApprovalDetail = () => {
   if (!report) return <div className={styles.noData}>데이터가 없습니다.</div>;
 
   const isWriter = report.writer?.id === user?.id;
-  const currentApproverLine = report.approvalLine?.find((line) => line.approvalStatus === 'PENDING');
+  const currentApproverLine = report.approvalLine?.find(
+    (line) => line.approvalStatus === 'PENDING',
+  );
   const isCurrentApprover = currentApproverLine?.employeeId === user?.id;
 
   // ★★★ 1. 첨부파일을 이미지와 그 외 파일로 분리하는 로직 ★★★
@@ -230,8 +240,10 @@ const ApprovalDetail = () => {
     return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(extension);
   };
 
-  const imageAttachments = report.attachments?.filter(file => isImageFile(file.fileName)) || [];
-  const nonImageAttachments = report.attachments?.filter(file => !isImageFile(file.fileName)) || [];
+  const imageAttachments =
+    report.attachments?.filter((file) => isImageFile(file.fileName)) || [];
+  const nonImageAttachments =
+    report.attachments?.filter((file) => !isImageFile(file.fileName)) || [];
   // ★★★ ----------------------------------------------- ★★★
 
   return (
@@ -241,19 +253,42 @@ const ApprovalDetail = () => {
           <header className={styles.header}>
             <div className={styles.titleGroup}>
               <h1 className={styles.title}>{report.title}</h1>
-              <span className={`${styles.statusBadge} ${styles[report.reportStatus?.toLowerCase()]}`}>
+              <span
+                className={`${styles.statusBadge} ${styles[report.reportStatus?.toLowerCase()]}`}
+              >
                 {reportStatusMap[report.reportStatus] || report.reportStatus}
               </span>
             </div>
             <div className={styles.buttonGroup}>
-              {isWriter && report.reportStatus === 'IN_PROGRESS' && <button className={styles.recallBtn} onClick={handleRecall}>회수</button>}
-              {isWriter && (report.reportStatus === 'REJECTED' || report.reportStatus === 'RECALLED') && (
-                <button className={styles.defaultBtn} onClick={() => navigate(`/approval/edit/${reportId}`)}>재작성</button>
+              {isWriter && report.reportStatus === 'IN_PROGRESS' && (
+                <button className={styles.recallBtn} onClick={handleRecall}>
+                  회수
+                </button>
               )}
+              {isWriter &&
+                (report.reportStatus === 'REJECTED' ||
+                  report.reportStatus === 'RECALLED') && (
+                  <button
+                    className={styles.defaultBtn}
+                    onClick={() => navigate(`/approval/edit/${reportId}`)}
+                  >
+                    재작성
+                  </button>
+                )}
               {isCurrentApprover && report.reportStatus === 'IN_PROGRESS' && (
                 <>
-                  <button className={styles.approveBtn} onClick={() => handleActionClick('approve')}>승인</button>
-                  <button className={styles.rejectBtn} onClick={() => handleActionClick('reject')}>반려</button>
+                  <button
+                    className={styles.approveBtn}
+                    onClick={() => handleActionClick('approve')}
+                  >
+                    승인
+                  </button>
+                  <button
+                    className={styles.rejectBtn}
+                    onClick={() => handleActionClick('reject')}
+                  >
+                    반려
+                  </button>
                 </>
               )}
             </div>
@@ -262,11 +297,17 @@ const ApprovalDetail = () => {
           <section className={styles.reportInfo}>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>기안자</span>
-              <span className={styles.infoValue}>{report.writer?.name || '정보 없음'}</span>
+              <span className={styles.infoValue}>
+                {report.writer?.name || '정보 없음'}
+              </span>
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>기안일</span>
-              <span className={styles.infoValue}>{new Date(report.createdAt || report.reportCreatedAt).toLocaleString()}</span>
+              <span className={styles.infoValue}>
+                {new Date(
+                  report.createdAt || report.reportCreatedAt,
+                ).toLocaleString()}
+              </span>
             </div>
           </section>
 
@@ -278,19 +319,23 @@ const ApprovalDetail = () => {
               <div className={styles.imageGallery}>
                 {imageAttachments.map((file, index) => (
                   <div key={index} className={styles.imageWrapper}>
-                    <img src={file.url} alt={file.fileName} className={styles.attachedImage} />
+                    <img
+                      src={file.url}
+                      alt={file.fileName}
+                      className={styles.attachedImage}
+                    />
                   </div>
                 ))}
               </div>
             )}
             {/* ★★★ ------------------------------------ ★★★ */}
           </section>
-          
+
           {/* ★★★ 3. 이미지 외 다른 파일이 있을 경우에만 첨부파일 목록 표시 ★★★ */}
           {nonImageAttachments.length > 0 && (
             <section className={styles.attachmentSection}>
-              <AttachmentList 
-                attachments={nonImageAttachments} 
+              <AttachmentList
+                attachments={nonImageAttachments}
                 readonly={true}
               />
             </section>
@@ -301,13 +346,26 @@ const ApprovalDetail = () => {
             <ul className={styles.historyList}>
               {history.length > 0 ? (
                 history.map((h, index) => (
-                  <li key={h.employeeId + '-' + index} className={styles.historyItem}>
+                  <li
+                    key={h.employeeId + '-' + index}
+                    className={styles.historyItem}
+                  >
                     <div className={styles.historyInfo}>
-                      <span className={styles.historyApprover}>{h.employeeName}</span>
-                      <span className={`${styles.historyStatus} ${styles[h.approvalStatus?.toLowerCase()]}`}>{approvalStatusMap[h.approvalStatus]}</span>
+                      <span className={styles.historyApprover}>
+                        {h.employeeName}
+                      </span>
+                      <span
+                        className={`${styles.historyStatus} ${styles[h.approvalStatus?.toLowerCase()]}`}
+                      >
+                        {approvalStatusMap[h.approvalStatus]}
+                      </span>
                     </div>
                     <div className={styles.historyComment}>{h.comment}</div>
-                    <div className={styles.historyTimestamp}>{h.approvalDateTime ? new Date(h.approvalDateTime).toLocaleString() : ''}</div>
+                    <div className={styles.historyTimestamp}>
+                      {h.approvalDateTime
+                        ? new Date(h.approvalDateTime).toLocaleString()
+                        : ''}
+                    </div>
                   </li>
                 ))
               ) : (
@@ -321,7 +379,12 @@ const ApprovalDetail = () => {
           <div className={styles.sidebarSection}>
             <div className={styles.sidebarHeader}>
               <h4>결재선</h4>
-              <button className={styles.viewMoreBtn} onClick={() => setIsModalOpen(true)}>전체보기</button>
+              <button
+                className={styles.viewMoreBtn}
+                onClick={() => setIsModalOpen(true)}
+              >
+                전체보기
+              </button>
             </div>
             <VisualApprovalLine
               approvalLine={report.approvalLine}
@@ -343,25 +406,43 @@ const ApprovalDetail = () => {
         <ModalPortal>
           <div className={styles.confirmModalOverlay}>
             <div className={styles.confirmModal}>
-              <h3>정말 {actionType === 'approve' ? '승인' : '반려'}하시겠습니까?</h3>
+              <h3>
+                정말 {actionType === 'approve' ? '승인' : '반려'}하시겠습니까?
+              </h3>
               {/* 자주 쓰는 멘트 버튼 */}
               <div className={styles.commonComments}>
                 {COMMON_COMMENTS.map((c) => (
-                  <button type="button" key={c} onClick={() => setApprovalComment(c)} className={styles.commentBtn}>{c}</button>
+                  <button
+                    type='button'
+                    key={c}
+                    onClick={() => setApprovalComment(c)}
+                    className={styles.commentBtn}
+                  >
+                    {c}
+                  </button>
                 ))}
               </div>
               {/* 멘트 입력란 */}
               <textarea
                 className={styles.commentInput}
                 value={approvalComment}
-                onChange={e => setApprovalComment(e.target.value)}
-                placeholder="사유를 입력하세요"
+                onChange={(e) => setApprovalComment(e.target.value)}
+                placeholder='사유를 입력하세요'
                 required
               />
-              {commentError && <div className={styles.commentError}>{commentError}</div>}
+              {commentError && (
+                <div className={styles.commentError}>{commentError}</div>
+              )}
               <div className={styles.confirmModalBtns}>
-                <button className={styles.confirmBtn} onClick={handleConfirm}>확인</button>
-                <button className={styles.cancelBtn} onClick={() => setConfirmModalOpen(false)}>취소</button>
+                <button className={styles.confirmBtn} onClick={handleConfirm}>
+                  확인
+                </button>
+                <button
+                  className={styles.cancelBtn}
+                  onClick={() => setConfirmModalOpen(false)}
+                >
+                  취소
+                </button>
               </div>
             </div>
           </div>
