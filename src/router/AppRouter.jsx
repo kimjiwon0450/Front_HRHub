@@ -52,7 +52,7 @@ const AppRouter = [
     element: <MainLayout />,
     children: [
       { path: 'dashboard', element: <HRPage /> },
-      
+
       // --- HR 라우트 (누락되었던 부분 추가) ---
       {
         path: 'hr',
@@ -64,7 +64,7 @@ const AppRouter = [
           { path: 'employee-eval', element: <EvaluationForm /> },
           { path: 'employee-eval-list', element: <EmployeeViewList /> },
           { path: 'my-evaluations', element: <MyEvaluationList /> },
-        ]
+        ],
       },
 
       // --- 전자결재 라우트 ---
@@ -72,7 +72,7 @@ const AppRouter = [
         path: 'approval',
         element: <ApprovalPage />,
         children: [
-          { index: true, element: <Navigate to="home" replace /> },
+          { index: true, element: <Navigate to='home' replace /> },
           { path: 'home', element: <ApprovalHome /> },
           { path: 'new', element: <ApprovalNew /> },
           { path: 'reports/new/:templateId', element: <ApprovalNew /> },
@@ -89,10 +89,13 @@ const AppRouter = [
             children: [
               { path: 'admin/templates', element: <TemplateAdminPage /> },
               { path: 'admin/templates/new', element: <TemplateForm /> },
-              { path: 'admin/templates/edit/:templateId', element: <TemplateForm /> },
-            ]
-          }
-        ]
+              {
+                path: 'admin/templates/edit/:templateId',
+                element: <TemplateForm />,
+              },
+            ],
+          },
+        ],
       },
 
       // --- 공지사항 라우트 (누락되었던 부분 추가) ---
@@ -106,40 +109,22 @@ const AppRouter = [
           { path: 'edit/:id', element: <NoticeBoardWrite isEdit={true} /> },
           { path: 'alert', element: <NoticeAlertPage /> },
           { path: ':id', element: <NoticeBoardDetail /> },
-        ]
+        ],
       },
-      
+      { path: 'general', element: <NoticeBoardList /> },
+      { path: 'general/my', element: <NoticeBoardList /> },
+      { path: 'community', element: <CommunityPostsPage /> },
+      { path: 'community/my', element: <CommunityPostsPage /> },
+      { path: 'community/mydepartment', element: <CommunityPostsPage /> },
+
       // --- 주소록 라우트 (누락되었던 부분 추가) ---
       { path: 'contacts', element: <ContactList /> },
-      
+
       // --- 빈 경로들 (필요시 구현) ---
       { path: 'mail', element: <></> },
       { path: 'board', element: <></> },
-    ]
-  }
+    ],
+  },
 ];
-        <Route path='/general' element={<NoticeBoardList />} />
-        <Route path='/general/my' element={<NoticeBoardList />} />
-        {/* <Route path='/noticeboard/mydepartment' element={<NoticeBoardList />} /> */}
-        <Route path='/community' element={<CommunityPostsPage />} />
-        <Route path='/community/my' element={<CommunityPostsPage />} />
-        <Route path='/community/mydepartment' element={<CommunityPostsPage />} />
-        <Route
-          path='/noticeboard/write'
-          element={<NoticeBoardWrite isEdit={false} />}
-        />
-        <Route
-          path='/noticeboard/edit/:id'
-          element={<NoticeBoardWrite isEdit={true} />}
-        />
-        <Route path='/noticeboard/alert' element={<NoticeAlertPage />} />
-        <Route path='/noticeboard/:id' element={<NoticeBoardDetail />} />
-        <Route path='/mail' element={<></>} />
-        <Route path='/board' element={<></>} />
-        <Route path='/contacts' element={<ContactList />} />
-      </Route>
-    </Routes>
-  );
-};
 
 export default AppRouter;
