@@ -243,7 +243,7 @@ const TemplateAdminPage = () => {
             </button>
           </div>
           <div className={styles.actions}>
-            <button className={styles.addButton} onClick={() => navigate('/approval/templates/form')}>+ 양식 추가하기</button>
+            <button className={styles.addButton} onClick={() => navigate('/approval/admin/templates/new')}>+ 양식 추가하기</button>
           </div>
         </div>
         <div className={styles.templateListContainer}>
