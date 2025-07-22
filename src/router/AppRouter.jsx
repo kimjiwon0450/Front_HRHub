@@ -29,6 +29,7 @@ import ApprovalPendingList from '../pages/approval/ApprovalPendingList';
 import TemplateAdminPage from '../pages/approval/TemplateAdminPage';
 import TemplateForm from '../pages/approval/TemplateForm';
 import AdminRoute from './AdminRoute';
+import CommunityPostsPage from '../pages/NoticeBoard/NoticeAlertPage';
 // (사용하지 않는 ApprovalForm, TemplateList 등은 제외했습니다)
 
 // 공지사항
@@ -117,5 +118,28 @@ const AppRouter = [
     ]
   }
 ];
+        <Route path='/general' element={<NoticeBoardList />} />
+        <Route path='/general/my' element={<NoticeBoardList />} />
+        {/* <Route path='/noticeboard/mydepartment' element={<NoticeBoardList />} /> */}
+        <Route path='/community' element={<CommunityPostsPage />} />
+        <Route path='/community/my' element={<CommunityPostsPage />} />
+        <Route path='/community/mydepartment' element={<CommunityPostsPage />} />
+        <Route
+          path='/noticeboard/write'
+          element={<NoticeBoardWrite isEdit={false} />}
+        />
+        <Route
+          path='/noticeboard/edit/:id'
+          element={<NoticeBoardWrite isEdit={true} />}
+        />
+        <Route path='/noticeboard/alert' element={<NoticeAlertPage />} />
+        <Route path='/noticeboard/:id' element={<NoticeBoardDetail />} />
+        <Route path='/mail' element={<></>} />
+        <Route path='/board' element={<></>} />
+        <Route path='/contacts' element={<ContactList />} />
+      </Route>
+    </Routes>
+  );
+};
 
 export default AppRouter;
