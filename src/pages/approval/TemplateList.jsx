@@ -4,6 +4,7 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import styles from './TemplateList.module.scss';
 import { UserContext } from '../../context/UserContext';
+import Swal from 'sweetalert2';
 
 const TemplateList = () => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const TemplateList = () => {
         `${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`,
       );
       console.log("템플릿 목록 API 응답:", res.data.result); // <--- 이 로그!
-      
+
       // API 명세에 따라 'data' 키에서 배열을 가져오도록 수정
       console.log(res.data.result);
       if (res.data && Array.isArray(res.data.result)) {
@@ -40,16 +41,26 @@ const TemplateList = () => {
   }, []);
 
   const handleDelete = async (templateId) => {
-    if (window.confirm('정말로 이 템플릿을 삭제하시겠습니까?')) {
+    const result = await Swal.fire({
+      title: '정말로 이 템플릿을 삭제하시겠습니까?',
+      text: '삭제 후 복구할 수 없습니다.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: '삭제',
+      cancelButtonText: '취소',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    });
+
+    if (result.isConfirmed) {
       try {
         await axiosInstance.delete(
           `${API_BASE_URL}${APPROVAL_SERVICE}/templates/${templateId}`,
         );
-        alert('삭제되었습니다.');
-        // 삭제 후 목록을 다시 불러옵니다.
+        await Swal.fire('삭제됨', '템플릿이 삭제되었습니다.', 'success');
         fetchTemplates();
       } catch (err) {
-        alert('삭제 중 오류가 발생했습니다.');
+        await Swal.fire('오류', '삭제 중 오류가 발생했습니다.', 'error');
       }
     }
   };

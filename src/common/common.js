@@ -9,6 +9,7 @@ export const removeLocalStorageForLogout = () => {
   localStorage.removeItem('USER_POSITION');
   localStorage.removeItem('USER_IMAGE');
   localStorage.removeItem('USER_ICON');
+  localStorage.setItem('IS_LOGGING_OUT', 'true'); // Set flag when logging out
 };
 
 export const succeed = (text) => {

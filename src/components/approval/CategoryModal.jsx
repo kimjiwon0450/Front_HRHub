@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './CategoryModal.module.scss';
+import Swal from 'sweetalert2';
+
 
 const CategoryModal = ({ open, onClose, onSubmit, category }) => {
   const [name, setName] = useState('');
@@ -10,7 +12,7 @@ const CategoryModal = ({ open, onClose, onSubmit, category }) => {
     if (open && category) {
       setName(category.categoryName || '');
       setDescription(category.categoryDescription || '');
-    } 
+    }
     // 모달이 열리고, category 데이터가 없으면 (즉, '추가' 모드일 때) 상태를 초기화합니다.
     else if (open && !category) {
       setName('');
@@ -21,7 +23,11 @@ const CategoryModal = ({ open, onClose, onSubmit, category }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name.trim()) {
-      alert('카테고리 이름을 입력해주세요.');
+      Swal.fire({
+        icon: 'warning',
+        title: '카테고리 이름을 입력해주세요.',
+        confirmButtonText: '확인',
+      });
       return;
     }
     // 부모 컴포넌트로 데이터 전달
@@ -31,11 +37,22 @@ const CategoryModal = ({ open, onClose, onSubmit, category }) => {
     });
   };
 
-  const handleDelete = () => {
-    if (window.confirm('정말로 이 카테고리를 삭제하시겠습니까? 연관된 모든 템플릿의 카테고리 정보가 초기화됩니다.')) {
-      onSubmit(null, true); // 두 번째 인자로 삭제 여부를 전달
+  const handleDelete = async () => {
+    const result = await Swal.fire({
+      title: '정말로 이 카테고리를 삭제하시겠습니까?',
+      text: '연관된 모든 템플릿의 카테고리 정보가 초기화됩니다.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: '예',
+      cancelButtonText: '아니요',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    });
+
+    if (result.isConfirmed) {
+      onSubmit(null, true);
     }
-  }
+  };
 
   if (!open) {
     return null;

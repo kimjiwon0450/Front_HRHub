@@ -73,6 +73,8 @@ export const UserContextProvider = (props) => {
     localStorage.setItem('USER_DEPARTMENT_ID', loginData.departmentId);
     localStorage.setItem('USER_POSITION', loginData.position);
 
+    localStorage.removeItem('IS_LOGGING_OUT'); // Clear logout flag on successful login
+
     // 상태저장
     console.log('loginData : ', loginData);
     console.log('logingPositionl : ', loginData.position);
@@ -89,14 +91,16 @@ export const UserContextProvider = (props) => {
 
   const logoutHandler = () => {
     console.log('[logoutHandler] 로그아웃 수행');
-    // localStorage.clear();
     removeLocalStorageForLogout();
     setIsLoggedIn(false);
-    setUserRole('');
     setUserRole('');
     setUserName('');
     setBadge(null);
     setUserImage('');
+    setAccessToken(null); // Clear access token on logout
+    setUserId(null); // Clear userId on logout
+    setUserPosition(''); // Clear userPosition on logout
+    setDepartmentId(null); // Clear departmentId on logout
   };
 
   useEffect(() => {

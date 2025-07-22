@@ -9,6 +9,7 @@ import QuillEditor from '../../components/editor/QuillEditor'; // 새로 만든 
 import CustomFieldModal from '../../components/approval/CustomFieldModal';
 import InfoChangeModal from '../../components/approval/InfoChangeModal';
 import AddFieldModal from '../../components/approval/AddFieldModal';
+import Swal from 'sweetalert2';
 
 const ItemTypes = {
   FIELD: 'field',
@@ -299,6 +300,14 @@ const TemplateForm = () => {
   };
 
   const handleSave = async () => {
+    if (!title.trim()) {
+      await Swal.fire('입력 필요', '양식명을 입력해주세요.', 'warning');
+      return;
+    }
+    if (!categoryId) {
+      await Swal.fire('선택 필요', '카테고리를 선택해주세요.', 'warning');
+      return;
+    }
     // 1. Nest all form builder data into a 'template' object
     const content = [...customFields];
     if (useEditor === 'Y') {
@@ -340,7 +349,7 @@ const TemplateForm = () => {
         );
         console.log('Server response:', response.data);
       }
-      alert('템플릿이 저장되었습니다.');
+      await Swal.fire('성공', '템플릿이 저장되었습니다.', 'success');
       navigate('/approval/admin/templates');
     } catch (error) {
       console.error(

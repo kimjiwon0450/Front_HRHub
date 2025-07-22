@@ -1,44 +1,48 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axiosInstance from '../../configs/axios-config';
-import CcBoxCard from './CcBoxCard'; // DraftBoxCard 대신 CcBoxCard를 임포트
-import styles from './ApprovalBoxList.module.scss'; // 재사용 가능한 스타일
+import CcBoxCard from './CcBoxCard';
+import styles from './ApprovalBoxList.module.scss';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import { UserContext } from '../../context/UserContext';
+import ReportFilter from '../../components/approval/ReportFilter';
+import { useReportFilter } from '../../hooks/useReportFilter';
 
 const CcBox = () => {
   const [ccDocs, setCcDocs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { userId } = useContext(UserContext);
+  const { user } = useContext(UserContext);
+  
+  const { filteredReports, handleFilterChange } = useReportFilter(ccDocs);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!user?.id) return;
 
     const fetchCcDocs = async () => {
       setLoading(true);
       setError(null);
       try {
-        // 'role=reference'를 사용하여 내가 참조자인 문서만 명확하게 요청
         const res = await axiosInstance.get(
           `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
           {
             params: {
               role: 'reference',
+              sortBy: 'reportCreatedAt',
+              sortOrder: 'desc',
               page: 0,
-              size: 20,
+              size: 50,
             },
           },
         );
 
         if (res.data?.statusCode === 200) {
           const allReports = res.data.result.reports || [];
-          // DRAFT, RECALLED 상태의 문서는 목록에 표시하지 않음
-          const filteredReports = allReports.filter(
+          const filteredReportsApi = allReports.filter( // 변수명 충돌 방지
             (report) =>
               report.reportStatus !== 'DRAFT' &&
               report.reportStatus !== 'RECALLED',
           );
-          setCcDocs(filteredReports);
+          setCcDocs(filteredReportsApi);
         } else {
           setError(
             res.data?.statusMessage || '수신 참조 문서를 불러오지 못했습니다.',
@@ -46,28 +50,36 @@ const CcBox = () => {
         }
       } catch (err) {
         console.error('수신 참조 문서를 불러오는 중 오류 발생:', err);
-        if (err.response) {
-          console.error('서버 응답 데이터:', err.response.data);
-          setError(err.response.data.message || '서버 요청에 실패했습니다.');
-        } else {
-          setError('네트워크 오류 또는 서버 오류');
-        }
+        setError('네트워크 오류 또는 서버 오류');
       } finally {
         setLoading(false);
       }
     };
 
     fetchCcDocs();
-  }, [userId]);
+  }, [user?.id]);
 
   return (
     <div className={styles.reportListContainer}>
-      <h3 className={styles.sectionTitle}>수신 참조함</h3>
+      <h3 className={styles.sectionTitle}>수신 참조 문서함</h3>
+      
+      <ReportFilter onFilterChange={handleFilterChange} />
+      
       <div className={styles.reportList}>
         {loading && <p>로딩 중...</p>}
         {error && <p className={styles.error}>{error}</p>}
-        {!loading && !error && ccDocs.length > 0 ? (
-          ccDocs.map((doc) => <CcBoxCard key={doc.id} doc={doc} />)
+        {!loading && !error && filteredReports.length > 0 ? (
+          <>
+            <div className={styles.resultInfo}>
+              총 {filteredReports.length}건의 문서가 있습니다.
+            </div>
+            {/* ★★★ 핵심 수정: 렌더링 직전에 sort() 함수를 추가하여 재정렬합니다. ★★★ */}
+            {[...filteredReports] // 원본 배열 수정을 방지하기 위해 복사본 생성
+              .sort((a, b) => new Date(b.reportCreatedAt) - new Date(a.reportCreatedAt))
+              .map((doc) => (
+                <CcBoxCard key={doc.id} doc={doc} />
+            ))}
+          </>
         ) : (
           !loading &&
           !error && (
@@ -82,4 +94,4 @@ const CcBox = () => {
   );
 };
 
-export default CcBox; 
+export default CcBox;

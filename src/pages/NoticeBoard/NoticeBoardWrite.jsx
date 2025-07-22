@@ -61,7 +61,12 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                 })
                 .catch(err => {
                     console.error(err);
-                    alert('게시글을 불러오지 못했습니다.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: '오류',
+                        text: '게시글을 불러오지 못했습니다.',
+                        confirmButtonText: '확인',
+                    });
                 });
         }
     }, [isEdit, id, accessToken]);

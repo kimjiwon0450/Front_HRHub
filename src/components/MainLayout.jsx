@@ -120,7 +120,7 @@ export default function MainLayout() {
         } else {
           setError(
             res.data?.statusMessage ||
-              '결재할 문서를 불러오는 데 실패했습니다.',
+              '결재 예정 문서를 불러오는 데 실패했습니다.',
           );
         }
       } catch (err) {

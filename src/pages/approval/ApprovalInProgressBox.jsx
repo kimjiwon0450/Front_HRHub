@@ -3,24 +3,27 @@ import axiosInstance from '../../configs/axios-config';
 import DraftBoxCard from './DraftBoxCard'; // 재사용 가능한 카드 컴포넌트
 import styles from './ApprovalBoxList.module.scss';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
+import ReportFilter from '../../components/approval/ReportFilter';
+import { useReportFilter } from '../../hooks/useReportFilter';
 
-// 1. 컴포넌트 이름 변경 추천: MyReportsList -> ApprovalInProgressBox
 const ApprovalInProgressBox = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const { filteredReports, handleFilterChange } = useReportFilter(reports);
 
   useEffect(() => {
     const fetchInProgressReports = async () => {
       setLoading(true);
       setError(null);
       
-      // 2. API 요청 파라미터 수정
       const params = {
-        role: 'approver', // 역할: '결재 관련자' (백엔드에서는 기안자 또는 결재자로 해석)
-        // 'status' 파라미터는 제거합니다. (백엔드에서 status가 null이면 '결재 진행함'으로 처리)
+        role: 'approver',
+        sortBy: 'reportCreatedAt',
+        sortOrder: 'desc',
         page: 0,
-        size: 10,
+        size: 50,
       };
       
       try {
@@ -29,17 +32,15 @@ const ApprovalInProgressBox = () => {
           { params },
         );
 
-        // 3. 응답 처리 로직 단순화
         if (response.data?.statusCode === 200) {
-          // 백엔드가 이미 필터링된 결과를 주므로, 프론트엔드에서 추가 필터링할 필요가 없습니다.
           setReports(response.data.result.reports || []);
         } else {
           setReports([]);
           setError(response.data?.statusMessage || '진행 중인 문서를 불러오는 데 실패했습니다.');
         }
       } catch (err) {
-        console.error('결재 진행함 문서를 불러오는 중 오류 발생:', err);
-        setError('결재 진행함 문서를 불러오는 데 실패했습니다.');
+        console.error('결재 중 문서함 문서를 불러오는 중 오류 발생:', err);
+        setError('결재 중 문서함 문서를 불러오는 데 실패했습니다.');
       } finally {
         setLoading(false);
       }
@@ -56,16 +57,25 @@ const ApprovalInProgressBox = () => {
     return <div className={styles.error}>{error}</div>;
   }
 
-  // 4. UI 렌더링 (변경 없음)
   return (
     <div className={styles.reportListContainer}>
-      <h3 className={styles.sectionTitle}>결재 진행함</h3>
+      <h3 className={styles.sectionTitle}>결재 중 문서함</h3>
+      
+      <ReportFilter onFilterChange={handleFilterChange} />
       
       <div className={styles.reportList}>
-        {reports.length > 0 ? (
-          reports.map((report) => (
-            <DraftBoxCard key={report.id} draft={report} />
-          ))
+        {filteredReports.length > 0 ? (
+          <>
+            <div className={styles.resultInfo}>
+              총 {filteredReports.length}건의 문서가 있습니다.
+            </div>
+            {/* ★★★ 핵심 수정: 렌더링 직전에 sort() 함수를 추가하여 재정렬합니다. ★★★ */}
+            {[...filteredReports] // 원본 배열 수정을 방지하기 위해 복사본 생성
+              .sort((a, b) => new Date(b.reportCreatedAt) - new Date(a.reportCreatedAt))
+              .map((report) => (
+                <DraftBoxCard key={report.id} draft={report} />
+            ))}
+          </>
         ) : (
           <div className={styles.noReports}>
             <div className={styles.noReportsIcon}>📄</div>
@@ -77,5 +87,4 @@ const ApprovalInProgressBox = () => {
   );
 };
 
-// 5. export 이름도 변경
 export default ApprovalInProgressBox;

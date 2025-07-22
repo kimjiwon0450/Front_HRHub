@@ -70,7 +70,7 @@ const Sidebar = () => {
                     `${styles.menuItem} ${isActive ? styles.active : ''}`
                   }
                 >
-                  결재할 문서
+                  결재 예정 문서함
                 </NavLink>
               </li>
               <li>
@@ -80,7 +80,7 @@ const Sidebar = () => {
                     `${styles.menuItem} ${isActive ? styles.active : ''}`
                   }
                 >
-                  결재 진행함
+                  결재 중 문서함
                 </NavLink>
               </li>
               <li>
@@ -90,7 +90,7 @@ const Sidebar = () => {
                     `${styles.menuItem} ${isActive ? styles.active : ''}`
                   }
                 >
-                  완료 문서함
+                  결재 완료 문서함
                 </NavLink>
               </li>
               <li> {/* 반려 문서함 메뉴 아이템 추가 */}
@@ -110,7 +110,7 @@ const Sidebar = () => {
                     `${styles.menuItem} ${isActive ? styles.active : ''}`
                   }
                 >
-                  임시 저장함
+                  임시 저장 문서함
                 </NavLink>
               </li>
               <li>
@@ -120,7 +120,7 @@ const Sidebar = () => {
                     `${styles.menuItem} ${isActive ? styles.active : ''}`
                   }
                 >
-                  수신 참조함
+                  연람 요청 문서함
                 </NavLink>
               </li>
             </ul>
