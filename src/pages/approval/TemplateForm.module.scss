@@ -19,21 +19,23 @@
 .formBuilderPage {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   background-color: var(--background-color-page);
   box-sizing: border-box;
 }
 
 .mainContent {
   display: flex;
+  flex-direction: column;
   flex-grow: 1;
-  gap: 24px;
-  padding: 24px;
-  overflow: hidden;
+  align-items: center;
+  padding: 24px 0;
+  overflow-y: auto;
 }
 
 /* --- 좌/우 패널 공통 스타일 --- */
-.leftPane, .rightPane {
+.leftPane,
+.rightPane {
   background-color: var(--white-color);
   border-radius: var(--border-radius);
   padding: 24px;
@@ -50,18 +52,80 @@
   flex: 2; // 조금 좁게
 }
 
+.unifiedPane {
+  background-color: var(--white-color);
+  border-radius: var(--border-radius);
+  padding: 32px 32px 24px 32px;
+  margin: 0 auto;
+  max-width: 700px;
+  min-width: 320px;
+  width: 100%;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  min-height: 600px;
+  overflow-y: visible;
+}
+
 /* --- 섹션 공통 스타일 --- */
-.fieldSection, .settingSection {
+.fieldSection,
+.settingSection {
   margin-bottom: 32px;
 }
 
-.sectionTitle {
-  font-size: 1.2rem;
-  font-weight: 600;
+.section {
   margin-bottom: 20px;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border-color);
-  color: var(--text-color-primary);
+}
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.infoNotice {
+  background: #f0f4fa;
+  color: #3a4a5a;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 7px;
+  font-size: 0.98rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.infoIcon {
+  font-size: 1.1em;
+}
+.required {
+  color: var(--danger-color);
+  margin-left: 2px;
+}
+.emptyState {
+  color: #aaa;
+  font-size: 0.97rem;
+  margin: 12px 0;
+  text-align: center;
+}
+.addButton {
+  margin-top: 10px;
+  width: 100%;
+  font-weight: 600;
+  font-size: 1.05rem;
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  border: none;
+  border-radius: 6px;
+  padding: 12px 0;
+  transition: background 0.2s;
+}
+.addButton:hover {
+  background-color: var(--primary-hover-color);
 }
 
 /* --- 필드 아이템 (DraggableField 포함) --- */
@@ -163,7 +227,7 @@
     color: var(--text-color-primary);
   }
 
-  input[type="text"],
+  input[type='text'],
   textarea,
   select {
     width: 100%;
@@ -173,6 +237,8 @@
     box-sizing: border-box;
     font-size: 0.9rem;
     transition: border-color 0.2s;
+    font-family: inherit;
+    color: var(--text-color-primary);
 
     &:focus {
       outline: none;
@@ -180,10 +246,13 @@
       box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
     }
   }
-  
+
   textarea {
     resize: vertical;
     min-height: 100px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--text-color-primary);
   }
 
   // 라디오 버튼 그룹 스타일
@@ -198,7 +267,7 @@
       cursor: pointer;
     }
 
-    input[type="radio"] {
+    input[type='radio'] {
       margin-right: 5px;
     }
   }
@@ -216,7 +285,8 @@
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.cancelButton, .saveButton {
+.cancelButton,
+.saveButton {
   padding: 10px 24px;
   border-radius: 6px;
   border: 1px solid transparent;
@@ -241,4 +311,30 @@
   &:hover {
     background-color: var(--primary-hover-color);
   }
+}
+
+/* --- 읽기 전용 정보 카드 스타일 --- */
+.infoCard {
+  background: var(--background-color-light);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+}
+.infoRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.infoLabel {
+  min-width: 90px;
+  font-weight: 600;
+  color: var(--text-color-primary);
+  font-size: 1rem;
+}
+.infoValue {
+  color: var(--text-color-secondary);
+  font-size: 0.98rem;
+  word-break: break-all;
 }
