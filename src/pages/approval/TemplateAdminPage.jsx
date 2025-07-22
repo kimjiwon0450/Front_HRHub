@@ -264,7 +264,7 @@ const TemplateAdminPage = () => {
                 </div>
               </div>
               <div className={styles.templateActions}>
-                <button onClick={() => navigate(`/approval/templates/edit/${template.templateId}`)}>수정</button>
+                <button onClick={() => navigate(`/approval/admin/templates/edit/${template.templateId}`)}>수정</button>
                 <button onClick={() => handleDelete(template.templateId)} className={styles.deleteButton}>삭제</button>
               </div>
             </div>

@@ -85,7 +85,7 @@ const TemplateSelectionModal = ({ open, onClose, onStartWriting }) => {
   console.log('✅ 3단계: 모달이 받은 open prop:', open);
   // --- 최종 JSX 렌더링 ---
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalOverlay} onClick={onClose}>
         <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
           <div className={styles.header}>
             <h2>결재 양식 선택</h2>

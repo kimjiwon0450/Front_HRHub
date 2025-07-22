@@ -103,7 +103,7 @@ const TemplateList = () => {
                     <button
                       onClick={() =>
                         navigate(
-                          `/approval/templates/edit/${template.templateId}`,
+                          `/approval/admin/templates/edit/${template.templateId}`,
                         )
                       }
                     >

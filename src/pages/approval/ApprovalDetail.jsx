@@ -233,6 +233,13 @@ const ApprovalDetail = () => {
   );
   const isCurrentApprover = currentApproverLine?.employeeId === user?.id;
 
+  // 디버깅용 로그
+  console.log('[결재상세] approvalLine:', report.approvalLine);
+  console.log('[결재상세] user.id:', user?.id);
+  console.log('[결재상세] currentApproverLine:', currentApproverLine);
+  console.log('[결재상세] isCurrentApprover:', isCurrentApprover);
+  console.log('[결재상세] reportStatus:', report.reportStatus);
+
   // ★★★ 1. 첨부파일을 이미지와 그 외 파일로 분리하는 로직 ★★★
   const isImageFile = (fileName) => {
     if (!fileName) return false;

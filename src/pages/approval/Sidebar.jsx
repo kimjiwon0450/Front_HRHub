@@ -28,20 +28,13 @@ const Sidebar = () => {
     <>
       <aside className={styles.sidebar}>
         <nav className={styles.menu}>
-          <div className={styles.menuHeader}>전자결재</div>
-
-          <ul className={styles.menuList}>
-            <li>
-              <NavLink
-                to="/approval/home"
-                className={({ isActive }) =>
-                  `${styles.menuItem} ${isActive ? styles.active : ''}`
-                }
-              >
-                결재 홈
-              </NavLink>
-            </li>
-          </ul>
+          <div
+            className={styles.menuHeader}
+            style={{ cursor: 'pointer' }}
+            onClick={() => navigate('/approval/home')}
+          >
+            전자결재
+          </div>
 
           <button
             className={styles.newApprovalBtn}

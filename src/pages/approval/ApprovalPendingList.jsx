@@ -5,11 +5,14 @@ import ApprovalPendingCard from './ApprovalPendingCard';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
+import PropTypes from 'prop-types';
+import { UserContext } from '../../context/UserContext';
 
-const ApprovalPendingList = () => {
+const ApprovalPendingList = ({ onTotalCountChange }) => {
   const [pendingReports, setPendingReports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { user } = React.useContext(UserContext);
   
   const { filteredReports, handleFilterChange } = useReportFilter(pendingReports);
 
@@ -24,7 +27,6 @@ const ApprovalPendingList = () => {
             params: {
               role: 'approver',
               status: 'IN_PROGRESS',
-              // ★★★ sortBy 값을 'createdAt'으로 통일합니다. ★★★
               sortBy: 'reportCreatedAt', 
               sortOrder: 'desc',
               page: 0,
@@ -34,25 +36,31 @@ const ApprovalPendingList = () => {
         );
         if (res.data?.statusCode === 200) {
           const allReports = res.data.result.reports || [];
-          const filteredApiReports = allReports.filter( // 변수명 충돌 방지
-            (report) => report.reportStatus === 'IN_PROGRESS',
+          const filteredApiReports = allReports.filter(
+            (report) => {
+              const pendingLine = report.approvalLine?.find(line => line.approvalStatus === 'PENDING');
+              return report.reportStatus === 'IN_PROGRESS' && pendingLine?.employeeId === user?.id;
+            }
           );
           setPendingReports(filteredApiReports);
+          if (onTotalCountChange) onTotalCountChange(filteredApiReports.length);
         } else {
           setError(
             res.data?.statusMessage ||
             '결재 예정 문서를 불러오는 데 실패했습니다.',
           );
+          if (onTotalCountChange) onTotalCountChange(0);
         }
       } catch (err) {
         console.error(err);
         setError('네트워크 오류 또는 서버 오류');
+        if (onTotalCountChange) onTotalCountChange(0);
       } finally {
         setLoading(false);
       }
     };
     fetchPending();
-  }, []);
+  }, [user?.id]);
 
   return (
     <div className={styles.container}>
@@ -78,6 +86,10 @@ const ApprovalPendingList = () => {
       </div>
     </div>
   );
+};
+
+ApprovalPendingList.propTypes = {
+  onTotalCountChange: PropTypes.func,
 };
 
 export default ApprovalPendingList;
