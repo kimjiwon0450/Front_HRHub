@@ -5,112 +5,83 @@ import { API_BASE_URL, APPROVAL_SERVICE } from '../configs/host-config';
 
 export const useApprovalForm = (templateId, reportId) => {
   const navigate = useNavigate();
-  console.log(`%c[2단계: 훅 수신]`, 'color: green; font-weight: bold;', { templateId, reportId });
-  // API 응답 데이터를 한 번에 관리
+  
   const [template, setTemplate] = useState(null);
   const [formData, setFormData] = useState({});
   const [approvalLine, setApprovalLine] = useState([]);
-  const [references, setReferences] = useState([]); // 참조자 상태 추가
+  const [references, setReferences] = useState([]);
   const [attachments, setAttachments] = useState([]);
 
-  // UI 상태
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchFormData = async () => {
-      // ID가 확정되기 전에 불필요한 호출을 방지
-      if (!templateId && !reportId) {
+    const fetchData = async () => {
+      // ★ 1. ID가 둘 다 없으면 API를 호출하지 않고 즉시 종료합니다.
+      if (!reportId && !templateId) {
         setLoading(false);
         return;
       }
 
       setLoading(true);
       setError(null);
-
+      
       try {
         let url;
-        let params = {};
-        
+        // ★ 2. 수정 모드(reportId)인지, 신규 작성 모드(templateId)인지 명확하게 구분합니다.
         if (reportId) {
-          // 기존 문서 수정: 상세 조회 API 사용
+          // 수정 모드: 기존 문서 상세 정보를 가져옵니다.
           url = `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`;
         } else {
-          // 새 문서 작성: 템플릿 조회 API 사용
-          url = `${API_BASE_URL}${APPROVAL_SERVICE}/form`;
-          if (templateId) {
-            params.templateId = templateId;
-          }
+          // 신규 작성 모드: 템플릿 정보를 가져옵니다.
+          url = `${API_BASE_URL}${APPROVAL_SERVICE}/form?templateId=${templateId}`;
         }
         
-        const res = await axiosInstance.get(url, { params });
+        console.log(`%c[useApprovalForm] API 요청 시작: ${url}`, 'color: blue;');
+        const res = await axiosInstance.get(url);
+        
+        if (res.data?.statusCode === 200) {
+          const data = res.data.result;
+          console.log(`%c[useApprovalForm] API 응답 성공:`, 'color: green;', data);
 
-        console.log(`%c[3단계: API 응답]`, 'color: orange; font-weight: bold;', res.data.result);
-
-        if (res.data && res.data.statusCode === 200) {
-          const result = res.data.result;
-          
-          console.log(`%c[3-1단계: 백엔드 응답 데이터]`, 'color: cyan; font-weight: bold;', {
-            template: result.template,
-            formData: result.formData,
-            approvalLine: result.approvalLine,
-            references: result.references,
-            attachments: result.attachments
-          });
-          
-          // 기존 문서 수정 시 데이터 매핑
-          if (reportId) {
-            // 백엔드 응답 구조에 따라 데이터 매핑
-            const mappedFormData = result.formData || {
-              title: result.title || '',
-              content: result.content || '',
-              ...result.reportTemplateData ? JSON.parse(result.reportTemplateData) : {}
-            };
-            
-            setTemplate(result.template || null);
-            setFormData(mappedFormData);
-            setApprovalLine(result.approvalLine || []);
-            setReferences(result.references || []);
-            setAttachments(result.attachments || []);
-          } else {
-            // 새 문서 작성 시 기존 로직
-            const { template, formData, approvalLine, attachments, references } = result;
-            setTemplate(template);
-            setFormData(formData || {});
-            setApprovalLine(approvalLine || []);
-            setReferences(references || []);
-            setAttachments(attachments || []);
-          }
-        } else {
-          throw new Error(
-            res.data.statusMessage || '결재 양식 데이터를 불러오는 데 실패했습니다.', // 'message' -> 'statusMessage'
+          // ★ 3. 응답 데이터를 각 상태에 맞게 설정합니다.
+          setTemplate(data.template || null);
+          // formData는 template의 기본값과 실제 데이터를 합쳐서 설정할 수 있습니다.
+          setFormData(data.formData || {});
+          setApprovalLine(
+            (data.approvalLine || []).map(emp => emp.id ? emp : { ...emp, id: emp.employeeId })
           );
+          setReferences(
+            (data.references || []).map(emp => emp.id ? emp : { ...emp, id: emp.employeeId })
+          );
+          setAttachments(data.attachments || []);
+        } else {
+          throw new Error(res.data?.statusMessage || '데이터를 불러오지 못했습니다.');
         }
       } catch (err) {
-        console.error('Failed to fetch form data:', err);
-        console.error('Failed to fetch form data (에러 객체 전체):', err);
-        setError(err.message);
-        // 필요시 에러 페이지로 이동
-        // navigate('/error'); 
+        console.error("useApprovalForm 에러:", err);
+        setError(err.message || '데이터를 불러오는 중 오류가 발생했습니다.');
+        // 에러 발생 시 에러 페이지로 보내는 것도 좋은 방법입니다.
+        // navigate('/error');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchFormData();
-  }, [templateId, reportId, navigate]);
+    fetchData();
+  }, [reportId, templateId, navigate]); // navigate를 의존성 배열에 추가
 
   return {
     template,
     formData,
-    setFormData, // formData는 사용자가 수정해야 하므로 setter도 반환
+    setFormData,
     approvalLine,
     setApprovalLine,
-    references, // 반환값에 추가
-    setReferences, // 반환값에 추가
+    references,
+    setReferences,
     attachments,
     setAttachments,
     loading,
     error,
   };
-}; 
+};

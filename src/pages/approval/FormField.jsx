@@ -13,6 +13,7 @@ const FormField = ({ field, value, onChange }) => {
             value={value[field.id] || ''}
             onChange={(e) => onChange(field.id, e.target.value)}
             required={field.required}
+            className={styles.formInput}
           />
         );
       case 'period':
@@ -25,6 +26,7 @@ const FormField = ({ field, value, onChange }) => {
               value={value?.[`${field.id}_start`] || ''}
               onChange={(e) => onChange(`${field.id}_start`, e.target.value)}
               required={field.required}
+              className={styles.formInput}
             />
             <span>~</span>
             <input
@@ -33,6 +35,7 @@ const FormField = ({ field, value, onChange }) => {
               value={value?.[`${field.id}_end`] || ''}
               onChange={(e) => onChange(`${field.id}_end`, e.target.value)}
               required={field.required}
+              className={styles.formInput}
             />
           </div>
         );
@@ -45,6 +48,7 @@ const FormField = ({ field, value, onChange }) => {
             required={field.required}
             placeholder={field.description}
             rows={5}
+            className={styles.formInput}
           />
         );
       default: // 'text', 'number' 등
@@ -56,19 +60,20 @@ const FormField = ({ field, value, onChange }) => {
             onChange={(e) => onChange(field.id, e.target.value)}
             required={field.required}
             placeholder={field.description}
+            className={styles.formInput}
           />
         );
     }
   };
 
   return (
-    <tr>
-      <th>
+    <div className={styles.formRow}>
+      <div className={styles.formLabel}>
         {field.header || field.label}
         {field.required && <span className={styles.required}>*</span>}
-      </th>
-      <td>{renderField()}</td>
-    </tr>
+      </div>
+      <div className={styles.formField}>{renderField()}</div>
+    </div>
   );
 };
 

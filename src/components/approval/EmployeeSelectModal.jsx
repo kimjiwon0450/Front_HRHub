@@ -7,12 +7,12 @@ const EmployeeSelectModal = ({
   open,
   onClose,
   onSelect,
-  selectedEmployees,
+  selected, // prop 이름 통일
   multiple,
 }) => {
   const [departmentList, setDepartmentList] = useState([]);
   const [employeeList, setEmployeeList] = useState([]);
-  const [selected, setSelected] = useState([]);
+  const [selectedState, setSelectedState] = useState([]);
   const [activeTab, setActiveTab] = useState('전체');
   const [openDept, setOpenDept] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -63,13 +63,12 @@ const EmployeeSelectModal = ({
     }
   }, [open]);
 
+  // ★ selected prop이 바뀌거나 open이 true가 될 때마다 내부 selectedState를 동기화
   useEffect(() => {
-    if (selectedEmployees) {
-      setSelected(selectedEmployees);
-    } else {
-      setSelected([]);
+    if (open) {
+      setSelectedState(selected || []);
     }
-  }, [selectedEmployees]);
+  }, [open, selected]);
 
   const filteredEmployees = employeeList.filter((emp) => {
     const keyword = search.trim().toLowerCase();
@@ -91,18 +90,18 @@ const EmployeeSelectModal = ({
 
   const handleSelect = (emp) => {
     if (multiple) {
-      setSelected((prev) =>
+      setSelectedState((prev) =>
         prev.some((e) => e.id === emp.id)
           ? prev.filter((e) => e.id !== emp.id)
           : [...prev, emp],
       );
     } else {
-      setSelected([emp]);
+      setSelectedState([emp]);
     }
   };
 
   const handleConfirm = () => {
-    const transformedSelection = selected.map((emp, index) => ({
+    const transformedSelection = selectedState.map((emp, index) => ({
       ...emp,
       employeeId: emp.id,
       approvalContext: index + 1,
@@ -155,7 +154,7 @@ const EmployeeSelectModal = ({
                   <label className={styles.employeeLabel}>
                     <input
                       type={multiple ? 'checkbox' : 'radio'}
-                      checked={selected.some((e) => e.id === emp.id)}
+                      checked={selectedState.some((e) => e.id === emp.id)}
                       onChange={() => handleSelect(emp)}
                       className={styles.employeeInput}
                     />
@@ -198,7 +197,7 @@ const EmployeeSelectModal = ({
                           <label className={styles.employeeLabel}>
                             <input
                               type={multiple ? 'checkbox' : 'radio'}
-                              checked={selected.some((e) => e.id === emp.id)}
+                              checked={selectedState.some((e) => e.id === emp.id)}
                               onChange={() => handleSelect(emp)}
                               className={styles.employeeInput}
                             />

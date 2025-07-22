@@ -32,8 +32,11 @@ export const useReportFilter = (reports) => {
       filtered = filtered.filter(report => {
         const reportDate = new Date(report.createdAt || report.reportCreatedAt);
         const fromDate = filters.dateFrom ? new Date(filters.dateFrom) : null;
-        const toDate = filters.dateTo ? new Date(filters.dateTo) : null;
-        
+        let toDate = filters.dateTo ? new Date(filters.dateTo) : null;
+        // toDate가 있으면 23:59:59로 맞춰서 해당 날짜까지 포함
+        if (toDate) {
+          toDate.setHours(23, 59, 59, 999);
+        }
         if (fromDate && reportDate < fromDate) return false;
         if (toDate && reportDate > toDate) return false;
         return true;

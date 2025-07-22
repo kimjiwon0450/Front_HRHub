@@ -16,11 +16,14 @@ import TemplateSelectionModal from '../../components/approval/TemplateSelectionM
 const MySwal = withReactContent(Swal);
 
 function ApprovalNew() {
-  const { reportId } = useParams();
+  console.log('ApprovalNew mount');
+  const { reportId } = useParams(); // 수정 모드일 때만 값이 존재
   const [searchParams] = useSearchParams();
-  const templateId = searchParams.get('templateId') || reportId;
+  // 쿼리에서 templateId만 추출
+  const templateIdFromQuery = searchParams.get('templateId');
   const navigate = useNavigate();
 
+  // useApprovalForm에 templateId와 reportId를 명확히 전달
   const {
     template,
     formData,
@@ -30,9 +33,10 @@ function ApprovalNew() {
     references,
     setReferences,
     attachments,
+    setAttachments,
     loading,
     error,
-  } = useApprovalForm(templateId, reportId);
+  } = useApprovalForm(templateIdFromQuery, reportId);
 
   const [isApproverModalOpen, setIsApproverModalOpen] = useState(false);
   const [isReferenceModalOpen, setIsReferenceModalOpen] = useState(false);
@@ -69,9 +73,13 @@ function ApprovalNew() {
     try {
       const res = await axiosInstance.post(url, submissionData);
       if (res.data && (res.data.statusCode === 201 || res.data.statusCode === 200)) {
-        setIsDirty(false);
+        setIsDirty(false); // dirty 해제
+        await Promise.resolve(); // 상태 반영 보장
         if (!isMovingAway) {
           alert(successMessage);
+          if (blocker && blocker.state === 'blocked') {
+            blocker.reset(); // useBlocker 강제 해제
+          }
           const nextUrl = isSubmit ? `/approval/reports/${res.data.result.id}` : '/approval/drafts';
           navigate(nextUrl);
         }
@@ -90,7 +98,8 @@ function ApprovalNew() {
   }, [formData, template, approvalLine, references, files, navigate, reportId]);
 
   // React Router v7의 useBlocker로 페이지 이탈 감지
-  const blocker = useBlocker(isDirty);
+  const shouldBlock = !loading && isDirty;
+  const blocker = useBlocker(shouldBlock);
 
   useEffect(() => {
     if (blocker.state === 'blocked') {
@@ -136,12 +145,30 @@ function ApprovalNew() {
 
   const handleFileChange = (e) => {
     setIsDirty(true);
-    setFiles(Array.from(e.target.files));
+    const newFiles = Array.from(e.target.files);
+    setFiles(prevFiles => [...prevFiles, ...newFiles]);
   };
 
   const handleRemoveFile = (indexToRemove) => {
     setIsDirty(true);
     setFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
+  };
+
+  const handleCancel = () => {
+    MySwal.fire({
+      title: '취소하시겠습니까?',
+      text: '작성 중인 내용이 모두 사라집니다.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: '예, 취소합니다',
+      cancelButtonText: '아니오',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setIsDirty(false); // ★ 취소로 나갈 때도 dirty 해제
+        navigate('/approval/home');
+      }
+      // 아니오(취소)면 아무 동작 안 함
+    });
   };
 
   if (loading) return <p>로딩 중...</p>;
@@ -156,166 +183,159 @@ function ApprovalNew() {
       */}
       <form onSubmit={(e) => { e.preventDefault(); handleFinalSubmit(true); }}>
         <div className={styles.section}>
-          <h3>{template ? template.title : '결재 문서 작성'}</h3>
-          <table className={styles.approvalFormTable}>
-            <tbody>
-              <tr>
-                <th>제목</th>
-                <td>
-                  <input
-                    type="text"
-                    id="title"
-                    value={formData.title || ''}
-                    onChange={(e) => handleValueChange('title', e.target.value)}
-                    placeholder="결재 문서의 제목을 입력하세요."
-                    required
-                    className={styles.formInput}
-                  />
-                </td>
-              </tr>
-              {template?.content
-                ?.filter((field) => field.type !== 'editor' && field.id !== 'title')
-                .map((field) => (
-                  <FormField
-                    key={field.id}
-                    field={field}
-                    value={formData}
-                    onChange={handleValueChange}
-                  />
-                ))}
-              <tr>
-                <td className={styles.formLabel}>내용</td>
-                <td colSpan="3" className={styles.formField}>
-                  {console.log('QuillEditor 렌더링')}
-                  <QuillEditor
-                    value={formData.content || ""}
-                    onChange={(content) => handleValueChange("content", content)}
-                    placeholder="내용을 입력하세요..."
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div className={styles.formRow}>
+            <div className={styles.formLabel}>제목</div>
+            <div className={styles.formField}>
+              <input
+                type="text"
+                id="title"
+                value={formData.title || ''}
+                onChange={(e) => handleValueChange('title', e.target.value)}
+                placeholder="결재 문서의 제목을 입력하세요."
+                required
+                className={styles.formInput}
+              />
+            </div>
+          </div>
+          {template?.content
+            ?.filter((field) => field.id !== 'content' && field.id !== 'title')
+            .map((field) => (
+              <FormField
+                key={field.id}
+                field={field}
+                value={formData}
+                onChange={handleValueChange}
+              />
+            ))}
+          <div className={styles.formRow}>
+            <div className={styles.formLabel}>내용</div>
+            <div className={`${styles.formField} ${styles.vertical}`}>
+              <div className={styles.editorContainer}>
+                <QuillEditor
+                  value={formData.content || ""}
+                  onChange={(content) => handleValueChange("content", content)}
+                  placeholder="내용을 입력하세요..."
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* ... (이하 결재선, 파일첨부, 버튼 등 렌더링 코드는 동일) ... */}
         <div className={styles.section}>
-          <h3>결재선 정보</h3>
-          <table className={styles.approvalFormTable}>
-            <tbody>
-              <tr>
-                <th>결재선</th>
-                <td>
-                  {approvalLine.length > 0 ? (
-                    <div>
-                      <strong>결재자 ({approvalLine.length}명):</strong>
-                      <VisualApprovalLine approvalLine={approvalLine} mode="full" />
-                    </div>
-                  ) : (
-                    <span style={{ color: '#999', fontStyle: 'italic' }}>결재선이 지정되지 않았습니다.</span>
-                  )}
-                  <button type="button" onClick={() => setIsApproverModalOpen(true)} className={styles.actionButton}>
-                    결재선 지정
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <th>참조</th>
-                <td>
-                  <div className={styles.referenceContainer}>
-                    {references.length > 0 ? (
-                      <div>
-                        <strong>참조자 ({references.length}명):</strong>
-                        <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
-                          {references.map((r, index) => (
-                            <li key={index}>
-                              {r.name ? r.name : `직원ID: ${r.employeeId}`}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : (
-                      <span style={{ color: '#999', fontStyle: 'italic' }}>참조자가 지정되지 않았습니다.</span>
-                    )}
+          <div className={styles.formRow}>
+            <div className={styles.formLabel}>결재선</div>
+            <div className={styles.formField} style={{ justifyContent: 'space-between' }}>
+              <div className={styles.referenceContainer}>
+                {approvalLine.length > 0 ? (
+                  <div>
+                    <strong>결재자 ({approvalLine.length}명):</strong>
+                    <VisualApprovalLine approvalLine={approvalLine} mode="full" />
                   </div>
-                  <button type="button" onClick={() => setIsReferenceModalOpen(true)} className={styles.actionButton}>
-                    참조자 지정
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                ) : (
+                  <span style={{ color: '#999', fontStyle: 'italic' }}>결재선이 지정되지 않았습니다.</span>
+                )}
+              </div>
+              <button type="button" onClick={() => setIsApproverModalOpen(true)} className={styles.actionButton}>
+                결재선 지정
+              </button>
+            </div>
+          </div>
+          <div className={styles.formRow}>
+            <div className={styles.formLabel}>참조</div>
+            <div className={styles.formField} style={{ justifyContent: 'space-between' }}>
+              <div className={styles.referenceContainer}>
+                {references.length > 0 ? (
+                  <div>
+                    <strong>참조자 ({references.length}명):</strong>
+                    <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
+                      {references.map((r, index) => (
+                        <li key={index}>
+                          {r.name ? r.name : `직원ID: ${r.employeeId}`}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <span style={{ color: '#999', fontStyle: 'italic' }}>참조자가 지정되지 않았습니다.</span>
+                )}
+              </div>
+              <button type="button" onClick={() => setIsReferenceModalOpen(true)} className={styles.actionButton}>
+                참조자 지정
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className={styles.section}>
-          <h3>파일 첨부</h3>
-          <table className={styles.approvalFormTable}>
-             <tbody>
-               <tr>
-                <th>첨부파일</th>
-                <td>
-                  <div className={styles.fileUploadArea}>
-                    <input 
-                      type="file" 
-                      id="files" 
-                      multiple 
-                      onChange={handleFileChange}
-                      className={styles.fileInput}
-                    />
-                    <label htmlFor="files" className={styles.fileUploadButton}>
-                      📁 파일 선택
-                    </label>
-                    <span className={styles.fileUploadHint}>
-                      여러 파일을 선택할 수 있습니다
+          <div className={styles.formRow}>
+            <div className={styles.formLabel}>첨부파일</div>
+            <div className={`${styles.formField} ${styles.vertical}`}>
+              <div className={styles.fileUploadArea}>
+                <input
+                  type="file"
+                  id="files"
+                  multiple
+                  onChange={handleFileChange}
+                  className={styles.fileInput}
+                />
+                <label htmlFor="files" className={styles.fileUploadButton}>
+                  파일 선택
+                </label>
+                <span className={styles.fileUploadHint}>
+                  여러 파일을 선택할 수 있습니다
+                </span>
+              </div>
+              {files.length > 0 && (
+                <div className={styles.selectedFilesSection}>
+                  {files.map((file, index) => (
+                    <span key={index} className={styles.fileTag}>
+                      {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(index)}
+                        className={styles.removeFileButton}
+                        title="삭제"
+                      >✕</button>
                     </span>
-                  </div>
-                  
-                  {files.length > 0 && (
-                    <div className={styles.selectedFilesSection}>
-                      <h4>선택된 파일 ({files.length}개)</h4>
-                      <div className={styles.fileList}>
-                        {files.map((file, index) => (
-                          <div key={index} className={styles.fileItem}>
-                            <span className={styles.fileName}>{file.name}</span>
-                            <span className={styles.fileSize}>
-                              ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                            </span>
-                            <button 
-                              type="button" 
-                              onClick={() => handleRemoveFile(index)} 
-                              className={styles.removeFileButton}
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {attachments.length > 0 && (
-                    <div className={styles.existingFilesSection}>
-                      <h4>기존 첨부파일 ({attachments.length}개)</h4>
-                      <AttachmentList 
-                        attachments={attachments} 
-                        readonly={true}
-                      />
-                    </div>
-                  )}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  ))}
+                </div>
+              )}
+              {attachments.length > 0 && (
+                <div className={styles.existingFilesSection}>
+                  <h4>기존 첨부파일 ({attachments.length}개)</h4>
+                  <AttachmentList
+                    attachments={attachments}
+                    readonly={true}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className={styles.actions}>
-          <button type="submit" disabled={isSubmitting || isSaving} className={styles.submitButton}>
+        <div className={styles.buttonGroup}>
+          <button
+            type="submit"
+            disabled={isSubmitting || isSaving}
+            className={styles.submitButton}
+          >
             {isSubmitting ? '상신 중...' : '상신'}
           </button>
-          <button type="button" onClick={() => handleFinalSubmit(false)} disabled={isSubmitting || isSaving} className={styles.draftButton}>
+          <button
+            type="button"
+            onClick={() => handleFinalSubmit(false)}
+            disabled={isSubmitting || isSaving}
+            className={styles.draftButton}
+          >
             {isSaving ? '저장 중...' : '임시 저장'}
           </button>
-          <button type="button" onClick={() => navigate(-1)} className={styles.cancelButton}>취소</button>
+          <button
+            type="button"
+            onClick={handleCancel}
+            className={styles.cancelButton}
+          >
+            취소
+          </button>
         </div>
       </form>
       {isApproverModalOpen && (
@@ -324,6 +344,7 @@ function ApprovalNew() {
           onClose={() => setIsApproverModalOpen(false)}
           onSelect={handleSelectApprovers}
           multiple
+          selected={approvalLine} // 현재 선택된 결재자 목록 전달
         />
       )}
       {isReferenceModalOpen && (
@@ -332,6 +353,7 @@ function ApprovalNew() {
           onClose={() => setIsReferenceModalOpen(false)}
           onSelect={handleSelectReferences}
           multiple
+          selected={references} // 현재 선택된 참조자 목록 전달
         />
       )}
        {isTemplateModalOpen && (
