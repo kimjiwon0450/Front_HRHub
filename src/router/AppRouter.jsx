@@ -100,7 +100,7 @@ const AppRouter = [
 
       // --- 공지사항 라우트 (누락되었던 부분 추가) ---
       {
-        path: 'noticeboard',
+        path: 'notice',
         children: [
           { index: true, element: <NoticeBoardList /> }, // '/noticeboard' 접속 시 기본 페이지
           { path: 'my', element: <NoticeBoardList /> },
@@ -111,12 +111,29 @@ const AppRouter = [
           { path: ':id', element: <NoticeBoardDetail /> },
         ],
       },
-      { path: 'general', element: <NoticeBoardList /> },
-      { path: 'general/my', element: <NoticeBoardList /> },
-      { path: 'community', element: <CommunityPostsPage /> },
-      { path: 'community/my', element: <CommunityPostsPage /> },
-      { path: 'community/mydepartment', element: <CommunityPostsPage /> },
-
+      {
+        path: 'general',
+        children: [
+          { index: true, element: <NoticeBoardList /> }, // '/noticeboard' 접속 시 기본 페이지
+          { path: 'my', element: <NoticeBoardList /> },
+          // { path: 'mydepartment', element: <NoticeBoardList /> },
+          { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
+          { path: 'edit/:id', element: <NoticeBoardWrite isEdit={true} /> },
+          { path: ':id', element: <NoticeBoardDetail /> },
+        ],
+      },
+      {
+        path: 'community',
+        children: [
+          { index: true, element: <CommunityPostsPage /> }, // '/noticeboard' 접속 시 기본 페이지
+          { path: 'my', element: <NoticeBoardList /> },
+          { path: 'mydepartment', element: <NoticeBoardList /> },
+          { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
+          { path: 'edit/:id', element: <NoticeBoardWrite isEdit={true} /> },
+          { path: ':id', element: <NoticeBoardDetail /> },
+        ],
+      },
+      { path: 'alert', element: <NoticeAlertPage /> },
       // --- 주소록 라우트 (누락되었던 부분 추가) ---
       { path: 'contacts', element: <ContactList /> },
 
