@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
 
 const DraftBoxCard = ({ draft }) => {
+  console.log('DraftBoxCard draft:', draft);
   const navigate = useNavigate();
 
   const handleCardClick = () => {
@@ -21,7 +22,7 @@ const DraftBoxCard = ({ draft }) => {
   const attachmentCount = draft.attachments?.length || 0;
 
   return (
-    <div className={styles['draftbox-card']} onClick={handleCardClick}>
+    <div className={styles['reportItem']} onClick={handleCardClick}>
       {/* Left Section: 아이콘 및 양식명 */}
       <div className={styles['left-section']}>
         <span className={styles['doc-icon']}>{docIcon}</span>
@@ -36,11 +37,11 @@ const DraftBoxCard = ({ draft }) => {
 
       {/* Center Section: 제목 및 정보 */}
       <div className={styles['center-section']}>
-        <div className={styles['card-title']}>{draft.title}</div>
+        <div className={styles['card-title']}>{draft.title || '제목 없음'}</div>
         <div className={styles['card-info']}>
-          <span>기안일: {new Date(draft.createdAt || draft.reportCreatedAt).toLocaleDateString()}</span>
+          <span>기안일: {draft.createdAt || draft.reportCreatedAt ? new Date(draft.createdAt || draft.reportCreatedAt).toLocaleDateString() : '-'}</span>
           <span style={{ margin: '0 8px' }}>|</span>
-          <span>기안자: {draft.writer?.name || draft.name}</span>
+          <span>기안자: {draft.writer?.name || draft.name || '미지정'}</span>
         </div>
       </div>
 

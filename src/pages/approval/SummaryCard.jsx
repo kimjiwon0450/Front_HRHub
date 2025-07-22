@@ -14,7 +14,11 @@ const SummaryCard = ({ title, count, icon, onClick, active }) => {
           <span className={styles.count}>{count}</span>
         </div>
         <div className={styles.iconWrapper}>
-          <img src={icon} alt={title} className={styles.icon} />
+          {typeof icon === 'string' ? (
+            <img src={icon} alt={title} className={styles.icon} />
+          ) : (
+            icon
+          )}
         </div>
       </div>
     </div>

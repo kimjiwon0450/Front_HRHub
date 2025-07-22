@@ -187,7 +187,7 @@ const ApprovalHome = () => {
                 >
                   ×
                 </button>
-                <img src={templateIcon} alt='양식' />
+                <span style={{fontSize: 32, color: '#007BFF', marginBottom: 6}}>📝</span>
                 <span>{getTemplateTitle(templateId)}</span>
               </div>
             ))}
@@ -210,14 +210,14 @@ const ApprovalHome = () => {
         <SummaryCard
           title='처리하지 않은 수신결재'
           count={`${summaryData.unchecked}건`}
-          icon={uncheckedIcon}
+          icon={<span style={{color: '#007BFF', fontSize: 22}}>📬</span>}
           onClick={() => setActiveBox('inProgress')}
           active={activeBox === 'inProgress'}
         />
         <SummaryCard
           title='결재내역보기'
           count={`${summaryData.total}건`}
-          icon={historyIcon}
+          icon={<span style={{color: '#6C757D', fontSize: 22}}>🗂️</span>}
           onClick={() => setActiveBox('history')}
           active={activeBox === 'history'}
         />
