@@ -33,6 +33,7 @@ import MyReportsList from '../pages/approval/MyReportsList';
 import ApprovalNew from '../pages/approval/ApprovalNew';
 import TemplateAdminPage from '../pages/approval/TemplateAdminPage';
 import AdminRoute from './AdminRoute';
+import CommunityPostsPage from '../pages/NoticeBoard/NoticeAlertPage';
 
 const AppRouter = () => {
   const { user, loading } = useContext(UserContext);
@@ -78,9 +79,12 @@ const AppRouter = () => {
           </Route>
         </Route>
 
-        <Route path='/noticeboard' element={<NoticeBoardList />} />
-        <Route path='/noticeboard/my' element={<NoticeBoardList />} />
-        <Route path='/noticeboard/mydepartment' element={<NoticeBoardList />} />
+        <Route path='/general' element={<NoticeBoardList />} />
+        <Route path='/general/my' element={<NoticeBoardList />} />
+        {/* <Route path='/noticeboard/mydepartment' element={<NoticeBoardList />} /> */}
+        <Route path='/community' element={<CommunityPostsPage />} />
+        <Route path='/community/my' element={<CommunityPostsPage />} />
+        <Route path='/community/mydepartment' element={<CommunityPostsPage />} />
         <Route
           path='/noticeboard/write'
           element={<NoticeBoardWrite isEdit={false} />}

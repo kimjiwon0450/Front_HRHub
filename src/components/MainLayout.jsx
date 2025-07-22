@@ -7,7 +7,7 @@ import { UserContext } from '../context/UserContext';
 import axiosInstance from '../configs/axios-config';
 
 const sidebarMenus = [
-  { to: '/noticeboard', label: '공지사항', icon: '📢' },
+  { to: '/general', label: '공지사항', icon: '📢' },
   { to: '/dashboard', label: '대시보드', icon: '📊' },
   { to: '/hr', label: '인사관리', icon: '👥' },
   { to: '/approval', label: '전자결재', icon: '✍️' },
@@ -16,7 +16,7 @@ const sidebarMenus = [
 const headerMenus = [
   { to: '/dashboard', label: '메인', icon: '🏠' },
   { to: '/contacts', label: '연락처', icon: '📞' },
-  // { to: '/schedule', label: '일정', icon: '📅' },
+  { to: '/community', label: '커뮤니티', icon: '👄' },
   // { to: '/board', label: '게시판' },
   // { to: '/mail', label: '메일', icon: '✉️' },
   // { to: '/attendance', label: '근태', icon: '🕒' },
