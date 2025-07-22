@@ -68,7 +68,7 @@ const ApprovalInProgressBox = ({ onTotalCountChange }) => {
 
   return (
     <div className={styles.reportListContainer}>
-      <h3 className={styles.sectionTitle}>결재 중 문서함</h3>
+      <h2 className="sectionTitle">결재 중 문서함</h2>
       
       <ReportFilter onFilterChange={handleFilterChange} />
       

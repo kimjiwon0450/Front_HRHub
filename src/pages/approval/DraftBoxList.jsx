@@ -57,7 +57,7 @@ const DraftBoxList = () => {
 
   return (
     <div className={styles.container}>
-      <h2>임시 저장 문서함</h2>
+      <h2 className="sectionTitle">임시 저장 문서함</h2>
       
       {/* 필터링 컴포넌트 */}
       <ReportFilter onFilterChange={handleFilterChange} />

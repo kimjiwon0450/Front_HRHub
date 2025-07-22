@@ -65,7 +65,7 @@ const RejectedBox = () => {
 
   return (
     <div className={styles.reportListContainer}>
-      <h3 className={styles.sectionTitle}>반려 문서함</h3>
+      <h2 className="sectionTitle">반려 문서함</h2>
       
       {/* 필터링 컴포넌트 */}
       <ReportFilter onFilterChange={handleFilterChange} />

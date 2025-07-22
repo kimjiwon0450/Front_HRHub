@@ -64,7 +64,7 @@ const ApprovalPendingList = ({ onTotalCountChange }) => {
 
   return (
     <div className={styles.container}>
-      <h2>결재 예정 문서함</h2>
+      <h2 className="sectionTitle">결재 예정 문서함</h2>
       
       <ReportFilter onFilterChange={handleFilterChange} />
       
