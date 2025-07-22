@@ -9,6 +9,7 @@ import { UserContext } from '../../context/UserContext';
 import { getDepartmentNameById } from '../../common/hr';
 import Swal from 'sweetalert2';
 import { swalConfirm } from '../../common/common';
+import ModalPortal from '../../components/approval/ModalPortal';
 
 export default function EmployeeEdit({ employee, onClose, hideHeader }) {
   // 기존 employee prop을 state로 복사 (혹은 useEffect로 세팅)
@@ -28,6 +29,8 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
   const [hireDate, setHireDate] = useState('');
   const [position, setPosition] = useState(''); // 직급 초기값 설정
   const [currentEmployeeId, setCurrentEmployeeId] = useState(null); // 현재 수정할 직원의 ID
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
 
   const navigate = useNavigate();
   const { userId, userRole } = useContext(UserContext); // userRole 추가
@@ -157,8 +160,14 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
       alert('입사일을 입력해주세요.');
       return;
     }
-    const result = await swalConfirm('수정하시겠습니까?');
-    if (result.isDismissed) return;
+    setShowConfirmModal(true);
+    setPendingSubmit(true);
+  };
+
+  // 실제 서버로 PATCH 요청
+  const handleConfirm = async () => {
+    setShowConfirmModal(false);
+    setPendingSubmit(false);
     try {
       const res = await axiosInstance.patch(
         `${API_BASE_URL}${HR_SERVICE}/employees/${currentEmployeeId}`,
@@ -177,9 +186,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
           hireDate,
         },
       );
-      // alert('수정 성공!');
       if (onClose) {
-        console.log(res.data.result);
         onClose({
           ...res.data.result,
           department: getDepartmentNameById(departmentId),
@@ -194,6 +201,10 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
     } catch (error) {
       alert(error?.response?.data?.statusMessage || error.message);
     }
+  };
+  const handleCancel = () => {
+    setShowConfirmModal(false);
+    setPendingSubmit(false);
   };
 
   return (
@@ -418,6 +429,79 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
             </div>
           </div>
         </div>
+      )}
+      {/* 수정 확인 모달 */}
+      {showConfirmModal && (
+        <ModalPortal>
+          <div className='dept-modal-overlay'>
+            <div className='dept-modal'>
+              <h3>수정 정보 확인</h3>
+              <div
+                style={{ maxHeight: 320, overflowY: 'auto', marginBottom: 16 }}
+              >
+                <table style={{ width: '100%', fontSize: '1rem' }}>
+                  <tbody>
+                    <tr>
+                      <th align='left'>이메일</th>
+                      <td>{email}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>이름</th>
+                      <td>{employeeName}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>생년월일</th>
+                      <td>{birth}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>부서</th>
+                      <td>
+                        {departments.find((d) => d.id == departmentId)?.name ||
+                          departmentId}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th align='left'>직급</th>
+                      <td>{position}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>직책</th>
+                      <td>{role}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>주소</th>
+                      <td>{address}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>핸드폰</th>
+                      <td>{phone}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>입사일</th>
+                      <td>{hireDate}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>입사구분</th>
+                      <td>{isNewEmployee ? '신입' : '경력'}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>메모</th>
+                      <td>{memo}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className='dept-modal-btns'>
+                <button className='btn blue' onClick={handleConfirm}>
+                  확인
+                </button>
+                <button className='btn gray' onClick={handleCancel}>
+                  취소
+                </button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </>
   );
