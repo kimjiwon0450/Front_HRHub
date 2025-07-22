@@ -48,35 +48,79 @@ function ApprovalNew() {
 
   // useCallback을 사용하여 함수가 항상 최신 상태를 참조하도록 함
   const handleFinalSubmit = useCallback(async (isSubmit = false, isMovingAway = false) => {
-    // ... (이 함수는 이전과 동일)
-     if (isSubmit) setIsSubmitting(true);
+    // 필수값 유효성 검사
+    if (!formData.title || formData.title.trim() === '') {
+      await MySwal.fire({
+        icon: 'warning',
+        title: '제목은 필수 입력 항목입니다.',
+        confirmButtonText: '확인',
+      });
+      if (isSubmit) setIsSubmitting(false);
+      else setIsSaving(false);
+      return;
+    }
+    if (isSubmit && (!approvalLine || approvalLine.length === 0)) {
+      await MySwal.fire({
+        icon: 'warning',
+        title: '결재선을 한 명 이상 지정해야 합니다.',
+        confirmButtonText: '확인',
+      });
+      if (isSubmit) setIsSubmitting(false);
+      else setIsSaving(false);
+      return;
+    }
+    if (isSubmit) setIsSubmitting(true);
     else setIsSaving(true);
 
-    const reqDto = {
-      title: formData.title,
-      content: formData.content,
-      templateId: template?.id,
-      reportTemplateData: JSON.stringify(formData),
-      approvalLine: approvalLine,
-      references: references,
-    };
-    const submissionData = new FormData();
-    submissionData.append('req', new Blob([JSON.stringify(reqDto)], { type: 'application/json' }));
-    files.forEach((file) => submissionData.append('files', file));
-
-    const url = isSubmit
-      ? `${API_BASE_URL}${APPROVAL_SERVICE}/submit`
-      : `${API_BASE_URL}${APPROVAL_SERVICE}/save`;
+    let url, submissionData;
+    if (reportId && !isSubmit) {
+      // --- 수정 모드에서 '임시 저장' (PUT) ---
+      url = `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`;
+      const updateDto = {
+        title: formData.title,
+        content: formData.content,
+        templateId: template?.id,
+        reportTemplateData: JSON.stringify(formData),
+        approvalLine: approvalLine.map(a => ({ ...a })),
+        references: references.map(r => ({ ...r })),
+        attachments: attachments, // 기존 첨부파일 목록
+      };
+      submissionData = new FormData();
+      submissionData.append('req', new Blob([JSON.stringify(updateDto)], { type: 'application/json' }));
+      files.forEach((file) => submissionData.append('files', file));
+    } else {
+      // 신규 생성 로직 (POST)
+      const reqDto = {
+        title: formData.title,
+        content: formData.content,
+        templateId: template?.id,
+        reportTemplateData: JSON.stringify(formData),
+        approvalLine: approvalLine,
+        references: references,
+      };
+      submissionData = new FormData();
+      submissionData.append('req', new Blob([JSON.stringify(reqDto)], { type: 'application/json' }));
+      files.forEach((file) => submissionData.append('files', file));
+      url = isSubmit
+        ? `${API_BASE_URL}${APPROVAL_SERVICE}/submit`
+        : `${API_BASE_URL}${APPROVAL_SERVICE}/save`;
+    }
       
     const successMessage = isSubmit ? '성공적으로 상신되었습니다.' : '임시 저장되었습니다.';
 
     try {
-      const res = await axiosInstance.post(url, submissionData);
+      const res = reportId && !isSubmit
+        ? await axiosInstance.put(url, submissionData)
+        : await axiosInstance.post(url, submissionData);
       if (res.data && (res.data.statusCode === 201 || res.data.statusCode === 200)) {
         setIsDirty(false); // dirty 해제
         await Promise.resolve(); // 상태 반영 보장
         if (!isMovingAway) {
-          alert(successMessage);
+          await MySwal.fire({
+            icon: 'success',
+            title: successMessage,
+            confirmButtonText: '확인',
+          });
           if (blocker && blocker.state === 'blocked') {
             blocker.reset(); // useBlocker 강제 해제
           }
@@ -115,6 +159,11 @@ function ApprovalNew() {
       }).then(async (result) => {
         if (result.isConfirmed) {
           await handleFinalSubmit(false, true);
+          await MySwal.fire({
+            icon: 'success',
+            title: '임시 저장되었습니다.',
+            confirmButtonText: '확인',
+          });
           blocker.proceed();
         } else if (result.isDenied) {
           blocker.proceed();
@@ -171,6 +220,20 @@ function ApprovalNew() {
     });
   };
 
+  // 상신/임시저장 전 사용자 확인 모달
+  const handleSubmitWithConfirm = async (isSubmit) => {
+    const result = await MySwal.fire({
+      title: isSubmit ? '정말 상신하시겠습니까?' : '임시 저장하시겠습니까?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: '예',
+      cancelButtonText: '아니오',
+    });
+    if (result.isConfirmed) {
+      handleFinalSubmit(isSubmit);
+    }
+  };
+
   if (loading) return <p>로딩 중...</p>;
   if (error) return <p>오류: {error}</p>;
 
@@ -181,7 +244,7 @@ function ApprovalNew() {
         위에서 수정한 핸들러 함수들(handleValueChange, handleSelectApprovers 등)을 
         props로 잘 전달받고 있는지 확인하는 것이 중요합니다.
       */}
-      <form onSubmit={(e) => { e.preventDefault(); handleFinalSubmit(true); }}>
+      <form onSubmit={(e) => { e.preventDefault(); handleSubmitWithConfirm(true); }}>
         <div className={styles.section}>
           <div className={styles.formRow}>
             <div className={styles.formLabel}>제목</div>
@@ -323,7 +386,7 @@ function ApprovalNew() {
           </button>
           <button
             type="button"
-            onClick={() => handleFinalSubmit(false)}
+            onClick={() => handleSubmitWithConfirm(false)}
             disabled={isSubmitting || isSaving}
             className={styles.draftButton}
           >

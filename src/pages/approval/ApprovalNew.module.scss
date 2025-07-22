@@ -55,7 +55,7 @@
 }
 
 .formInput, .formField input, .formField textarea, .formField select {
-  width: 100%;
+    width: 100%;
   min-width: 0;
   max-width: 100%;
   padding: 10px 14px;
@@ -128,9 +128,9 @@
   border-radius: 16px;
   padding: 6px 14px;
   font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
 }
 
 .removeFileButton {

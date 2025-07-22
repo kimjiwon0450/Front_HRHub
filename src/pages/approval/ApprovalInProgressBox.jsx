@@ -5,11 +5,13 @@ import styles from './ApprovalBoxList.module.scss';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
+import PropTypes from 'prop-types';
 
-const ApprovalInProgressBox = () => {
+const ApprovalInProgressBox = ({ onTotalCountChange }) => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [totalCount, setTotalCount] = useState(0);
   
   const { filteredReports, handleFilterChange } = useReportFilter(reports);
 
@@ -34,12 +36,19 @@ const ApprovalInProgressBox = () => {
 
         if (response.data?.statusCode === 200) {
           setReports(response.data.result.reports || []);
+          setTotalCount(response.data.result.totalElements || 0);
+          if (onTotalCountChange) onTotalCountChange(response.data.result.totalElements || 0);
         } else {
           setReports([]);
+          setTotalCount(0);
+          if (onTotalCountChange) onTotalCountChange(0);
           setError(response.data?.statusMessage || '진행 중인 문서를 불러오는 데 실패했습니다.');
         }
       } catch (err) {
         console.error('결재 중 문서함 문서를 불러오는 중 오류 발생:', err);
+        setReports([]);
+        setTotalCount(0);
+        if (onTotalCountChange) onTotalCountChange(0);
         setError('결재 중 문서함 문서를 불러오는 데 실패했습니다.');
       } finally {
         setLoading(false);
@@ -67,7 +76,7 @@ const ApprovalInProgressBox = () => {
         {filteredReports.length > 0 ? (
           <>
             <div className={styles.resultInfo}>
-              총 {filteredReports.length}건의 문서가 있습니다.
+              총 {totalCount}건의 문서가 있습니다.
             </div>
             {/* ★★★ 핵심 수정: 렌더링 직전에 sort() 함수를 추가하여 재정렬합니다. ★★★ */}
             {[...filteredReports] // 원본 배열 수정을 방지하기 위해 복사본 생성
@@ -85,6 +94,10 @@ const ApprovalInProgressBox = () => {
       </div>
     </div>
   );
+};
+
+ApprovalInProgressBox.propTypes = {
+  onTotalCountChange: PropTypes.func,
 };
 
 export default ApprovalInProgressBox;

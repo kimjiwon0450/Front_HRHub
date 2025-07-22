@@ -25,7 +25,7 @@ export const useApprovalForm = (templateId, reportId) => {
 
       setLoading(true);
       setError(null);
-      
+
       try {
         let url;
         // ★ 2. 수정 모드(reportId)인지, 신규 작성 모드(templateId)인지 명확하게 구분합니다.
@@ -39,7 +39,7 @@ export const useApprovalForm = (templateId, reportId) => {
         
         console.log(`%c[useApprovalForm] API 요청 시작: ${url}`, 'color: blue;');
         const res = await axiosInstance.get(url);
-        
+
         if (res.data?.statusCode === 200) {
           const data = res.data.result;
           console.log(`%c[useApprovalForm] API 응답 성공:`, 'color: green;', data);
@@ -62,7 +62,7 @@ export const useApprovalForm = (templateId, reportId) => {
         console.error("useApprovalForm 에러:", err);
         setError(err.message || '데이터를 불러오는 중 오류가 발생했습니다.');
         // 에러 발생 시 에러 페이지로 보내는 것도 좋은 방법입니다.
-        // navigate('/error');
+        // navigate('/error'); 
       } finally {
         setLoading(false);
       }
@@ -84,4 +84,4 @@ export const useApprovalForm = (templateId, reportId) => {
     loading,
     error,
   };
-};
+}; 
