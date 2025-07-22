@@ -7,6 +7,7 @@ import './EmployeeList.scss';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import { getDepartmentNameById, getEmployeeList } from '../../common/hr';
+import { warn } from '../../common/common';
 
 // 부서 목록을 서버에서 받아옴
 
@@ -105,7 +106,7 @@ export default function EmployeeList() {
         `${API_BASE_URL}${HR_SERVICE}/evaluation/${selectedDetail.employeeId}`,
       );
       // 평가가 이미 존재하면 alert만 띄우고 이동하지 않음
-      alert('이미 인사평가가 존재합니다.');
+      warn('이미 인사평가가 존재합니다.');
     } catch (error) {
       // 평가가 없으면 평가화면으로 이동
       setMode('eval');

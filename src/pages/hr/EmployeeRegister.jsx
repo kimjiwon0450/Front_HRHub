@@ -5,6 +5,7 @@ import axios from 'axios';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
 import { useNavigate } from 'react-router-dom';
+import { warn } from '../../common/common';
 
 export default function EmployeeRegister() {
   const [departments, setDepartments] = useState([]);
@@ -57,15 +58,16 @@ export default function EmployeeRegister() {
       !phone.trim() ||
       !hireDate.trim()
     ) {
-      alert('필수 항목을 모두 입력해주세요.');
+      // alert('필수 항목을 모두 입력해주세요.');
+      warn('필수 항목을 모두 입력해주세요.');
       return false;
     }
     if (!isValidEmail(email)) {
-      alert('유효하지 않은 이메일 형식입니다!');
+      warn('유효하지 않은 이메일 형식입니다!');
       return false;
     }
     if (!isValidPhone(phone)) {
-      alert('전화번호는 010-1234-5678 형식으로 입력해주세요.');
+      warn('전화번호는 010-1234-5678 형식으로 입력해주세요.');
       return false;
     }
     return true;

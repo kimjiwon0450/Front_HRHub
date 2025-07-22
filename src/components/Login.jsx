@@ -5,6 +5,7 @@ import axios from 'axios';
 import { API_BASE_URL, HR_SERVICE } from '../configs/host-config';
 import { UserContext, UserContextProvider } from '../context/UserContext';
 import modalStyles from './ResetPasswordModal.module.scss';
+import { succeed, swalError, warn } from '../common/common';
 
 // 모달 컴포넌트 추가
 function ResetPasswordModal({ isOpen, onClose }) {
@@ -13,13 +14,13 @@ function ResetPasswordModal({ isOpen, onClose }) {
 
   const handleSendEmail = async () => {
     if (!email) {
-      alert('이메일을 입력해주세요.');
+      warn('이메일을 입력해주세요.');
       return;
     }
     // 이메일 형식 검사
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert('올바른 이메일 형식을 입력해주세요.');
+      warn('올바른 이메일 형식을 입력해주세요.');
       return;
     }
     setLoading(true);
@@ -27,10 +28,10 @@ function ResetPasswordModal({ isOpen, onClose }) {
       await axios.get(
         `${API_BASE_URL}${HR_SERVICE}/employees/email/verification/${email}`,
       );
-      alert('이메일이 전송되었습니다');
+      succeed('이메일이 전송되었습니다');
       onClose();
     } catch (error) {
-      alert(
+      swalError(
         error.response?.data?.statusMessage || '이메일 전송에 실패했습니다.',
       );
     } finally {
@@ -107,10 +108,10 @@ export default function Login() {
 
   const verifyPassword = () => {
     if (!newPassword || !newPasswordConfirm) {
-      alert('새 비밀번호를 입력해주세요.');
+      warn('새 비밀번호를 입력해주세요.');
       return false;
     } else if (newPassword !== newPasswordConfirm) {
-      alert('비밀번호가 일치하지 않습니다.');
+      warn('비밀번호가 일치하지 않습니다.');
       return false;
     }
     return true;
@@ -133,10 +134,10 @@ export default function Login() {
           password: newPassword,
           verificationCode, // 인증번호 추가
         });
-        alert('비밀번호 설정 완료!');
+        succeed('비밀번호 설정 완료!');
         navigate('/');
       } catch (error) {
-        alert(
+        swalError(
           error.response.data.statusMessage
             ? error.response.data.statusMessage
             : error,
@@ -156,7 +157,7 @@ export default function Login() {
       onLogin(res.data.result);
       navigate('/dashboard');
     } catch (error) {
-      alert(
+      swalError(
         error.response.data.statusMessage
           ? error.response.data.statusMessage
           : '서버 에러입니다. 관리자에게 문의해주세요.',

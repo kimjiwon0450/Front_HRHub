@@ -12,39 +12,36 @@ export default function NoticeList({ notices, load }) {
   return (
     <>
       {load ? (
-          <p>불러오는 중...</p>
+        <p>불러오는 중...</p>
       ) : (
-          <>
-            <table className='notice-list'>
-              <tbody>
-                {notices.map((notice) => (
-                  <tr 
-                    key={notice.id}
-                    className='notice-item'
+        <>
+          <table className='notice-list'>
+            <tbody>
+              {notices.map((notice) => (
+                <tr key={notice.id} className='notice-item'>
+                  <td
+                    className='notice-title'
+                    onClick={() => navigate(`/noticeboard/${notice.id}`)}
                   >
-                    <td className='notice-title' onClick={() => navigate(`/noticeboard/${notice.id}`)}>{notice.title}</td>
-                    <td className='notice-author'>
-                      {notice.employStatus === 'INACTIVE'
-                        ? `${notice.name}(퇴사)`
-                        : notice.name}
-                    </td>
-                    <td className='notice-date'>
-                      {new Date(notice.createdAt).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
-              )
-      }
+                    {notice.title}
+                  </td>
+                  <td className='notice-author'>
+                    {notice.employStatus === 'INACTIVE'
+                      ? `${notice.name}(퇴사)`
+                      : notice.name}
+                  </td>
+                  <td className='notice-date'>
+                    {new Date(notice.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
     </>
   );
 }
-
-
-
-
 
 // {notices.map((notice) => (
 //   <li

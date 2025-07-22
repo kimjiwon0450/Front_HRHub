@@ -3,11 +3,16 @@ import axiosInstance from '../../configs/axios-config';
 import DraftBoxCard from './DraftBoxCard';
 import styles from './DraftBoxList.module.scss';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
+import ReportFilter from '../../components/approval/ReportFilter';
+import { useReportFilter } from '../../hooks/useReportFilter';
 
 const DraftBoxList = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // 필터링 훅 사용
+  const { filteredReports, handleFilterChange } = useReportFilter(reports);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -19,8 +24,10 @@ const DraftBoxList = () => {
             params: {
               role: 'writer',
               status,
+              sortBy: 'reportCreatedAt',
+              sortOrder: 'desc',
               page: 0,
-              size: 10,
+              size: 50,
             },
           });
 
@@ -33,7 +40,7 @@ const DraftBoxList = () => {
         const recalled = recalledRes.data?.result?.reports || [];
 
         const combinedReports = [...drafts, ...recalled].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+          (a, b) => new Date(b.reportCreatedAt) - new Date(a.reportCreatedAt),
         );
 
         setReports(combinedReports);
@@ -50,14 +57,23 @@ const DraftBoxList = () => {
 
   return (
     <div className={styles.container}>
-      <h2>임시 저장함</h2>
+      <h2>임시 저장 문서함</h2>
+      
+      {/* 필터링 컴포넌트 */}
+      <ReportFilter onFilterChange={handleFilterChange} />
+      
       <div className={styles.list}>
         {loading && <p>로딩 중...</p>}
         {error && <p className={styles.error}>{error}</p>}
-        {!loading && !error && reports.length > 0 ? (
-          reports.map((report) => (
-            <DraftBoxCard key={report.id} draft={report} />
-          ))
+        {!loading && !error && filteredReports.length > 0 ? (
+          <>
+            <div className={styles.resultInfo}>
+              총 {filteredReports.length}건의 문서가 있습니다.
+            </div>
+            {filteredReports.map((report) => (
+              <DraftBoxCard key={report.id} draft={report} />
+            ))}
+          </>
         ) : (
           !loading && !error && <p>임시 저장된 문서가 없습니다.</p>
         )}

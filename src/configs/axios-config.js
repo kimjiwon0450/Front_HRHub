@@ -34,6 +34,12 @@ axiosInstance.interceptors.response.use(
   },
 
   async (error) => {
+    const isLoggingOut = localStorage.getItem('IS_LOGGING_OUT');
+    if (isLoggingOut === 'true') {
+      localStorage.removeItem('IS_LOGGING_OUT'); // Clear the flag
+      return Promise.reject(error); // Abort further error handling
+    }
+
     if (error.response?.data.message === 'NO_LOGIN') {
       console.log('아예 로그인을 하지 않아서 재발급 요청 들어갈 수 없음!');
       return Promise.reject(error);
@@ -77,7 +83,9 @@ axiosInstance.interceptors.response.use(
         window.location.href = '/';
         // navigate('/');
         // 재발급 요청도 거절당하면 인스턴스를 호출한 곳으로 에러 정보 리턴.
-        return Promise.reject(error);
+        return Promise.reject(
+          '로그인 정보가 만료되었습니다. 다시 로그인을 해주세요.',
+        );
       }
     }
     // 여기에 반드시 추가!

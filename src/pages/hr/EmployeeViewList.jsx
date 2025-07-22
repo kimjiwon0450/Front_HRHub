@@ -7,6 +7,7 @@ import EvaluationView from './EvaluationView';
 import EvaluationForm from './EvaluationForm';
 import { useNavigate } from 'react-router-dom';
 import { getEmployeeList } from '../../common/hr';
+import { warn } from '../../common/common';
 
 export default function EmployeeViewList() {
   const [selectedId, setSelectedId] = useState(null);
@@ -101,7 +102,7 @@ export default function EmployeeViewList() {
       setEvaluation(res.data.result);
     } catch (error) {
       setEvaluation(null);
-      alert('인사평가 정보가 없습니다.');
+      warn('인사평가 정보가 없습니다.');
     }
   };
 

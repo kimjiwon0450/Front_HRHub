@@ -198,3 +198,104 @@
   color: #6c757d;
 }
 .error { color: #dc3545; } 
+// ApprovalDetail.module.scss 에 추가할 예시 스타일
+
+.imageGallery {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.imageWrapper {
+  margin-bottom: 15px;
+  max-width: 100%;
+}
+
+.attachedImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.commonComments {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.commentBtn {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: #bbdefb;
+  }
+}
+.commentInput {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #bdbdbd;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+  margin-bottom: 8px;
+  resize: vertical;
+}
+.commentError {
+  color: #d32f2f;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.confirmModalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.confirmModal {
+  background: #fff;
+  border-radius: 8px;
+  padding: 32px 24px 24px 24px;
+  min-width: 320px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  text-align: center;
+}
+.confirmComment {
+  margin: 16px 0 24px 0;
+  font-size: 15px;
+  color: #333;
+}
+.confirmModalBtns {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+.confirmBtn {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.cancelBtn {
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+}

@@ -7,6 +7,8 @@ import axiosInstance from '../../configs/axios-config';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import { getDepartmentNameById } from '../../common/hr';
+import Swal from 'sweetalert2';
+import { swalConfirm } from '../../common/common';
 
 export default function EmployeeEdit({ employee, onClose, hideHeader }) {
   // 기존 employee prop을 state로 복사 (혹은 useEffect로 세팅)
@@ -155,6 +157,8 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
       alert('입사일을 입력해주세요.');
       return;
     }
+    const result = await swalConfirm('수정하시겠습니까?');
+    if (result.isDismissed) return;
     try {
       const res = await axiosInstance.patch(
         `${API_BASE_URL}${HR_SERVICE}/employees/${currentEmployeeId}`,
@@ -173,7 +177,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
           hireDate,
         },
       );
-      alert('수정 성공!');
+      // alert('수정 성공!');
       if (onClose) {
         console.log(res.data.result);
         onClose({
@@ -181,6 +185,12 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
           department: getDepartmentNameById(departmentId),
         });
       }
+      Swal.fire({
+        title: '알림',
+        text: '수정이 완료 되었습니다.',
+        icon: 'success',
+        confirmButtonText: '확인',
+      });
     } catch (error) {
       alert(error?.response?.data?.statusMessage || error.message);
     }
