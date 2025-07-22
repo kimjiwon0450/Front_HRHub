@@ -42,7 +42,7 @@ const ContactList = () => {
       if (department !== '전체')
         params += `&department=${encodeURIComponent(department)}`;
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees/contact${params}`,
+        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
       );
       setEmployees(res.data.result.content);
       setTotalPages(res.data.result.totalPages || 1);
