@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import styles from './EmployeeSelectModal.module.scss';
 import axiosInstance from '../../configs/axios-config';
-import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
+import { API_BASE_URL, HR_SERVICE, APPROVAL_SERVICE } from '../../configs/host-config';
 
 const EmployeeSelectModal = ({
   open,
   onClose,
   onSelect,
-  selectedEmployees,
+  selected, // prop 이름 통일
   multiple,
 }) => {
   const [departmentList, setDepartmentList] = useState([]);
   const [employeeList, setEmployeeList] = useState([]);
-  const [selected, setSelected] = useState(selectedEmployees || []);
+  const [selectedState, setSelectedState] = useState([]);
   const [activeTab, setActiveTab] = useState('전체');
   const [openDept, setOpenDept] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -24,8 +24,14 @@ const EmployeeSelectModal = ({
       const res = await axiosInstance.get(
         `${API_BASE_URL}${HR_SERVICE}/departments`,
       );
-      if (res.status === 200) setDepartmentList(res.data.result);
+      if (res.status === 200) {
+        const allDepartments = res.data.result;
+        // ★★★ 핵심 수정: API 응답에서 '전체' 부서를 필터링하여 제외합니다. ★★★
+        const actualDepartments = allDepartments.filter(dept => dept.name !== '전체');
+        setDepartmentList(actualDepartments);
+      }
     } catch (err) {
+      console.error("부서 정보 로딩 실패:", err);
       setError('부서 정보를 불러오지 못했습니다.');
     }
   };
@@ -37,8 +43,13 @@ const EmployeeSelectModal = ({
       const res = await axiosInstance.get(
         `${API_BASE_URL}${HR_SERVICE}/employees?size=9999`,
       );
-      if (res.status === 200) setEmployeeList(res.data.result.content);
+      if (res.status === 200) {
+        const allEmployees = res.data.result.content;
+        const activeEmployees = allEmployees.filter(emp => emp.status === 'ACTIVE');
+        setEmployeeList(activeEmployees);
+      }
     } catch (err) {
+      console.error("직원 정보 로딩 실패:", err);
       setError('직원 정보를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
@@ -46,27 +57,30 @@ const EmployeeSelectModal = ({
   };
 
   useEffect(() => {
-    getDepartmentList();
-    getEmployeeList();
-  }, []);
+    if (open) {
+      getDepartmentList();
+      getEmployeeList();
+    }
+  }, [open]);
 
+  // ★ selected prop이 바뀌거나 open이 true가 될 때마다 내부 selectedState를 동기화
   useEffect(() => {
-    setSelected(selectedEmployees || []);
-  }, [selectedEmployees]);
+    if (open) {
+      setSelectedState(selected || []);
+    }
+  }, [open, selected]);
 
-  // 검색 필터링
   const filteredEmployees = employeeList.filter((emp) => {
-    const keyword = search.trim();
+    const keyword = search.trim().toLowerCase();
     if (!keyword) return true;
     return (
-      emp.name.includes(keyword) ||
-      emp.department?.includes(keyword) ||
-      emp.position?.includes(keyword) ||
-      emp.role?.includes(keyword)
+      (emp.name && emp.name.toLowerCase().includes(keyword)) ||
+      (emp.department && emp.department.toLowerCase().includes(keyword)) ||
+      (emp.position && emp.position.toLowerCase().includes(keyword)) ||
+      (emp.role && emp.role.toLowerCase().includes(keyword))
     );
   });
 
-  // 팀별로 직원 그룹핑 (검색 적용)
   const employeesByDept = departmentList.reduce((acc, dept) => {
     acc[dept.name] = filteredEmployees.filter(
       (emp) => emp.department === dept.name,
@@ -76,14 +90,24 @@ const EmployeeSelectModal = ({
 
   const handleSelect = (emp) => {
     if (multiple) {
-      setSelected((prev) =>
+      setSelectedState((prev) =>
         prev.some((e) => e.id === emp.id)
           ? prev.filter((e) => e.id !== emp.id)
           : [...prev, emp],
       );
     } else {
-      setSelected([emp]);
+      setSelectedState([emp]);
     }
+  };
+
+  const handleConfirm = () => {
+    const transformedSelection = selectedState.map((emp, index) => ({
+      ...emp,
+      employeeId: emp.id,
+      approvalContext: index + 1,
+    }));
+    onSelect(transformedSelection);
+    onClose();
   };
 
   if (!open) return null;
@@ -118,42 +142,44 @@ const EmployeeSelectModal = ({
             팀별
           </button>
         </div>
+        
         {loading && <div className={styles.loading}>로딩 중...</div>}
         {error && <div className={styles.error}>{error}</div>}
+
         {!loading && !error && activeTab === '전체' && (
           <ul className={styles.employeeList}>
-            {filteredEmployees.map((emp) => (
-              <li key={emp.id} className={styles.employeeItem}>
-                <label className={styles.employeeLabel}>
-                  <input
-                    type={multiple ? 'checkbox' : 'radio'}
-                    checked={selected.some((e) => e.id === emp.id)}
-                    onChange={() => handleSelect(emp)}
-                    className={styles.employeeInput}
-                  />
-                  <span className={styles.employeeInfo}>
-                    <b>{emp.name}</b>{' '}
-                    <span className={styles.employeeMeta}>
-                      ({emp.position} / {emp.role} / {emp.department})
+            {filteredEmployees.length > 0 ? (
+              filteredEmployees.map((emp) => (
+                <li key={emp.id} className={styles.employeeItem}>
+                  <label className={styles.employeeLabel}>
+                    <input
+                      type={multiple ? 'checkbox' : 'radio'}
+                      checked={selectedState.some((e) => e.id === emp.id)}
+                      onChange={() => handleSelect(emp)}
+                      className={styles.employeeInput}
+                    />
+                    <span className={styles.employeeInfo}>
+                      <b>{emp.name}</b>{' '}
+                      <span className={styles.employeeMeta}>
+                        ({emp.position} / {emp.role} / {emp.department})
+                      </span>
                     </span>
-                  </span>
-                </label>
-              </li>
-            ))}
-            {filteredEmployees.length === 0 && (
-              <li className={styles.noResult}>검색 결과가 없습니다.</li>
+                  </label>
+                </li>
+              ))
+            ) : (
+              <li className={styles.noResult}>표시할 직원이 없습니다.</li>
             )}
           </ul>
         )}
+        
         {!loading && !error && activeTab === '팀별' && (
           <div className={styles.departmentList}>
             {departmentList.map((dept) => (
               <div key={dept.id} className={styles.departmentItem}>
                 <div
                   className={styles.departmentHeader}
-                  onClick={() =>
-                    setOpenDept(openDept === dept.id ? null : dept.id)
-                  }
+                  onClick={() => setOpenDept(openDept === dept.id ? null : dept.id)}
                 >
                   {dept.name}{' '}
                   <span className={styles.departmentCount}>
@@ -165,26 +191,27 @@ const EmployeeSelectModal = ({
                 </div>
                 {openDept === dept.id && (
                   <ul className={styles.departmentEmployeeList}>
-                    {employeesByDept[dept.name].map((emp) => (
-                      <li key={emp.id} className={styles.employeeItem}>
-                        <label className={styles.employeeLabel}>
-                          <input
-                            type={multiple ? 'checkbox' : 'radio'}
-                            checked={selected.some((e) => e.id === emp.id)}
-                            onChange={() => handleSelect(emp)}
-                            className={styles.employeeInput}
-                          />
-                          <span className={styles.employeeInfo}>
-                            <b>{emp.name}</b>{' '}
-                            <span className={styles.employeeMeta}>
-                              ({emp.position} / {emp.role})
+                    {employeesByDept[dept.name]?.length > 0 ? (
+                      employeesByDept[dept.name].map((emp) => (
+                        <li key={emp.id} className={styles.employeeItem}>
+                          <label className={styles.employeeLabel}>
+                            <input
+                              type={multiple ? 'checkbox' : 'radio'}
+                              checked={selectedState.some((e) => e.id === emp.id)}
+                              onChange={() => handleSelect(emp)}
+                              className={styles.employeeInput}
+                            />
+                            <span className={styles.employeeInfo}>
+                              <b>{emp.name}</b>{' '}
+                              <span className={styles.employeeMeta}>
+                                ({emp.position} / {emp.role})
+                              </span>
                             </span>
-                          </span>
-                        </label>
-                      </li>
-                    ))}
-                    {employeesByDept[dept.name].length === 0 && (
-                      <li className={styles.noResult}>검색 결과가 없습니다.</li>
+                          </label>
+                        </li>
+                      ))
+                    ) : (
+                      <li className={styles.noResult}>해당 부서에 직원이 없습니다.</li>
                     )}
                   </ul>
                 )}
@@ -192,29 +219,12 @@ const EmployeeSelectModal = ({
             ))}
           </div>
         )}
+        
         <div className={styles.buttonGroup}>
-          <button
-            onClick={() => {
-              // 선택된 직원 배열을 서버가 기대하는 형태로 변환
-              const transformedSelection = selected.map((emp, index) => ({
-                ...emp,
-                employeeId: emp.id,           // id → employeeId
-                approvalContext: index + 1,   // 결재 순서 부여
-              }));
-
-              onSelect(transformedSelection); // 변환된 배열 전달
-              onClose();
-            }}
-            className={styles.confirmButton}
-            type='button'
-          >
+          <button onClick={handleConfirm} className={styles.confirmButton} type='button'>
             확인
           </button>
-          <button
-            onClick={onClose}
-            className={styles.cancelButton}
-            type='button'
-          >
+          <button onClick={onClose} className={styles.cancelButton} type='button'>
             취소
           </button>
         </div>

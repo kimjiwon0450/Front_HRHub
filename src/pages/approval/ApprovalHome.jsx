@@ -32,6 +32,8 @@ const ApprovalHome = () => {
 
   const [allTemplates, setAllTemplates] = useState([]); // 서버에서 가져온 모든 템플릿 목록
   const [frequentTemplates, setFrequentTemplates] = useState([]); // 자주 쓰는 템플릿 ID 배열
+  const [inProgressReports, setInProgressReports] = useState([]);
+  const [unreadReferenceReports, setUnreadReferenceReports] = useState([]);
 
   // --- 데이터 초기화 로직 ---
   useEffect(() => {
@@ -72,14 +74,48 @@ const ApprovalHome = () => {
       // 4. 최종적으로 유효한 ID 목록을 상태에 저장합니다.
       setFrequentTemplates(validFrequentIds);
 
-      // (임시 데이터) 요약 카드 데이터 설정
-      setSummaryData({ delayed: 5, unchecked: 2, cc: 0, total: 27 });
+      // --- 결재 예정함(수신결재) 데이터 불러오기 ---
+      try {
+        const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
+          params: { role: 'approver', status: 'IN_PROGRESS' }
+        });
+        setInProgressReports(res.data.result.reports || []);
+      } catch (err) {
+        setInProgressReports([]);
+      }
+
+      // --- 미확인 참조(연람 요청) 데이터 불러오기 ---
+      try {
+        const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
+          params: { role: 'reference', status: 'UNREAD' }
+        });
+        setUnreadReferenceReports(res.data.result.reports || []);
+      } catch (err) {
+        setUnreadReferenceReports([]);
+      }
 
       setLoading(false);
     };
 
     initialize();
   }, [user]);
+
+  // 요약 카드 데이터 계산
+  useEffect(() => {
+    const now = new Date();
+    const delayed = inProgressReports.filter(report => {
+      const created = new Date(report.createdAt || report.reportCreatedAt);
+      const diff = (now - created) / (1000 * 60 * 60 * 24); // 일(day) 단위
+      return diff >= 7;
+    }).length;
+
+    setSummaryData({
+      delayed,
+      unchecked: inProgressReports.length,
+      cc: unreadReferenceReports.length,
+      total: 0 // 전체 결재내역 등 필요시 추가
+    });
+  }, [inProgressReports, unreadReferenceReports]);
 
   // --- 이벤트 핸들러 ---
 

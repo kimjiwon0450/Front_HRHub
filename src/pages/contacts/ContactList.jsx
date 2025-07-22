@@ -42,7 +42,7 @@ const ContactList = () => {
       if (department !== '전체')
         params += `&department=${encodeURIComponent(department)}`;
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
+        `${API_BASE_URL}${HR_SERVICE}/employees/contact${params}`,
       );
       setEmployees(res.data.result.content);
       setTotalPages(res.data.result.totalPages || 1);
@@ -110,19 +110,21 @@ const ContactList = () => {
           >
             전체
           </li>
-          {departmentList.map((dept) => (
-            <li
-              key={dept.id}
-              className={searchDept === dept.name ? 'selected' : ''}
-              onClick={() => {
-                setSearchDept(dept.name);
-                setPage(0);
-                getEmployeeList({ department: dept.name, page: 0, size });
-              }}
-            >
-              {dept.name}
-            </li>
-          ))}
+          {departmentList
+            .filter((dept) => dept.name !== '전체')
+            .map((dept) => (
+              <li
+                key={dept.id}
+                className={searchDept === dept.name ? 'selected' : ''}
+                onClick={() => {
+                  setSearchDept(dept.name);
+                  setPage(0);
+                  getEmployeeList({ department: dept.name, page: 0, size });
+                }}
+              >
+                {dept.name}
+              </li>
+            ))}
         </ul>
       </aside>
       <section className='contact-main'>
