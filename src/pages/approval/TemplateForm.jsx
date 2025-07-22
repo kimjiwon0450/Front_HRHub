@@ -363,49 +363,7 @@ const TemplateForm = () => {
   // --- Render Methods ---
   const renderUnifiedPane = () => (
     <div className={styles.unifiedPane}>
-      {/* 1. 양식 정보 입력 */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>양식 정보 입력</h2>
-        <div className={styles.formGroup}>
-          <label>
-            양식명 <span className={styles.required}>*</span>
-          </label>
-          <input
-            type='text'
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder='예: 휴가 신청서'
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label>
-            카테고리 <span className={styles.required}>*</span>
-          </label>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-          >
-            <option value='' disabled>
-              카테고리 선택
-            </option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.categoryName}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className={styles.formGroup}>
-          <label>양식설명</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder='이 양식의 용도나 안내사항을 입력하세요'
-          />
-        </div>
-      </section>
-
-      {/* 2. 추가 입력 정보(커스텀 필드) */}
+      {/* 1. 추가 입력 정보(커스텀 필드) - 순서 변경: 이 부분이 먼저 오도록 이동 */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>추가 입력 정보</h2>
         <div className={styles.infoNotice}>
@@ -450,6 +408,48 @@ const TemplateForm = () => {
         <button className={styles.addButton} onClick={handleOpenAddFieldModal}>
           + 입력정보 추가
         </button>
+      </section>
+
+      {/* 2. 양식 정보 입력 - 순서 변경: 이 부분이 뒤로 이동 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>양식 정보 입력</h2>
+        <div className={styles.formGroup}>
+          <label>
+            양식명 <span className={styles.required}>*</span>
+          </label>
+          <input
+            type='text'
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder='예: 휴가 신청서'
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label>
+            카테고리 <span className={styles.required}>*</span>
+          </label>
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+          >
+            <option value='' disabled>
+              카테고리 선택
+            </option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.categoryName}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className={styles.formGroup}>
+          <label>양식설명</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder='이 양식의 용도나 안내사항을 입력하세요'
+          />
+        </div>
       </section>
     </div>
   );
