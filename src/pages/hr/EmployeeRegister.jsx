@@ -78,7 +78,7 @@ export default function EmployeeRegister() {
     if (!isFormValid()) return;
     setIsLoading(true); // 로딩 시작
     try {
-      await axios.post(`http://localhost:8000${HR_SERVICE}/employees`, {
+      await axiosInstance.post(`http://localhost:8000${HR_SERVICE}/employees`, {
         email,
         name: employeeName,
         birthday: birth,
