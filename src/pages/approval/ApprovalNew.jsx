@@ -77,13 +77,43 @@ function ApprovalNew() {
     else setIsSaving(true);
 
     let url, submissionData;
+    // editor 타입 필드 id 자동 보정: id 없으면 'content'로 대입
+    let fixedTemplate = template;
+    if (template && template.content) {
+      fixedTemplate = {
+        ...template,
+        content: template.content.map(f =>
+          f.type === 'editor' && !f.id ? { ...f, id: 'content' } : f
+        ),
+      };
+    }
+    // content 값 보정: editor 타입 id 없으면 'content'로 강제 추출
+    let contentValue = formData.content;
+    if (template && template.content) {
+      const editorField = template.content.find(f => f.type === 'editor');
+      let editorId = editorField?.id || (editorField ? 'content' : undefined);
+      if (editorId) {
+        contentValue = formData[editorId] || '';
+      }
+    }
+    console.log('[DEBUG] formData:', formData);
+    if (fixedTemplate && fixedTemplate.content) {
+      console.log('[DEBUG] fixedTemplate.content:', fixedTemplate.content);
+      const editorField = fixedTemplate.content.find(f => f.type === 'editor' || f.id === 'content');
+      console.log('[DEBUG] editorField:', editorField);
+      if (editorField) {
+        contentValue = formData[editorField.id];
+        console.log('[DEBUG] contentValue from editorField:', contentValue);
+      }
+    }
+
     if (effectiveReportId && !isSubmit) {
       // --- 수정 모드에서 '임시 저장' (PUT) ---
       url = `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${effectiveReportId}`;
       const updateDto = {
         title: formData.title,
-        content: formData.content,
-        templateId: template?.id,
+        content: contentValue,
+        templateId: fixedTemplate?.id,
         reportTemplateData: JSON.stringify(formData),
         approvalLine: approvalLine.map(a => ({ ...a })),
         references: references.map(r => ({ ...r })),
@@ -96,8 +126,8 @@ function ApprovalNew() {
       // 신규 생성 로직 (POST)
       const reqDto = {
         title: formData.title,
-        content: formData.content,
-        templateId: template?.id,
+        content: contentValue,
+        templateId: fixedTemplate?.id,
         reportTemplateData: JSON.stringify(formData),
         approvalLine: approvalLine,
         references: references,
@@ -293,27 +323,21 @@ function ApprovalNew() {
                   />
             </div>
           </div>
-              {template?.content
-            ?.filter((field) => field.id !== 'content' && field.id !== 'title')
-                .map((field, index) => {
-                  console.log('Rendering field:', field);
-                  console.log('Field type:', field.type);
-                  console.log('Field header:', field.header);
-                  console.log('Field id:', field.id);
-                  
-                  // 각 필드에 고유한 키 생성 (field.id가 없으면 header + index 사용)
-                  const fieldKey = field.id || `${field.header}_${index}`;
-                  
-                  return (
-                    <FormField
-                      key={fieldKey}
-                      field={field}
-                      value={formData}
-                      onChange={handleValueChange}
-                      fieldKey={fieldKey}
-                    />
-                  );
-                })}
+              {/* 동적 필드 렌더링: editor 타입 id 없으면 'content'로 강제 부여, 모든 필드에 안전한 key/fieldKey 부여 */}
+        {template?.content?.map((field, index) => {
+          let safeId = field.id;
+          if (field.type === 'editor' && !field.id) safeId = 'content';
+          if (!safeId) safeId = `${field.header || 'field'}_${index}`;
+          return (
+            <FormField
+              key={safeId}
+              field={{ ...field, id: safeId }}
+              value={formData}
+              onChange={handleValueChange}
+              fieldKey={safeId}
+            />
+          );
+        })}
           {/* 템플릿이 없을 때만 기본 내용 입력창 표시 */}
           {(!template || !template.content || template.content.length === 0) && (
           <div className={styles.formRow}>
