@@ -44,12 +44,6 @@ const AddFieldModal = ({ isOpen, onClose, onSelect }) => {
       desc: '한 줄 텍스트를 입력받습니다.',
     },
     {
-      id: 'textarea',
-      icon: <TfiLayoutMenuV />,
-      name: '여러 줄 텍스트',
-      desc: '여러 줄의 텍스트를 입력받습니다.',
-    },
-    {
       id: 'date_ymd',
       icon: <IoCalendarOutline />,
       name: '날짜',
