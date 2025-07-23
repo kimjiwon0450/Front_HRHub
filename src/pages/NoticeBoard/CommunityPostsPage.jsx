@@ -182,7 +182,7 @@ const CommunityPostsPage = () => {
                     </div>
 
                     <div className="write-button-wrapper">
-                        <button className="write-button" onClick={() => navigate('write')}>작성하기</button>
+                        <button className="write-button" onClick={() => navigate('/community/write')}>작성하기</button>
                     </div>
 
                 </div>
@@ -209,7 +209,7 @@ const CommunityPostsPage = () => {
                                 posts.map(post => (
                                     <tr
                                         key={`post-${post.communityId}`}
-                                        onClick={() => navigate(`/${post.communityId}`)}
+                                        onClick={() => navigate(`/community/${post.communityId}`)}
                                         style={{ fontWeight: post.notice ? 'bold' : 'normal' }} // ✅ 여기가 핵심
                                         className={post.notice ? 'bold-row' : ''}
                                     >

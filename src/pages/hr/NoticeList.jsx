@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './NoticeList.scss';
+import { UserContext, UserContextProvider } from '../../context/UserContext'; // 로그인 유저 정보
+
 
 export default function NoticeList({ notices, load }) {
+  const { isInit, userId, accessToken, departmentId, userPosition } = useContext(UserContext);
   const navigate = useNavigate();
 
   // if (!notices || notices.length === 0) {
@@ -18,19 +21,27 @@ export default function NoticeList({ notices, load }) {
           <table className='notice-list'>
             <tbody>
               {notices.map((notice) => (
-                <tr key={notice.id} className='notice-item'>
-                  <td
+                <tr key={notice.noticeId} className='notice-item'>
+                  <td style={{
+                    fontWeight: notice.position === userPosition ? 'bold' : 'normal'
+                  }}
                     className='notice-title'
-                    onClick={() => navigate(`/${notice.id}`)}
+                    onClick={() => navigate(`/notice/${notice.noticeId}`)}
                   >
                     {notice.title}
                   </td>
-                  <td className='notice-author'>
+                  <td style={{
+                    fontWeight: notice.position === userPosition ? 'bold' : 'normal'
+                  }}
+                    className='notice-author'>
                     {notice.employStatus === 'INACTIVE'
                       ? `${notice.name}(퇴사)`
                       : notice.name}
                   </td>
-                  <td className='notice-date'>
+                  <td style={{
+                    fontWeight: notice.position === userPosition ? 'bold' : 'normal'
+                  }}
+                    className='notice-date'>
                     {new Date(notice.createdAt).toLocaleDateString()}
                   </td>
                 </tr>
