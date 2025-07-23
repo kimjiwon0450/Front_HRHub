@@ -21,16 +21,44 @@ import {
 } from 'react-icons/fa';
 
 const sidebarMenus = [
-  { to: '/general', label: '공지사항', icon: '📢' },
-  { to: '/dashboard', label: '대시보드', icon: '📊' },
-  { to: '/hr', label: '인사관리', icon: '👥' },
-  { to: '/approval', label: '전자결재', icon: '✍️' },
+  {
+    to: '/general',
+    label: '공지사항',
+    icon: <FaBullhorn style={{ color: '#ff8a80', opacity: 0.7 }} />,
+  }, // 연한 빨강
+  {
+    to: '/dashboard',
+    label: '대시보드',
+    icon: <FaChartBar style={{ color: '#90caf9', opacity: 0.7 }} />,
+  }, // 연한 파랑
+  {
+    to: '/hr',
+    label: '인사관리',
+    icon: <FaUsers style={{ color: '#81c784', opacity: 0.7 }} />,
+  }, // 연한 초록
+  {
+    to: '/approval',
+    label: '전자결재',
+    icon: <FaPen style={{ color: '#b39ddb', opacity: 0.7 }} />,
+  }, // 연한 보라
 ];
 
 const headerMenus = [
-  { to: '/dashboard', label: '메인', icon: '🏠' },
-  { to: '/contacts', label: '연락처', icon: '📞' },
-  { to: '/community', label: '커뮤니티', icon: '👄' },
+  {
+    to: '/dashboard',
+    label: '메인',
+    icon: <FaHome style={{ color: '#ffd180', opacity: 0.7 }} />,
+  }, // 연한 주황
+  {
+    to: '/contacts',
+    label: '연락처',
+    icon: <FaPhone style={{ color: '#80deea', opacity: 0.7 }} />,
+  }, // 연한 청록
+  {
+    to: '/community',
+    label: '커뮤니티',
+    icon: <FaComments style={{ color: '#fff59d', opacity: 0.7 }} />,
+  }, // 연한 노랑
   // { to: '/board', label: '게시판' },
   // { to: '/mail', label: '메일', icon: '✉️' },
   // { to: '/attendance', label: '근태', icon: '🕒' },
