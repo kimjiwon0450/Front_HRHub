@@ -9,7 +9,7 @@ import './NoticeBoardList.scss';
 
 const NoticeBoardList = () => {
     const navigate = useNavigate();
-    const { isInit, userId, accessToken, departmentId } = useContext(UserContext);
+    const { isInit, userId, accessToken, departmentId, userPosition } = useContext(UserContext);
 
     const [viewMode, setViewMode] = useState('ALL'); // ALL | MY | DEPT
     const [posts, setPosts] = useState([]);
@@ -180,7 +180,7 @@ const NoticeBoardList = () => {
                     </div>
 
                     <div className="write-button-wrapper">
-                        <button className="write-button" onClick={() => navigate('write')}>작성하기</button>
+                        <button className="write-button" onClick={() => navigate('/notice/write')}>작성하기</button>
                     </div>
 
                 </div>
@@ -204,11 +204,20 @@ const NoticeBoardList = () => {
                         <tbody>
                             {generalNotices.map(post => (
                                 <tr
-                                    key={`generalnotice-${post.noticeId}`} className="generalnotice-row" onClick={() => navigate(`${post.noticeId}`)}>
-                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>{post.noticeId}</td>
+                                    key={`generalnotice-${post.noticeId}`} className="generalnotice-row" onClick={() => navigate(`/notice/${post.noticeId}`)}>
+                                    <td style={{
+                                        color: post.position === userPosition ? '#28c309' : '#000',
+                                        fontWeight: post.position === userPosition ? 'bold' : 'normal'
+                                    }}>{post.noticeId}</td>
                                     <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri != '[]' ? '📎' : ''}</td>
-                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>{post.title}</td>
-                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>
+                                    <td style={{
+                                        color: post.position === userPosition ? '#28c309' : '#000',
+                                        fontWeight: post.position === userPosition ? 'bold' : 'normal'
+                                    }}>{post.title}</td>
+                                    <td style={{
+                                        color: post.position === userPosition ? '#28c309' : '#000',
+                                        fontWeight: post.position === userPosition ? 'bold' : 'normal'
+                                    }}>
                                         {post.employStatus === 'INACTIVE' ?
                                             (<span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
                                                 `${post.name}(퇴사)`
@@ -216,8 +225,14 @@ const NoticeBoardList = () => {
                                             : `${post.name}`
                                         }
                                     </td>
-                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>{new Date(post.createdAt).toLocaleDateString()}</td>
-                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>{post.viewCount}</td>
+                                    <td style={{
+                                        color: post.position === userPosition ? '#28c309' : '#000',
+                                        fontWeight: post.position === userPosition ? 'bold' : 'normal'
+                                    }}>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                    <td style={{
+                                        color: post.position === userPosition ? '#28c309' : '#000',
+                                        fontWeight: post.position === userPosition ? 'bold' : 'normal'
+                                    }}>{post.viewCount}</td>
                                 </tr>
                             ))}
 
@@ -231,17 +246,26 @@ const NoticeBoardList = () => {
 
                             {notices.map(post => (
                                 <tr
-                                    key={`notice-${post.noticeId}`} className="notice-row" onClick={() => navigate(`/${post.noticeId}`)}>
-                                    <td>{post.noticeId}</td>
+                                    key={`notice-${post.noticeId}`} className="notice-row" onClick={() => navigate(`${post.noticeId}`)}>
+                                    <td style={{
+                                        color: post.position === userPosition ? '#21429e' : '#000',
+                                        fontWeight: post.position === userPosition ? 'bold' : 'normal'
+                                    }}>{post.noticeId}</td>
                                     <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri != '[]' ? '📎' : ''}</td>
                                     {/* <td>{post.title}</td> */}
-                                    <td>
+                                    <td style={{
+                                        color: post.position === userPosition ? '#21429e' : '#000',
+                                        fontWeight: post.position === userPosition ? 'bold' : 'normal'
+                                    }}>
                                         {post.commentCount === 0 ?
                                             (`${post.title}`)
                                             : `${post.title}(${post.commentCount})`
                                         }
                                     </td>
-                                    <td>
+                                    <td style={{
+                                        color: post.position === userPosition ? '#21429e' : '#000',
+                                        fontWeight: post.position === userPosition ? 'bold' : 'normal'
+                                    }}>
                                         {post.employStatus === 'INACTIVE' ?
                                             (<span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
                                                 `${post.name}(퇴사)`
@@ -249,8 +273,14 @@ const NoticeBoardList = () => {
                                             : `${post.name}`
                                         }
                                     </td>
-                                    <td>{new Date(post.createdAt).toLocaleDateString()}</td>
-                                    <td>{post.viewCount}</td>
+                                    <td style={{
+                                        color: post.position === userPosition ? '#21429e' : '#000',
+                                        fontWeight: post.position === userPosition ? 'bold' : 'normal'
+                                    }}>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                    <td style={{
+                                        color: post.position === userPosition ? '#21429e' : '#000',
+                                        fontWeight: post.position === userPosition ? 'bold' : 'normal'
+                                    }}>{post.viewCount}</td>
                                 </tr>
                             ))}
 

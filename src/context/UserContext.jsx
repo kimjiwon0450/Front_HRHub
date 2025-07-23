@@ -5,17 +5,17 @@ import { removeLocalStorageForLogout } from '../common/common';
 
 export const UserContext = React.createContext({
   isLoggedIn: false,
-  onLogin: () => {},
-  onLogout: () => {},
+  onLogin: () => { },
+  onLogout: () => { },
   userRole: '',
   userPosition: '',
   userName: '',
   badge: null,
-  setBadge: () => {},
+  setBadge: () => { },
   userId: null,
   departmentId: null,
   userImage: '', // 유저 프로필사진
-  setUserImage: () => {},
+  setUserImage: () => { },
   isInit: false,
   accessToken: '',
 });
@@ -42,7 +42,7 @@ export const UserContextProvider = (props) => {
         name: userName,
         position: userPosition,
         departmentId: departmentId,
-        image: userImage,
+        image: userImage
       });
     } else {
       setUser(null);

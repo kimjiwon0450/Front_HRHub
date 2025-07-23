@@ -36,6 +36,7 @@ import CommunityPostsPage from '../pages/NoticeBoard/CommunityPostsPage';
 import NoticeBoardList from '../pages/NoticeBoard/NoticeBoardList';
 import NoticeBoardWrite from '../pages/NoticeBoard/NoticeBoardWrite';
 import NoticeBoardDetail from '../pages/NoticeBoard/NoticeBoardDetail';
+import CommunityDetail from '../pages/NoticeBoard/CommunityDetail';
 import NoticeAlertPage from '../pages/NoticeBoard/NoticeAlertPage';
 
 // 주소록
@@ -103,8 +104,8 @@ const AppRouter = [
           { path: 'my', element: <NoticeBoardList /> },
           // { path: 'mydepartment', element: <NoticeBoardList /> },
           { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
-          { path: 'edit/:id', element: <NoticeBoardWrite isEdit={true} /> },
-          { path: ':id', element: <NoticeBoardDetail /> },
+          { path: 'edit/:noticeId', element: <NoticeBoardWrite isEdit={true} /> },
+          { path: ':noticeId', element: <NoticeBoardDetail /> },
           { path: 'alert', element: <NoticeAlertPage /> }
         ]
       },
@@ -115,8 +116,8 @@ const AppRouter = [
           { path: 'my', element: <CommunityPostsPage /> },
           { path: 'mydepartment', element: <CommunityPostsPage /> },
           { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
-          { path: 'edit/:id', element: <NoticeBoardWrite isEdit={true} /> },
-          { path: ':id', element: <NoticeBoardDetail /> },
+          { path: 'edit/:communityId', element: <NoticeBoardWrite isEdit={true} /> },
+          { path: ':communityId', element: <CommunityDetail /> },
         ]
       },
 
