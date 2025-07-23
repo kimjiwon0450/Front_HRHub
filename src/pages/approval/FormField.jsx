@@ -1,17 +1,28 @@
 import React from 'react';
 import styles from './ApprovalNew.module.scss'; // 동일한 스타일 사용
+import QuillEditor from '../../components/editor/QuillEditor';
 
-const FormField = ({ field, value, onChange }) => {
+const FormField = ({ field, value, onChange, fieldKey }) => {
   const renderField = () => {
     switch (field.type) {
+      case 'editor':
+        return (
+          <div className={styles.editorContainer}>
+            <QuillEditor
+              value={value[fieldKey] || field.value || ""}
+              onChange={(content) => onChange(fieldKey, content)}
+              placeholder="내용을 입력하세요..."
+            />
+          </div>
+        );
       case 'date':
       case 'date_ymd':
         return (
           <input
             type="date"
-            id={field.id}
-            value={value[field.id] || ''}
-            onChange={(e) => onChange(field.id, e.target.value)}
+            id={fieldKey}
+            value={value[fieldKey] || ''}
+            onChange={(e) => onChange(fieldKey, e.target.value)}
             required={field.required}
             className={styles.formInput}
           />
@@ -22,18 +33,18 @@ const FormField = ({ field, value, onChange }) => {
           <div className={styles.periodContainer}>
             <input
               type="date"
-              id={`${field.id}_start`}
-              value={value?.[`${field.id}_start`] || ''}
-              onChange={(e) => onChange(`${field.id}_start`, e.target.value)}
+              id={`${fieldKey}_start`}
+              value={value?.[`${fieldKey}_start`] || ''}
+              onChange={(e) => onChange(`${fieldKey}_start`, e.target.value)}
               required={field.required}
               className={styles.formInput}
             />
             <span>~</span>
             <input
               type="date"
-              id={`${field.id}_end`}
-              value={value?.[`${field.id}_end`] || ''}
-              onChange={(e) => onChange(`${field.id}_end`, e.target.value)}
+              id={`${fieldKey}_end`}
+              value={value?.[`${fieldKey}_end`] || ''}
+              onChange={(e) => onChange(`${fieldKey}_end`, e.target.value)}
               required={field.required}
               className={styles.formInput}
             />
@@ -42,9 +53,9 @@ const FormField = ({ field, value, onChange }) => {
       case 'textarea':
         return (
           <textarea
-            id={field.id}
-            value={value[field.id] || ''}
-            onChange={(e) => onChange(field.id, e.target.value)}
+            id={fieldKey}
+            value={value[fieldKey] || ''}
+            onChange={(e) => onChange(fieldKey, e.target.value)}
             required={field.required}
             placeholder={field.description}
             rows={5}
@@ -55,9 +66,9 @@ const FormField = ({ field, value, onChange }) => {
         return (
           <input
             type={field.type === 'number' ? 'number' : 'text'}
-            id={field.id}
-            value={value[field.id] || ''}
-            onChange={(e) => onChange(field.id, e.target.value)}
+            id={fieldKey}
+            value={value[fieldKey] || ''}
+            onChange={(e) => onChange(fieldKey, e.target.value)}
             required={field.required}
             placeholder={field.description}
             className={styles.formInput}

@@ -255,8 +255,8 @@ const ApprovalDetail = () => {
 
   return (
     <>
-      <div className={styles.detailContainer}>
-        <div className={styles.mainContent}>
+      <div className={styles.approvalContainer}>
+        <div className={styles.detailContainer}>
           <header className={styles.header}>
             <div className={styles.titleGroup}>
               <h1 className={styles.title}>{report.title}</h1>
@@ -320,22 +320,89 @@ const ApprovalDetail = () => {
 
           <section className={styles.content}>
             {/* 템플릿 기반 동적 폼 렌더링 */}
+            {console.log('Report data:', report)}
+            {console.log('Template:', report.template)}
+            {console.log('Template content:', report.template?.content)}
+            {console.log('Form data:', report.formData)}
+            {console.log('Report template data:', report.reportTemplateData)}
             {report.template && report.template.content && Array.isArray(report.template.content) ? (
               <div className={styles.dynamicFields}>
-                {report.template.content.map((field, idx) => (
-                  <div key={field.id || idx} className={styles.dynamicFieldRow}>
-                    <span className={styles.dynamicFieldLabel}>{field.header || field.label || field.name || field.id}</span>
-                    <span className={styles.dynamicFieldValue}>
-                      {report.formData && report.formData[field.id] !== undefined 
-                        ? report.formData[field.id] 
-                        : ''}
-                    </span>
-                  </div>
-                ))}
+                <table className={styles.reportTable}>
+                  <tbody>
+                    {report.template.content.map((field, idx) => {
+                      // formData에서 값을 찾는 로직 개선
+                      let fieldValue = '';
+                      if (report.formData) {
+                        // 1. field.id로 직접 매칭
+                        if (report.formData[field.id] !== undefined) {
+                          fieldValue = report.formData[field.id];
+                        }
+                        // 2. 기간 필드 매칭 (period 타입)
+                        else if (field.type === 'period') {
+                          const startKey = `${field.id}_start`;
+                          const endKey = `${field.id}_end`;
+                          const startValue = report.formData[startKey];
+                          const endValue = report.formData[endKey];
+                          if (startValue && endValue) {
+                            fieldValue = `${startValue} ~ ${endValue}`;
+                          } else if (startValue) {
+                            fieldValue = startValue;
+                          } else if (endValue) {
+                            fieldValue = endValue;
+                          }
+                        }
+                        // 3. 다른 필드들 (직접 매칭)
+                        else {
+                          // field.id가 이미 custom_로 시작하므로 직접 매칭
+                          fieldValue = report.formData[field.id] || '';
+                        }
+                      }
+                      
+                      return (
+                        <tr key={field.id || idx} className={styles.tableRow}>
+                          <td className={styles.fieldLabel}>{field.header || field.label || field.name || field.id}</td>
+                          <td className={styles.fieldValue}>
+                            {fieldValue}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
-            ) : (
+            ) : report.reportTemplateData ? (
+              (() => {
+                let fields;
+                try {
+                  fields = JSON.parse(report.reportTemplateData);
+                } catch (e) {
+                  console.error('Failed to parse reportTemplateData:', e);
+                  fields = null;
+                }
+                if (fields && Array.isArray(fields)) {
+                  return (
+                    <div className={styles.dynamicFields}>
+                      <table className={styles.reportTable}>
+                        <tbody>
+                          {fields.map((field, idx) => (
+                            <tr key={field.id || idx} className={styles.tableRow}>
+                              <td className={styles.fieldLabel}>{field.header || field.label || field.name || field.id}</td>
+                              <td className={styles.fieldValue}>{field.value ?? ''}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                }
+                return null;
+              })()
+            ) : null}
+            
+            {/* 본문 내용 */}
+            <div className={styles.contentBody}>
               <div dangerouslySetInnerHTML={{ __html: report.content }} />
-            )}
+            </div>
 
             {/* ★★★ 2. 본문 하단에 이미지 갤러리 섹션 추가 ★★★ */}
             {imageAttachments.length > 0 && (

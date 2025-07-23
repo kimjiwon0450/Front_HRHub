@@ -262,14 +262,27 @@ function ApprovalNew() {
           </div>
               {template?.content
             ?.filter((field) => field.id !== 'content' && field.id !== 'title')
-                .map((field) => (
-                  <FormField
-                    key={field.id}
-                    field={field}
-                    value={formData}
-                    onChange={handleValueChange}
-                  />
-                ))}
+                .map((field, index) => {
+                  console.log('Rendering field:', field);
+                  console.log('Field type:', field.type);
+                  console.log('Field header:', field.header);
+                  console.log('Field id:', field.id);
+                  
+                  // 각 필드에 고유한 키 생성 (field.id가 없으면 header + index 사용)
+                  const fieldKey = field.id || `${field.header}_${index}`;
+                  
+                  return (
+                    <FormField
+                      key={fieldKey}
+                      field={field}
+                      value={formData}
+                      onChange={handleValueChange}
+                      fieldKey={fieldKey}
+                    />
+                  );
+                })}
+          {/* 템플릿이 없을 때만 기본 내용 입력창 표시 */}
+          {(!template || !template.content || template.content.length === 0) && (
           <div className={styles.formRow}>
             <div className={styles.formLabel}>내용</div>
             <div className={`${styles.formField} ${styles.vertical}`}>
@@ -282,6 +295,7 @@ function ApprovalNew() {
               </div>
             </div>
           </div>
+          )}
         </div>
 
         <div className={styles.section}>

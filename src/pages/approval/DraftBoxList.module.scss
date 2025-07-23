@@ -1,8 +1,22 @@
+.approvalContainer {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-left: 32px;
+  padding-right: 32px;
+  width: 100%;
+}
+
 .container {
   padding: 24px;
   background-color: #fff;
   border-radius: 12px;
   min-height: 100vh;
+  width: 100%;
+  animation: fadeInUp 0.6s ease-out;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-left: 32px;
+  padding-right: 32px;
   width: 100%;
 }
 
@@ -11,6 +25,7 @@
   font-weight: 700;
   color: #222;
   margin-bottom: 28px;
+  animation: slideInLeft 0.8s ease-out;
 }
 
 .filterRow, .filterGroup {
@@ -29,6 +44,7 @@
   font-weight: 500;
   margin-bottom: 16px;
   border-left: 4px solid #2196f3;
+  animation: fadeInScale 0.5s ease-out;
 }
 
 .list {
@@ -38,6 +54,15 @@
   width: 100%;
   margin: 0;
   padding: 0;
+  > * {
+    animation: fadeInUp 0.6s ease-out;
+    
+    &:nth-child(1) { animation-delay: 0.1s; }
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.3s; }
+    &:nth-child(4) { animation-delay: 0.4s; }
+    &:nth-child(5) { animation-delay: 0.5s; }
+  }
 }
 
 .reportItem {
@@ -76,4 +101,49 @@
   font-size: 48px;
   margin-bottom: 10px;
   color: #ccc;
+} 
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 } 

@@ -86,7 +86,12 @@ const TemplateSelectionModal = ({ open, onClose, onStartWriting }) => {
             className={`${styles.templateCard} ${selectedTemplateId === template.templateId ? styles.selected : ''}`}
             onClick={() => handleTemplateClick(template.templateId)}
           >
-            <span>{template.template.title}</span>
+            <div>
+              <span>{template.template.title}</span>
+              {template.template.description && (
+                <div className={styles.templateDesc}>{template.template.description}</div>
+              )}
+            </div>
           </div>
         ))}
       </div>
