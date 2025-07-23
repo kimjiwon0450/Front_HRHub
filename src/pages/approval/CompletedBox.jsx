@@ -6,6 +6,7 @@ import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
 import PropTypes from 'prop-types';
+import EmptyState from '../../components/approval/EmptyState';
 
 const CompletedBox = ({ onTotalCountChange }) => {
   const [completedDocs, setCompletedDocs] = useState([]);
@@ -94,10 +95,7 @@ const CompletedBox = ({ onTotalCountChange }) => {
         ) : (
           !loading &&
           !error && (
-            <div className={styles.noReports}>
-              <div className={styles.noReportsIcon}>🗂️</div>
-              <p>완료된 문서가 없습니다.</p>
-            </div>
+            <EmptyState icon="📁" message="완료된 문서가 없습니다." />
           )
         )}
       </div>

@@ -7,6 +7,7 @@ import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
 import PropTypes from 'prop-types';
 import { UserContext } from '../../context/UserContext';
+import EmptyState from '../../components/approval/EmptyState';
 
 const ApprovalPendingList = ({ onTotalCountChange }) => {
   const [pendingReports, setPendingReports] = useState([]);
@@ -81,7 +82,7 @@ const ApprovalPendingList = ({ onTotalCountChange }) => {
             ))}
           </>
         ) : (
-          !loading && !error && <p>결재 예정 문서가 없습니다.</p>
+          !loading && !error && <EmptyState icon="⏳" message="결재 예정 문서가 없습니다." />
         )}
       </div>
     </div>

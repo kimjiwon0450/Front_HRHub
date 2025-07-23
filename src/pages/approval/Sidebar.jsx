@@ -26,58 +26,58 @@ const Sidebar = () => {
   // 컴포넌트가 사이드바(<aside>)와 모달(<TemplateSelectionModal>) 두 개의 요소를 반환해야 하기 때문입니다.
   return (
     <>
-      <aside className={styles.sidebar}>
-        <nav className={styles.menu}>
+    <aside className={styles.sidebar}>
+      <nav className={styles.menu}>
           <div
             className={styles.menuHeader}
             style={{ cursor: 'pointer' }}
             onClick={() => navigate('/approval/home')}
-          >
+            >
             전자결재
           </div>
 
-          <button
-            className={styles.newApprovalBtn}
+        <button
+          className={styles.newApprovalBtn}
             onClick={() => setIsSelectionModalOpen(true)}
-          >
-            + 새 결재 작성
-          </button>
+        >
+          + 새 결재 작성
+        </button>
 
-          {userRole === 'ADMIN' && (
-            <button
-              className={styles.adminSettingsBtn}
-              onClick={() => navigate('/approval/admin/templates')}
+        {userRole === 'ADMIN' && (
+            <button 
+                className={styles.adminSettingsBtn}
+                onClick={() => navigate('/approval/admin/templates')}
             >
-              <GearFill />
-              <span>문서양식관리</span>
+                <GearFill />
+                <span>문서양식관리</span>
             </button>
-          )}
+        )}
 
-          <div className={styles.menuGroup}>
-            <div className={styles.menuGroupHeader}>결재함</div>
-            <ul className={styles.menuList}>
-              <li>
-                <NavLink
+        <div className={styles.menuGroup}>
+          <div className={styles.menuGroupHeader}>결재함</div>
+          <ul className={styles.menuList}>
+            <li>
+              <NavLink
                   to="/approval/pending"
-                  className={({ isActive }) =>
-                    `${styles.menuItem} ${isActive ? styles.active : ''}`
-                  }
-                >
+                className={({ isActive }) =>
+                  `${styles.menuItem} ${isActive ? styles.active : ''}`
+                }
+              >
                   결재 예정 문서함
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                   to="/approval/in-progress"
-                  className={({ isActive }) =>
-                    `${styles.menuItem} ${isActive ? styles.active : ''}`
-                  }
-                >
+                className={({ isActive }) =>
+                  `${styles.menuItem} ${isActive ? styles.active : ''}`
+                }
+              >
                   결재 중 문서함
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                   to="/approval/completed"
                   className={({ isActive }) =>
                     `${styles.menuItem} ${isActive ? styles.active : ''}`
@@ -89,37 +89,37 @@ const Sidebar = () => {
               <li> {/* 반려 문서함 메뉴 아이템 추가 */}
                 <NavLink
                   to="/approval/rejected"
-                  className={({ isActive }) =>
-                    `${styles.menuItem} ${isActive ? styles.active : ''}`
-                  }
-                >
+                className={({ isActive }) =>
+                  `${styles.menuItem} ${isActive ? styles.active : ''}`
+                }
+              >
                   반려 문서함
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                   to="/approval/drafts"
-                  className={({ isActive }) =>
-                    `${styles.menuItem} ${isActive ? styles.active : ''}`
-                  }
-                >
+                className={({ isActive }) =>
+                  `${styles.menuItem} ${isActive ? styles.active : ''}`
+                }
+              >
                   임시 저장 문서함
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                   to="/approval/cc"
-                  className={({ isActive }) =>
-                    `${styles.menuItem} ${isActive ? styles.active : ''}`
-                  }
-                >
+                className={({ isActive }) =>
+                  `${styles.menuItem} ${isActive ? styles.active : ''}`
+                }
+              >
                   연람 요청 문서함
-                </NavLink>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </aside>
+              </NavLink>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
 
       {/* 4. [추가] isModalOpen이 true일 때만 TemplateSelectionModal을 렌더링하는 코드입니다. */}
       {/* 모달 내부에서 닫기 기능을 구현할 수 있도록 onClose 함수를 props로 전달합니다. */}

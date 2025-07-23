@@ -319,7 +319,23 @@ const ApprovalDetail = () => {
           </section>
 
           <section className={styles.content}>
-            <div dangerouslySetInnerHTML={{ __html: report.content }} />
+            {/* 템플릿 기반 동적 폼 렌더링 */}
+            {report.template && report.template.content && Array.isArray(report.template.content) ? (
+              <div className={styles.dynamicFields}>
+                {report.template.content.map((field, idx) => (
+                  <div key={field.id || idx} className={styles.dynamicFieldRow}>
+                    <span className={styles.dynamicFieldLabel}>{field.header || field.label || field.name || field.id}</span>
+                    <span className={styles.dynamicFieldValue}>
+                      {report.formData && report.formData[field.id] !== undefined 
+                        ? report.formData[field.id] 
+                        : ''}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div dangerouslySetInnerHTML={{ __html: report.content }} />
+            )}
 
             {/* ★★★ 2. 본문 하단에 이미지 갤러리 섹션 추가 ★★★ */}
             {imageAttachments.length > 0 && (

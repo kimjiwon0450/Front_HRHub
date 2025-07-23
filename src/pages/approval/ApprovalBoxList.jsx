@@ -4,6 +4,9 @@ import axiosInstance from '../../configs/axios-config';
 import { UserContext } from '../../context/UserContext';
 import styles from './ApprovalBoxList.module.scss';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
+import EmptyState from '../../components/approval/EmptyState';
+import { FixedSizeList as List } from 'react-window';
+import useWindowDimensions from '../../hooks/useWindowDimensions';
 
 const ApprovalBoxList = () => {
   const { user } = useContext(UserContext);
@@ -127,47 +130,49 @@ const ApprovalBoxList = () => {
 
       <div className={styles.reportList}>
         {pageData.reports.length > 0 ? (
-          Object.entries(groupedReports).map(([date, reportsOnDate]) => (
-            <div key={date} className={styles.dateGroup}>
-              <div className={styles.dateHeader}>{date}</div>
-              {reportsOnDate
-                .map((report) => (
-                  <div
-                    key={report.id}
-                    className={styles.reportItem}
-                    onClick={() => navigate(`/approval/reports/${report.id}`)}
-                  >
-                    <div className={styles.itemCell} style={{ flex: 3 }}>
-                      <div className={styles.titleContainer}>
-                        <span className={styles.title}>{report.title}</span>
-                        {/* 첨부파일 표시 */}
-                        {report.attachments && report.attachments.length > 0 && (
-                          <span className={styles.attachmentBadge} title={`첨부파일 ${report.attachments.length}개`}>
-                            📎 {report.attachments.length}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className={styles.itemCell} style={{ flex: 1 }}>
-                      {report.name || '정보 없음'}
-                    </div>
-                    <div className={styles.itemCell} style={{ flex: 1 }}>
-                      {new Date(report.createdAt).toLocaleDateString()}
-                    </div>
-                    <div className={styles.itemCell} style={{ flex: 1 }}>
-                      <span className={`${styles.status} ${styles[report.reportStatus?.toLowerCase() || '']}`}>
-                        {reportStatusMap[report.reportStatus] || report.reportStatus || '상태 없음'}
-                      </span>
+          <List
+            height={Math.min(600, pageData.reports.length * 72)}
+            itemCount={pageData.reports.length}
+            itemSize={72}
+            width={'100%'}
+            style={{ maxWidth: '100%' }}
+          >
+            {({ index, style }) => {
+              const report = pageData.reports[index];
+              return (
+                <div
+                  key={report.id}
+                  className={styles.reportItem}
+                  style={style}
+                  onClick={() => navigate(`/approval/reports/${report.id}`)}
+                >
+                  <div className={styles.itemCell} style={{ flex: 3 }}>
+                    <div className={styles.titleContainer}>
+                      <span className={styles.title}>{report.title}</span>
+                      {report.attachments && report.attachments.length > 0 && (
+                        <span className={styles.attachmentBadge} title={`첨부파일 ${report.attachments.length}개`}>
+                          📎 {report.attachments.length}
+                        </span>
+                      )}
                     </div>
                   </div>
-                ))}
-            </div>
-          ))
+                  <div className={styles.itemCell} style={{ flex: 1 }}>
+                    {report.name || '정보 없음'}
+                  </div>
+                  <div className={styles.itemCell} style={{ flex: 1 }}>
+                    {new Date(report.createdAt).toLocaleDateString()}
+                  </div>
+                  <div className={styles.itemCell} style={{ flex: 1 }}>
+                    <span className={`${styles.status} ${styles[report.reportStatus?.toLowerCase() || '']}`}>
+                      {reportStatusMap[report.reportStatus] || report.reportStatus || '상태 없음'}
+                    </span>
+                  </div>
+                </div>
+              );
+            }}
+          </List>
         ) : (
-          <div className={styles.noReports}>
-            <div className={styles.noReportsIcon}>📂</div>
-            <p>결재 예정 문서가 없습니다.</p>
-          </div>
+          <EmptyState icon="❌" message="반려된 문서가 없습니다." />
         )}
       </div>
     </div>

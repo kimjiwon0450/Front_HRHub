@@ -5,6 +5,7 @@ import styles from './DraftBoxList.module.scss';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
+import EmptyState from '../../components/approval/EmptyState';
 
 const DraftBoxList = () => {
   const [reports, setReports] = useState([]);
@@ -75,7 +76,7 @@ const DraftBoxList = () => {
             ))}
           </>
         ) : (
-          !loading && !error && <p>임시 저장된 문서가 없습니다.</p>
+          !loading && !error && <EmptyState icon="🗂️" message="임시 저장된 문서가 없습니다." />
         )}
       </div>
     </div>

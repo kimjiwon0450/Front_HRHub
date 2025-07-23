@@ -249,36 +249,36 @@ function ApprovalNew() {
           <div className={styles.formRow}>
             <div className={styles.formLabel}>제목</div>
             <div className={styles.formField}>
-              <input
-                type="text"
-                id="title"
-                value={formData.title || ''}
-                onChange={(e) => handleValueChange('title', e.target.value)}
-                placeholder="결재 문서의 제목을 입력하세요."
-                required
+                  <input
+                    type="text"
+                    id="title"
+                    value={formData.title || ''}
+                    onChange={(e) => handleValueChange('title', e.target.value)}
+                    placeholder="결재 문서의 제목을 입력하세요."
+                    required
                 className={styles.formInput}
-              />
+                  />
             </div>
           </div>
-          {template?.content
+              {template?.content
             ?.filter((field) => field.id !== 'content' && field.id !== 'title')
-            .map((field) => (
-              <FormField
-                key={field.id}
-                field={field}
-                value={formData}
-                onChange={handleValueChange}
-              />
-            ))}
+                .map((field) => (
+                  <FormField
+                    key={field.id}
+                    field={field}
+                    value={formData}
+                    onChange={handleValueChange}
+                  />
+                ))}
           <div className={styles.formRow}>
             <div className={styles.formLabel}>내용</div>
             <div className={`${styles.formField} ${styles.vertical}`}>
               <div className={styles.editorContainer}>
-                <QuillEditor
-                  value={formData.content || ""}
+                  <QuillEditor
+                    value={formData.content || ""}
                   onChange={(content) => handleValueChange("content", content)}
-                  placeholder="내용을 입력하세요..."
-                />
+                    placeholder="내용을 입력하세요..."
+                  />
               </div>
             </div>
           </div>
@@ -292,21 +292,21 @@ function ApprovalNew() {
                 {approvalLine.length > 0 ? (
                   <div>
                     <strong>결재자 ({approvalLine.length}명):</strong>
-                    <VisualApprovalLine approvalLine={approvalLine} mode="full" />
+                  <VisualApprovalLine approvalLine={approvalLine} mode="full" />
                   </div>
                 ) : (
                   <span style={{ color: '#999', fontStyle: 'italic' }}>결재선이 지정되지 않았습니다.</span>
                 )}
               </div>
-              <button type="button" onClick={() => setIsApproverModalOpen(true)} className={styles.actionButton}>
-                결재선 지정
-              </button>
+                  <button type="button" onClick={() => setIsApproverModalOpen(true)} className={styles.actionButton}>
+                    결재선 지정
+                  </button>
             </div>
           </div>
           <div className={styles.formRow}>
             <div className={styles.formLabel}>참조</div>
             <div className={styles.formField} style={{ justifyContent: 'space-between' }}>
-              <div className={styles.referenceContainer}>
+                  <div className={styles.referenceContainer}>
                 {references.length > 0 ? (
                   <div>
                     <strong>참조자 ({references.length}명):</strong>
@@ -321,10 +321,10 @@ function ApprovalNew() {
                 ) : (
                   <span style={{ color: '#999', fontStyle: 'italic' }}>참조자가 지정되지 않았습니다.</span>
                 )}
-              </div>
-              <button type="button" onClick={() => setIsReferenceModalOpen(true)} className={styles.actionButton}>
-                참조자 지정
-              </button>
+                  </div>
+                  <button type="button" onClick={() => setIsReferenceModalOpen(true)} className={styles.actionButton}>
+                    참조자 지정
+                  </button>
             </div>
           </div>
         </div>
@@ -350,8 +350,8 @@ function ApprovalNew() {
               </div>
               {files.length > 0 && (
                 <div className={styles.selectedFilesSection}>
-                  {files.map((file, index) => (
-                    <span key={index} className={styles.fileTag}>
+                    {files.map((file, index) => (
+                      <span key={index} className={styles.fileTag}>
                       {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                       <button
                         type="button"
@@ -359,9 +359,9 @@ function ApprovalNew() {
                         className={styles.removeFileButton}
                         title="삭제"
                       >✕</button>
-                    </span>
-                  ))}
-                </div>
+                      </span>
+                    ))}
+                  </div>
               )}
               {attachments.length > 0 && (
                 <div className={styles.existingFilesSection}>
