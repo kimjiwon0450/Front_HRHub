@@ -2,17 +2,16 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     API_BASE_URL,
-    NOTICE_SERVICE
+    NOTICE_SERVICE,
+    COMMUNITY_SERVICE
 } from '../../configs/host-config';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { UserContext } from '../../context/UserContext';
-import './NoticeBoardDetail.scss';
+import './CommunityDetail.scss';
 
-const NoticeBoardDetail = () => {
-    const { noticeId } = useParams();
-
-    console.log('noticeId : ', noticeId);
+const CommunityDetail = () => {
+    const { communityId } = useParams();
     const [posts, setPosts] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isAuthor, setIsAuthor] = useState(false); // ✅ 상태값으로 분리
@@ -41,7 +40,7 @@ const NoticeBoardDetail = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await axios.delete(`${API_BASE_URL}${NOTICE_SERVICE}/delete/${noticeId}`, {
+                    await axios.delete(`${API_BASE_URL}${COMMUNITY_SERVICE}/delete/${communityId}`, {
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
                         },
@@ -58,7 +57,7 @@ const NoticeBoardDetail = () => {
 
 
     const handleEdit = () => {
-        navigate(`/notice/edit/${noticeId}`);
+        navigate(`/notice/edit/${communityId}`);
     };
 
     const handleBack = () => {
@@ -72,7 +71,7 @@ const NoticeBoardDetail = () => {
     // 🔥 presigned GET URL 요청
     const getDownloadUrl = async (fileName) => {
         try {
-            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/download-url?fileName=${encodeURIComponent(fileName)}`, {
+            const res = await fetch(`${API_BASE_URL}${COMMUNITY_SERVICE}/download-url?fileName=${encodeURIComponent(fileName)}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -125,13 +124,11 @@ const NoticeBoardDetail = () => {
     };
 
     const fetchComments = async () => {
-        console.log('noticeId : ', noticeId);
         try {
-            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}/comments`, {
+            const res = await fetch(`${API_BASE_URL}${COMMUNITY_SERVICE}/${communityId}/comments`, {
                 headers: { 'Authorization': `Bearer ${accessToken}` }
             });
             const data = await res.json();
-            console.log('댓글 데이터 : ', data);
             setComments(data);
         } catch (err) {
             console.error('댓글 불러오기 실패:', err);
@@ -158,7 +155,7 @@ const NoticeBoardDetail = () => {
         }
 
         try {
-            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}/comments`, {
+            const res = await fetch(`${API_BASE_URL}${COMMUNITY_SERVICE}/${communityId}/comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -201,7 +198,7 @@ const NoticeBoardDetail = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}/comments/${noticeCommentId}`, {
+                    await fetch(`${API_BASE_URL}${COMMUNITY_SERVICE}/${communityId}/comments/${commentId}`, {
                         method: 'DELETE',
                         headers: {
                             'Authorization': `Bearer ${accessToken}`,
@@ -233,7 +230,7 @@ const NoticeBoardDetail = () => {
             return;
         }
         try {
-            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}/comments/${noticeCommentId}`, {
+            const res = await fetch(`${API_BASE_URL}${COMMUNITY_SERVICE}/${communityId}/comments/${commentId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -263,7 +260,7 @@ const NoticeBoardDetail = () => {
 
         const fetchPost = async () => {
             try {
-                const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}`, {
+                const res = await fetch(`${API_BASE_URL}${COMMUNITY_SERVICE}/${communityId}`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`
                     }
@@ -296,7 +293,7 @@ const NoticeBoardDetail = () => {
                 setAttachments(attachments);
 
                 // ✅ 읽음 처리
-                await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}/read`, {
+                await fetch(`${API_BASE_URL}${COMMUNITY_SERVICE}/${communityId}/read`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -313,7 +310,7 @@ const NoticeBoardDetail = () => {
         };
 
         fetchPost();
-    }, [noticeId, accessToken, isInit, userId]);
+    }, [communityId, accessToken, isInit, userId]);
 
     // ✅ 수정된 부분: posts가 세팅된 이후에만 작성자 여부 판단
     useEffect(() => {
@@ -409,15 +406,15 @@ const NoticeBoardDetail = () => {
                 <div className="comment-list">
                     {comments.length === 0 && <p>아직 댓글이 없습니다.</p>}
                     {comments.map((comment) => (
-                        <div key={comment.noticeCommentId} className="comment-item">
+                        <div key={comment.communityCommentId} className="comment-item">
                             <p><strong>{comment.writerName}</strong> • {comment.createdAt?.substring(0, 10)}</p>
-                            {editCommentId === comment.noticeCommentId ? (
+                            {editCommentId === comment.communityCommentId ? (
                                 <>
                                     <textarea
                                         value={editContent}
                                         onChange={(e) => setEditContent(e.target.value)}
                                     />
-                                    <button onClick={() => handleEditComment(comment.noticeCommentId)}>저장</button>
+                                    <button onClick={() => handleEditComment(comment.communityCommentId)}>저장</button>
                                     <button onClick={() => setEditCommentId(null)}>취소</button>
                                 </>
                             ) : (
@@ -426,10 +423,10 @@ const NoticeBoardDetail = () => {
                                     {String(userId) === String(posts.employeeId) || comment.writerName === userName ? (
                                         <div className="comment-buttons">
                                             <button onClick={() => {
-                                                setEditCommentId(comment.noticeCommentId);
+                                                setEditCommentId(comment.communityCommentId);
                                                 setEditContent(comment.content);
                                             }}>수정</button>
-                                            <button onClick={() => handleDeleteComment(comment.noticeCommentId)}>삭제</button>
+                                            <button onClick={() => handleDeleteComment(comment.communityCommentId)}>삭제</button>
                                         </div>
                                     ) : null}
                                 </>
@@ -446,4 +443,4 @@ const NoticeBoardDetail = () => {
     );
 };
 
-export default NoticeBoardDetail;
+export default CommunityDetail;
