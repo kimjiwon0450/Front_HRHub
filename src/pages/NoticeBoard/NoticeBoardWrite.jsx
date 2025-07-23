@@ -36,7 +36,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
     // 수정 모드일 경우 게시글 불러오기
     useEffect(() => {
         if (isEdit && id) {
-            axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, {
+            axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/${id}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
@@ -129,7 +129,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     // 1. presigned URL 요청
                     console.log('file.name, file.type : ', file.name, file.type);
 
-                    const res = await axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/upload-url`, {
+                    const res = await axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/upload-url`, {
                         params: {
                             fileName: file.name,
                             contentType: file.type || 'application/octet-stream',
@@ -182,7 +182,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
             console.log('noticeData : ', noticeData);
 
             if (isEdit) {
-                const response = await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, noticeData, {
+                const response = await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/${id}`, noticeData, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`
@@ -195,9 +195,9 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     icon: type,
                     confirmButtonText: '확인',
                 });
-                navigate('/noticeboard');
+                navigate(-1);
             } else {
-                const response = await axios.post(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/write`, noticeData, {
+                const response = await axios.post(`${API_BASE_URL}${NOTICE_SERVICE}/write`, noticeData, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`
@@ -210,7 +210,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     icon: type,
                     confirmButtonText: '확인',
                 });
-                navigate('/noticeboard');
+                navigate(-1);
             }
 
         } catch (err) {

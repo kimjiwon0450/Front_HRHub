@@ -21,7 +21,7 @@ import {
 } from 'react-icons/fa';
 
 const sidebarMenus = [
-  { to: '/general', label: '공지사항', icon: '📢' },
+  { to: '/notice', label: '공지사항', icon: '📢' },
   { to: '/dashboard', label: '대시보드', icon: '📊' },
   { to: '/hr', label: '인사관리', icon: '👥' },
   { to: '/approval', label: '전자결재', icon: '✍️' },
@@ -66,7 +66,7 @@ export default function MainLayout() {
     const fetchUnreadCount = async () => {
       try {
         const res = await fetch(
-          `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/unread-count`,
+          `${API_BASE_URL}${NOTICE_SERVICE}/unread-count`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -116,7 +116,7 @@ export default function MainLayout() {
         } else {
           setError(
             res.data?.statusMessage ||
-              '결재 예정 문서를 불러오는 데 실패했습니다.',
+            '결재 예정 문서를 불러오는 데 실패했습니다.',
           );
         }
       } catch (err) {
@@ -168,7 +168,7 @@ export default function MainLayout() {
 
           <div
             className='notice-icon'
-            onClick={() => navigate('/noticeboard/alert')}
+            onClick={() => navigate('/notice/alert')}
           >
             <FaBullhorn color='#ff5252' style={{ verticalAlign: 'middle' }} />
             {(unreadCount > 0 || unApprovalCount > 0) && (
