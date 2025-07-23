@@ -21,7 +21,7 @@ export default function NoticeList({ notices, load }) {
                 <tr key={notice.id} className='notice-item'>
                   <td
                     className='notice-title'
-                    onClick={() => navigate(`/noticeboard/${notice.id}`)}
+                    onClick={() => navigate(`/${notice.id}`)}
                   >
                     {notice.title}
                   </td>

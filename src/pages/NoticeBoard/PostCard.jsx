@@ -6,7 +6,7 @@ const PostCard = ({ post }) => {
     const navigate = useNavigate();
 
     const goToDetail = () => {
-        navigate(`/notices/noticeboard/${post.id}`);
+        navigate(`/notices/${post.id}`);
     };
 
     return (

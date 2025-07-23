@@ -45,20 +45,13 @@ const NoticeBoardList = () => {
                 });
 
                 let url;
-                // if (departmentId != null && departmentId !== 'undefined') {
-                //     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department/${departmentId}?${params.toString()}`;
-                // } else {
-                //     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
-                // }
 
                 console.log('viewMode : ', viewMode);
                 console.log('departmentId : ', departmentId);
                 if (viewMode === 'MY') {
-                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/my`;
-                } else if (viewMode === 'DEPT') {
-                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/mydepartment`;
+                    url = `${API_BASE_URL}${NOTICE_SERVICE}/my`;
                 } else {
-                    url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
+                    url = `${API_BASE_URL}${NOTICE_SERVICE}?${params.toString()}`;
                 }
 
                 const res = await fetch(url, {
@@ -70,19 +63,18 @@ const NoticeBoardList = () => {
                 if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
                 const data = await res.json();
 
-                console.log('data : ', data);
+                console.log('data.generalNotices : ', data.generalNotices);
                 console.log('data.notices : ', data.notices);
                 console.log('data.posts : ', data.posts);
 
-                if (viewMode === 'MY' || viewMode === 'DEPT') {
+                if (viewMode === 'MY') {
                     setGeneralNotices([])
-                    setNotices([]);
-                    setPosts(data || []); // 서버에서 단일 배열을 반환하므로 전체를 posts로 처리
+                    // setNotices(data || []);
+                    setNotices(Array.isArray(data) ? data : data.data || []);
                     setTotalPages(1); // 페이징 미적용이므로 1로 고정
                 } else {
                     setGeneralNotices(data.generalNotices || []);
                     setNotices(data.notices || []);
-                    setPosts(data.posts || []);
                     setTotalPages(data.totalPages || 1);
                 }
             } catch (err) {
@@ -111,7 +103,7 @@ const NoticeBoardList = () => {
     return (
         <div className="notice-board">
             <div className="header">
-                <h2>게시판</h2>
+                <h2>공지사항</h2>
                 <div className="filters">
                     <input type="date" name="startDate" value={filters.startDate} onChange={handleInputChange} />
                     <input type="date" name="endDate" value={filters.endDate} onChange={handleInputChange} />
@@ -176,19 +168,19 @@ const NoticeBoardList = () => {
                     </button>
 
                     <div className="view-mode-buttons">
-                        <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); }}>
+                        <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); navigate('/notice') }}>
                             전체
                         </button>
-                        <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate(`/noticeboard/my`) }}>
+                        <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate('my') }}>
                             내가 쓴 글
                         </button>
-                        <button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate(`/noticeboard/mydepartment`) }}>
-                            내 부서 글
-                        </button>
+                        {/*<button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate(`/notice`) }}>*/}
+                        {/*    내 부서 글*/}
+                        {/*</button>*/}
                     </div>
 
                     <div className="write-button-wrapper">
-                        <button className="write-button" onClick={() => navigate('/noticeboard/write')}>작성하기</button>
+                        <button className="write-button" onClick={() => navigate('write')}>작성하기</button>
                     </div>
 
                 </div>
@@ -212,8 +204,8 @@ const NoticeBoardList = () => {
                         <tbody>
                             {generalNotices.map(post => (
                                 <tr
-                                    key={`generalnotice-${post.id}`} className="generalnotice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
-                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>{post.id}</td>
+                                    key={`generalnotice-${post.noticeId}`} className="generalnotice-row" onClick={() => navigate(`${post.noticeId}`)}>
+                                    <td style={{ color: '#28c309', fontWeight: 'bold' }}>{post.noticeId}</td>
                                     <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri != '[]' ? '📎' : ''}</td>
                                     <td style={{ color: '#28c309', fontWeight: 'bold' }}>{post.title}</td>
                                     <td style={{ color: '#28c309', fontWeight: 'bold' }}>
@@ -229,11 +221,18 @@ const NoticeBoardList = () => {
                                 </tr>
                             ))}
 
+                            {/* 🔻 전체공지와 부서공지 사이 구분선 추가 */}
+                            {generalNotices.length > 0 && notices.length > 0 && (
+                                <tr className="divider-row">
+                                    <td colSpan="6"><hr /></td>
+                                </tr>
+                            )}
+
 
                             {notices.map(post => (
                                 <tr
-                                    key={`notice-${post.id}`} className="notice-row" onClick={() => navigate(`/noticeboard/${post.id}`)}>
-                                    <td>{post.id}</td>
+                                    key={`notice-${post.noticeId}`} className="notice-row" onClick={() => navigate(`/${post.noticeId}`)}>
+                                    <td>{post.noticeId}</td>
                                     <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri != '[]' ? '📎' : ''}</td>
                                     {/* <td>{post.title}</td> */}
                                     <td>
@@ -255,42 +254,6 @@ const NoticeBoardList = () => {
                                 </tr>
                             ))}
 
-                            {/* 🔻 공지와 일반글 사이 구분선 추가 */}
-                            {notices.length > 0 && posts.length > 0 && (
-                                <tr className="divider-row">
-                                    <td colSpan="6"><hr /></td>
-                                </tr>
-                            )}
-
-                            {posts.length > 0 ? (
-                                posts.map(post => (
-                                    <tr
-                                        key={`post-${post.id}`}
-                                        onClick={() => navigate(`/noticeboard/${post.id}`)}
-                                        style={{ fontWeight: post.notice ? 'bold' : 'normal' }} // ✅ 여기가 핵심
-                                        className={post.notice ? 'bold-row' : ''}
-                                    >
-                                        <td>{post.id}</td>
-                                        <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri != '[]' ? '📎' : ''}</td>
-                                        <td>{post.title}</td>
-                                        <td>
-                                            {post.employStatus === 'INACTIVE' ? (
-                                                <span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
-                                                    {post.name}(퇴사)
-                                                </span>
-                                            ) : (
-                                                post.name
-                                            )}
-                                        </td>
-                                        <td>{new Date(post.createdAt).toLocaleDateString()}</td>
-                                        <td>{post.viewCount}</td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="6" className="no-post">게시글이 없습니다</td>
-                                </tr>
-                            )}
 
                         </tbody>
                     </table>
