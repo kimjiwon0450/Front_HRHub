@@ -228,6 +228,7 @@ const ApprovalDetail = () => {
   if (!report) return <div className={styles.noData}>데이터가 없습니다.</div>;
 
   const isWriter = report.writer?.id === user?.id;
+  const isRejected = report.reportStatus === 'REJECTED';
   const currentApproverLine = report.approvalLine?.find(
     (line) => line.approvalStatus === 'PENDING',
   );
@@ -262,9 +263,20 @@ const ApprovalDetail = () => {
             <h1 className={styles.title}>{report.title}</h1>
             <span className={styles.statusBadge + ' ' + styles[report.reportStatus?.toLowerCase()]}> {reportStatusMap[report.reportStatus]} </span>
           </div>
-          <div className={styles.infoBox}>
-            <span><b>기안자</b> {report.writer?.name || '정보 없음'}</span>
-            <span><b>기안일</b> {new Date(report.createdAt || report.reportCreatedAt).toLocaleString()}</span>
+          <div className={styles.infoRow}>
+            <div className={styles.infoBox}>
+              <span><b>기안자</b> {report.writer?.name || '정보 없음'}</span>
+              <span><b>기안일</b> {new Date(report.createdAt || report.reportCreatedAt).toLocaleString()}</span>
+            </div>
+            {/* 재상신 버튼: 반려 상태 + 작성자만 노출 */}
+            {isWriter && isRejected && (
+              <button
+                className={styles.resubmitBtn}
+                onClick={() => navigate(`/approval/new?resubmit=${report.id}`)}
+              >
+                재상신
+              </button>
+            )}
           </div>
         </div>
 

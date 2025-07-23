@@ -45,12 +45,12 @@ export default function ApprovalRequestTabs() {
   return (
     <div className='hr-card hr-tab-card'>
       <div className='tabs'>
-        <button
+        <button어 원비
           className={approvalTab === '결재요청' ? 'active' : ''}
           onClick={() => setApprovalTab('결재요청')}
         >
           결재요청
-        </button>
+        </button어>
         <button
           className={approvalTab === '미승인결재' ? 'active' : ''}
           onClick={() => setApprovalTab('미승인결재')}
