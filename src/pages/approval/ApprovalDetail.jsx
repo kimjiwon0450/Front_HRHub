@@ -264,19 +264,38 @@ const ApprovalDetail = () => {
             <span className={styles.statusBadge + ' ' + styles[report.reportStatus?.toLowerCase()]}> {reportStatusMap[report.reportStatus]} </span>
           </div>
           <div className={styles.infoRow}>
+            <div className={styles.buttonGroup}>
+              {/* 재상신 버튼: 작성자(본인) + REJECTED 상태만 */}
+              {isWriter && isRejected && (
+                <button
+                  className={styles.resubmitBtn}
+                  onClick={() => navigate(`/approval/new?resubmit=${report.id}`)}
+                >
+                  재상신
+                </button>
+              )}
+              {/* 회수 버튼: 작성자(본인) + IN_PROGRESS 상태만 */}
+              {isWriter && report.reportStatus === 'IN_PROGRESS' && (
+                <button
+                  className={styles.resubmitBtn}
+                  style={{ background: '#aaa' }}
+                  onClick={handleRecall}
+                >
+                  회수
+                </button>
+              )}
+              {/* 승인/반려 버튼: 결재선의 현재 결재자(본인)만 */}
+              {isCurrentApprover && (
+                <>
+                  <button className={styles.resubmitBtn} style={{ background: '#4caf50', color: '#fff' }} onClick={() => handleActionClick('approve')}>승인</button>
+                  <button className={styles.resubmitBtn} style={{ background: '#f44336', color: '#fff' }} onClick={() => handleActionClick('reject')}>반려</button>
+                </>
+              )}
+            </div>
             <div className={styles.infoBox}>
               <span><b>기안자</b> {report.writer?.name || '정보 없음'}</span>
               <span><b>기안일</b> {new Date(report.createdAt || report.reportCreatedAt).toLocaleString()}</span>
             </div>
-            {/* 재상신 버튼: 반려 상태 + 작성자만 노출 */}
-            {isWriter && isRejected && (
-              <button
-                className={styles.resubmitBtn}
-                onClick={() => navigate(`/approval/new?resubmit=${report.id}`)}
-              >
-                재상신
-              </button>
-            )}
           </div>
         </div>
 
