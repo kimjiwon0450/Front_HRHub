@@ -29,15 +29,17 @@ import ApprovalPendingList from '../pages/approval/ApprovalPendingList';
 import TemplateAdminPage from '../pages/approval/TemplateAdminPage';
 import TemplateForm from '../pages/approval/TemplateForm';
 import AdminRoute from './AdminRoute';
-import CommunityPostsPage from '../pages/NoticeBoard/CommunityPostsPage';
+
 // (사용하지 않는 ApprovalForm, TemplateList 등은 제외했습니다)
 
 // 공지사항
 import NoticeBoardList from '../pages/NoticeBoard/NoticeBoardList';
 import NoticeBoardWrite from '../pages/NoticeBoard/NoticeBoardWrite';
+import CommunityWrite from '../pages/NoticeBoard/CommunityWrite';
 import NoticeBoardDetail from '../pages/NoticeBoard/NoticeBoardDetail';
 import CommunityDetail from '../pages/NoticeBoard/CommunityDetail';
 import NoticeAlertPage from '../pages/NoticeBoard/NoticeAlertPage';
+import CommunityPostsPage from '../pages/NoticeBoard/CommunityPostsPage';
 
 // 주소록
 import ContactList from '../pages/contacts/ContactList';
@@ -115,8 +117,8 @@ const AppRouter = [
           { index: true, element: <CommunityPostsPage /> }, // '/noticeboard' 접속 시 기본 페이지
           { path: 'my', element: <CommunityPostsPage /> },
           { path: 'mydepartment', element: <CommunityPostsPage /> },
-          { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
-          { path: 'edit/:communityId', element: <NoticeBoardWrite isEdit={true} /> },
+          { path: 'write', element: <CommunityWrite isEdit={false} /> },
+          { path: 'edit/:communityId', element: <CommunityWrite isEdit={true} /> },
           { path: ':communityId', element: <CommunityDetail /> },
         ]
       },

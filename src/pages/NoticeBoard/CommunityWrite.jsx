@@ -1,12 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import './NoticeBoardWrite.scss';
+import './CommunityWrite.scss';
 import Swal from 'sweetalert2';
 import { UserContext, UserContextProvider } from '../../context/UserContext';
 import { API_BASE_URL, NOTICE_SERVICE, HR_SERVICE } from '../../configs/host-config';
 
-const NoticeBoardWrite = ({ isEdit = false }) => {
+const CommunityWrite = ({ isEdit = false }) => {
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -247,22 +247,6 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                 onChange={(e) => setContent(e.target.value)}
             />
 
-            <div className="department-select">
-                <label htmlFor="department">공지 대상 부서 (선택사항):</label>
-                <select
-                    id="department"
-                    value={departmentId}
-                    onChange={(e) => setDepartmentId(e.target.value)}
-                >
-                    <option value="">전체 공지 (기본값)</option>
-                    {departments.map((dept) => (
-                        <option key={dept.id} value={dept.id}>
-                            {dept.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
 
             {/* ✅ 기존 파일 목록 */}
             {isEdit && existingFiles.length > 0 && (
@@ -291,4 +275,4 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
     );
 };
 
-export default NoticeBoardWrite;
+export default CommunityWrite;

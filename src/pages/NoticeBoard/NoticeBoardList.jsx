@@ -9,7 +9,7 @@ import './NoticeBoardList.scss';
 
 const NoticeBoardList = () => {
     const navigate = useNavigate();
-    const { isInit, userId, accessToken, departmentId, userPosition } = useContext(UserContext);
+    const { isInit, userId, accessToken, departmentId, userPosition, userRole } = useContext(UserContext);
 
     const [viewMode, setViewMode] = useState('ALL'); // ALL | MY | DEPT
     const [posts, setPosts] = useState([]);
@@ -180,7 +180,11 @@ const NoticeBoardList = () => {
                     </div>
 
                     <div className="write-button-wrapper">
-                        <button className="write-button" onClick={() => navigate('/notice/write')}>작성하기</button>
+                        {(userRole === 'ADMIN' && ['MANAGER', 'DIRECTOR', 'CEO'].includes(userPosition)) && (
+                            <button className="write-button" onClick={() => navigate('/notice/write')}>
+                                작성하기
+                            </button>
+                        )}
                     </div>
 
                 </div>
