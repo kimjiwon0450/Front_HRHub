@@ -336,6 +336,7 @@ const NoticeBoardDetail = () => {
     return (
         <div className="notice-detail">
             <h2>{posts.notice ? '[공지] ' : ''}{posts.title}</h2>
+            <button className="print-button" onClick={() => window.print()} title="인쇄하기">🖨️</button>
             <div className="meta-with-attachment">
                 <div className="meta">
                     <p>작성자 : {posts.name}{posts.employStatus === 'INACTIVE' ? '(퇴사)' : ''}</p>
