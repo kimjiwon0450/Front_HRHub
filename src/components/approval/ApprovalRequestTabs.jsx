@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
+import { useNavigate } from 'react-router-dom';
 
 export default function ApprovalRequestTabs() {
   // 결재요청/미승인결재 탭 상태
   const [approvalTab, setApprovalTab] = useState('결재요청');
+  const navigate = useNavigate();
 
   // 결재요청 목록 상태
   const [reportList, setReportList] = useState([]);
@@ -55,7 +57,7 @@ export default function ApprovalRequestTabs() {
         >
           미승인결재
         </button>
-        <div className='menu-icon'>≡</div>
+        <div className='menu-icon' style={{ cursor: 'pointer' }} onClick={() => navigate('/approval/home')}>≡</div>
       </div>
       {approvalTab === '결재요청' && (
         <table className='mini-table'>
@@ -86,7 +88,12 @@ export default function ApprovalRequestTabs() {
                 }
                 return (
                   <tr key={report.id || idx}>
-                    <td>{parsedTitle}</td>
+                    <td>
+                      <span style={{ color: '#1976d2', cursor: 'pointer', textDecoration: 'underline' }}
+                        onClick={() => navigate(`/approval/reports/${report.id}`)}>
+                        {parsedTitle}
+                      </span>
+                    </td>
                     <td>
                       {report.reportCreatedAt
                         ? report.reportCreatedAt.slice(0, 10)
