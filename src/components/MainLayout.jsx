@@ -18,6 +18,7 @@ import {
   FaHome, // 🏠 메인
   FaPhone, // 📞 연락처
   FaComments, // 💬 챗봇 플로팅
+  FaBars, // 🍔 메뉴 열기
 } from 'react-icons/fa';
 import { getDepartmentNameById } from '../common/hr';
 import { FaUserCircle } from 'react-icons/fa';
@@ -99,6 +100,7 @@ export default function MainLayout() {
   const [chatbotLoading, setChatbotLoading] = useState(false);
   const [chatbotError, setChatbotError] = useState('');
   const [departmentName, setDepartmentName] = useState('');
+  const [showSidebar, setShowSidebar] = useState(false); // 모바일 사이드바 상태
 
   useEffect(() => {
     if (!userId) return;
@@ -189,7 +191,8 @@ export default function MainLayout() {
 
   return (
     <div className='layout'>
-      <aside className='sidebar'>
+      {/* 데스크탑/태블릿 사이드바 */}
+      <aside className={`sidebar${showSidebar ? ' sidebar--mobile-open' : ''}`}>
         <div className='logo' onClick={() => navigate('/dashboard')}>
           <img src='/src/assets/hrhub_logo.png' alt='hrhub' />
         </div>
@@ -199,6 +202,7 @@ export default function MainLayout() {
               key={menu.to}
               to={menu.to}
               className={location.pathname.startsWith(menu.to) ? 'active' : ''}
+              onClick={() => setShowSidebar(false)} // 모바일에서 메뉴 클릭 시 닫힘
             >
               <span className='menu-icon'>{menu.icon}</span>
               <span className='menu-label'>{menu.label}</span>
@@ -206,9 +210,23 @@ export default function MainLayout() {
           ))}
         </nav>
       </aside>
-
+      {/* 모바일 오버레이 */}
+      {showSidebar && (
+        <div
+          className='sidebar-overlay'
+          onClick={() => setShowSidebar(false)}
+        ></div>
+      )}
       <div className='main'>
         <header className='header'>
+          {/* 모바일 햄버거 버튼 */}
+          <button
+            className='hamburger-btn'
+            onClick={() => setShowSidebar((prev) => !prev)}
+            aria-label='메뉴 열기'
+          >
+            <FaBars />
+          </button>
           <div className='menu'>
             {headerMenus.map((menu) => (
               <Link

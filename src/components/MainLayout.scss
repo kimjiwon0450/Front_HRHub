@@ -24,7 +24,7 @@ $border: #eceff3;
 
 .sidebar {
   width: 170px;
-  min-width: 170px;
+  min-width: 60px;
   max-width: 170px;
   background: $sidebar-bg;
   box-shadow: $sidebar-shadow;
@@ -396,5 +396,66 @@ $border: #eceff3;
     right: 1rem;
     bottom: 5.5rem;
     max-width: 95vw;
+  }
+}
+
+// 햄버거 버튼 (모바일)
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  margin-right: 1rem;
+  color: #384048;
+  cursor: pointer;
+  z-index: 1201;
+}
+
+// 오버레이 (모바일 사이드바 열릴 때)
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 1200;
+}
+
+// 모바일 사이드바 오픈 시 스타일
+.sidebar.sidebar--mobile-open {
+  display: flex !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 220px;
+  min-width: 0;
+  max-width: 80vw;
+  box-shadow: 2px 0 16px 0 rgba(44, 62, 80, 0.18);
+  z-index: 1202;
+  background: $sidebar-bg;
+  animation: slideInLeft 0.3s;
+}
+
+@media (max-width: 600px) {
+  .hamburger-btn {
+    display: block;
+    position: absolute;
+    left: 1rem;
+    top: 1.1rem;
+  }
+  .sidebar {
+    display: none;
+  }
+  .sidebar.sidebar--mobile-open {
+    display: flex !important;
+  }
+  .sidebar-overlay {
+    display: block;
+  }
+  .main .header {
+    padding-left: 3.2rem;
   }
 }
