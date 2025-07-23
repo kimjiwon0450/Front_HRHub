@@ -23,11 +23,13 @@ export default function EmployeeList() {
   const [searchField, setSearchField] = useState('name');
   const [searchText, setSearchText] = useState('');
   const [searchDept, setSearchDept] = useState('전체');
+  const [showInactive, setShowInactive] = useState(false); // 퇴직자만 체크박스
   // 실제 검색에 사용되는 state
   const [appliedSearch, setAppliedSearch] = useState({
     field: 'name',
     keyword: '',
     department: '전체',
+    isActive: true, // 기본값: 재직자만
   });
 
   // 페이징 state
@@ -72,6 +74,7 @@ export default function EmployeeList() {
       sortOrder,
       setEmployees,
       setTotalPages,
+      isActive: appliedSearch.isActive, // 추가
     });
     // eslint-disable-next-line
   }, [page, size, sortField, sortOrder, appliedSearch]);
@@ -145,6 +148,7 @@ export default function EmployeeList() {
       field: searchField,
       keyword: searchText,
       department: searchDept,
+      isActive: !showInactive, // 체크 시 false(퇴사자), 아니면 true(재직자)
     });
     setPage(0); // 검색 시 첫 페이지로
     setSelectedId(null); // 검색하면 상세 닫기
@@ -230,6 +234,14 @@ export default function EmployeeList() {
               </option>
             ))}
           </select>
+          <label style={{ marginLeft: 8 }}>
+            <input
+              type='checkbox'
+              checked={showInactive}
+              onChange={(e) => setShowInactive(e.target.checked)}
+            />
+            퇴직자만
+          </label>
           <button type='submit' className='emp-search-btn'>
             검색
           </button>

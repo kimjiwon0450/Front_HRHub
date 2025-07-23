@@ -12,6 +12,7 @@ export const getEmployeeList = async ({
   sortOrder: reqSortOrder = 'asc',
   setEmployees,
   setTotalPages,
+  isActive, // 추가
 } = {}) => {
   try {
     let params = `?page=${reqPage}&size=${reqSize}`;
@@ -20,6 +21,7 @@ export const getEmployeeList = async ({
     if (department !== '전체')
       params += `&department=${encodeURIComponent(department)}`;
     if (reqSortField) params += `&sort=${reqSortField},${reqSortOrder}`;
+    if (typeof isActive === 'boolean') params += `&isActive=${isActive}`; // 추가
     const res = await axiosInstance.get(
       `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
     );
