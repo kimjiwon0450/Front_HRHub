@@ -64,7 +64,7 @@ const ApprovalPendingList = ({ onTotalCountChange }) => {
   }, [user?.id]);
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container + ' page-fade'}>
       <h2 className="sectionTitle">결재 예정 문서함</h2>
       
       <ReportFilter onFilterChange={handleFilterChange} />
