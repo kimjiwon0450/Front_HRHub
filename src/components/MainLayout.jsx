@@ -86,6 +86,7 @@ export default function MainLayout() {
     userName,
     departmentId,
     userRole,
+    userPosition,
   } = useContext(UserContext);
   const [pendingReports, setPendingReports] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -237,6 +238,9 @@ export default function MainLayout() {
             <div className='user-info'>
               <FaUserCircle className='user-icon' />
               <span className='user-name'>{userName}</span>
+              {userPosition && (
+                <span className='user-position'>{userPosition}</span>
+              )}
               <span className='user-dept'>({departmentName})</span>
               {userRole && (
                 <span className='user-role'>
