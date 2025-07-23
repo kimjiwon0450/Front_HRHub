@@ -7,7 +7,9 @@ import { UserContext, UserContextProvider } from '../../context/UserContext';
 import { API_BASE_URL, NOTICE_SERVICE, HR_SERVICE } from '../../configs/host-config';
 
 const NoticeBoardWrite = ({ isEdit = false }) => {
-    const { id } = useParams();
+
+    console.log('작성 페이지 진입');
+    const { noticeId } = useParams();
     const navigate = useNavigate();
 
     const [title, setTitle] = useState('');
@@ -35,8 +37,8 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
 
     // 수정 모드일 경우 게시글 불러오기
     useEffect(() => {
-        if (isEdit && id) {
-            axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/${id}`, {
+        if (isEdit && noticeId) {
+            axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
@@ -69,27 +71,30 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     });
                 });
         }
-    }, [isEdit, id, accessToken]);
+    }, [isEdit, noticeId, accessToken]);
 
 
     // 부서 리스트 불러오기
     useEffect(() => {
+        // console.log('부서 요청 url : ', `${API_BASE_URL}${HR_SERVICE}/departments`)
         async function fetchDepartments() {
             try {
+                console.log('부서 요청 url : ', `${API_BASE_URL}${HR_SERVICE}/departments`)
                 const res = await axios.get(`${API_BASE_URL}${HR_SERVICE}/departments`, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
                 });
+                console.log('부서 요청 res : ', res)
+
                 setDepartments(res.data.result || []);
             } catch (err) {
                 console.error('부서 목록 불러오기 실패', err);
             }
         }
 
-        if (type === 'notice') {
-            fetchDepartments();
-        }
+        fetchDepartments();
+
     }, [type, accessToken]);
 
 
@@ -182,7 +187,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
             console.log('noticeData : ', noticeData);
 
             if (isEdit) {
-                const response = await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/${id}`, noticeData, {
+                const response = await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}`, noticeData, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`

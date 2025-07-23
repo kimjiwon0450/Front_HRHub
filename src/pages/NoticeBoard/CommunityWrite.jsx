@@ -7,7 +7,7 @@ import { UserContext, UserContextProvider } from '../../context/UserContext';
 import { API_BASE_URL, NOTICE_SERVICE, HR_SERVICE } from '../../configs/host-config';
 
 const CommunityWrite = ({ isEdit = false }) => {
-    const { id } = useParams();
+    const { communityId } = useParams();
     const navigate = useNavigate();
 
     const [title, setTitle] = useState('');
@@ -35,8 +35,8 @@ const CommunityWrite = ({ isEdit = false }) => {
 
     // 수정 모드일 경우 게시글 불러오기
     useEffect(() => {
-        if (isEdit && id) {
-            axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/${id}`, {
+        if (isEdit && communityId) {
+            axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/${communityId}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
@@ -69,29 +69,7 @@ const CommunityWrite = ({ isEdit = false }) => {
                     });
                 });
         }
-    }, [isEdit, id, accessToken]);
-
-
-    // 부서 리스트 불러오기
-    useEffect(() => {
-        async function fetchDepartments() {
-            try {
-                const res = await axios.get(`${API_BASE_URL}${HR_SERVICE}/departments`, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                });
-                setDepartments(res.data.result || []);
-            } catch (err) {
-                console.error('부서 목록 불러오기 실패', err);
-            }
-        }
-
-        if (type === 'notice') {
-            fetchDepartments();
-        }
-    }, [type, accessToken]);
-
+    }, [isEdit, communityId, accessToken]);
 
 
     const handleDeleteExistingFile = (urlToDelete) => {
@@ -182,7 +160,7 @@ const CommunityWrite = ({ isEdit = false }) => {
             console.log('noticeData : ', noticeData);
 
             if (isEdit) {
-                const response = await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/${id}`, noticeData, {
+                const response = await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/${communityId}`, noticeData, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`
