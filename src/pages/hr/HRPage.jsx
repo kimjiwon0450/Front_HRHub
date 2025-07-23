@@ -43,7 +43,7 @@ export default function HRPage() {
   const [deptNotices, setDeptNotices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [noticeTab, setNoticeTab] = useState('전체'); // or '부서'
-  // const [allNotices, setAllNotices] = useState([]);
+  const [allNotices, setAllNotices] = useState([]);
 
   // 결재요청/미승인결재 탭 상태
   const [approvalTab, setApprovalTab] = useState('결재요청');
@@ -163,20 +163,27 @@ export default function HRPage() {
     const fetchDeptNotices = async () => {
       setLoading(true);
       try {
-        const url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/mydepartment`;
+        console.log('API_BASE_URL:', API_BASE_URL);
+        console.log('NOTICE_SERVICE:', NOTICE_SERVICE);
+        console.log('Full URL:', `${API_BASE_URL}${NOTICE_SERVICE}`);
+
+        const url = `${API_BASE_URL}${NOTICE_SERVICE}`;
 
         const res = await fetch(url, {
+          method: 'GET',
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${accessToken}`,
           },
         });
+
+        // const res = await axiosInstance.get(url);
 
         console.log('부서 공지 응답 res : ', res);
 
         const data = await res.json();
         console.log('부서 공지 응답 data : ', data);
 
-        setDeptNotices(data || []);
+        setDeptNotices(data.notices || []);
       } catch (err) {
         console.error('부서 공지 가져오기 실패', err);
         setDeptNotices([]);
@@ -189,28 +196,30 @@ export default function HRPage() {
   }, [departmentId, accessToken]);
 
   // 전체 공지 불러오기 useEffect
-  // useEffect(() => {
-  //   if (!accessToken) return;
+  useEffect(() => {
+    if (!accessToken) return;
 
-    // const fetchAllNotices = async () => {
-    //   try {
-    //     const url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/generalnotice`;
-    //     const res = await fetch(url, {
-    //       headers: {
-    //         Authorization: `Bearer ${accessToken}`,
-    //       },
-    //     });
-    //     const data = await res.json();
-    //     console.log('전체 공지 응답 data : ', data);
-    //     setAllNotices(data || []);
-    //   } catch (err) {
-    //     console.error('전체 공지 가져오기 실패', err);
-    //     setAllNotices([]);
-    //   }
-    // };
+    const fetchAllNotices = async () => {
+      try {
+        const url = `${API_BASE_URL}${NOTICE_SERVICE}`;
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
+        // const res = await axiosInstance.get(url);
+        const data = await res.json();
+        console.log('전체 공지 응답 data : ', data);
+        setAllNotices(data.generalNotices || []);
+      } catch (err) {
+        console.error('전체 공지 가져오기 실패', err);
+        setAllNotices([]);
+      }
+    };
 
-  //   fetchAllNotices();
-  // }, [accessToken]);
+    fetchAllNotices();
+  }, [accessToken]);
 
   // 이달의 사원 예시 데이터
   const eomList = [
@@ -381,20 +390,20 @@ export default function HRPage() {
               </button>
               <div
                 className='menu-icon'
-                onClick={() => navigate(`/noticeboard`)}
+                onClick={() => navigate(`/notice`)}
               >
                 ≡
               </div>
             </div>
 
-            {/*<NoticeList*/}
-            {/*  notices={*/}
-            {/*    noticeTab === '전체'*/}
-            {/*      ? (allNotices || []).slice(0, 4)*/}
-            {/*      : (deptNotices || []).slice(0, 4)*/}
-            {/*  }*/}
-            {/*  load={loading}*/}
-            {/*/>*/}
+            <NoticeList
+              notices={
+                noticeTab === '전체'
+                  ? (allNotices || []).slice(0, 4)
+                  : (deptNotices || []).slice(0, 4)
+              }
+              load={loading}
+            />
           </div>
         </div>
         {/* 두번째 줄 */}

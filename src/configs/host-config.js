@@ -20,8 +20,8 @@ if (clientHostName === 'localhost') {
 } else {
   backendHostName = 'http://43.201.15.111:8000';
 }
-
 export const API_BASE_URL = backendHostName;
 export const NOTICE_SERVICE = '/notice';
+export const COMMUNITY_SERVICE = '/community';
 export const HR_SERVICE = '/hr';
 export const APPROVAL_SERVICE = '/approval';

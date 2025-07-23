@@ -39,13 +39,13 @@ const NoticeBoardDetail = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await axios.delete(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, {
+                    await axios.delete(`${API_BASE_URL}${NOTICE_SERVICE}/${id}`, {
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
                         },
                     });
                     Swal.fire('삭제 완료!', '게시글이 삭제되었습니다.', 'success');
-                    navigate('/noticeboard');
+                    navigate(-1);
                 } catch (err) {
                     console.error(err);
                     Swal.fire('오류 발생', '삭제 중 오류가 발생했습니다.', 'error');
@@ -56,7 +56,7 @@ const NoticeBoardDetail = () => {
 
 
     const handleEdit = () => {
-        navigate(`/noticeboard/edit/${id}`);
+        navigate(`/notice/edit/${id}`);
     };
 
     const handleBack = () => {
@@ -70,7 +70,7 @@ const NoticeBoardDetail = () => {
     // 🔥 presigned GET URL 요청
     const getDownloadUrl = async (fileName) => {
         try {
-            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/download-url?fileName=${encodeURIComponent(fileName)}`, {
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/download-url?fileName=${encodeURIComponent(fileName)}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -124,7 +124,7 @@ const NoticeBoardDetail = () => {
 
     const fetchComments = async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments`, {
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${id}/comments`, {
                 headers: { 'Authorization': `Bearer ${accessToken}` }
             });
             const data = await res.json();
@@ -154,7 +154,7 @@ const NoticeBoardDetail = () => {
         }
 
         try {
-            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments`, {
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${id}/comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ const NoticeBoardDetail = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments/${commentId}`, {
+                    await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${id}/comments/${commentId}`, {
                         method: 'DELETE',
                         headers: {
                             'Authorization': `Bearer ${accessToken}`,
@@ -229,7 +229,7 @@ const NoticeBoardDetail = () => {
             return;
         }
         try {
-            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/comments/${commentId}`, {
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${id}/comments/${commentId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -259,7 +259,7 @@ const NoticeBoardDetail = () => {
 
         const fetchPost = async () => {
             try {
-                const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}`, {
+                const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`
                     }
@@ -292,7 +292,7 @@ const NoticeBoardDetail = () => {
                 setAttachments(attachments);
 
                 // ✅ 읽음 처리
-                await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/${id}/read`, {
+                await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${id}/read`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
