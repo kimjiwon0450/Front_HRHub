@@ -19,6 +19,8 @@ import {
   FaPhone, // 📞 연락처
   FaComments, // 💬 챗봇 플로팅
 } from 'react-icons/fa';
+import { getDepartmentNameById } from '../common/hr';
+import { FaUserCircle } from 'react-icons/fa';
 
 const sidebarMenus = [
   {
@@ -76,7 +78,15 @@ export default function MainLayout() {
 
   const [unreadCount, setUnreadCount] = useState(0);
   const [unApprovalCount, setUnApprovalCount] = useState(0);
-  const { user, userId, accessToken, isInit } = useContext(UserContext);
+  const {
+    user,
+    userId,
+    accessToken,
+    isInit,
+    userName,
+    departmentId,
+    userRole,
+  } = useContext(UserContext);
   const [pendingReports, setPendingReports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -87,6 +97,7 @@ export default function MainLayout() {
   const [chatbotQuestion, setChatbotQuestion] = useState('');
   const [chatbotLoading, setChatbotLoading] = useState(false);
   const [chatbotError, setChatbotError] = useState('');
+  const [departmentName, setDepartmentName] = useState('');
 
   useEffect(() => {
     if (!userId) return;
@@ -157,6 +168,24 @@ export default function MainLayout() {
     fetchPending();
   }, [user, location.pathname]);
 
+  useEffect(() => {
+    if (departmentId) {
+      getDepartmentNameById(departmentId).then((name) => {
+        if (name) setDepartmentName(name);
+      });
+    } else {
+      setDepartmentName('');
+    }
+  }, [departmentId]);
+
+  // 역할 한글 매핑
+  const roleMap = {
+    CEO: '대표',
+    HR_MANAGER: '인사담당',
+    EMPLOYEE: '사원',
+    ADMIN: '관리자',
+  };
+
   return (
     <div className='layout'>
       <aside className='sidebar'>
@@ -203,6 +232,19 @@ export default function MainLayout() {
               <span className='badge'>{unreadCount + unApprovalCount}</span>
             )}
           </div>
+          {/* 사용자 이름/부서명 표시 */}
+          {userName && departmentName && (
+            <div className='user-info'>
+              <FaUserCircle className='user-icon' />
+              <span className='user-name'>{userName}</span>
+              <span className='user-dept'>({departmentName})</span>
+              {userRole && (
+                <span className='user-role'>
+                  {roleMap[userRole] || userRole}
+                </span>
+              )}
+            </div>
+          )}
           <button className='logout-btn' onClick={handleLogoutClick}>
             Logout
           </button>
