@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { HR_SERVICE } from './host-config';
+import { API_BASE_URL, HR_SERVICE } from './host-config';
 import { removeLocalStorageForLogout } from '../common/common';
 import Swal from 'sweetalert2';
 
@@ -55,12 +55,9 @@ axiosInstance.interceptors.response.use(
       try {
         const id = localStorage.getItem('USER_ID');
 
-        const res = await axios.post(
-          `http://localhost:8000${HR_SERVICE}/refresh`,
-          {
-            id,
-          },
-        );
+        const res = await axios.post(`${API_BASE_URL}${HR_SERVICE}/refresh`, {
+          id,
+        });
         const newToken = res.data.result.token;
         localStorage.setItem('ACCESS_TOKEN', newToken);
 
