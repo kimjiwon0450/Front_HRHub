@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styles from './EmployeeSelectModal.module.scss';
 import axiosInstance from '../../configs/axios-config';
-import { API_BASE_URL, HR_SERVICE, APPROVAL_SERVICE } from '../../configs/host-config';
+import {
+  API_BASE_URL,
+  HR_SERVICE,
+  APPROVAL_SERVICE,
+} from '../../configs/host-config';
 
 const EmployeeSelectModal = ({
   open,
@@ -27,11 +31,13 @@ const EmployeeSelectModal = ({
       if (res.status === 200) {
         const allDepartments = res.data.result;
         // ★★★ 핵심 수정: API 응답에서 '전체' 부서를 필터링하여 제외합니다. ★★★
-        const actualDepartments = allDepartments.filter(dept => dept.name !== '전체');
+        const actualDepartments = allDepartments.filter(
+          (dept) => dept.name !== '전체',
+        );
         setDepartmentList(actualDepartments);
       }
     } catch (err) {
-      console.error("부서 정보 로딩 실패:", err);
+      console.error('부서 정보 로딩 실패:', err);
       setError('부서 정보를 불러오지 못했습니다.');
     }
   };
@@ -41,15 +47,17 @@ const EmployeeSelectModal = ({
     setError(null);
     try {
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees?size=9999`,
+        `${API_BASE_URL}${HR_SERVICE}/employees/contact?size=99999`,
       );
       if (res.status === 200) {
         const allEmployees = res.data.result.content;
-        const activeEmployees = allEmployees.filter(emp => emp.status === 'ACTIVE');
+        const activeEmployees = allEmployees.filter(
+          (emp) => emp.status === 'ACTIVE',
+        );
         setEmployeeList(activeEmployees);
       }
     } catch (err) {
-      console.error("직원 정보 로딩 실패:", err);
+      console.error('직원 정보 로딩 실패:', err);
       setError('직원 정보를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
@@ -142,7 +150,7 @@ const EmployeeSelectModal = ({
             팀별
           </button>
         </div>
-        
+
         {loading && <div className={styles.loading}>로딩 중...</div>}
         {error && <div className={styles.error}>{error}</div>}
 
@@ -172,14 +180,16 @@ const EmployeeSelectModal = ({
             )}
           </ul>
         )}
-        
+
         {!loading && !error && activeTab === '팀별' && (
           <div className={styles.departmentList}>
             {departmentList.map((dept) => (
               <div key={dept.id} className={styles.departmentItem}>
                 <div
                   className={styles.departmentHeader}
-                  onClick={() => setOpenDept(openDept === dept.id ? null : dept.id)}
+                  onClick={() =>
+                    setOpenDept(openDept === dept.id ? null : dept.id)
+                  }
                 >
                   {dept.name}{' '}
                   <span className={styles.departmentCount}>
@@ -197,7 +207,9 @@ const EmployeeSelectModal = ({
                           <label className={styles.employeeLabel}>
                             <input
                               type={multiple ? 'checkbox' : 'radio'}
-                              checked={selectedState.some((e) => e.id === emp.id)}
+                              checked={selectedState.some(
+                                (e) => e.id === emp.id,
+                              )}
                               onChange={() => handleSelect(emp)}
                               className={styles.employeeInput}
                             />
@@ -211,7 +223,9 @@ const EmployeeSelectModal = ({
                         </li>
                       ))
                     ) : (
-                      <li className={styles.noResult}>해당 부서에 직원이 없습니다.</li>
+                      <li className={styles.noResult}>
+                        해당 부서에 직원이 없습니다.
+                      </li>
                     )}
                   </ul>
                 )}
@@ -219,12 +233,20 @@ const EmployeeSelectModal = ({
             ))}
           </div>
         )}
-        
+
         <div className={styles.buttonGroup}>
-          <button onClick={handleConfirm} className={styles.confirmButton} type='button'>
+          <button
+            onClick={handleConfirm}
+            className={styles.confirmButton}
+            type='button'
+          >
             확인
           </button>
-          <button onClick={onClose} className={styles.cancelButton} type='button'>
+          <button
+            onClick={onClose}
+            className={styles.cancelButton}
+            type='button'
+          >
             취소
           </button>
         </div>
