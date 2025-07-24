@@ -44,6 +44,9 @@ import CommunityPostsPage from '../pages/NoticeBoard/CommunityPostsPage';
 // 주소록
 import ContactList from '../pages/contacts/ContactList';
 
+//직원 관리
+import ImportEmployee from '../pages/hr/ImportEmployee';
+
 // 라우팅 설정 객체 배열
 const AppRouter = [
   {
@@ -67,6 +70,7 @@ const AppRouter = [
           { path: 'employee-eval', element: <EvaluationForm /> },
           { path: 'employee-eval-list', element: <EmployeeViewList /> },
           { path: 'my-evaluations', element: <MyEvaluationList /> },
+          { path: 'import-employee', element: <ImportEmployee /> },
         ],
       },
 
@@ -120,6 +124,7 @@ const AppRouter = [
           { index: true, element: <NoticeBoardList /> }, // '/noticeboard' 접속 시 기본 페이지
           { path: 'my', element: <NoticeBoardList /> },
           // { path: 'mydepartment', element: <NoticeBoardList /> },
+          { path: 'schedule', element: <NoticeBoardList /> },
           { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
           {
             path: 'edit/:noticeId',

@@ -8,6 +8,8 @@ import EvaluationForm from './EvaluationForm';
 import { useNavigate } from 'react-router-dom';
 import { getEmployeeList } from '../../common/hr';
 import { warn } from '../../common/common';
+import ModalPortal from '../../components/approval/ModalPortal';
+import styles from '../../components/approval/CategoryModal.module.scss';
 
 export default function EmployeeViewList() {
   const [selectedId, setSelectedId] = useState(null);
@@ -132,12 +134,24 @@ export default function EmployeeViewList() {
     setEvaluation(null);
   };
 
+  // '퇴직자만' 체크박스가 변경될 때마다 바로 검색
+  React.useEffect(() => {
+    setAppliedSearch((prev) => ({
+      ...prev,
+      isActive: !showInactive,
+    }));
+    setPage(0); // 첫 페이지로 이동
+    setSelectedId(null); // 상세 닫기
+    setEvaluation(null);
+  }, [showInactive]);
+
   const handleReset = () => {
     setSearchField('name');
     setSearchText('');
     setSearchDept('전체');
     setSortField(null); // 정렬 초기화
     setSortOrder('asc'); // 정렬 초기화
+    setShowInactive(false); // 체크박스도 해제
     setAppliedSearch({
       field: 'name',
       keyword: '',
@@ -337,14 +351,91 @@ export default function EmployeeViewList() {
             </div>
             {/* 평가 조회/등록 조건부 렌더링 */}
             {selectedId && !showEvaluationForm && evaluation && (
-              <EvaluationView
-                evaluation={evaluation}
-                onClose={handleClose}
-                onEdit={handleEditEvaluation}
-              />
+              <ModalPortal>
+                <div
+                  className={styles.modalOverlay}
+                  onClick={() => setSelectedId(null)}
+                  style={{ zIndex: 1000 }}
+                >
+                  <div
+                    className={styles.modalContainer}
+                    style={{
+                      maxWidth: '1000px',
+                      width: '90vw',
+                      maxHeight: '90vh',
+                      overflowY: 'auto',
+                      position: 'relative',
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      onClick={() => setSelectedId(null)}
+                      style={{
+                        position: 'absolute',
+                        top: 18,
+                        right: 24,
+                        background: 'none',
+                        border: 'none',
+                        fontSize: 28,
+                        cursor: 'pointer',
+                        color: '#888',
+                        zIndex: 10,
+                      }}
+                      aria-label='닫기'
+                    >
+                      ×
+                    </button>
+                    <EvaluationView
+                      evaluation={evaluation}
+                      onClose={handleClose}
+                      onEdit={handleEditEvaluation}
+                    />
+                  </div>
+                </div>
+              </ModalPortal>
             )}
             {showEvaluationForm && (
-              <EvaluationForm employee={selectedDetail} onClose={handleClose} />
+              <ModalPortal>
+                <div
+                  className={styles.modalOverlay}
+                  onClick={() => setShowEvaluationForm(false)}
+                  style={{ zIndex: 1000 }}
+                >
+                  <div
+                    className={styles.modalContainer}
+                    style={{
+                      maxWidth: '1000px',
+                      width: '90vw',
+                      maxHeight: '90vh',
+                      overflowY: 'auto',
+                      position: 'relative',
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      onClick={() => setShowEvaluationForm(false)}
+                      style={{
+                        position: 'absolute',
+                        top: 18,
+                        right: 24,
+                        background: 'none',
+                        border: 'none',
+                        fontSize: 28,
+                        cursor: 'pointer',
+                        color: '#888',
+                        zIndex: 10,
+                      }}
+                      aria-label='닫기'
+                    >
+                      ×
+                    </button>
+                    <EvaluationForm
+                      employee={selectedDetail}
+                      onClose={handleClose}
+                    />
+                  </div>
+                </div>
+              </ModalPortal>
             )}
           </>
         )}
