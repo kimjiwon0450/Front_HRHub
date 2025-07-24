@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import HRHeader from './HRHeader';
 import './HRPage.scss';
 import { UserContext } from '../../context/UserContext';
@@ -19,6 +19,7 @@ import Weather from './Weather';
 import ApprovalRequestTabs from '../../components/approval/ApprovalRequestTabs';
 
 export default function HRPage() {
+  const { noticeId } = useParams();
   const navigate = useNavigate();
   const {
     userName,

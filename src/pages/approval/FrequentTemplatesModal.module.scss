@@ -270,3 +270,14 @@
 .categorySelect:focus {
   border-color: #1976d2;
 }
+
+.limitWarning {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  text-align: center;
+}

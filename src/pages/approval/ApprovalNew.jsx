@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { useNavigate, useParams, useSearchParams, useBlocker } from 'react-router-dom';
 import styles from './ApprovalNew.module.scss';
 import { useApprovalForm } from '../../hooks/useApprovalForm';
@@ -12,6 +12,7 @@ import QuillEditor from '../../components/editor/QuillEditor';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import TemplateSelectionModal from '../../components/approval/TemplateSelectionModal';
+import { UserContext } from '../../context/UserContext';
 
 const MySwal = withReactContent(Swal);
 
@@ -19,11 +20,14 @@ function ApprovalNew() {
   console.log('ApprovalNew mount');
   const { reportId } = useParams(); // 수정 모드일 때만 값이 존재
   const [searchParams] = useSearchParams();
-  // 쿼리에서 templateId만 추출
+  // 쿼리에서 templateId, resubmit 추출
   const templateIdFromQuery = searchParams.get('templateId');
+  const resubmitId = searchParams.get('resubmit');
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
 
-  // useApprovalForm에 templateId와 reportId를 명확히 전달
+  // resubmitId가 있으면 reportId 대신 사용
+  const effectiveReportId = resubmitId || reportId;
   const {
     template,
     formData,
@@ -36,7 +40,7 @@ function ApprovalNew() {
     setAttachments,
     loading,
     error,
-  } = useApprovalForm(templateIdFromQuery, reportId);
+  } = useApprovalForm(templateIdFromQuery, effectiveReportId);
 
   const [isApproverModalOpen, setIsApproverModalOpen] = useState(false);
   const [isReferenceModalOpen, setIsReferenceModalOpen] = useState(false);
@@ -73,13 +77,43 @@ function ApprovalNew() {
     else setIsSaving(true);
 
     let url, submissionData;
-    if (reportId && !isSubmit) {
+    // editor 타입 필드 id 자동 보정: id 없으면 'content'로 대입
+    let fixedTemplate = template;
+    if (template && template.content) {
+      fixedTemplate = {
+        ...template,
+        content: template.content.map(f =>
+          f.type === 'editor' && !f.id ? { ...f, id: 'content' } : f
+        ),
+      };
+    }
+    // content 값 보정: editor 타입 id 없으면 'content'로 강제 추출
+    let contentValue = formData.content;
+    if (template && template.content) {
+      const editorField = template.content.find(f => f.type === 'editor');
+      let editorId = editorField?.id || (editorField ? 'content' : undefined);
+      if (editorId) {
+        contentValue = formData[editorId] || '';
+      }
+    }
+    console.log('[DEBUG] formData:', formData);
+    if (fixedTemplate && fixedTemplate.content) {
+      console.log('[DEBUG] fixedTemplate.content:', fixedTemplate.content);
+      const editorField = fixedTemplate.content.find(f => f.type === 'editor' || f.id === 'content');
+      console.log('[DEBUG] editorField:', editorField);
+      if (editorField) {
+        contentValue = formData[editorField.id];
+        console.log('[DEBUG] contentValue from editorField:', contentValue);
+      }
+    }
+
+    if (effectiveReportId && !isSubmit) {
       // --- 수정 모드에서 '임시 저장' (PUT) ---
-      url = `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}`;
+      url = `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${effectiveReportId}`;
       const updateDto = {
         title: formData.title,
-        content: formData.content,
-        templateId: template?.id,
+        content: contentValue,
+        templateId: fixedTemplate?.id,
         reportTemplateData: JSON.stringify(formData),
         approvalLine: approvalLine.map(a => ({ ...a })),
         references: references.map(r => ({ ...r })),
@@ -92,8 +126,8 @@ function ApprovalNew() {
       // 신규 생성 로직 (POST)
       const reqDto = {
         title: formData.title,
-        content: formData.content,
-        templateId: template?.id,
+        content: contentValue,
+        templateId: fixedTemplate?.id,
         reportTemplateData: JSON.stringify(formData),
         approvalLine: approvalLine,
         references: references,
@@ -109,7 +143,7 @@ function ApprovalNew() {
     const successMessage = isSubmit ? '성공적으로 상신되었습니다.' : '임시 저장되었습니다.';
 
     try {
-      const res = reportId && !isSubmit
+      const res = effectiveReportId && !isSubmit
         ? await axiosInstance.put(url, submissionData)
         : await axiosInstance.post(url, submissionData);
       if (res.data && (res.data.statusCode === 201 || res.data.statusCode === 200)) {
@@ -139,11 +173,40 @@ function ApprovalNew() {
       if (isSubmit) setIsSubmitting(false);
       else setIsSaving(false);
     }
-  }, [formData, template, approvalLine, references, files, navigate, reportId]);
+  }, [formData, template, approvalLine, references, files, navigate, effectiveReportId]);
 
   // React Router v7의 useBlocker로 페이지 이탈 감지
   const shouldBlock = !loading && isDirty;
   const blocker = useBlocker(shouldBlock);
+
+  // 작성자만 수정/재상신 가능하도록 방어
+  useEffect(() => {
+    if (!effectiveReportId) return;
+    // reportId 또는 resubmitId로 진입 시, 문서의 작성자와 현재 로그인 사용자가 다르면 차단
+    (async () => {
+      try {
+        const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${effectiveReportId}`);
+        const report = res.data?.result;
+        if (!report || !report.writer || !user || report.writer.id !== user.id) {
+          await MySwal.fire({
+            icon: 'error',
+            title: '접근 권한이 없습니다.',
+            text: '해당 문서는 작성자만 수정할 수 있습니다.',
+            confirmButtonText: '확인',
+          });
+          navigate('/approval/home');
+        }
+      } catch (err) {
+        await MySwal.fire({
+          icon: 'error',
+          title: '문서 정보를 불러올 수 없습니다.',
+          text: err.response?.data?.statusMessage || err.message,
+          confirmButtonText: '확인',
+        });
+        navigate('/approval/home');
+      }
+    })();
+  }, [effectiveReportId, user, navigate]);
 
   useEffect(() => {
     if (blocker.state === 'blocked') {
@@ -260,27 +323,21 @@ function ApprovalNew() {
                   />
             </div>
           </div>
-              {template?.content
-            ?.filter((field) => field.id !== 'content' && field.id !== 'title')
-                .map((field, index) => {
-                  console.log('Rendering field:', field);
-                  console.log('Field type:', field.type);
-                  console.log('Field header:', field.header);
-                  console.log('Field id:', field.id);
-                  
-                  // 각 필드에 고유한 키 생성 (field.id가 없으면 header + index 사용)
-                  const fieldKey = field.id || `${field.header}_${index}`;
-                  
-                  return (
-                    <FormField
-                      key={fieldKey}
-                      field={field}
-                      value={formData}
-                      onChange={handleValueChange}
-                      fieldKey={fieldKey}
-                    />
-                  );
-                })}
+              {/* 동적 필드 렌더링: editor 타입 id 없으면 'content'로 강제 부여, 모든 필드에 안전한 key/fieldKey 부여 */}
+        {template?.content?.map((field, index) => {
+          let safeId = field.id;
+          if (field.type === 'editor' && !field.id) safeId = 'content';
+          if (!safeId) safeId = `${field.header || 'field'}_${index}`;
+          return (
+            <FormField
+              key={safeId}
+              field={{ ...field, id: safeId }}
+              value={formData}
+              onChange={handleValueChange}
+              fieldKey={safeId}
+            />
+          );
+        })}
           {/* 템플릿이 없을 때만 기본 내용 입력창 표시 */}
           {(!template || !template.content || template.content.length === 0) && (
           <div className={styles.formRow}>

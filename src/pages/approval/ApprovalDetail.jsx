@@ -228,6 +228,7 @@ const ApprovalDetail = () => {
   if (!report) return <div className={styles.noData}>데이터가 없습니다.</div>;
 
   const isWriter = report.writer?.id === user?.id;
+  const isRejected = report.reportStatus === 'REJECTED';
   const currentApproverLine = report.approvalLine?.find(
     (line) => line.approvalStatus === 'PENDING',
   );
@@ -254,174 +255,137 @@ const ApprovalDetail = () => {
   // ★★★ ----------------------------------------------- ★★★
 
   return (
-    <>
-      <div className={styles.approvalContainer}>
-        <div className={styles.detailContainer}>
-          <header className={styles.header}>
-            <div className={styles.titleGroup}>
-              <h1 className={styles.title}>{report.title}</h1>
-              <span
-                className={`${styles.statusBadge} ${styles[report.reportStatus?.toLowerCase()]}`}
-              >
-                {reportStatusMap[report.reportStatus] || report.reportStatus}
-              </span>
-            </div>
+    <div className={styles.approvalContainer}>
+      <div className={styles.detailMainBox}>
+        {/* 상단: 제목/상태/기본정보 */}
+        <div className={styles.topSection}>
+          <div className={styles.titleBox}>
+            <h1 className={styles.title}>{report.title}</h1>
+            <span className={styles.statusBadge + ' ' + styles[report.reportStatus?.toLowerCase()]}> {reportStatusMap[report.reportStatus]} </span>
+          </div>
+          <div className={styles.infoRow}>
             <div className={styles.buttonGroup}>
+              {/* 재상신 버튼: 작성자(본인) + REJECTED 상태만 */}
+              {isWriter && isRejected && (
+                <button
+                  className={styles.resubmitBtn}
+                  onClick={() => navigate(`/approval/new?resubmit=${report.id}`)}
+                >
+                  재상신
+                </button>
+              )}
+              {/* 회수 버튼: 작성자(본인) + IN_PROGRESS 상태만 */}
               {isWriter && report.reportStatus === 'IN_PROGRESS' && (
-                <button className={styles.recallBtn} onClick={handleRecall}>
+                <button
+                  className={styles.resubmitBtn}
+                  style={{ background: '#aaa' }}
+                  onClick={handleRecall}
+                >
                   회수
                 </button>
               )}
-              {isWriter &&
-                (report.reportStatus === 'REJECTED' ||
-                  report.reportStatus === 'RECALLED') && (
-                  <button
-                    className={styles.defaultBtn}
-                    onClick={() => navigate(`/approval/edit/${reportId}`)}
-                  >
-                    재작성
-                  </button>
-                )}
-              {isCurrentApprover && report.reportStatus === 'IN_PROGRESS' && (
+              {/* 승인/반려 버튼: 결재선의 현재 결재자(본인)만 */}
+              {isCurrentApprover && (
                 <>
-                  <button
-                    className={styles.approveBtn}
-                    onClick={() => handleActionClick('approve')}
-                  >
-                    승인
-                  </button>
-                  <button
-                    className={styles.rejectBtn}
-                    onClick={() => handleActionClick('reject')}
-                  >
-                    반려
-                  </button>
+                  <button className={styles.resubmitBtn} style={{ background: '#4caf50', color: '#fff' }} onClick={() => handleActionClick('approve')}>승인</button>
+                  <button className={styles.resubmitBtn} style={{ background: '#f44336', color: '#fff' }} onClick={() => handleActionClick('reject')}>반려</button>
                 </>
               )}
             </div>
-          </header>
-
-          <section className={styles.reportInfo}>
-            <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>기안자</span>
-              <span className={styles.infoValue}>
-                {report.writer?.name || '정보 없음'}
-              </span>
+            <div className={styles.infoBox}>
+              <span><b>기안자</b> {report.writer?.name || '정보 없음'}</span>
+              <span><b>기안일</b> {new Date(report.createdAt || report.reportCreatedAt).toLocaleString()}</span>
             </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>기안일</span>
-              <span className={styles.infoValue}>
-                {new Date(
-                  report.createdAt || report.reportCreatedAt,
-                ).toLocaleString()}
-              </span>
-            </div>
-          </section>
+          </div>
+        </div>
 
-          <section className={styles.content}>
-            {/* 템플릿 기반 동적 폼 렌더링 */}
-            {console.log('Report data:', report)}
-            {console.log('Template:', report.template)}
-            {console.log('Template content:', report.template?.content)}
-            {console.log('Form data:', report.formData)}
-            {console.log('Report template data:', report.reportTemplateData)}
-            {report.template && report.template.content && Array.isArray(report.template.content) ? (
-              <div className={styles.dynamicFields}>
-                <table className={styles.reportTable}>
-                  <tbody>
-                    {report.template.content.map((field, idx) => {
-                      // formData에서 값을 찾는 로직 개선
-                      let fieldValue = '';
-                      if (report.formData) {
-                        // 1. field.id로 직접 매칭
-                        if (report.formData[field.id] !== undefined) {
-                          fieldValue = report.formData[field.id];
+        {/* 중앙: 동적 필드/본문/첨부파일 */}
+        <div className={styles.contentSection}>
+          {/* 동적 필드 */}
+          {report.template && report.template.content && Array.isArray(report.template.content) ? (
+            <div className={styles.dynamicFields}>
+              <table className={styles.reportTable}>
+                <tbody>
+                  {report.template.content.map((field, idx) => {
+                    let fieldValue = '';
+                    if (report.formData) {
+                      if (report.formData[field.id] !== undefined) {
+                        fieldValue = report.formData[field.id];
+                      } else if (field.type === 'period') {
+                        const startKey = `${field.id}_start`;
+                        const endKey = `${field.id}_end`;
+                        const startValue = report.formData[startKey];
+                        const endValue = report.formData[endKey];
+                        if (startValue && endValue) {
+                          fieldValue = `${startValue} ~ ${endValue}`;
+                        } else if (startValue) {
+                          fieldValue = startValue;
+                        } else if (endValue) {
+                          fieldValue = endValue;
                         }
-                        // 2. 기간 필드 매칭 (period 타입)
-                        else if (field.type === 'period') {
-                          const startKey = `${field.id}_start`;
-                          const endKey = `${field.id}_end`;
-                          const startValue = report.formData[startKey];
-                          const endValue = report.formData[endKey];
-                          if (startValue && endValue) {
-                            fieldValue = `${startValue} ~ ${endValue}`;
-                          } else if (startValue) {
-                            fieldValue = startValue;
-                          } else if (endValue) {
-                            fieldValue = endValue;
-                          }
-                        }
-                        // 3. 다른 필드들 (직접 매칭)
-                        else {
-                          // field.id가 이미 custom_로 시작하므로 직접 매칭
-                          fieldValue = report.formData[field.id] || '';
-                        }
+                      } else {
+                        fieldValue = report.formData[field.id] || '';
                       }
-                      
-                      return (
-                        <tr key={field.id || idx} className={styles.tableRow}>
-                          <td className={styles.fieldLabel}>{field.header || field.label || field.name || field.id}</td>
-                          <td className={styles.fieldValue}>
-                            {fieldValue}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            ) : report.reportTemplateData ? (
-              (() => {
-                let fields;
-                try {
-                  fields = JSON.parse(report.reportTemplateData);
-                } catch (e) {
-                  console.error('Failed to parse reportTemplateData:', e);
-                  fields = null;
-                }
-                if (fields && Array.isArray(fields)) {
-                  return (
-                    <div className={styles.dynamicFields}>
-                      <table className={styles.reportTable}>
-                        <tbody>
-                          {fields.map((field, idx) => (
-                            <tr key={field.id || idx} className={styles.tableRow}>
-                              <td className={styles.fieldLabel}>{field.header || field.label || field.name || field.id}</td>
-                              <td className={styles.fieldValue}>{field.value ?? ''}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  );
-                }
-                return null;
-              })()
-            ) : null}
-            
-            {/* 본문 내용 */}
-            <div className={styles.contentBody}>
-              <div dangerouslySetInnerHTML={{ __html: report.content }} />
+                    }
+                    return (
+                      <tr key={field.id || idx} className={styles.tableRow}>
+                        <td className={styles.fieldLabel}>{field.header || field.label || field.name || field.id}</td>
+                        <td className={styles.fieldValue}>{fieldValue}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-
-            {/* ★★★ 2. 본문 하단에 이미지 갤러리 섹션 추가 ★★★ */}
-            {imageAttachments.length > 0 && (
-              <div className={styles.imageGallery}>
-                {imageAttachments.map((file, index) => (
-                  <div key={index} className={styles.imageWrapper}>
-                    <img
-                      src={file.url}
-                      alt={file.fileName}
-                      className={styles.attachedImage}
-                    />
+          ) : report.reportTemplateData ? (
+            (() => {
+              let fields;
+              try {
+                fields = JSON.parse(report.reportTemplateData);
+              } catch (e) {
+                fields = null;
+              }
+              if (fields && Array.isArray(fields)) {
+                return (
+                  <div className={styles.dynamicFields}>
+                    <table className={styles.reportTable}>
+                      <tbody>
+                        {fields.map((field, idx) => (
+                          <tr key={field.id || idx} className={styles.tableRow}>
+                            <td className={styles.fieldLabel}>{field.header || field.label || field.name || field.id}</td>
+                            <td className={styles.fieldValue}>{field.value ?? ''}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                ))}
-              </div>
-            )}
-            {/* ★★★ ------------------------------------ ★★★ */}
-          </section>
+                );
+              }
+              return null;
+            })()
+          ) : null}
 
-          {/* ★★★ 3. 이미지 외 다른 파일이 있을 경우에만 첨부파일 목록 표시 ★★★ */}
+          {/* 본문 */}
+          <div className={styles.contentBody}>
+            <div dangerouslySetInnerHTML={{ __html: report.content }} />
+          </div>
+
+          {/* 이미지 첨부 */}
+          {imageAttachments.length > 0 && (
+            <div className={styles.imageGallery}>
+              {imageAttachments.map((file, index) => (
+                <div key={index} className={styles.imageWrapper}>
+                  <img
+                    src={file.url}
+                    alt={file.fileName}
+                    className={styles.attachedImage}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 파일 첨부 */}
           {nonImageAttachments.length > 0 && (
             <section className={styles.attachmentSection}>
               <AttachmentList
@@ -430,8 +394,27 @@ const ApprovalDetail = () => {
               />
             </section>
           )}
+        </div>
 
-          <section className={styles.historySection}>
+        {/* 하단: 결재선/결재이력 */}
+        <div className={styles.bottomSection}>
+          <div className={styles.approvalLineBox}>
+            <div className={styles.approvalLineHeader}>
+              <h4>결재선</h4>
+              <button
+                className={styles.viewMoreBtn}
+                onClick={() => setIsModalOpen(true)}
+              >
+                전체보기
+              </button>
+            </div>
+            <VisualApprovalLine
+              approvalLine={report.approvalLine}
+              reportStatus={report.reportStatus}
+              mode='full'
+            />
+          </div>
+          <div className={styles.historySection}>
             <h4 className={styles.sectionTitle}>결재 이력</h4>
             <ul className={styles.historyList}>
               {history.length > 0 ? (
@@ -462,27 +445,8 @@ const ApprovalDetail = () => {
                 <li className={styles.noHistory}>결재 이력이 없습니다.</li>
               )}
             </ul>
-          </section>
-        </div>
-
-        <aside className={styles.sidebar}>
-          <div className={styles.sidebarSection}>
-            <div className={styles.sidebarHeader}>
-              <h4>결재선</h4>
-              <button
-                className={styles.viewMoreBtn}
-                onClick={() => setIsModalOpen(true)}
-              >
-                전체보기
-              </button>
-            </div>
-            <VisualApprovalLine
-              approvalLine={report.approvalLine}
-              reportStatus={report.reportStatus}
-              mode='full'
-            />
           </div>
-        </aside>
+        </div>
       </div>
       {isModalOpen && (
         <ApprovalLineModal
@@ -538,7 +502,7 @@ const ApprovalDetail = () => {
           </div>
         </ModalPortal>
       )}
-    </>
+    </div>
   );
 };
 

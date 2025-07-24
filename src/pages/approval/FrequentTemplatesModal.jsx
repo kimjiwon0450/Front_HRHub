@@ -60,9 +60,8 @@ const FrequentTemplatesModal = ({ open, onClose, onSave, allTemplates, initialSe
     } else {
       if (selectedTemplates.length < 10) {
         setSelectedTemplates(prev => [...prev, template]);
-      } else {
-        alert('자주 쓰는 결재는 최대 10개까지 추가할 수 있습니다.');
       }
+      // 10개 이상일 때는 아무 동작도 하지 않음 (안내 메시지로 대체)
     }
   };
 
@@ -121,6 +120,11 @@ const FrequentTemplatesModal = ({ open, onClose, onSave, allTemplates, initialSe
                 </div>
               ))}
             </div>
+            {selectedTemplates.length >= 10 && (
+              <div className={styles.limitWarning}>
+                최대 10개까지 선택할 수 있습니다.
+              </div>
+            )}
           </div>
 
           {/* 하단: 전체 양식 그리드 */}
@@ -139,11 +143,14 @@ const FrequentTemplatesModal = ({ open, onClose, onSave, allTemplates, initialSe
             <div className={styles.templateGrid}>
               {filteredTemplates.map(template => {
                 const isSelected = selectedTemplates.some(t => t.templateId === template.templateId);
+                const isLimit = !isSelected && selectedTemplates.length >= 10;
                 return (
                   <button
                     key={template.templateId}
                     className={`${styles.templateItem} ${isSelected ? styles.selected : ''}`}
                     onClick={() => handleToggleTemplate(template)}
+                    disabled={isLimit}
+                    title={isLimit ? '최대 10개까지 선택할 수 있습니다.' : ''}
                   >
                     <div className={styles.itemActionIcon}>
                       {isSelected ? <CheckIcon /> : <PlusIcon />}
