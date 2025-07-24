@@ -399,6 +399,7 @@ $border: #eceff3;
   }
 }
 
+<<<<<<< HEAD
 // 햄버거 버튼 (모바일)
 .hamburger-btn {
   display: none;
@@ -457,5 +458,54 @@ $border: #eceff3;
   }
   .main .header {
     padding-left: 3.2rem;
+=======
+@media print {
+  /* 1. 불필요한 모든 UI 요소를 확실하게 숨깁니다. */
+  .sidebar,
+  .main .header,
+  .buttonGroup,
+  .resubmitBtn,
+  .chatbot-fab,
+  .logout-btn,
+  .notice-icon {
+    display: none !important;
+  }
+
+  /* 2. 유령 공간을 만드는 부모 레이아웃의 스타일을 완전히 초기화합니다. */
+  body, html, .layout, .main {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    overflow: visible !important;
+  }
+  
+  /* 3. 실제 인쇄될 컨텐츠 영역만 보이도록 최종 조정합니다. */
+  .content {
+    margin: 0 !important;
+    padding: 20mm !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    float: none !important;
+    position: static !important;
+    overflow: visible !important;
+  }
+
+  /* 4. 이미지, 테이블 등이 페이지를 넘어가지 않도록 설정합니다. */
+  img, table {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* 5. 모든 텍스트 색상을 검은색으로 강제합니다. */
+  * {
+    color: #000 !important;
+>>>>>>> approval-service
   }
 }
