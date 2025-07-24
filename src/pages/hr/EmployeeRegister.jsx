@@ -78,7 +78,7 @@ export default function EmployeeRegister() {
     if (!isFormValid()) return;
     setIsLoading(true); // 로딩 시작
     try {
-      await axiosInstance.post(`http://localhost:8000${HR_SERVICE}/employees`, {
+      await axiosInstance.post(`${API_BASE_URL}${HR_SERVICE}/employees`, {
         email,
         name: employeeName,
         birthday: birth,
@@ -119,7 +119,7 @@ export default function EmployeeRegister() {
     setIsDeptLoading(true);
     try {
       const res = await axiosInstance.post(
-        `http://localhost:8000${HR_SERVICE}/department/add`,
+        `${API_BASE_URL}${HR_SERVICE}/department/add`,
         {
           name: newDeptName,
         },
@@ -143,10 +143,11 @@ export default function EmployeeRegister() {
   const fetchDepartments = async () => {
     try {
       const res = await axiosInstance.get(
-        `http://localhost:8000${HR_SERVICE}/departments`,
+        `${API_BASE_URL}${HR_SERVICE}/departments`,
       );
       setDepartments(res.data.result);
     } catch (err) {
+      console.log(err, '부서 목록 못부름');
       alert('부서 목록을 불러오지 못했습니다.');
     }
   };

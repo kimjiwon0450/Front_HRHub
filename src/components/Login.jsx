@@ -99,12 +99,15 @@ export default function Login() {
 
   // localStorage에서 이메일 불러오기
   useEffect(() => {
-    const savedEmail = localStorage.getItem('rememberedEmail');
-    if (savedEmail) {
-      setEmail(savedEmail);
-      setRememberEmail(true);
+    if (!emailParam) {
+      // 쿼리스트링 email이 없을 때만
+      const savedEmail = localStorage.getItem('rememberedEmail');
+      if (savedEmail) {
+        setEmail(savedEmail);
+        setRememberEmail(true);
+      }
     }
-  }, []);
+  }, [emailParam]);
 
   const verifyPassword = () => {
     if (!newPassword || !newPasswordConfirm) {

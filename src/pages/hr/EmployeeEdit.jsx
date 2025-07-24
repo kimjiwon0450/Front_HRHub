@@ -218,35 +218,46 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
           <label className='reg-label'>이메일</label>
           <div className='reg-email-group'>
             <input
-              className='reg-input'
+              className={`reg-input${!!employee || !!userId ? ' reg-input--readonly' : ''}`}
               value={email}
-              readOnly={!!employee || !!userId} // employee prop이 있거나 userId가 있으면 readonly
+              readOnly={!!employee || !!userId}
               style={{ backgroundColor: '#eee' }}
               onChange={(e) => setEmail(e.target.value)}
             />
+            {!!employee || !!userId ? (
+              <span className='input-lock-indicator'>🔒</span>
+            ) : null}
           </div>
 
           {/* 2단 배치 필드 */}
           <div className='reg-grid'>
             <div>
               <label className='reg-label'>생년월일</label>
-              <input
-                className='reg-input'
-                type='date'
-                value={birth}
-                onChange={(e) => setBirth(e.target.value)}
-                max={new Date().toISOString().split('T')[0]}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  className='reg-input reg-input--readonly'
+                  type='date'
+                  value={birth}
+                  onChange={(e) => setBirth(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                  readOnly
+                  disabled
+                />
+                <span className='input-lock-indicator'>🔒</span>
+              </div>
             </div>
             <div>
               <label className='reg-label'>나이</label>
-              <input
-                className='reg-input'
-                type='number'
-                value={getAge(birth)}
-                readOnly
-                placeholder='생년월일 선택시 자동계산'
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  className={`reg-input reg-input--readonly`}
+                  type='number'
+                  value={getAge(birth)}
+                  readOnly
+                  placeholder='생년월일 선택시 자동계산'
+                />
+                <span className='input-lock-indicator'>🔒</span>
+              </div>
             </div>
             <div>
               <label className='reg-label'>직원명</label>
@@ -261,7 +272,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
               <label className='reg-label'>부서명</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <select
-                  className='reg-input'
+                  className={`reg-input${userRole === 'EMPLOYEE' ? ' reg-input--readonly' : ''}`}
                   value={departmentId}
                   onChange={(e) => setDepartmentId(e.target.value)}
                   style={{ flex: 1 }}
@@ -273,6 +284,9 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
                     </option>
                   ))}
                 </select>
+                {userRole === 'EMPLOYEE' ? (
+                  <span className='input-lock-indicator'>🔒</span>
+                ) : null}
                 <button
                   type='button'
                   style={{
@@ -299,30 +313,40 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
             </div>
             <div>
               <label className='reg-label'>직급</label>
-              <select
-                className='reg-input'
-                value={position}
-                onChange={(e) => setPosition(e.target.value)}
-                disabled={userRole === 'EMPLOYEE'}
-              >
-                <option value='INTERN'>INTERN</option>
-                <option value='JUNIOR'>JUNIOR</option>
-                <option value='SENIOR'>SENIOR</option>
-                <option value='MANAGER'>MANAGER</option>
-                <option value='DIRECTOR'>DIRECTOR</option>
-              </select>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <select
+                  className={`reg-input${userRole === 'EMPLOYEE' ? ' reg-input--readonly' : ''}`}
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                  disabled={userRole === 'EMPLOYEE'}
+                >
+                  <option value='INTERN'>INTERN</option>
+                  <option value='JUNIOR'>JUNIOR</option>
+                  <option value='SENIOR'>SENIOR</option>
+                  <option value='MANAGER'>MANAGER</option>
+                  <option value='DIRECTOR'>DIRECTOR</option>
+                </select>
+                {userRole === 'EMPLOYEE' ? (
+                  <span className='input-lock-indicator'>🔒</span>
+                ) : null}
+              </div>
             </div>
             <div>
               <label className='reg-label'>직책</label>
-              <select
-                className='reg-input'
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                disabled={userRole === 'EMPLOYEE'}
-              >
-                <option value='EMPLOYEE'>EMPLOYEE</option>
-                <option value='HR_MANAGER'>HR_MANAGER</option>
-              </select>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <select
+                  className={`reg-input${userRole === 'EMPLOYEE' ? ' reg-input--readonly' : ''}`}
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  disabled={userRole === 'EMPLOYEE'}
+                >
+                  <option value='EMPLOYEE'>EMPLOYEE</option>
+                  <option value='HR_MANAGER'>HR_MANAGER</option>
+                </select>
+                {userRole === 'EMPLOYEE' ? (
+                  <span className='input-lock-indicator'>🔒</span>
+                ) : null}
+              </div>
             </div>
             <div>
               <label className='reg-label'>주소</label>
@@ -355,24 +379,37 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
             </div>
             <div>
               <label className='reg-label'>입사일</label>
-              <input
-                className='reg-input'
-                type='date'
-                value={hireDate}
-                onChange={(e) => setHireDate(e.target.value)}
-                max={new Date().toISOString().split('T')[0]}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  className={`reg-input${userRole === 'EMPLOYEE' ? ' reg-input--readonly' : ''}`}
+                  type='date'
+                  value={hireDate}
+                  onChange={(e) => setHireDate(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                  readOnly={userRole === 'EMPLOYEE'}
+                  disabled={userRole === 'EMPLOYEE'}
+                />
+                {userRole === 'EMPLOYEE' ? (
+                  <span className='input-lock-indicator'>🔒</span>
+                ) : null}
+              </div>
             </div>
             <div>
               <label className='reg-label'>입사구분</label>
-              <select
-                className='reg-input'
-                value={isNewEmployee ? '신입' : '경력'}
-                onChange={(e) => setIsNewEmployee(e.target.value === '신입')}
-              >
-                <option value='신입'>신입</option>
-                <option value='경력'>경력</option>
-              </select>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <select
+                  className={`reg-input${userRole === 'EMPLOYEE' ? ' reg-input--readonly' : ''}`}
+                  value={isNewEmployee ? '신입' : '경력'}
+                  onChange={(e) => setIsNewEmployee(e.target.value === '신입')}
+                  disabled={userRole === 'EMPLOYEE'}
+                >
+                  <option value='신입'>신입</option>
+                  <option value='경력'>경력</option>
+                </select>
+                {userRole === 'EMPLOYEE' ? (
+                  <span className='input-lock-indicator'>🔒</span>
+                ) : null}
+              </div>
             </div>
           </div>
 

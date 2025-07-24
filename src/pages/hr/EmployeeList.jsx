@@ -9,7 +9,7 @@ import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import { getDepartmentNameById, getEmployeeList } from '../../common/hr';
 import { warn } from '../../common/common';
 import ModalPortal from '../../components/approval/ModalPortal';
-import styles from '../../components/approval/ApprovalLineModal.module.scss';
+import styles from '../../components/approval/CategoryModal.module.scss';
 
 // 부서 목록을 서버에서 받아옴
 
@@ -33,6 +33,16 @@ export default function EmployeeList() {
     department: '전체',
     isActive: true, // 기본값: 재직자만
   });
+
+  // '퇴직자만' 체크박스가 변경될 때마다 바로 검색
+  React.useEffect(() => {
+    setAppliedSearch((prev) => ({
+      ...prev,
+      isActive: !showInactive,
+    }));
+    setPage(0); // 첫 페이지로 이동
+    setSelectedId(null); // 상세 닫기
+  }, [showInactive]);
 
   // 페이징 state
   const [page, setPage] = useState(0);
@@ -63,7 +73,36 @@ export default function EmployeeList() {
       setTotalPages,
     });
   };
-
+  const getEmployeeList = async ({
+    field = 'name',
+    keyword = '',
+    department = '전체',
+    page: reqPage = 0,
+    size: reqSize = 10,
+    sortField: reqSortField = null,
+    sortOrder: reqSortOrder = 'asc',
+    setEmployees,
+    setTotalPages,
+    isActive, // 추가
+  } = {}) => {
+    try {
+      let params = `?page=${reqPage}&size=${reqSize}`;
+      if (keyword.trim())
+        params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
+      if (department !== '전체')
+        params += `&department=${encodeURIComponent(department)}`;
+      if (reqSortField) params += `&sort=${reqSortField},${reqSortOrder}`;
+      if (typeof isActive === 'boolean') params += `&isActive=${isActive}`; // 추가
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
+      );
+      setEmployees(res.data.result.content);
+      setTotalPages(res.data.result.totalPages || 1);
+    } catch (error) {
+      console.log(error + 'from getEmployeeList');
+      alert(error?.response?.data?.statusMessage || error.message);
+    }
+  };
   // 정렬, 페이지, 페이지 크기 변화 시 목록 재요청 (검색 조건은 appliedSearch 기준)
   useEffect(() => {
     getEmployeeList({
@@ -181,6 +220,7 @@ export default function EmployeeList() {
     setSearchDept('전체');
     setSortField(null); // 정렬 초기화
     setSortOrder('asc'); // 정렬 초기화
+    setShowInactive(false); // 체크박스도 해제
     setAppliedSearch({
       field: 'name',
       keyword: '',
@@ -367,41 +407,47 @@ export default function EmployeeList() {
           </button>
         </div>
       </div>
-      {/* 직원 상세 모달 */}
-      {isDetailModalOpen && (
+      {/* 상세 정보는 선택 시 하단에만 노출 */}
+      {selectedId && (
         <ModalPortal>
           <div
             className={styles.modalOverlay}
-            onClick={() => {
-              setIsDetailModalOpen(false);
-              setSelectedId(null);
-            }}
+            onClick={() => setSelectedId(null)}
+            style={{ zIndex: 1000 }}
           >
             <div
-              className={styles.modalContent}
+              className={styles.modalContainer}
+              style={{
+                maxWidth: '1000px',
+                width: '90vw',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                position: 'relative',
+              }}
               onClick={(e) => e.stopPropagation()}
-              style={{ maxWidth: 700, width: '90%' }}
             >
-              <div className={styles.modalHeader}>
-                <h3>직원 상세정보</h3>
-                <button
-                  onClick={() => {
-                    setIsDetailModalOpen(false);
-                    setSelectedId(null);
-                  }}
-                  className={styles.closeButton}
-                >
-                  &times;
-                </button>
-              </div>
+              <button
+                onClick={() => setSelectedId(null)}
+                style={{
+                  position: 'absolute',
+                  top: 18,
+                  right: 24,
+                  background: 'none',
+                  border: 'none',
+                  fontSize: 28,
+                  cursor: 'pointer',
+                  color: '#888',
+                  zIndex: 10,
+                }}
+                aria-label='닫기'
+              >
+                ×
+              </button>
               <EmployeeDetail
                 employee={selectedDetail}
                 onEdit={handleEdit}
                 onEval={handleEvalWithCheck}
-                onClose={() => {
-                  setIsDetailModalOpen(false);
-                  setSelectedId(null);
-                }}
+                onClose={() => setSelectedId(null)}
               />
             </div>
           </div>
