@@ -104,7 +104,7 @@ const AppRouter = [
         children: [
           { index: true, element: <NoticeBoardList /> }, // '/noticeboard' 접속 시 기본 페이지
           { path: 'my', element: <NoticeBoardList /> },
-          // { path: 'mydepartment', element: <NoticeBoardList /> },
+          { path: 'schedule', element: <NoticeBoardList /> },
           { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
           { path: 'edit/:noticeId', element: <NoticeBoardWrite isEdit={true} /> },
           { path: ':noticeId', element: <NoticeBoardDetail /> },

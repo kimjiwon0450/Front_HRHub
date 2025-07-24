@@ -50,7 +50,10 @@ const NoticeBoardList = () => {
                 console.log('departmentId : ', departmentId);
                 if (viewMode === 'MY') {
                     url = `${API_BASE_URL}${NOTICE_SERVICE}/my`;
-                } else {
+                } else if (viewMode === 'SCHEDULE') {
+                    url = `${API_BASE_URL}${NOTICE_SERVICE}/schedule`;
+                }
+                else {
                     url = `${API_BASE_URL}${NOTICE_SERVICE}?${params.toString()}`;
                 }
 
@@ -63,15 +66,20 @@ const NoticeBoardList = () => {
                 if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
                 const data = await res.json();
 
+                console.log('data : ', data);
                 console.log('data.generalNotices : ', data.generalNotices);
                 console.log('data.notices : ', data.notices);
                 console.log('data.posts : ', data.posts);
 
                 if (viewMode === 'MY') {
                     setGeneralNotices([])
-                    // setNotices(data || []);
-                    setNotices(Array.isArray(data) ? data : data.data || []);
+                    setNotices(data.mynotices || []);
+                    // setNotices(Array.isArray(data) ? data : data.data || []);
                     setTotalPages(1); // 페이징 미적용이므로 1로 고정
+                } else if (viewMode === 'SCHEDULE') {
+                    setGeneralNotices([])
+                    setNotices(data.myschedule || []);
+                    setTotalPages(1);
                 } else {
                     setGeneralNotices(data.generalNotices || []);
                     setNotices(data.notices || []);
@@ -171,12 +179,12 @@ const NoticeBoardList = () => {
                         <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); navigate('/notice') }}>
                             전체
                         </button>
-                        <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate('my') }}>
+                        <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate('/notice/my') }}>
                             내가 쓴 글
                         </button>
-                        {/*<button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate(`/notice`) }}>*/}
-                        {/*    내 부서 글*/}
-                        {/*</button>*/}
+                        <button className={viewMode === 'SCHEDULE' ? 'active' : ''} onClick={() => { setViewMode('SCHEDULE'); setPage(0); navigate(`/notice/schedule`) }}>
+                            예약목록
+                        </button>
                     </div>
 
                     <div className="write-button-wrapper">
@@ -201,7 +209,7 @@ const NoticeBoardList = () => {
                                 <th></th>
                                 <th>제목</th>
                                 <th>작성자</th>
-                                <th>작성일</th>
+                                <th>{viewMode === 'SCHEDULE' ? '예약일' : '작성일'}</th>
                                 <th>조회수</th>
                             </tr>
                         </thead>
@@ -232,7 +240,7 @@ const NoticeBoardList = () => {
                                     <td style={{
                                         color: post.position === userPosition ? '#28c309' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
-                                    }}>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                    }}>{new Date(viewMode === 'SCHEDULE' ? post.scheduledAt : post.createdAt).toLocaleString()}</td>
                                     <td style={{
                                         color: post.position === userPosition ? '#28c309' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
