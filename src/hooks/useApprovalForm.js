@@ -45,7 +45,24 @@ export const useApprovalForm = (templateId, reportId) => {
           console.log(`%c[useApprovalForm] API 응답 성공:`, 'color: green;', data);
 
           // ★ 3. 응답 데이터를 각 상태에 맞게 설정합니다.
-          setTemplate(data.template || null);
+          // 템플릿 정보가 누락되어 있으면 templateId로 추가 조회
+          if (data.template) {
+            setTemplate(data.template);
+          } else if (data.templateId) {
+            // templateId로 템플릿 구조 추가 조회
+            try {
+              const templateRes = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/form?templateId=${data.templateId}`);
+              if (templateRes.data?.statusCode === 200 && templateRes.data.result?.template) {
+                setTemplate(templateRes.data.result.template);
+              } else {
+                setTemplate(null);
+              }
+            } catch (e) {
+              setTemplate(null);
+            }
+          } else {
+            setTemplate(null);
+          }
           // formData는 template의 기본값과 실제 데이터를 합쳐서 설정할 수 있습니다.
           setFormData(data.formData || {});
           setApprovalLine(

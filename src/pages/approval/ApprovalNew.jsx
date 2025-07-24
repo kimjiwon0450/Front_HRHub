@@ -13,6 +13,7 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import TemplateSelectionModal from '../../components/approval/TemplateSelectionModal';
 import { UserContext } from '../../context/UserContext';
+import ModalPortal from '../../components/approval/ModalPortal';
 
 const MySwal = withReactContent(Swal);
 
@@ -49,6 +50,8 @@ function ApprovalNew() {
   const [files, setFiles] = useState([]);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isDirty, setIsDirty] = useState(false); // 폼 내용 변경 여부
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // useCallback을 사용하여 함수가 항상 최신 상태를 참조하도록 함
   const handleFinalSubmit = useCallback(async (isSubmit = false, isMovingAway = false) => {
@@ -96,19 +99,20 @@ function ApprovalNew() {
         contentValue = formData[editorId] || '';
       }
     }
-    console.log('[DEBUG] formData:', formData);
-    if (fixedTemplate && fixedTemplate.content) {
-      console.log('[DEBUG] fixedTemplate.content:', fixedTemplate.content);
-      const editorField = fixedTemplate.content.find(f => f.type === 'editor' || f.id === 'content');
-      console.log('[DEBUG] editorField:', editorField);
-      if (editorField) {
-        contentValue = formData[editorField.id];
-        console.log('[DEBUG] contentValue from editorField:', contentValue);
-      }
-    }
-
-    if (effectiveReportId && !isSubmit) {
-      // --- 수정 모드에서 '임시 저장' (PUT) ---
+    // 상세 로그: 분기별로 어떤 API/데이터를 쓰는지
+    console.log('[ApprovalNew] handleFinalSubmit 호출:', { isSubmit, isMovingAway, resubmitId, effectiveReportId, formData, approvalLine, references, attachments, files });
+    if (resubmitId) {
+      url = `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${resubmitId}/resubmit`;
+      const resubmitDto = {
+        newTitle: formData.title,
+        newContent: contentValue,
+        approvalLine: approvalLine.map(a => ({ employeeId: a.id || a.employeeId, approvalContext: a.approvalContext })),
+        attachments: attachments.map(f => ({ fileName: f.fileName || f.name, url: f.url })),
+        references: references.map(r => ({ employeeId: r.id || r.employeeId })),
+      };
+      submissionData = JSON.stringify(resubmitDto);
+      console.log('[ApprovalNew] 재상신 API 호출 준비:', url, resubmitDto);
+    } else if (effectiveReportId && isSubmit) {
       url = `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${effectiveReportId}`;
       const updateDto = {
         title: formData.title,
@@ -118,10 +122,28 @@ function ApprovalNew() {
         approvalLine: approvalLine.map(a => ({ ...a })),
         references: references.map(r => ({ ...r })),
         attachments: attachments, // 기존 첨부파일 목록
+        status: 'IN_PROGRESS', // 상신이면 IN_PROGRESS
       };
       submissionData = new FormData();
       submissionData.append('req', new Blob([JSON.stringify(updateDto)], { type: 'application/json' }));
       files.forEach((file) => submissionData.append('files', file));
+      console.log('[ApprovalNew] 임시저장 문서 상신(수정) API 호출 준비:', url, updateDto, files);
+    } else if (effectiveReportId && !isSubmit) {
+      url = `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${effectiveReportId}`;
+      const updateDto = {
+        title: formData.title,
+        content: contentValue,
+        templateId: fixedTemplate?.id,
+        reportTemplateData: JSON.stringify(formData),
+        approvalLine: approvalLine.map(a => ({ ...a })),
+        references: references.map(r => ({ ...r })),
+        attachments: attachments, // 기존 첨부파일 목록
+        status: 'DRAFT', // 임시저장
+      };
+      submissionData = new FormData();
+      submissionData.append('req', new Blob([JSON.stringify(updateDto)], { type: 'application/json' }));
+      files.forEach((file) => submissionData.append('files', file));
+      console.log('[ApprovalNew] 임시저장 문서 임시저장(수정) API 호출 준비:', url, updateDto, files);
     } else {
       // 신규 생성 로직 (POST)
       const reqDto = {
@@ -138,34 +160,43 @@ function ApprovalNew() {
       url = isSubmit
         ? `${API_BASE_URL}${APPROVAL_SERVICE}/submit`
         : `${API_BASE_URL}${APPROVAL_SERVICE}/save`;
+      console.log('[ApprovalNew] 신규 생성 API 호출 준비:', url, reqDto, files);
     }
-      
     const successMessage = isSubmit ? '성공적으로 상신되었습니다.' : '임시 저장되었습니다.';
-
     try {
-      const res = effectiveReportId && !isSubmit
-        ? await axiosInstance.put(url, submissionData)
-        : await axiosInstance.post(url, submissionData);
+      let res;
+      if (resubmitId) {
+        // 재상신: JSON body로 전송
+        res = await axiosInstance.post(url, submissionData, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+      } else if (effectiveReportId && (isSubmit || !isSubmit)) {
+        // 임시저장 문서의 상신/임시저장 모두 PUT
+        res = await axiosInstance.put(url, submissionData);
+      } else {
+        res = await axiosInstance.post(url, submissionData);
+      }
+      console.log('[ApprovalNew] API 응답:', res && res.data);
       if (res.data && (res.data.statusCode === 201 || res.data.statusCode === 200)) {
         setIsDirty(false); // dirty 해제
         await Promise.resolve(); // 상태 반영 보장
-        if (!isMovingAway) {
-          await MySwal.fire({
-            icon: 'success',
-            title: successMessage,
-            confirmButtonText: '확인',
-          });
-          if (blocker && blocker.state === 'blocked') {
-            blocker.reset(); // useBlocker 강제 해제
-          }
-          const nextUrl = isSubmit ? `/approval/reports/${res.data.result.id}` : '/approval/drafts';
-          navigate(nextUrl);
+        await MySwal.fire({
+          icon: 'success',
+          title: successMessage,
+          confirmButtonText: '확인',
+        });
+        // navigate는 성공 모달 확인 후 실행
+        if (isSubmit) {
+          navigate('/approval/home');
+        } else {
+          navigate('/approval/drafts');
         }
       } else {
+        console.error('[ApprovalNew] API 응답 statusCode 오류:', res.data);
         throw new Error(res.data.statusMessage || '요청에 실패했습니다.');
       }
     } catch (err) {
-      console.error(`요청 실패: ${url}`, err);
+      console.error(`[ApprovalNew] 요청 실패: ${url}`, err);
       if (!isMovingAway) {
         alert(`오류: ${err.response?.data?.statusMessage || err.message}`);
       }
@@ -277,7 +308,9 @@ function ApprovalNew() {
     }).then((result) => {
       if (result.isConfirmed) {
         setIsDirty(false); // ★ 취소로 나갈 때도 dirty 해제
-        navigate('/approval/home');
+        setTimeout(() => {
+          navigate('/approval/home');
+        }, 0);
       }
       // 아니오(취소)면 아무 동작 안 함
     });
@@ -294,6 +327,19 @@ function ApprovalNew() {
     });
     if (result.isConfirmed) {
       handleFinalSubmit(isSubmit);
+    }
+  };
+
+  // 모달 확인 버튼 클릭 시 이동
+  const handleSuccessModalClose = () => {
+    setIsSuccessModalOpen(false);
+    // 상신이면 상세, 임시저장이면 drafts로 이동
+    if (successMessage.includes('상신')) {
+      // 최근 생성된 문서 id로 이동
+      // (res.data.result.id를 상태로 저장해두고 사용해도 됨. 여기선 단순화)
+      navigate('/approval/home');
+    } else {
+      navigate('/approval/drafts');
     }
   };
 
@@ -419,10 +465,30 @@ function ApprovalNew() {
                   여러 파일을 선택할 수 있습니다
                 </span>
               </div>
+              {/* 기존 첨부파일(attachments) */}
+              {attachments.length > 0 && (
+                <div className={styles.selectedFilesSection}>
+                  {attachments.map((file, index) => (
+                    <span key={file.id || file.fileName || index} className={styles.fileTag}>
+                      {file.fileName || file.name}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // 기존 첨부파일 삭제
+                          setAttachments(prev => prev.filter((_, i) => i !== index));
+                        }}
+                        className={styles.removeFileButton}
+                        title="삭제"
+                      >✕</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              {/* 새로 추가한 파일(files) */}
               {files.length > 0 && (
                 <div className={styles.selectedFilesSection}>
-                    {files.map((file, index) => (
-                      <span key={index} className={styles.fileTag}>
+                  {files.map((file, index) => (
+                    <span key={index} className={styles.fileTag}>
                       {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                       <button
                         type="button"
@@ -430,17 +496,8 @@ function ApprovalNew() {
                         className={styles.removeFileButton}
                         title="삭제"
                       >✕</button>
-                      </span>
-                    ))}
-                  </div>
-              )}
-              {attachments.length > 0 && (
-                <div className={styles.existingFilesSection}>
-                  <h4>기존 첨부파일 ({attachments.length}개)</h4>
-                  <AttachmentList
-                    attachments={attachments}
-                    readonly={true}
-                  />
+                    </span>
+                  ))}
                 </div>
               )}
             </div>
