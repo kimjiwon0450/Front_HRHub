@@ -187,7 +187,7 @@ const NoticeBoardDetail = () => {
     };
 
     // 댓글 삭제
-    const handleDeleteComment = async (commentId) => {
+    const handleDeleteComment = async (NoticeCommentId) => {
         Swal.fire({
             title: '댓글을 삭제하시겠어요?',
             // text: '삭제된 게시글은 복구할 수 없습니다.',
@@ -201,7 +201,7 @@ const NoticeBoardDetail = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}/comments/${noticeCommentId}`, {
+                    await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}/comments/${NoticeCommentId}`, {
                         method: 'DELETE',
                         headers: {
                             'Authorization': `Bearer ${accessToken}`,
@@ -221,7 +221,7 @@ const NoticeBoardDetail = () => {
     };
 
     // 댓글 수정
-    const handleEditComment = async (commentId) => {
+    const handleEditComment = async (NoticeCommentId) => {
         if (!editContent.trim()) {
             await Swal.fire({
                 icon: 'warning',
@@ -233,7 +233,7 @@ const NoticeBoardDetail = () => {
             return;
         }
         try {
-            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}/comments/${noticeCommentId}`, {
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}/comments/${NoticeCommentId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -336,6 +336,7 @@ const NoticeBoardDetail = () => {
     return (
         <div className="notice-detail">
             <h2>{posts.notice ? '[공지] ' : ''}{posts.title}</h2>
+            <button className="print-button" onClick={() => window.print()} title="인쇄하기">🖨️</button>
             <div className="meta-with-attachment">
                 <div className="meta">
                     <p>작성자 : {posts.name}{posts.employStatus === 'INACTIVE' ? '(퇴사)' : ''}</p>
