@@ -449,18 +449,7 @@ const ApprovalDetail = () => {
             />
           </div>
           {/* 참조자(연람자) 표시 */}
-          {report.references && report.references.length > 0 && (
-            <div className={styles.referenceSection}>
-              <h4 className={styles.sectionTitle}>참조자</h4>
-              <ul className={styles.referenceList}>
-                {report.references.map((ref, idx) => (
-                  <li key={ref.employeeId || ref.id || idx} className={styles.referenceItem}>
-                    {ref.name || ref.employeeName || `직원ID: ${ref.employeeId || ref.id}`}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          {/* 참조자(연람자) 표시 */}
           <div className={styles.historySection}>
             <h4 className={styles.sectionTitle}>결재 이력</h4>
             <ul className={styles.historyList}>
