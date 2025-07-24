@@ -8,6 +8,8 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import { getDepartmentNameById, getEmployeeList } from '../../common/hr';
 import { warn } from '../../common/common';
+import ModalPortal from '../../components/approval/ModalPortal';
+import styles from '../../components/approval/CategoryModal.module.scss';
 
 // 부서 목록을 서버에서 받아옴
 
@@ -31,6 +33,16 @@ export default function EmployeeList() {
     department: '전체',
     isActive: true, // 기본값: 재직자만
   });
+
+  // '퇴직자만' 체크박스가 변경될 때마다 바로 검색
+  React.useEffect(() => {
+    setAppliedSearch((prev) => ({
+      ...prev,
+      isActive: !showInactive,
+    }));
+    setPage(0); // 첫 페이지로 이동
+    setSelectedId(null); // 상세 닫기
+  }, [showInactive]);
 
   // 페이징 state
   const [page, setPage] = useState(0);
@@ -161,6 +173,7 @@ export default function EmployeeList() {
     setSearchDept('전체');
     setSortField(null); // 정렬 초기화
     setSortOrder('asc'); // 정렬 초기화
+    setShowInactive(false); // 체크박스도 해제
     setAppliedSearch({
       field: 'name',
       keyword: '',
@@ -348,14 +361,49 @@ export default function EmployeeList() {
       </div>
       {/* 상세 정보는 선택 시 하단에만 노출 */}
       {selectedId && (
-        <div className='emp-detail-below'>
-          <EmployeeDetail
-            employee={selectedDetail}
-            onEdit={handleEdit}
-            onEval={handleEvalWithCheck}
-            onClose={handleClose}
-          />
-        </div>
+        <ModalPortal>
+          <div
+            className={styles.modalOverlay}
+            onClick={() => setSelectedId(null)}
+            style={{ zIndex: 1000 }}
+          >
+            <div
+              className={styles.modalContainer}
+              style={{
+                maxWidth: '1000px',
+                width: '90vw',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                position: 'relative',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setSelectedId(null)}
+                style={{
+                  position: 'absolute',
+                  top: 18,
+                  right: 24,
+                  background: 'none',
+                  border: 'none',
+                  fontSize: 28,
+                  cursor: 'pointer',
+                  color: '#888',
+                  zIndex: 10,
+                }}
+                aria-label='닫기'
+              >
+                ×
+              </button>
+              <EmployeeDetail
+                employee={selectedDetail}
+                onEdit={handleEdit}
+                onEval={handleEvalWithCheck}
+                onClose={() => setSelectedId(null)}
+              />
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </>
   );

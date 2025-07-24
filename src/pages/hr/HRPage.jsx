@@ -172,7 +172,7 @@ export default function HRPage() {
         const res = await fetch(url, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         });
 
@@ -205,7 +205,7 @@ export default function HRPage() {
         const res = await fetch(url, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         });
         // const res = await axiosInstance.get(url);
@@ -388,10 +388,7 @@ export default function HRPage() {
               >
                 부서공지
               </button>
-              <div
-                className='menu-icon'
-                onClick={() => navigate(`/notice`)}
-              >
+              <div className='menu-icon' onClick={() => navigate(`/notice`)}>
                 ≡
               </div>
             </div>

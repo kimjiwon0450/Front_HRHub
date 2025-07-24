@@ -111,24 +111,19 @@ export default function EvaluationView({ evaluation, onClose, onEdit }) {
           <form autoComplete='off'>
             <div className='eval-field'>
               <label>사원명</label>
-              <input type='text' name='name' value={employeeName} readOnly />
+              <div className='eval-plain'>{employeeName}</div>
             </div>
             <div className='eval-field'>
               <label>소속부서</label>
-              <input type='text' name='dept' value={employeeDept} readOnly />
+              <div className='eval-plain'>{employeeDept}</div>
             </div>
             <div className='eval-field'>
               <label>면담일시</label>
-              <input type='text' value={evaluation.interviewDate} readOnly />
+              <div className='eval-plain'>{evaluation.interviewDate}</div>
             </div>
             <div className='eval-field'>
               <label>평가자</label>
-              <input
-                type='text'
-                name='evaluator'
-                value={evaluatorName || ''}
-                readOnly
-              />
+              <div className='eval-plain'>{evaluatorName || ''}</div>
             </div>
             {/* 평가 항목 동적 렌더링 */}
             {Object.entries(evaluation.template).map(([key, value]) => {
@@ -143,21 +138,23 @@ export default function EvaluationView({ evaluation, onClose, onEdit }) {
             })}
             <div className='eval-field'>
               <label>총평</label>
-              <textarea name='comment' value={evaluation.comment} readOnly />
+              <div className='eval-plain' style={{ whiteSpace: 'pre-line' }}>
+                {evaluation.comment}
+              </div>
             </div>
             {evaluation.updateMemo && (
               <div className='eval-field'>
                 <label>수정 사유</label>
-                <textarea
-                  name='updateMemo'
-                  value={evaluation.updateMemo}
-                  readOnly
-                />
+                <div className='eval-plain' style={{ whiteSpace: 'pre-line' }}>
+                  {evaluation.updateMemo}
+                </div>
               </div>
             )}
             <div className='eval-field avg'>
               <span>평균 점수</span>
-              <span className='avg-score'>{evaluation.totalEvaluation}</span>
+              <span className='avg-score'>
+                {evaluation.totalEvaluation} / 5
+              </span>
             </div>
           </form>
         </div>
