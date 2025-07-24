@@ -34,20 +34,16 @@ const CcBox = () => {
             },
           },
         );
-
-        if (res.data?.statusCode === 200) {
-          const allReports = res.data.result.reports || [];
-          const filteredReportsApi = allReports.filter( // 변수명 충돌 방지
-            (report) =>
-              report.reportStatus !== 'DRAFT' &&
-              report.reportStatus !== 'RECALLED',
-          );
-          setCcDocs(filteredReportsApi);
-        } else {
-          setError(
-            res.data?.statusMessage || '수신 참조 문서를 불러오지 못했습니다.',
-          );
-        }
+        console.log('[CcBox] API 응답:', res.data);
+        const allReports = res.data.result.reports || [];
+        console.log('[CcBox] 필터링 전 reports:', allReports);
+        const filteredReportsApi = allReports.filter( // 변수명 충돌 방지
+          (report) =>
+            report.reportStatus !== 'DRAFT' &&
+            report.reportStatus !== 'RECALLED',
+        );
+        console.log('[CcBox] 필터링 후 reports:', filteredReportsApi);
+        setCcDocs(filteredReportsApi);
       } catch (err) {
         console.error('수신 참조 문서를 불러오는 중 오류 발생:', err);
         setError('네트워크 오류 또는 서버 오류');

@@ -45,7 +45,7 @@ const ContactList = () => {
         params += `&department=${encodeURIComponent(department)}`;
       if (typeof isActive === 'boolean') params += `&isActive=${isActive}`; // 추가
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
+        `${API_BASE_URL}${HR_SERVICE}/employees/contact${params}`,
       );
       setEmployees(res.data.result.content);
       setTotalPages(res.data.result.totalPages || 1);

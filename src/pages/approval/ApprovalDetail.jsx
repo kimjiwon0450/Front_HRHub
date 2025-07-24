@@ -31,6 +31,7 @@ const ApprovalDetail = () => {
   const [actionType, setActionType] = useState(''); // 'approve' | 'reject'
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [commentError, setCommentError] = useState('');
+  // 커스텀 모달 관련 setSuccessMessage, setIsSuccessModalOpen 등은 제거
 
   // 백엔드 Enum과 프론트엔드 표시 텍스트 매핑
   const reportStatusMap = {
@@ -176,7 +177,11 @@ const ApprovalDetail = () => {
           comment: approvalComment,
         },
       );
-      alert('성공적으로 처리되었습니다.');
+      await Swal.fire({
+        icon: 'success',
+        title: '성공적으로 처리되었습니다.',
+        confirmButtonText: '확인',
+      });
       setConfirmModalOpen(false);
       setApprovalComment('');
       fetchReportDetail();
@@ -223,6 +228,9 @@ const ApprovalDetail = () => {
     }
   };
 
+  // 모달 확인 버튼 클릭 시 후처리
+  // (커스텀 모달 관련 setSuccessMessage, setIsSuccessModalOpen 등은 제거)
+
   if (loading) return <div className={styles.loading}>로딩 중...</div>;
   if (error) return <div className={styles.error}>에러: {error}</div>;
   if (!report) return <div className={styles.noData}>데이터가 없습니다.</div>;
@@ -254,6 +262,26 @@ const ApprovalDetail = () => {
     report.attachments?.filter((file) => !isImageFile(file.fileName)) || [];
   // ★★★ ----------------------------------------------- ★★★
 
+  // 재상신 횟수 제한: 반려(REJECTED) 후 재상신(상태 IN_PROGRESS/APPROVED 등)으로 넘어간 횟수 카운트
+  let resubmitCount = 0;
+  if (history && history.length > 0) {
+    // 반려(REJECTED) 상태가 등장한 이후, 다시 결재가 시작된 경우를 카운트
+    let rejectedFound = false;
+    history.forEach(h => {
+      if (h.approvalStatus === 'REJECTED') {
+        rejectedFound = true;
+      } else if (rejectedFound && (h.approvalStatus === 'APPROVED' || h.approvalStatus === 'PENDING')) {
+        resubmitCount++;
+        rejectedFound = false;
+      }
+    });
+  }
+  // ★★★ isResubmitDisabled 선언 (REJECTED 상태가 아니거나, 3회 이상이면 비활성화) ★★★
+  const isResubmitDisabled = report.reportStatus !== 'REJECTED' || resubmitCount >= 3;
+
+  // 회수 버튼: 작성자(본인) + IN_PROGRESS 상태 + 한 번도 승인받지 않은 경우만
+  const hasAnyApproved = report.approvalLine && report.approvalLine.some(line => line.approvalStatus === 'APPROVED');
+
   return (
     <div className={styles.approvalContainer}>
       <div className={styles.detailMainBox}>
@@ -270,12 +298,14 @@ const ApprovalDetail = () => {
                 <button
                   className={styles.resubmitBtn}
                   onClick={() => navigate(`/approval/new?resubmit=${report.id}`)}
+                  disabled={isResubmitDisabled}
+                  title={isResubmitDisabled ? '재상신은 최대 3회까지만 가능합니다.' : ''}
                 >
                   재상신
                 </button>
               )}
-              {/* 회수 버튼: 작성자(본인) + IN_PROGRESS 상태만 */}
-              {isWriter && report.reportStatus === 'IN_PROGRESS' && (
+              {/* 회수 버튼: 작성자(본인) + IN_PROGRESS 상태만 + 한 번도 승인받지 않은 경우만 */}
+              {isWriter && report.reportStatus === 'IN_PROGRESS' && !hasAnyApproved && (
                 <button
                   className={styles.resubmitBtn}
                   style={{ background: '#aaa' }}
@@ -373,15 +403,19 @@ const ApprovalDetail = () => {
           {/* 이미지 첨부 */}
           {imageAttachments.length > 0 && (
             <div className={styles.imageGallery}>
-              {imageAttachments.map((file, index) => (
-                <div key={index} className={styles.imageWrapper}>
-                  <img
-                    src={file.url}
-                    alt={file.fileName}
-                    className={styles.attachedImage}
-                  />
-                </div>
-              ))}
+              {imageAttachments.map((file, index) => {
+                // file.url, file.downloadUrl, file.path 중 첫 번째로 존재하는 값을 사용
+                const imageUrl = file.url || file.downloadUrl || file.path || '';
+                return (
+                  <div key={index} className={styles.imageWrapper}>
+                    <img
+                      src={imageUrl}
+                      alt={file.fileName}
+                      className={styles.attachedImage}
+                    />
+                  </div>
+                );
+              })}
             </div>
           )}
 
@@ -414,6 +448,8 @@ const ApprovalDetail = () => {
               mode='full'
             />
           </div>
+          {/* 참조자(연람자) 표시 */}
+          {/* 참조자(연람자) 표시 */}
           <div className={styles.historySection}>
             <h4 className={styles.sectionTitle}>결재 이력</h4>
             <ul className={styles.historyList}>
@@ -502,6 +538,7 @@ const ApprovalDetail = () => {
           </div>
         </ModalPortal>
       )}
+      {/* 커스텀 모달 관련 setSuccessMessage, setIsSuccessModalOpen 등은 제거 */}
     </div>
   );
 };

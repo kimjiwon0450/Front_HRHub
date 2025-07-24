@@ -20,30 +20,47 @@ const ApprovalInProgressBox = ({ onTotalCountChange }) => {
       setLoading(true);
       setError(null);
       
-      const params = {
+      const paramsApprover = {
         role: 'approver',
+        status: 'IN_PROGRESS',
         sortBy: 'reportCreatedAt',
         sortOrder: 'desc',
         page: 0,
         size: 50,
       };
-      
+      const paramsWriter = {
+        role: 'writer',
+        status: 'IN_PROGRESS',
+        sortBy: 'reportCreatedAt',
+        sortOrder: 'desc',
+        page: 0,
+        size: 50,
+      };
       try {
-        const response = await axiosInstance.get(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
-          { params },
-        );
-
-        if (response.data?.statusCode === 200) {
-          setReports(response.data.result.reports || []);
-          setTotalCount(response.data.result.totalElements || 0);
-          if (onTotalCountChange) onTotalCountChange(response.data.result.totalElements || 0);
-        } else {
-          setReports([]);
-          setTotalCount(0);
-          if (onTotalCountChange) onTotalCountChange(0);
-          setError(response.data?.statusMessage || '진행 중인 문서를 불러오는 데 실패했습니다.');
-        }
+        // 두 역할로 각각 요청
+        const [approverRes, writerRes] = await Promise.all([
+          axiosInstance.get(
+            `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
+            { params: paramsApprover },
+          ),
+          axiosInstance.get(
+            `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
+            { params: paramsWriter },
+          ),
+        ]);
+        // 두 결과 합치고 중복 제거
+        const approverReports = approverRes.data.result.reports || [];
+        const writerReports = writerRes.data.result.reports || [];
+        const allReports = [...approverReports, ...writerReports];
+        const uniqueReportsMap = new Map(allReports.map(r => [(r.id || r.reportId), r]));
+        let uniqueReports = Array.from(uniqueReportsMap.values());
+        // ★★★ reportStatus가 IN_PROGRESS인 문서만 남김 ★★★
+        uniqueReports = uniqueReports.filter(r => r.reportStatus === 'IN_PROGRESS');
+        // 최신순 정렬
+        uniqueReports.sort((a, b) => new Date(b.reportCreatedAt) - new Date(a.reportCreatedAt));
+        setReports(uniqueReports);
+        setTotalCount(uniqueReports.length);
+        if (onTotalCountChange) onTotalCountChange(uniqueReports.length);
       } catch (err) {
         console.error('결재 중 문서함 문서를 불러오는 중 오류 발생:', err);
         setReports([]);
