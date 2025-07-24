@@ -8,6 +8,8 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import { getDepartmentNameById, getEmployeeList } from '../../common/hr';
 import { warn } from '../../common/common';
+import ModalPortal from '../../components/approval/ModalPortal';
+import styles from '../../components/approval/ApprovalLineModal.module.scss';
 
 // 부서 목록을 서버에서 받아옴
 
@@ -79,10 +81,14 @@ export default function EmployeeList() {
     // eslint-disable-next-line
   }, [page, size, sortField, sortOrder, appliedSearch]);
 
-  // 직원 선택시 상세 조회
+  // Modal open/close state
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  // 직원 선택시 상세 조회 및 모달 오픈
   useEffect(() => {
     if (selectedId == null) return;
     getEmployeeDetail(selectedId);
+    setIsDetailModalOpen(true);
     // eslint-disable-next-line
   }, [selectedId]);
 
@@ -154,6 +160,20 @@ export default function EmployeeList() {
     setSelectedId(null); // 검색하면 상세 닫기
   };
 
+  // 퇴직자만 체크박스 변경 시 바로 필터링
+  const handleShowInactiveChange = (e) => {
+    const checked = e.target.checked;
+    setShowInactive(checked);
+    setAppliedSearch({
+      field: searchField,
+      keyword: searchText,
+      department: searchDept,
+      isActive: !checked, // checked=true면 isActive=false(퇴직자만)
+    });
+    setPage(0);
+    setSelectedId(null);
+  };
+
   // 초기화
   const handleReset = () => {
     setSearchField('name');
@@ -168,6 +188,7 @@ export default function EmployeeList() {
     });
     setPage(0);
     setSelectedId(null);
+    setShowInactive(false); // 체크박스도 해제
   };
 
   const handlePageChange = (newPage) => {
@@ -238,7 +259,7 @@ export default function EmployeeList() {
             <input
               type='checkbox'
               checked={showInactive}
-              onChange={(e) => setShowInactive(e.target.checked)}
+              onChange={handleShowInactiveChange}
             />
             퇴직자만
           </label>
@@ -346,16 +367,45 @@ export default function EmployeeList() {
           </button>
         </div>
       </div>
-      {/* 상세 정보는 선택 시 하단에만 노출 */}
-      {selectedId && (
-        <div className='emp-detail-below'>
-          <EmployeeDetail
-            employee={selectedDetail}
-            onEdit={handleEdit}
-            onEval={handleEvalWithCheck}
-            onClose={handleClose}
-          />
-        </div>
+      {/* 직원 상세 모달 */}
+      {isDetailModalOpen && (
+        <ModalPortal>
+          <div
+            className={styles.modalOverlay}
+            onClick={() => {
+              setIsDetailModalOpen(false);
+              setSelectedId(null);
+            }}
+          >
+            <div
+              className={styles.modalContent}
+              onClick={(e) => e.stopPropagation()}
+              style={{ maxWidth: 700, width: '90%' }}
+            >
+              <div className={styles.modalHeader}>
+                <h3>직원 상세정보</h3>
+                <button
+                  onClick={() => {
+                    setIsDetailModalOpen(false);
+                    setSelectedId(null);
+                  }}
+                  className={styles.closeButton}
+                >
+                  &times;
+                </button>
+              </div>
+              <EmployeeDetail
+                employee={selectedDetail}
+                onEdit={handleEdit}
+                onEval={handleEvalWithCheck}
+                onClose={() => {
+                  setIsDetailModalOpen(false);
+                  setSelectedId(null);
+                }}
+              />
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </>
   );
