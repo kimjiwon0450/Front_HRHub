@@ -284,6 +284,13 @@ const ApprovalDetail = () => {
 
   return (
     <div className={styles.approvalContainer}>
+      <button
+        className={styles.printButton}
+        onClick={() => window.print()}
+        title="인쇄하기"
+      >
+        🖨️
+      </button>
       <div className={styles.detailMainBox}>
         {/* 상단: 제목/상태/기본정보 */}
         <div className={styles.topSection}>
