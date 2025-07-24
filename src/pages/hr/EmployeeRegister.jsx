@@ -78,11 +78,7 @@ export default function EmployeeRegister() {
     if (!isFormValid()) return;
     setIsLoading(true); // 로딩 시작
     try {
-<<<<<<< Updated upstream
-      await axios.post(`http://localhost:8000${HR_SERVICE}/employees`, {
-=======
       await axiosInstance.post(`${API_BASE_URL}${HR_SERVICE}/employees`, {
->>>>>>> Stashed changes
         email,
         name: employeeName,
         birthday: birth,
