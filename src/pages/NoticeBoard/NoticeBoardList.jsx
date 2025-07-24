@@ -27,6 +27,15 @@ const NoticeBoardList = () => {
     const [pageSize, setPageSize] = useState(10); // ✅ 보기 개수
     const [loading, setLoading] = useState(false);
 
+    const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    const dateTimeOptions = {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false,
+    };
+
+
+
     useEffect(() => {
         if (!isInit || !accessToken || !userId) return; // ✅ 초기화 완료 여부 확인
 
@@ -240,7 +249,11 @@ const NoticeBoardList = () => {
                                     <td style={{
                                         color: post.position === userPosition ? '#28c309' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
-                                    }}>{new Date(viewMode === 'SCHEDULE' ? post.scheduledAt : post.createdAt).toLocaleString()}</td>
+                                    }}>{viewMode === 'SCHEDULE'
+                                        ? new Date(post.scheduledAt).toLocaleString('ko-KR', dateTimeOptions)
+                                        : new Date(post.createdAt).toLocaleDateString('ko-KR', dateOptions)
+                                        }
+                                    </td>
                                     <td style={{
                                         color: post.position === userPosition ? '#28c309' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
@@ -288,7 +301,11 @@ const NoticeBoardList = () => {
                                     <td style={{
                                         color: post.position === userPosition ? '#21429e' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
-                                    }}>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                    }}>{viewMode === 'SCHEDULE'
+                                        ? new Date(post.scheduledAt).toLocaleString('ko-KR', dateTimeOptions)
+                                        : new Date(post.createdAt).toLocaleDateString('ko-KR', dateOptions)
+                                        }
+                                    </td>
                                     <td style={{
                                         color: post.position === userPosition ? '#21429e' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
