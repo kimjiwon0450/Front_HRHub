@@ -4,7 +4,7 @@ import axiosInstance from '../../configs/axios-config';
 import { UserContext } from '../../context/UserContext';
 import styles from './ApprovalHome.module.scss';
 import SummaryCard from './SummaryCard';
-import ApprovalInProgressBox from './ApprovalInProgressBox';
+import ApprovalPendingList from './ApprovalPendingList';
 import FrequentTemplatesModal from './FrequentTemplatesModal';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import Swal from 'sweetalert2';
@@ -15,6 +15,8 @@ import uncheckedIcon from '/icons/intermediate.png';
 import ccIcon from '/icons/beginner.png';
 import historyIcon from '/icons/master.png';
 import templateIcon from '/icons/admin.png';
+import CcBox from './CcBox';
+import CompletedBox from './CompletedBox';
 
 const ApprovalHome = () => {
   const navigate = useNavigate();
@@ -32,6 +34,11 @@ const ApprovalHome = () => {
 
   const [allTemplates, setAllTemplates] = useState([]); // 서버에서 가져온 모든 템플릿 목록
   const [frequentTemplates, setFrequentTemplates] = useState([]); // 자주 쓰는 템플릿 ID 배열
+  const [inProgressTotal, setInProgressTotal] = useState(0);
+  const [completedTotal, setCompletedTotal] = useState(0);
+
+  // 어떤 목록을 보여줄지 상태로 관리
+  const [activeBox, setActiveBox] = useState('inProgress'); // 'inProgress', 'reference', 'history'
 
   // --- 데이터 초기화 로직 ---
   useEffect(() => {
@@ -72,14 +79,36 @@ const ApprovalHome = () => {
       // 4. 최종적으로 유효한 ID 목록을 상태에 저장합니다.
       setFrequentTemplates(validFrequentIds);
 
-      // (임시 데이터) 요약 카드 데이터 설정
-      setSummaryData({ delayed: 5, unchecked: 2, cc: 0, total: 27 });
+      // --- 결재내역(완료) 전체 건수 미리 조회 ---
+      try {
+        const [writerRes, approverRes] = await Promise.all([
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
+            params: { role: 'writer', status: 'APPROVED', page: 0, size: 1 },
+          }),
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
+            params: { role: 'approver', status: 'APPROVED', page: 0, size: 1 },
+          }),
+        ]);
+        const totalWriter = writerRes.data.result?.totalElements || 0;
+        const totalApprover = approverRes.data.result?.totalElements || 0;
+        setCompletedTotal(totalWriter + totalApprover);
+      } catch (err) {
+        setCompletedTotal(0);
+      }
 
       setLoading(false);
     };
 
     initialize();
   }, [user]);
+
+  // 요약 카드 데이터 계산
+  useEffect(() => {
+    setSummaryData({
+      unchecked: inProgressTotal,
+      total: completedTotal,
+    });
+  }, [inProgressTotal, completedTotal]);
 
   // --- 이벤트 핸들러 ---
 
@@ -158,7 +187,7 @@ const ApprovalHome = () => {
                 >
                   ×
                 </button>
-                <img src={templateIcon} alt='양식' />
+                <span style={{fontSize: 32, color: '#007BFF', marginBottom: 6}}>📝</span>
                 <span>{getTemplateTitle(templateId)}</span>
               </div>
             ))}
@@ -176,39 +205,33 @@ const ApprovalHome = () => {
         )}
       </div>
 
-      {/* 요약 카드 */}
-
-      {/* 요약 카드 섹션 */}
+      {/* 요약 카드 섹션 (일주일 이상 지연된 카드 제거, 클릭 시 목록 변경) */}
       <div className={styles.summarySection}>
-        <SummaryCard
-          title='일주일 이상 지연된 수신결재'
-          count={`${summaryData.delayed}건`}
-          icon={delayedIcon}
-        />
         <SummaryCard
           title='처리하지 않은 수신결재'
           count={`${summaryData.unchecked}건`}
-          icon={uncheckedIcon}
-        />
-        <SummaryCard
-          title='확인하지 않은 수신참조'
-          count={`${summaryData.cc}건`}
-          icon={ccIcon}
+          icon={<span style={{color: '#007BFF', fontSize: 22}}>📬</span>}
+          onClick={() => setActiveBox('inProgress')}
+          active={activeBox === 'inProgress'}
         />
         <SummaryCard
           title='결재내역보기'
           count={`${summaryData.total}건`}
-          icon={historyIcon}
+          icon={<span style={{color: '#6C757D', fontSize: 22}}>🗂️</span>}
+          onClick={() => setActiveBox('history')}
+          active={activeBox === 'history'}
         />
       </div>
 
-      {/* 결재 목록 섹션 */}
+      {/* 선택된 카드에 따라 완성된 컴포넌트 렌더링 */}
       <div className={styles.reportListContainer}>
         {loading ? (
           <div className={styles.loading}>로딩 중...</div>
-        ) : (
-          <ApprovalInProgressBox />
-        )}
+        ) : activeBox === 'inProgress' ? (
+          <ApprovalPendingList onTotalCountChange={setInProgressTotal} />
+        ) : activeBox === 'history' ? (
+          <CompletedBox onTotalCountChange={setCompletedTotal} />
+        ) : null}
       </div>
     </div>
   );

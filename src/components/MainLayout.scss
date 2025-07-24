@@ -10,10 +10,22 @@ $border: #eceff3;
   display: flex;
   min-height: 100vh;
   background: $main-bg;
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .sidebar {
   width: 170px;
+  min-width: 60px;
+  max-width: 170px;
   background: $sidebar-bg;
   box-shadow: $sidebar-shadow;
   display: flex;
@@ -21,10 +33,15 @@ $border: #eceff3;
   align-items: center;
   padding: 2rem 1rem 1.5rem 1rem;
   border-right: 1px solid $border;
-  z-index: 2;
+  z-index: 100;
   position: sticky;
   top: 0;
+  left: 0;
   height: 100vh;
+  transition: none !important;
+  transform: none !important;
+  margin: 0 !important;
+  animation: slideInLeft 0.6s ease-out;
 
   .logo {
     margin-bottom: 0;
@@ -32,6 +49,11 @@ $border: #eceff3;
       height: 7.5rem;
       filter: drop-shadow(0 2px 6px rgba(44, 62, 80, 0.1));
       user-select: none;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
     }
   }
 
@@ -48,6 +70,7 @@ $border: #eceff3;
 
       .menu-icon {
         font-size: 1.2rem;
+        transition: transform 0.2s ease;
       }
 
       padding: 0.85rem 1rem;
@@ -57,7 +80,9 @@ $border: #eceff3;
       text-decoration: none;
       transition:
         background 0.16s,
-        color 0.16s;
+        color 0.16s,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
       letter-spacing: 0.01em;
 
       &:hover,
@@ -66,8 +91,34 @@ $border: #eceff3;
         color: #fff;
         font-weight: 700;
         box-shadow: 0 2px 8px 0 rgba(53, 196, 91, 0.07);
+        transform: translateX(4px);
+
+        .menu-icon {
+          transform: scale(1.1);
+        }
       }
     }
+  }
+}
+
+// 사이드바 내부 메뉴/버튼/로고/아이콘도 꿀렁거림 제거
+.sidebar .nav,
+.sidebar .logo,
+.sidebar button,
+.sidebar .menu-icon {
+  transition: none !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -76,6 +127,7 @@ $border: #eceff3;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  animation: slideInRight 0.6s ease-out;
 
   .header {
     background: $header-bg;
@@ -89,6 +141,7 @@ $border: #eceff3;
     position: sticky;
     top: 0;
     z-index: 10;
+    animation: slideInDown 0.8s ease-out;
 
     .menu {
       display: flex;
@@ -104,15 +157,69 @@ $border: #eceff3;
         text-decoration: none;
         border-radius: 0.8rem;
         padding: 0.4rem 1rem;
-        transition:
-          background 0.16s,
-          color 0.16s;
+        transition: all 0.2s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+        }
 
         &:hover,
         &.active {
           background: $accent;
           color: #fff;
         }
+      }
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      background: #f1f5fa;
+      color: #384048;
+      border-radius: 2rem;
+      padding: 0.35rem 1.1rem 0.35rem 0.9rem;
+      margin-right: 1.1rem;
+      font-weight: 600;
+      font-size: 1.04rem;
+      box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06);
+      gap: 0.5rem;
+      transition: background 0.18s;
+      border: 1px solid #e3e8f0;
+
+      .user-icon {
+        font-size: 1.18em;
+        margin-right: 0.4em;
+        color: #3b82f6;
+        vertical-align: middle;
+      }
+      .user-name {
+        font-weight: 700;
+        margin-right: 0.3em;
+      }
+      .user-dept {
+        color: #6b7280;
+        font-weight: 500;
+        font-size: 0.98em;
+      }
+      .user-position {
+        color: #7b8794;
+        font-style: italic;
+        font-size: 0.98em;
+        margin: 0 0.4em 0 0.2em;
+        font-weight: 500;
+      }
+      .user-role {
+        background: #e0e7ff;
+        color: #3730a3;
+        border-radius: 1em;
+        padding: 0.18em 0.85em;
+        margin-left: 0.7em;
+        font-size: 0.97em;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        box-shadow: 0 1px 2px rgba(44, 62, 80, 0.04);
+        border: 1px solid #c7d2fe;
+        display: inline-block;
       }
     }
 
@@ -155,6 +262,28 @@ $border: #eceff3;
       background: #dbeafe;
       border-radius: 4px;
     }
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -267,5 +396,119 @@ $border: #eceff3;
     right: 1rem;
     bottom: 5.5rem;
     max-width: 95vw;
+  }
+}
+
+// 햄버거 버튼 (모바일)
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  margin-right: 1rem;
+  color: #384048;
+  cursor: pointer;
+  z-index: 1201;
+}
+
+// 오버레이 (모바일 사이드바 열릴 때)
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 1200;
+}
+
+// 모바일 사이드바 오픈 시 스타일
+.sidebar.sidebar--mobile-open {
+  display: flex !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 220px;
+  min-width: 0;
+  max-width: 80vw;
+  box-shadow: 2px 0 16px 0 rgba(44, 62, 80, 0.18);
+  z-index: 1202;
+  background: $sidebar-bg;
+  animation: slideInLeft 0.3s;
+}
+
+@media (max-width: 600px) {
+  .hamburger-btn {
+    display: block;
+    position: absolute;
+    left: 1rem;
+    top: 1.1rem;
+  }
+  .sidebar {
+    display: none;
+  }
+  .sidebar.sidebar--mobile-open {
+    display: flex !important;
+  }
+  .sidebar-overlay {
+    display: block;
+  }
+  .main .header {
+    padding-left: 3.2rem;
+  }
+}
+@media print {
+  /* 1. 불필요한 모든 UI 요소를 확실하게 숨깁니다. */
+  .sidebar,
+  .main .header,
+  .buttonGroup,
+  .resubmitBtn,
+  .chatbot-fab,
+  .logout-btn,
+  .notice-icon {
+    display: none !important;
+  }
+
+  /* 2. 유령 공간을 만드는 부모 레이아웃의 스타일을 완전히 초기화합니다. */
+  body,
+  html,
+  .layout,
+  .main {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    overflow: visible !important;
+  }
+
+  /* 3. 실제 인쇄될 컨텐츠 영역만 보이도록 최종 조정합니다. */
+  .content {
+    margin: 0 !important;
+    padding: 20mm !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    float: none !important;
+    position: static !important;
+    overflow: visible !important;
+  }
+
+  /* 4. 이미지, 테이블 등이 페이지를 넘어가지 않도록 설정합니다. */
+  img,
+  table {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* 5. 모든 텍스트 색상을 검은색으로 강제합니다. */
+  * {
+    color: #000 !important;
   }
 }

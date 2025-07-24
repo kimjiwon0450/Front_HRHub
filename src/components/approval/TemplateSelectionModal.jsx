@@ -6,38 +6,48 @@ import styles from './TemplateSelectionModal.module.scss';
 const TemplateSelectionModal = ({ open, onClose, onStartWriting }) => {
   // --- 모든 훅(Hook)은 조건문 없이 컴포넌트 최상단에서 호출되어야 합니다. ---
   const [allTemplates, setAllTemplates] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // 훅 내부의 조건문은 괜찮습니다. 훅 자체는 매번 호출되기 때문입니다.
     if (!open) return;
-
-    const fetchTemplates = async () => {
+    const fetchTemplatesAndCategories = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`);
-        setAllTemplates(res.data?.result || []);
+        const [tplRes, catRes] = await Promise.all([
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`),
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/category`)
+        ]);
+        setAllTemplates(tplRes.data?.result || []);
+        setCategories(catRes.data?.result || []);
       } catch (err) {
-        console.error("Error fetching templates:", err);
-        setError("양식을 불러오는 중 오류가 발생했습니다.");
+        console.error("Error fetching templates or categories:", err);
+        setError("양식/카테고리 불러오기 오류");
       } finally {
         setLoading(false);
       }
     };
-    fetchTemplates();
+    fetchTemplatesAndCategories();
   }, [open]);
 
   // 검색어에 따라 필터링된 템플릿 목록 (useMemo로 성능 최적화)
   const filteredTemplates = useMemo(() => {
-    if (!searchTerm) return allTemplates;
-    return allTemplates.filter(template =>
-      template.template.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [allTemplates, searchTerm]);
+    let filtered = allTemplates;
+    if (selectedCategory !== 'ALL') {
+      filtered = filtered.filter(t => String(t.categoryId) === selectedCategory);
+    }
+    if (searchTerm) {
+      filtered = filtered.filter(template =>
+        template.template.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    return filtered;
+  }, [allTemplates, searchTerm, selectedCategory]);
 
   // --- 모든 훅 호출이 끝난 후에 조건부 렌더링을 처리합니다. ---
   // 이 if문이 훅 호출보다 위에 있으면 "Rules of Hooks" 에러가 발생합니다.
@@ -76,7 +86,12 @@ const TemplateSelectionModal = ({ open, onClose, onStartWriting }) => {
             className={`${styles.templateCard} ${selectedTemplateId === template.templateId ? styles.selected : ''}`}
             onClick={() => handleTemplateClick(template.templateId)}
           >
-            <span>{template.template.title}</span>
+            <div>
+              <span>{template.template.title}</span>
+              {template.template.description && (
+                <div className={styles.templateDesc}>{template.template.description}</div>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -85,7 +100,7 @@ const TemplateSelectionModal = ({ open, onClose, onStartWriting }) => {
   console.log('✅ 3단계: 모달이 받은 open prop:', open);
   // --- 최종 JSX 렌더링 ---
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalOverlay} onClick={onClose}>
         <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
           <div className={styles.header}>
             <h2>결재 양식 선택</h2>
@@ -93,11 +108,22 @@ const TemplateSelectionModal = ({ open, onClose, onStartWriting }) => {
           </div>
 
           <div className={styles.searchBar}>
+            <select
+              value={selectedCategory}
+              onChange={e => setSelectedCategory(e.target.value)}
+              className={styles.categorySelect}
+            >
+              <option value="ALL">전체</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
+              ))}
+            </select>
             <input
               type="text"
               placeholder="양식 이름으로 검색하세요"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ marginLeft: 8 }}
             />
           </div>
 

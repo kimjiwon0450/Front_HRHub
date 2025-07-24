@@ -11,6 +11,7 @@ const ContactList = () => {
   const [sortField, setSortField] = useState('name');
   const [employees, setEmployees] = useState([]);
   const [searchDept, setSearchDept] = useState('전체');
+  const [showInactive, setShowInactive] = useState(false); // 퇴직자만 체크박스
   const [page, setPage] = useState(0); // 0-based
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
@@ -34,6 +35,7 @@ const ContactList = () => {
     department = searchDept,
     page: reqPage = page,
     size: reqSize = size,
+    isActive = !showInactive, // 기본값: 체크박스 상태에 따라
   } = {}) => {
     try {
       let params = `?page=${reqPage}&size=${reqSize}`;
@@ -41,8 +43,9 @@ const ContactList = () => {
         params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
       if (department !== '전체')
         params += `&department=${encodeURIComponent(department)}`;
+      if (typeof isActive === 'boolean') params += `&isActive=${isActive}`; // 추가
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
+        `${API_BASE_URL}${HR_SERVICE}/employees/contact${params}`,
       );
       setEmployees(res.data.result.content);
       setTotalPages(res.data.result.totalPages || 1);
@@ -65,6 +68,7 @@ const ContactList = () => {
       department: searchDept,
       page: 0,
       size,
+      isActive: !showInactive, // 체크 시 false(퇴사자), 아니면 true(재직자)
     });
     setPage(0);
   };
@@ -72,12 +76,14 @@ const ContactList = () => {
     setSearchField('name');
     setSearchText('');
     setSearchDept('전체');
+    setShowInactive(false); // 초기화 시 재직자만
     getEmployeeList({
       field: 'name',
       keyword: '',
       department: '전체',
       page: 0,
       size,
+      isActive: true,
     });
     setPage(0);
   };
@@ -110,19 +116,21 @@ const ContactList = () => {
           >
             전체
           </li>
-          {departmentList.map((dept) => (
-            <li
-              key={dept.id}
-              className={searchDept === dept.name ? 'selected' : ''}
-              onClick={() => {
-                setSearchDept(dept.name);
-                setPage(0);
-                getEmployeeList({ department: dept.name, page: 0, size });
-              }}
-            >
-              {dept.name}
-            </li>
-          ))}
+          {departmentList
+            .filter((dept) => dept.name !== '전체')
+            .map((dept) => (
+              <li
+                key={dept.id}
+                className={searchDept === dept.name ? 'selected' : ''}
+                onClick={() => {
+                  setSearchDept(dept.name);
+                  setPage(0);
+                  getEmployeeList({ department: dept.name, page: 0, size });
+                }}
+              >
+                {dept.name}
+              </li>
+            ))}
         </ul>
       </aside>
       <section className='contact-main'>
@@ -140,6 +148,14 @@ const ContactList = () => {
             onChange={(e) => setSearchText(e.target.value)}
             placeholder='검색어 입력'
           />
+          <label style={{ marginLeft: 8 }}>
+            <input
+              type='checkbox'
+              checked={showInactive}
+              onChange={(e) => setShowInactive(e.target.checked)}
+            />
+            퇴직자만
+          </label>
           <button type='submit'>검색</button>
           <button type='button' onClick={handleReset}>
             초기화

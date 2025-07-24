@@ -8,9 +8,9 @@ import AppRouter from './router/AppRouter.jsx';
 const router = createBrowserRouter(AppRouter);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+  //<React.StrictMode>
     <App>
       <RouterProvider router={router} />
     </App>
-  </React.StrictMode>,
+  //</React.StrictMode>,
 );

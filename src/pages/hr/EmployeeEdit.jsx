@@ -9,6 +9,7 @@ import { UserContext } from '../../context/UserContext';
 import { getDepartmentNameById } from '../../common/hr';
 import Swal from 'sweetalert2';
 import { swalConfirm } from '../../common/common';
+import ModalPortal from '../../components/approval/ModalPortal';
 
 export default function EmployeeEdit({ employee, onClose, hideHeader }) {
   // 기존 employee prop을 state로 복사 (혹은 useEffect로 세팅)
@@ -28,6 +29,8 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
   const [hireDate, setHireDate] = useState('');
   const [position, setPosition] = useState(''); // 직급 초기값 설정
   const [currentEmployeeId, setCurrentEmployeeId] = useState(null); // 현재 수정할 직원의 ID
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
 
   const navigate = useNavigate();
   const { userId, userRole } = useContext(UserContext); // userRole 추가
@@ -157,8 +160,14 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
       alert('입사일을 입력해주세요.');
       return;
     }
-    const result = await swalConfirm('수정하시겠습니까?');
-    if (result.isDismissed) return;
+    setShowConfirmModal(true);
+    setPendingSubmit(true);
+  };
+
+  // 실제 서버로 PATCH 요청
+  const handleConfirm = async () => {
+    setShowConfirmModal(false);
+    setPendingSubmit(false);
     try {
       const res = await axiosInstance.patch(
         `${API_BASE_URL}${HR_SERVICE}/employees/${currentEmployeeId}`,
@@ -177,9 +186,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
           hireDate,
         },
       );
-      // alert('수정 성공!');
       if (onClose) {
-        console.log(res.data.result);
         onClose({
           ...res.data.result,
           department: getDepartmentNameById(departmentId),
@@ -195,6 +202,10 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
       alert(error?.response?.data?.statusMessage || error.message);
     }
   };
+  const handleCancel = () => {
+    setShowConfirmModal(false);
+    setPendingSubmit(false);
+  };
 
   return (
     <>
@@ -207,35 +218,46 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
           <label className='reg-label'>이메일</label>
           <div className='reg-email-group'>
             <input
-              className='reg-input'
+              className={`reg-input${!!employee || !!userId ? ' reg-input--readonly' : ''}`}
               value={email}
-              readOnly={!!employee || !!userId} // employee prop이 있거나 userId가 있으면 readonly
+              readOnly={!!employee || !!userId}
               style={{ backgroundColor: '#eee' }}
               onChange={(e) => setEmail(e.target.value)}
             />
+            {!!employee || !!userId ? (
+              <span className='input-lock-indicator'>🔒</span>
+            ) : null}
           </div>
 
           {/* 2단 배치 필드 */}
           <div className='reg-grid'>
             <div>
               <label className='reg-label'>생년월일</label>
-              <input
-                className='reg-input'
-                type='date'
-                value={birth}
-                onChange={(e) => setBirth(e.target.value)}
-                max={new Date().toISOString().split('T')[0]}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  className='reg-input reg-input--readonly'
+                  type='date'
+                  value={birth}
+                  onChange={(e) => setBirth(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                  readOnly
+                  disabled
+                />
+                <span className='input-lock-indicator'>🔒</span>
+              </div>
             </div>
             <div>
               <label className='reg-label'>나이</label>
-              <input
-                className='reg-input'
-                type='number'
-                value={getAge(birth)}
-                readOnly
-                placeholder='생년월일 선택시 자동계산'
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  className={`reg-input reg-input--readonly`}
+                  type='number'
+                  value={getAge(birth)}
+                  readOnly
+                  placeholder='생년월일 선택시 자동계산'
+                />
+                <span className='input-lock-indicator'>🔒</span>
+              </div>
             </div>
             <div>
               <label className='reg-label'>직원명</label>
@@ -250,7 +272,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
               <label className='reg-label'>부서명</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <select
-                  className='reg-input'
+                  className={`reg-input${userRole === 'EMPLOYEE' ? ' reg-input--readonly' : ''}`}
                   value={departmentId}
                   onChange={(e) => setDepartmentId(e.target.value)}
                   style={{ flex: 1 }}
@@ -262,6 +284,9 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
                     </option>
                   ))}
                 </select>
+                {userRole === 'EMPLOYEE' ? (
+                  <span className='input-lock-indicator'>🔒</span>
+                ) : null}
                 <button
                   type='button'
                   style={{
@@ -288,30 +313,40 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
             </div>
             <div>
               <label className='reg-label'>직급</label>
-              <select
-                className='reg-input'
-                value={position}
-                onChange={(e) => setPosition(e.target.value)}
-                disabled={userRole === 'EMPLOYEE'}
-              >
-                <option value='INTERN'>INTERN</option>
-                <option value='JUNIOR'>JUNIOR</option>
-                <option value='SENIOR'>SENIOR</option>
-                <option value='MANAGER'>MANAGER</option>
-                <option value='DIRECTOR'>DIRECTOR</option>
-              </select>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <select
+                  className={`reg-input${userRole === 'EMPLOYEE' ? ' reg-input--readonly' : ''}`}
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                  disabled={userRole === 'EMPLOYEE'}
+                >
+                  <option value='INTERN'>INTERN</option>
+                  <option value='JUNIOR'>JUNIOR</option>
+                  <option value='SENIOR'>SENIOR</option>
+                  <option value='MANAGER'>MANAGER</option>
+                  <option value='DIRECTOR'>DIRECTOR</option>
+                </select>
+                {userRole === 'EMPLOYEE' ? (
+                  <span className='input-lock-indicator'>🔒</span>
+                ) : null}
+              </div>
             </div>
             <div>
               <label className='reg-label'>직책</label>
-              <select
-                className='reg-input'
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                disabled={userRole === 'EMPLOYEE'}
-              >
-                <option value='EMPLOYEE'>EMPLOYEE</option>
-                <option value='HR_MANAGER'>HR_MANAGER</option>
-              </select>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <select
+                  className={`reg-input${userRole === 'EMPLOYEE' ? ' reg-input--readonly' : ''}`}
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  disabled={userRole === 'EMPLOYEE'}
+                >
+                  <option value='EMPLOYEE'>EMPLOYEE</option>
+                  <option value='HR_MANAGER'>HR_MANAGER</option>
+                </select>
+                {userRole === 'EMPLOYEE' ? (
+                  <span className='input-lock-indicator'>🔒</span>
+                ) : null}
+              </div>
             </div>
             <div>
               <label className='reg-label'>주소</label>
@@ -344,24 +379,37 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
             </div>
             <div>
               <label className='reg-label'>입사일</label>
-              <input
-                className='reg-input'
-                type='date'
-                value={hireDate}
-                onChange={(e) => setHireDate(e.target.value)}
-                max={new Date().toISOString().split('T')[0]}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  className={`reg-input${userRole === 'EMPLOYEE' ? ' reg-input--readonly' : ''}`}
+                  type='date'
+                  value={hireDate}
+                  onChange={(e) => setHireDate(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                  readOnly={userRole === 'EMPLOYEE'}
+                  disabled={userRole === 'EMPLOYEE'}
+                />
+                {userRole === 'EMPLOYEE' ? (
+                  <span className='input-lock-indicator'>🔒</span>
+                ) : null}
+              </div>
             </div>
             <div>
               <label className='reg-label'>입사구분</label>
-              <select
-                className='reg-input'
-                value={isNewEmployee ? '신입' : '경력'}
-                onChange={(e) => setIsNewEmployee(e.target.value === '신입')}
-              >
-                <option value='신입'>신입</option>
-                <option value='경력'>경력</option>
-              </select>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <select
+                  className={`reg-input${userRole === 'EMPLOYEE' ? ' reg-input--readonly' : ''}`}
+                  value={isNewEmployee ? '신입' : '경력'}
+                  onChange={(e) => setIsNewEmployee(e.target.value === '신입')}
+                  disabled={userRole === 'EMPLOYEE'}
+                >
+                  <option value='신입'>신입</option>
+                  <option value='경력'>경력</option>
+                </select>
+                {userRole === 'EMPLOYEE' ? (
+                  <span className='input-lock-indicator'>🔒</span>
+                ) : null}
+              </div>
             </div>
           </div>
 
@@ -418,6 +466,79 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
             </div>
           </div>
         </div>
+      )}
+      {/* 수정 확인 모달 */}
+      {showConfirmModal && (
+        <ModalPortal>
+          <div className='dept-modal-overlay'>
+            <div className='dept-modal'>
+              <h3>수정 정보 확인</h3>
+              <div
+                style={{ maxHeight: 320, overflowY: 'auto', marginBottom: 16 }}
+              >
+                <table style={{ width: '100%', fontSize: '1rem' }}>
+                  <tbody>
+                    <tr>
+                      <th align='left'>이메일</th>
+                      <td>{email}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>이름</th>
+                      <td>{employeeName}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>생년월일</th>
+                      <td>{birth}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>부서</th>
+                      <td>
+                        {departments.find((d) => d.id == departmentId)?.name ||
+                          departmentId}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th align='left'>직급</th>
+                      <td>{position}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>직책</th>
+                      <td>{role}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>주소</th>
+                      <td>{address}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>핸드폰</th>
+                      <td>{phone}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>입사일</th>
+                      <td>{hireDate}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>입사구분</th>
+                      <td>{isNewEmployee ? '신입' : '경력'}</td>
+                    </tr>
+                    <tr>
+                      <th align='left'>메모</th>
+                      <td>{memo}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className='dept-modal-btns'>
+                <button className='btn blue' onClick={handleConfirm}>
+                  확인
+                </button>
+                <button className='btn gray' onClick={handleCancel}>
+                  취소
+                </button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </>
   );

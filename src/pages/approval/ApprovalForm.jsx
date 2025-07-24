@@ -112,7 +112,7 @@ const ApprovalForm = () => {
               acc[field.header] = field.value || '';
               return acc;
             }, {});
-            setFormData(templateData);
+            setTemplateFormData(templateData);
             setTemplate({ content: parsedContent }); // 템플릿 구조 설정
             setContent(''); // 일반 content는 비움
           } else {
@@ -384,7 +384,11 @@ const ApprovalForm = () => {
     <div className={styles.container}>
       <h2>{getPageTitle()}</h2>
       {error && <div className={styles.error}>{error}</div>}
+      {console.log('Template state:', template)}
+      {console.log('Template content:', template?.content)}
       {/* 폼 입력 필드들 */}
+      {/* 템플릿이 없을 때만 기본 제목 입력창 표시 */}
+      {(!template || !template.content || template.content.length === 0) && (
       <div className={styles.formGroup}>
         <label htmlFor='title'>제목</label>
         <input
@@ -395,10 +399,13 @@ const ApprovalForm = () => {
           placeholder='문서 제목을 입력하세요'
         />
       </div>
+      )}
 
       {/* 템플릿 기반 동적 폼 렌더링 */}
-      {template && renderTemplateForm()}
+      {template && template.content && template.content.length > 0 && renderTemplateForm()}
 
+      {/* 템플릿이 없을 때만 기본 상세 내용 입력창 표시 */}
+      {(!template || !template.content || template.content.length === 0) && (
       <div className={styles.formGroup}>
         <label htmlFor='content'>상세 내용</label>
         <textarea
@@ -409,6 +416,7 @@ const ApprovalForm = () => {
           placeholder='상세 내용을 입력하세요'
         ></textarea>
       </div>
+      )}
       {/* 결재선 */}
       <div className={styles.formGroup}>
         <label>결재선</label>

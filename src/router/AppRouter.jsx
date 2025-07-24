@@ -44,6 +44,9 @@ import CommunityPostsPage from '../pages/NoticeBoard/CommunityPostsPage';
 // 주소록
 import ContactList from '../pages/contacts/ContactList';
 
+//직원 관리
+import ImportEmployee from '../pages/hr/ImportEmployee';
+
 // 라우팅 설정 객체 배열
 const AppRouter = [
   {
@@ -67,7 +70,8 @@ const AppRouter = [
           { path: 'employee-eval', element: <EvaluationForm /> },
           { path: 'employee-eval-list', element: <EmployeeViewList /> },
           { path: 'my-evaluations', element: <MyEvaluationList /> },
-        ]
+          { path: 'import-employee', element: <ImportEmployee /> },
+        ],
       },
 
       // --- 전자결재 라우트 ---
@@ -75,7 +79,7 @@ const AppRouter = [
         path: 'approval',
         element: <ApprovalPage />,
         children: [
-          { index: true, element: <Navigate to="home" replace /> },
+          { index: true, element: <Navigate to='home' replace /> },
           { path: 'home', element: <ApprovalHome /> },
           { path: 'new', element: <ApprovalNew /> },
           { path: 'reports/new/:templateId', element: <ApprovalNew /> },
@@ -92,10 +96,13 @@ const AppRouter = [
             children: [
               { path: 'admin/templates', element: <TemplateAdminPage /> },
               { path: 'admin/templates/new', element: <TemplateForm /> },
-              { path: 'admin/templates/edit/:templateId', element: <TemplateForm /> },
-            ]
-          }
-        ]
+              {
+                path: 'admin/templates/edit/:templateId',
+                element: <TemplateForm />,
+              },
+            ],
+          },
+        ],
       },
 
       // --- 공지사항 라우트 (누락되었던 부분 추가) ---
@@ -104,13 +111,35 @@ const AppRouter = [
         children: [
           { index: true, element: <NoticeBoardList /> }, // '/noticeboard' 접속 시 기본 페이지
           { path: 'my', element: <NoticeBoardList /> },
+          { path: 'mydepartment', element: <NoticeBoardList /> },
+          { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
+          { path: 'edit/:id', element: <NoticeBoardWrite isEdit={true} /> },
+          { path: 'alert', element: <NoticeAlertPage /> },
+          { path: ':id', element: <NoticeBoardDetail /> },
+        ],
+      },
+      {
+        path: 'general',
+        children: [
+          { index: true, element: <NoticeBoardList /> }, // '/noticeboard' 접속 시 기본 페이지
+          { path: 'my', element: <NoticeBoardList /> },
+          // { path: 'mydepartment', element: <NoticeBoardList /> },
           { path: 'schedule', element: <NoticeBoardList /> },
           { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
-          { path: 'edit/:noticeId', element: <NoticeBoardWrite isEdit={true} /> },
+          {
+            path: 'edit/:noticeId',
+            element: <NoticeBoardWrite isEdit={true} />,
+          },
           { path: ':noticeId', element: <NoticeBoardDetail /> },
-          { path: 'alert', element: <NoticeAlertPage /> }
-        ]
+          { path: 'alert', element: <NoticeAlertPage /> },
+        ],
       },
+      { path: 'alert', element: <NoticeAlertPage /> },
+      // { path: 'mydepartment', element: <NoticeBoardList /> },
+      { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
+      { path: 'edit/:id', element: <NoticeBoardWrite isEdit={true} /> },
+      { path: ':id', element: <NoticeBoardDetail /> },
+      { path: 'alert', element: <NoticeAlertPage /> },
       {
         path: 'community',
         children: [
@@ -118,19 +147,21 @@ const AppRouter = [
           { path: 'my', element: <CommunityPostsPage /> },
           { path: 'mydepartment', element: <CommunityPostsPage /> },
           { path: 'write', element: <CommunityWrite isEdit={false} /> },
-          { path: 'edit/:communityId', element: <CommunityWrite isEdit={true} /> },
+          {
+            path: 'edit/:communityId',
+            element: <CommunityWrite isEdit={true} />,
+          },
           { path: ':communityId', element: <CommunityDetail /> },
-        ]
+        ],
       },
-
       // --- 주소록 라우트 (누락되었던 부분 추가) ---
       { path: 'contacts', element: <ContactList /> },
+    ],
+  },
 
-      // --- 빈 경로들 (필요시 구현) ---
-      { path: 'mail', element: <></> },
-      { path: 'board', element: <></> },
-    ]
-  }
+  // --- 빈 경로들 (필요시 구현) ---
+  { path: 'mail', element: <></> },
+  { path: 'board', element: <></> },
 ];
 
 export default AppRouter;

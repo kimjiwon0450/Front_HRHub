@@ -90,9 +90,9 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
     return `${years}년 ${months}개월 ${days}일`;
   }
 
-  // 직원 삭제 함수
+  // 직원 퇴사 함수
   const handleDelete = async () => {
-    const result = await swalConfirm('정말로 이 직원을 삭제하시겠습니까?');
+    const result = await swalConfirm('정말로 이 직원을 퇴사처리하시겠습니까?');
     if (result.isDismissed) return;
     try {
       const res = await axiosInstance.patch(
@@ -132,16 +132,16 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   // }
 
   return (
-    <>
+    <div className='modal-compact emp-modal-redesign-horizontal'>
       {showTransferHistory && (
         <TransferHistoryModal
           employeeId={employee.employeeId}
           onClose={() => setShowTransferHistory(false)}
         />
       )}
-      <div className='emp-detail-card'>
-        <div className='emp-profile-main'>
-          <div className='emp-profile-img'>
+      <div className='emp-modal-content-row'>
+        <div className='emp-modal-profile-col'>
+          <div className='emp-modal-profile-img'>
             <input
               className={canEdit ? '' : 'disabled'}
               type='file'
@@ -157,110 +157,108 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
               style={{ cursor: canEdit ? 'pointer' : 'default' }}
             />
           </div>
-          <div className='emp-main-info'>
-            <div className='emp-name'>{employee.name}</div>
-            <div className='emp-meta'>
-              <span className='emp-position'>{employee.position}</span>
-              <span className='emp-role'>{employee.role}</span>
-              <span className='emp-dept'>{employee.department}</span>
-            </div>
-            <div
-              className={`emp-status${employee.status === 'INACTIVE' ? ' inactive' : ''}`}
-            >
-              {employee.status}
-            </div>
-            <div className='emp-contact'>
-              <span>📞 {employee.phone}</span>
-              <span>✉️ {employee.email}</span>
+          <div className='emp-modal-profile-main'>
+            <div className='emp-modal-name highlight-main'>{employee.name}</div>
+            <div className='emp-modal-contact-block'>
+              <div className='highlight-phone'>📞 {employee.phone}</div>
+              <div className='highlight-email'>✉️ {employee.email}</div>
             </div>
           </div>
         </div>
-        <div className='emp-detail-extra'>
-          <table className='emp-info-table'>
-            <tbody>
-              <tr>
-                <th>이름</th>
-                <td>{employee.name}</td>
-                <th>생년월일</th>
-                <td>
-                  {employee.birthday ? employee.birthday.split('T')[0] : ''}
-                </td>
-                <th>나이</th>
-                <td>{getAge(employee?.birthday)}</td>
-              </tr>
-              <tr>
-                <th>사번</th>
-                <td>{employee.employeeId}</td>
-                <th>재직상태</th>
-                <td>{employee.status}</td>
-                <th>입사구분</th>
-                <td>{employee.isNewEmployee ? '신입' : '경력'}</td>
-              </tr>
-              <tr>
-                <th>입사일</th>
-                <td>
-                  {employee.hireDate ? employee.hireDate.split('T')[0] : ''}
-                </td>
-                <th>근속년월</th>
-                <td>{getServicePeriod(employee.hireDate)}</td>
-                <th>퇴사일</th>
-                <td>
-                  {localEmployee.retireDate
-                    ? localEmployee.retireDate.split('T')[0]
-                    : ''}
-                </td>
-              </tr>
-              <tr>
-                <th>근무부서</th>
-                <td>{employee.department}</td>
-                <th>직급</th>
-                <td>{employee.position}</td>
-                <th>직책</th>
-                <td>{employee.role}</td>
-              </tr>
-              <tr>
-                <th>주소</th>
-                <td colSpan={3}>{employee.address}</td>
-                <th>전화번호</th>
-                <td>{employee.phone}</td>
-              </tr>
-              <tr>
-                <th>이메일</th>
-                <td colSpan={5}>{employee.email}</td>
-              </tr>
-              <tr>
-                <th>메모</th>
-                <td colSpan={5}>{employee.memo}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div className='emp-btns modern'>
-          {canEdit && (
-            <button className='btn blue' onClick={onEdit}>
-              직원정보 수정
-            </button>
-          )}
-          {canManage && localEmployee.status !== 'INACTIVE' && (
-            <button className='btn blue' onClick={handleDelete}>
-              직원정보 삭제
-            </button>
-          )}
-          {canManage &&
-            localEmployee.status !== 'INACTIVE' &&
-            userId !== employee.employeeId && (
-              <button className='btn green' onClick={onEval}>
-                인사평가
-              </button>
-            )}
-          <button
-            className='btn blue'
-            onClick={() => setShowTransferHistory(true)}
-          >
-            인사이동 이력
-          </button>
+        <div className='emp-modal-detail-col'>
+          <dl className='emp-modal-detail-list-grid'>
+            <div>
+              <dt>사번</dt>
+              <dd>{employee.employeeId}</dd>
+            </div>
+            <div>
+              <dt>생년월일</dt>
+              <dd>
+                {employee.birthday ? employee.birthday.split('T')[0] : ''}
+              </dd>
+            </div>
+            <div>
+              <dt>나이</dt>
+              <dd>{getAge(employee?.birthday)}</dd>
+            </div>
+            <div>
+              <dt>입사일</dt>
+              <dd>
+                {employee.hireDate ? employee.hireDate.split('T')[0] : ''}
+              </dd>
+            </div>
+            <div>
+              <dt>재직상태</dt>
+              <dd>{employee.status === 'INACTIVE' ? '퇴직' : '재직'}</dd>
+            </div>
+            <div>
+              <dt>입사구분</dt>
+              <dd>{employee.isNewEmployee ? '신입' : '경력'}</dd>
+            </div>
+            <div>
+              <dt>근속년월</dt>
+              <dd>{getServicePeriod(employee.hireDate)}</dd>
+            </div>
+            <div>
+              <dt>퇴사일</dt>
+              <dd>
+                {localEmployee.retireDate
+                  ? localEmployee.retireDate.split('T')[0]
+                  : ''}
+              </dd>
+            </div>
+            <div>
+              <dt>근무부서</dt>
+              <dd>{employee.department}</dd>
+            </div>
+            <div>
+              <dt>직급</dt>
+              <dd>{employee.position}</dd>
+            </div>
+            <div>
+              <dt>직책</dt>
+              <dd>{employee.role}</dd>
+            </div>
+            <div>
+              <dt>주소</dt>
+              <dd>{employee.address}</dd>
+            </div>
+            <div>
+              <dt>전화번호</dt>
+              <dd>{employee.phone}</dd>
+            </div>
+            <div style={{ gridColumn: '1 / span 2' }}>
+              <dt>메모</dt>
+              <dd>{employee.memo}</dd>
+            </div>
+          </dl>
         </div>
       </div>
-    </>
+      <div className='emp-modal-btns'>
+        {canEdit && (
+          <button className='btn blue' onClick={onEdit}>
+            직원정보 수정
+          </button>
+        )}
+        {canManage && localEmployee.status !== 'INACTIVE' && (
+          <button className='btn blue' onClick={handleDelete}>
+            퇴사처리
+          </button>
+        )}
+        {canManage &&
+          localEmployee.status !== 'INACTIVE' &&
+          userId !== employee.employeeId && (
+            <button className='btn green' onClick={onEval}>
+              인사평가
+            </button>
+          )}
+        <button
+          className='btn blue'
+          onClick={() => setShowTransferHistory(true)}
+        >
+          인사이동 이력
+        </button>
+      </div>
+    </div>
   );
 }

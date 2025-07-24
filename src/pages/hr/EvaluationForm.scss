@@ -427,3 +427,15 @@
 .modal-box .btn.gray:hover {
   background: #d1d6e0;
 }
+
+// 평가 조회용 평문 텍스트 스타일
+.eval-plain {
+  background: none;
+  border: none;
+  padding: 0.2em 0;
+  color: #444;
+  font-size: 1.07rem;
+  min-height: 1.5em;
+  line-height: 1.7;
+  word-break: break-all;
+}

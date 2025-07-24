@@ -15,9 +15,14 @@
   background-color: #fff;
   padding: 24px;
   border-radius: 12px;
-  box-shadow: 0 5px B20px rgba(0, 0, 0, 0.2);
-  width: 500px;
-  max-width: 90%;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  width: 90vw;
+  max-width: 900px;
+  min-width: 0;
+  @media (max-width: 950px) {
+    max-width: 98vw;
+    width: 98vw;
+  }
 }
 
 .modalHeader {
@@ -165,4 +170,4 @@
   padding: 10px;
   margin-left: 52px; // 아이콘 너비만큼 들여쓰기
   border: 1px solid #f1f3f5;
-} 
+}

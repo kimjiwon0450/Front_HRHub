@@ -356,41 +356,24 @@ const TemplateForm = () => {
         'Failed to save template:',
         error.response ? error.response.data : error.message,
       );
-      await Swal.fire('실패', '템플릿 저장에 실패했습니다.', 'error');
+      alert('템플릿 저장에 실패했습니다.');
     }
   };
 
   // --- Render Methods ---
-  const renderLeftPane = () => (
-    <div className={styles.leftPane}>
-      {/* A. Default Fields */}
-      <div className={styles.fieldSection}>
-        <h3 className={styles.sectionTitle}>
-          등록된 입력 정보 (기본 결재 필드)
-        </h3>
-        {defaultFields.map((field) => (
-          <div key={field.id} className={`${styles.fieldItem}`}>
-            <div className={styles.fieldHeader}>
-              <span className={styles.fieldName}>{field.name}</span>
-              <span className={styles.fieldDesc}>{field.desc}</span>
-            </div>
-            <div className={styles.fieldControls}>
-              <button
-                className={styles.controlButton}
-                onClick={() => handleOpenInfoChangeModal(field)}
-              >
-                정보변경
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* B. Custom Fields */}
-      <div className={styles.fieldSection}>
-        <h3 className={styles.sectionTitle}>
-          양식 입력 정보 추가 (동적 커스텀 필드)
-        </h3>
+  const renderUnifiedPane = () => (
+    <div className={styles.unifiedPane}>
+      {/* 1. 추가 입력 정보(커스텀 필드) - 순서 변경: 이 부분이 먼저 오도록 이동 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>추가 입력 정보</h2>
+        <div className={styles.infoNotice}>
+          <span className={styles.infoIcon}>ℹ️</span>모든 결재 양식에는{' '}
+          <b>[제목, 수신참조, 참조문서, 시행자]</b>가 자동 포함됩니다.
+        </div>
+        <div className={styles.infoNotice}>
+          <span className={styles.infoIcon}>➕</span>필요하다면 결재 양식에 맞는
+          입력 항목을 추가하세요.
+        </div>
         <DndProvider backend={HTML5Backend}>
           {customFields.map((field, index) => (
             <DraggableField
@@ -425,88 +408,26 @@ const TemplateForm = () => {
         <button className={styles.addButton} onClick={handleOpenAddFieldModal}>
           + 입력정보 추가
         </button>
-      </div>
+      </section>
 
-      {/* C. WYSIWYG Editor */}
-      {useEditor === 'Y' && (
-        <div className={styles.fieldSection}>
-          <h3 className={styles.sectionTitle}>본문</h3>
-          <QuillEditor
-            value={editorContent}
-            onChange={setEditorContent}
-            placeholder='양식의 기본 내용을 입력하세요...'
-          />
-        </div>
-      )}
-    </div>
-  );
-
-  const renderRightPane = () => (
-    <div className={styles.rightPane}>
-      {/* A. Basic Settings */}
-      <div className={styles.settingSection}>
-        <h3 className={styles.sectionTitle}>양식 기초 정보</h3>
+      {/* 2. 양식 정보 입력 - 순서 변경: 이 부분이 뒤로 이동 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>양식 정보 입력</h2>
         <div className={styles.formGroup}>
-          <label>Editor 사용여부</label>
-          <div>
-            <input
-              type='radio'
-              id='editor_y'
-              name='editor'
-              value='Y'
-              checked={useEditor === 'Y'}
-              onChange={(e) => setUseEditor(e.target.value)}
-            />
-            <label htmlFor='editor_y'>사용</label>
-            <input
-              type='radio'
-              id='editor_n'
-              name='editor'
-              value='N'
-              checked={useEditor === 'N'}
-              onChange={(e) => setUseEditor(e.target.value)}
-            />
-            <label htmlFor='editor_n'>미사용</label>
-          </div>
-        </div>
-        <div className={styles.formGroup}>
-          <label>첨부파일 필수</label>
-          <div>
-            <input
-              type='radio'
-              id='attach_y'
-              name='attach'
-              value='Y'
-              checked={requireAttachment === 'Y'}
-              onChange={(e) => setRequireAttachment(e.target.value)}
-            />
-            <label htmlFor='attach_y'>필수</label>
-            <input
-              type='radio'
-              id='attach_n'
-              name='attach'
-              value='N'
-              checked={requireAttachment === 'N'}
-              onChange={(e) => setRequireAttachment(e.target.value)}
-            />
-            <label htmlFor='attach_n'>미필수</label>
-          </div>
-        </div>
-      </div>
-
-      {/* B. Form Info */}
-      <div className={styles.settingSection}>
-        <h3 className={styles.sectionTitle}>양식 정보 입력</h3>
-        <div className={styles.formGroup}>
-          <label>양식명</label>
+          <label>
+            양식명 <span className={styles.required}>*</span>
+          </label>
           <input
             type='text'
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            placeholder='예: 휴가 신청서'
           />
         </div>
         <div className={styles.formGroup}>
-          <label>카테고리</label>
+          <label>
+            카테고리 <span className={styles.required}>*</span>
+          </label>
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
@@ -526,34 +447,16 @@ const TemplateForm = () => {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            placeholder='이 양식의 용도나 안내사항을 입력하세요'
           />
         </div>
-      </div>
-
-      {/* C. Component Library */}
-      <div className={styles.settingSection}>
-        <h3 className={styles.sectionTitle}>기본 정보블록 선택</h3>
-        <div className={styles.componentLibrary}>
-          {componentLibrary.map((comp) => (
-            <button
-              key={comp.id}
-              className={styles.componentButton}
-              onClick={() => addComponentFromLibrary(comp.id)}
-            >
-              <span>{comp.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      </section>
     </div>
   );
 
   return (
     <div className={styles.formBuilderPage}>
-      <div className={styles.mainContent}>
-        {renderLeftPane()}
-        {renderRightPane()}
-      </div>
+      <div className={styles.mainContent}>{renderUnifiedPane()}</div>
       <div className={styles.footer}>
         <button
           className={styles.cancelButton}

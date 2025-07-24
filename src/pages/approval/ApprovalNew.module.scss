@@ -1,40 +1,73 @@
-.container {
-  padding: 2rem;
-  background-color: #f9f9f9;
-  min-height: 100vh;
+.pageContainer {
+  max-width: 1000px;
+  margin: 32px auto 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  padding: 32px 48px 48px 48px;
 }
 
-.error {
-  color: #d9534f;
-  font-size: 1.2rem;
-  text-align: center;
-}
-
-.formContainer {
-  background-color: white;
-  padding: 2rem;
+.section {
+  margin-bottom: 32px;
+  background: #f8f9fb;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+  padding: 24px 24px 8px 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 
-.formGroup {
-  margin-bottom: 20px;
+.formRow {
+  display: flex;
+  align-items: center; // 수직 중앙 정렬
+  min-height: 48px;   // 버튼 높이와 맞춤
+  gap: 0;
+  margin-bottom: 18px;
+}
 
-  label {
-    display: block;
-    font-weight: 500;
-    color: #444;
-  }
+.formLabel {
+  width: 110px;
+  min-width: 90px;
+  font-weight: 600;
+  color: #222;
+  text-align: left;
+  flex-shrink: 0;
+  padding-top: 0;
+  display: flex;
+  align-items: center;
+}
 
-  input[type="text"],
-  input[type="date"],
-  textarea {
+.formField {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.formField.vertical {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.editorContainer {
+  width: 100%;
+  min-width: 0;
+  min-height: 300px;
+}
+
+.formInput, .formField input, .formField textarea, .formField select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #dcdcdc;
-    border-radius: 4px;
-    font-size: 14px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  font-size: 16px;
+  background: #f9fafb;
+  transition: border-color 0.2s;
+  &:focus {
+    border-color: #1976d2;
+    background: #fff;
+    outline: none;
   }
 }
 
@@ -42,229 +75,27 @@
   display: flex;
   align-items: center;
   gap: 10px;
-
-  input {
-    flex: 1;
-  }
-
-  span {
-    font-size: 14px;
-    color: #888;
-  }
 }
 
-.required {
-  color: #ff4d4f;
-  margin-left: 4px;
-}
-
-.debugSection {
-  background-color: #2d2d2d;
-  color: #f0f0f0;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-top: 2rem;
-}
-
-.debugSection h3 {
-  border-bottom: 1px solid #555;
-  padding-bottom: 0.5rem;
-  margin-top: 0;
-}
-
-.debugSection pre {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.actionButton {
-  background-color: #0275d8;
-  color: white;
+.actionButton, .referenceButton {
+  background: #1976d2;
+  color: #fff;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 5px;
+  padding: 8px 20px;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-
-  &:hover {
-    background-color: #025aa5;
-  }
+  margin-left: 0; // margin-left 제거
+  transition: background 0.2s;
+  &:hover { background: #1251a3; }
 }
 
-.participantDisplay {
-  padding: 0.5rem;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  min-height: 2.5rem;
-  background-color: #f8f9fa;
-  margin-bottom: 0.5rem;
-}
-
-.actionButtons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid #eee;
-}
-
-.submitButton, .draftButton {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.submitButton {
-  background-color: #337ab7;
-  color: white;
-
-  &:hover:not(:disabled) {
-    background-color: #286090;
-  }
-
-  &:disabled {
-    background-color: #a9cce3;
-    cursor: not-allowed;
-  }
-}
-
-.draftButton {
-  @extend .submitButton; // 기본 스타일 상속
-  background-color: #6c757d; // 회색 계열
-  
-  &:hover {
-    background-color: #5a6268;
-  }
-}
-
-.cancelButton {
-  @extend .submitButton;
-  background-color: #f8f9fa;
-  color: #495057;
-  border: 1px solid #dee2e6;
-
-  &:hover {
-    background-color: #e9ecef;
-  }
-}
-
-.formInput {
-  width: 98%;
-  padding: 6px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: inherit;
-  
-  &:focus {
-    outline: none;
-    border-color: #4a7ae5;
-    box-shadow: 0 0 0 2px rgba(74, 122, 229, 0.25);
-  }
-}
-
-.approvalFormTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  font-family: 'Malgun Gothic', sans-serif;
-  
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px 12px;
-    text-align: left;
-    vertical-align: middle;
-  }
-  
-  th {
-    width: 120px;
-    background-color: #f7f7f7;
-    font-weight: bold;
-  }
-  
-  td {
-    input[type="text"],
-    input[type="date"],
-    input[type="number"],
-    textarea {
-      width: 98%;
-      padding: 6px 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 14px;
-      font-family: inherit;
-    }
-
-    .periodContainer {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        input {
-            width: 150px;
-        }
-    }
-  }
-}
-
-
-
-.section {
-    margin-top: 2rem;
-    h3 {
-        font-size: 18px;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #333;
-    }
-} 
-
-.actionButton {
-  margin-left: 10px;
-}
-
-.fileList {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.fileTag {
-  background-color: #e9ecef;
-  border-radius: 4px;
-  padding: 5px 10px;
-  display: flex;
-  align-items: center;
-  font-size: 0.9em;
-}
-
-.removeTagButton {
-  background: none;
-  border: none;
-  color: #868e96;
-  margin-left: 8px;
-  cursor: pointer;
-  font-size: 1.2em;
-  line-height: 1;
-  padding: 0;
-
-  &:hover {
-    color: #343a40;
-  }
-}
-
-// 파일 업로드 관련 스타일 추가
 .fileUploadArea {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .fileInput {
@@ -272,86 +103,121 @@
 }
 
 .fileUploadButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background-color: #4a7ae5;
-  color: white;
+  background: #1976d2;
+  color: #fff;
   border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #3d6bd9;
-  }
-}
-
-.fileUploadHint {
-  font-size: 12px;
-  color: #666;
-}
-
-.selectedFilesSection,
-.existingFilesSection {
-  margin-top: 16px;
-  padding: 12px;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
-
-  h4 {
-    margin: 0 0 12px 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-  }
-}
-
-.fileList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.fileItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background-color: white;
-  border: 1px solid #e0e0e0;
   border-radius: 4px;
-  font-size: 13px;
-}
-
-.fileName {
-  flex: 1;
+  padding: 8px 18px;
+  font-size: 15px;
+  cursor: pointer;
   font-weight: 500;
-  color: #333;
-  margin-right: 8px;
+  transition: background 0.2s;
+  &:hover { background: #1251a3; }
 }
 
-.fileSize {
-  color: #666;
-  font-size: 12px;
-  margin-right: 8px;
+.selectedFilesSection {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fileTag {
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 16px;
+  padding: 6px 14px;
+  font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
 }
 
 .removeFileButton {
   background: none;
   border: none;
-  color: #dc3545;
-  cursor: pointer;
+  color: #e53935;
   font-size: 16px;
-  padding: 2px 6px;
-  border-radius: 3px;
-  transition: background-color 0.2s;
+  cursor: pointer;
+  margin-left: 4px;
+  &:hover { color: #b71c1c; }
+}
 
-  &:hover {
-    background-color: #ffe8e8;
+.fileUploadHint {
+  color: #888;
+  font-size: 13px;
+}
+
+.referenceContainer {
+  flex: 1;
+}
+
+.existingFilesSection {
+  margin-top: 10px;
+  background: #f1f3f6;
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-top: 36px;
+}
+
+.submitButton {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 32px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover { background: #1251a3; }
+}
+.draftButton {
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 32px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover { background: #bdbdbd; }
+}
+.cancelButton {
+  background: #fff;
+  color: #e53935;
+  border: 1.5px solid #e57373;
+  border-radius: 6px;
+  padding: 12px 32px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover { background: #ffeaea; }
+}
+
+@media (max-width: 900px) {
+  .pageContainer {
+    padding: 16px 4px 32px 4px;
+  }
+  .section {
+    padding: 14px 6px 6px 6px;
+  }
+  .buttonGroup {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .formLabel {
+    width: 80px;
+    min-width: 70px;
+    font-size: 15px;
   }
 } 

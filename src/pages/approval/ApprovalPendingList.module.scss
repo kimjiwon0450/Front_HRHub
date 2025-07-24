@@ -1,76 +1,23 @@
-.approval-pending-list {
-  padding: 32px 0;
-  h2 {
+.container {
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 12px;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.sectionTitle {
     font-size: 24px;
     font-weight: 700;
     color: #222;
     margin-bottom: 28px;
   }
-  .approval-pending-list-inner {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-}
 
-.approval-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  padding: 24px 32px;
+.filterRow, .filterGroup {
   display: flex;
-  flex-direction: column;
   gap: 16px;
-  transition: box-shadow 0.2s;
-  border: 1.5px solid #e0e0e0;
-}
-
-.approval-card-header {
-  display: flex;
+  margin-bottom: 20px;
   align-items: center;
-  gap: 32px;
-  margin-bottom: 8px;
-}
-
-.approval-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #222;
-  flex: 1;
-}
-
-.approval-date {
-  font-size: 14px;
-  color: #888;
-  min-width: 120px;
-}
-
-.approval-writer {
-  display: flex;
-  align-items: center;
-  font-size: 15px;
-  color: #2196f3;
-  font-weight: 600;
-  gap: 6px;
-}
-
-.icon-user {
-  display: inline-block;
-  width: 22px;
-  height: 22px;
-  background: #e3f2fd;
-  border-radius: 50%;
-  margin-right: 4px;
-  position: relative;
-}
-
-.icon-user::before {
-  content: '\1F464'; /* 유니코드 사람 아이콘 */
-  position: absolute;
-  left: 4px;
-  top: 2px;
-  font-size: 16px;
-  color: #2196f3;
 }
 
 .resultInfo {
@@ -82,4 +29,32 @@
   font-weight: 500;
   margin-bottom: 16px;
   border-left: 4px solid #2196f3;
+}
+
+.list, .reportList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.error, .noReports {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+
+.noReports {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0;
+  text-align: center;
+  color: #888;
+}
+
+.noReportsIcon {
+  font-size: 48px;
+  margin-bottom: 10px;
+  color: #ccc;
 } 

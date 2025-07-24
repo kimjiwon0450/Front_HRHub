@@ -243,7 +243,7 @@ const TemplateAdminPage = () => {
             </button>
           </div>
           <div className={styles.actions}>
-            <button className={styles.addButton} onClick={() => navigate('/approval/templates/form')}>+ 양식 추가하기</button>
+            <button className={styles.addButton} onClick={() => navigate('/approval/admin/templates/new')}>+ 양식 추가하기</button>
           </div>
         </div>
         <div className={styles.templateListContainer}>
@@ -264,7 +264,7 @@ const TemplateAdminPage = () => {
                 </div>
               </div>
               <div className={styles.templateActions}>
-                <button onClick={() => navigate(`/approval/templates/edit/${template.templateId}`)}>수정</button>
+                <button onClick={() => navigate(`/approval/admin/templates/edit/${template.templateId}`)}>수정</button>
                 <button onClick={() => handleDelete(template.templateId)} className={styles.deleteButton}>삭제</button>
               </div>
             </div>
