@@ -73,7 +73,36 @@ export default function EmployeeList() {
       setTotalPages,
     });
   };
-
+  const getEmployeeList = async ({
+    field = 'name',
+    keyword = '',
+    department = '전체',
+    page: reqPage = 0,
+    size: reqSize = 10,
+    sortField: reqSortField = null,
+    sortOrder: reqSortOrder = 'asc',
+    setEmployees,
+    setTotalPages,
+    isActive, // 추가
+  } = {}) => {
+    try {
+      let params = `?page=${reqPage}&size=${reqSize}`;
+      if (keyword.trim())
+        params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
+      if (department !== '전체')
+        params += `&department=${encodeURIComponent(department)}`;
+      if (reqSortField) params += `&sort=${reqSortField},${reqSortOrder}`;
+      if (typeof isActive === 'boolean') params += `&isActive=${isActive}`; // 추가
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
+      );
+      setEmployees(res.data.result.content);
+      setTotalPages(res.data.result.totalPages || 1);
+    } catch (error) {
+      console.log(error + 'from getEmployeeList');
+      alert(error?.response?.data?.statusMessage || error.message);
+    }
+  };
   // 정렬, 페이지, 페이지 크기 변화 시 목록 재요청 (검색 조건은 appliedSearch 기준)
   useEffect(() => {
     getEmployeeList({

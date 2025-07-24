@@ -24,7 +24,7 @@ $border: #eceff3;
 
 .sidebar {
   width: 170px;
-  min-width: 170px;
+  min-width: 60px;
   max-width: 170px;
   background: $sidebar-bg;
   box-shadow: $sidebar-shadow;
@@ -102,7 +102,10 @@ $border: #eceff3;
 }
 
 // 사이드바 내부 메뉴/버튼/로고/아이콘도 꿀렁거림 제거
-.sidebar .nav, .sidebar .logo, .sidebar button, .sidebar .menu-icon {
+.sidebar .nav,
+.sidebar .logo,
+.sidebar button,
+.sidebar .menu-icon {
   transition: none !important;
   transform: none !important;
   margin: 0 !important;
@@ -165,6 +168,58 @@ $border: #eceff3;
           background: $accent;
           color: #fff;
         }
+      }
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      background: #f1f5fa;
+      color: #384048;
+      border-radius: 2rem;
+      padding: 0.35rem 1.1rem 0.35rem 0.9rem;
+      margin-right: 1.1rem;
+      font-weight: 600;
+      font-size: 1.04rem;
+      box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06);
+      gap: 0.5rem;
+      transition: background 0.18s;
+      border: 1px solid #e3e8f0;
+
+      .user-icon {
+        font-size: 1.18em;
+        margin-right: 0.4em;
+        color: #3b82f6;
+        vertical-align: middle;
+      }
+      .user-name {
+        font-weight: 700;
+        margin-right: 0.3em;
+      }
+      .user-dept {
+        color: #6b7280;
+        font-weight: 500;
+        font-size: 0.98em;
+      }
+      .user-position {
+        color: #7b8794;
+        font-style: italic;
+        font-size: 0.98em;
+        margin: 0 0.4em 0 0.2em;
+        font-weight: 500;
+      }
+      .user-role {
+        background: #e0e7ff;
+        color: #3730a3;
+        border-radius: 1em;
+        padding: 0.18em 0.85em;
+        margin-left: 0.7em;
+        font-size: 0.97em;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        box-shadow: 0 1px 2px rgba(44, 62, 80, 0.04);
+        border: 1px solid #c7d2fe;
+        display: inline-block;
       }
     }
 
@@ -341,5 +396,66 @@ $border: #eceff3;
     right: 1rem;
     bottom: 5.5rem;
     max-width: 95vw;
+  }
+}
+
+// 햄버거 버튼 (모바일)
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  margin-right: 1rem;
+  color: #384048;
+  cursor: pointer;
+  z-index: 1201;
+}
+
+// 오버레이 (모바일 사이드바 열릴 때)
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 1200;
+}
+
+// 모바일 사이드바 오픈 시 스타일
+.sidebar.sidebar--mobile-open {
+  display: flex !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 220px;
+  min-width: 0;
+  max-width: 80vw;
+  box-shadow: 2px 0 16px 0 rgba(44, 62, 80, 0.18);
+  z-index: 1202;
+  background: $sidebar-bg;
+  animation: slideInLeft 0.3s;
+}
+
+@media (max-width: 600px) {
+  .hamburger-btn {
+    display: block;
+    position: absolute;
+    left: 1rem;
+    top: 1.1rem;
+  }
+  .sidebar {
+    display: none;
+  }
+  .sidebar.sidebar--mobile-open {
+    display: flex !important;
+  }
+  .sidebar-overlay {
+    display: block;
+  }
+  .main .header {
+    padding-left: 3.2rem;
   }
 }

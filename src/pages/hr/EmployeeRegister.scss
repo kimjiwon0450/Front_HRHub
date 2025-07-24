@@ -76,6 +76,23 @@
   resize: none;
 }
 
+.reg-input--readonly {
+  border: 1.5px solid #e53935 !important;
+  color: #e53935 !important;
+  background: #fff0f0 !important;
+  cursor: default !important;
+}
+.reg-input--readonly:focus,
+.reg-input--readonly:hover,
+.reg-input--readonly:active {
+  border: 1.5px solid #e53935 !important;
+  color: #e53935 !important;
+  background: #fff0f0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: default !important;
+}
+
 .reg-textarea {
   min-height: 90px;
   margin-top: 0.4rem;
@@ -245,4 +262,15 @@
 // 주소 입력란만 길이 제한
 .reg-input[type='text'][readonly][placeholder='주소'] {
   max-width: 340px;
+}
+
+.input-lock-indicator {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  font-size: 0.98rem;
+  color: #e53935;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  user-select: none;
 }
