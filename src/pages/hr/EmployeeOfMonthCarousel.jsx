@@ -47,6 +47,10 @@ const EmployeeOfMonthCarousel = () => {
 
   return (
     <div className='employee-of-month'>
+      <div className='tabs'>
+        <button className='active'>이달의 사원</button>
+        <div className='menu-icon'>≡</div>
+      </div>
       <div className='eom-slider'>
         {eomList.map((eom, idx) => (
           <div

@@ -1,4 +1,5 @@
 $accent: #3b82f6; // 메인 포인트 컬러 (초록)
+$accent-light: lighten($accent, 25%); // 엑센트 컬러를 25% 더 연하게
 $sidebar-bg: #fff;
 $sidebar-shadow: 0 2px 16px 0 rgba(44, 62, 80, 0.07);
 $main-bg: #f6f8fb;
@@ -85,13 +86,17 @@ $border: #eceff3;
         box-shadow 0.2s ease;
       letter-spacing: 0.01em;
 
-      &:hover,
+      &:hover {
+        background: $accent-light; // 호버 시 연한 색상 적용
+        color: #fff; // 호버 시 텍스트 색상 유지
+        transform: translateX(4px);
+      }
+
       &.active {
-        background: $accent;
+        background: $accent; // 활성 상태는 기존 색상 유지
         color: #fff;
         font-weight: 700;
         box-shadow: 0 2px 8px 0 rgba(53, 196, 91, 0.07);
-        transform: translateX(4px);
 
         .menu-icon {
           transform: scale(1.1);
@@ -160,12 +165,13 @@ $border: #eceff3;
         transition: all 0.2s ease;
 
         &:hover {
+          background: $accent-light; // 호버 시 연한 색상 적용
+          color: #fff;
           transform: translateY(-2px);
         }
 
-        &:hover,
         &.active {
-          background: $accent;
+          background: $accent; // 활성 상태는 기존 색상 유지
           color: #fff;
         }
       }
