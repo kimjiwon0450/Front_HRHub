@@ -6,6 +6,7 @@ import {
 } from '../../configs/host-config';
 import { UserContext, UserContextProvider } from '../../context/UserContext'; // 로그인 유저 정보
 import './NoticeBoardList.scss';
+import Swal from 'sweetalert2';
 
 const NoticeBoardList = () => {
     const navigate = useNavigate();
@@ -26,6 +27,8 @@ const NoticeBoardList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [pageSize, setPageSize] = useState(10); // ✅ 보기 개수
     const [loading, setLoading] = useState(false);
+    const [deletingId, setDeletingId] = useState(null); // 삭제 중인 공지 ID
+
 
     const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
     const dateTimeOptions = {
@@ -34,6 +37,42 @@ const NoticeBoardList = () => {
         hour12: false,
     };
 
+    const handleDeleteScheduled = async (noticeId) => {
+        const result = await Swal.fire({
+            title: '정말 삭제할까요?',
+            text: '예약된 공지를 삭제하면 복구할 수 없습니다.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '삭제',
+            cancelButtonText: '취소'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            setDeletingId(noticeId); // 삭제 중 상태
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/schedule/${noticeId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (!res.ok) {
+                throw new Error('삭제 실패');
+            }
+
+            Swal.fire('삭제 완료', '해당 예약 공지가 삭제되었습니다.', 'success');
+            setNotices(prev => prev.filter(n => n.noticeId !== noticeId));
+        } catch (err) {
+            console.error('삭제 실패:', err);
+            Swal.fire('삭제 실패', '문제가 발생했습니다. 다시 시도해 주세요.', 'error');
+        } finally {
+            setDeletingId(null); // 로딩 상태 해제
+        }
+    };
 
 
     useEffect(() => {
@@ -220,6 +259,7 @@ const NoticeBoardList = () => {
                                 <th>작성자</th>
                                 <th>{viewMode === 'SCHEDULE' ? '예약일' : '작성일'}</th>
                                 <th>조회수</th>
+                                {viewMode === 'SCHEDULE' && <th>삭제</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -258,6 +298,33 @@ const NoticeBoardList = () => {
                                         color: post.position === userPosition ? '#28c309' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
                                     }}>{post.viewCount}</td>
+
+                                    {/* ❌ 삭제 버튼 */}
+                                    {viewMode === 'SCHEDULE' && (
+                                        <td onClick={(e) => e.stopPropagation()}>
+                                            <button
+                                                onClick={() => handleDeleteScheduled(post.noticeId)}
+                                                disabled={deletingId === post.noticeId}
+                                                style={{
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    color: 'red',
+                                                    fontSize: '1.1em',
+                                                    cursor: deletingId === post.noticeId ? 'not-allowed' : 'pointer',
+                                                    transition: 'color 0.2s',
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    if (deletingId !== post.noticeId) e.currentTarget.style.color = '#ff4444';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    if (deletingId !== post.noticeId) e.currentTarget.style.color = 'red';
+                                                }}
+                                                title="예약 공지 삭제"
+                                            >
+                                                {deletingId === post.noticeId ? '🔄' : '❌'}
+                                            </button>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
 
@@ -310,6 +377,32 @@ const NoticeBoardList = () => {
                                         color: post.position === userPosition ? '#21429e' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
                                     }}>{post.viewCount}</td>
+                                    {/* ❌ 삭제 버튼 */}
+                                    {viewMode === 'SCHEDULE' && (
+                                        <td onClick={(e) => e.stopPropagation()}>
+                                            <button
+                                                onClick={() => handleDeleteScheduled(post.noticeId)}
+                                                disabled={deletingId === post.noticeId}
+                                                style={{
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    color: 'red',
+                                                    fontSize: '1.1em',
+                                                    cursor: deletingId === post.noticeId ? 'not-allowed' : 'pointer',
+                                                    transition: 'color 0.2s',
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    if (deletingId !== post.noticeId) e.currentTarget.style.color = '#ff4444';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    if (deletingId !== post.noticeId) e.currentTarget.style.color = 'red';
+                                                }}
+                                                title="예약 공지 삭제"
+                                            >
+                                                {deletingId === post.noticeId ? '🔄' : '❌'}
+                                            </button>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
 

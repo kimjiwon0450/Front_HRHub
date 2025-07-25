@@ -25,7 +25,7 @@ import { FaUserCircle } from 'react-icons/fa';
 
 const sidebarMenus = [
   {
-    to: '/general',
+    to: '/notice',
     label: '공지사항',
     icon: <FaBullhorn style={{ color: '#ff8a80', opacity: 0.7 }} />,
   }, // 연한 빨강
@@ -158,7 +158,7 @@ export default function MainLayout() {
         } else {
           setError(
             res.data?.statusMessage ||
-              '결재 예정 문서를 불러오는 데 실패했습니다.',
+            '결재 예정 문서를 불러오는 데 실패했습니다.',
           );
         }
       } catch (err) {
