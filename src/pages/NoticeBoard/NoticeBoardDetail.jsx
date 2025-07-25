@@ -130,8 +130,9 @@ const NoticeBoardDetail = () => {
             const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}/comments`, {
                 headers: { 'Authorization': `Bearer ${accessToken}` }
             });
+            console.log('댓글 데이터 res : ', res);
             const data = await res.json();
-            console.log('댓글 데이터 : ', data);
+            console.log('댓글 데이터 data : ', data);
             setComments(data);
         } catch (err) {
             console.error('댓글 불러오기 실패:', err);

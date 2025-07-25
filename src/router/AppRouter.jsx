@@ -111,35 +111,14 @@ const AppRouter = [
         children: [
           { index: true, element: <NoticeBoardList /> }, // '/noticeboard' 접속 시 기본 페이지
           { path: 'my', element: <NoticeBoardList /> },
-          { path: 'mydepartment', element: <NoticeBoardList /> },
-          { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
-          { path: 'edit/:id', element: <NoticeBoardWrite isEdit={true} /> },
-          { path: 'alert', element: <NoticeAlertPage /> },
-          { path: ':id', element: <NoticeBoardDetail /> },
-        ],
-      },
-      {
-        path: 'general',
-        children: [
-          { index: true, element: <NoticeBoardList /> }, // '/noticeboard' 접속 시 기본 페이지
-          { path: 'my', element: <NoticeBoardList /> },
-          // { path: 'mydepartment', element: <NoticeBoardList /> },
           { path: 'schedule', element: <NoticeBoardList /> },
           { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
-          {
-            path: 'edit/:noticeId',
-            element: <NoticeBoardWrite isEdit={true} />,
-          },
+          { path: 'edit/:noticeId', element: <NoticeBoardWrite isEdit={true} /> },
           { path: ':noticeId', element: <NoticeBoardDetail /> },
           { path: 'alert', element: <NoticeAlertPage /> },
+          { path: ':noticeId', element: <NoticeBoardDetail /> },
         ],
       },
-      { path: 'alert', element: <NoticeAlertPage /> },
-      // { path: 'mydepartment', element: <NoticeBoardList /> },
-      { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
-      { path: 'edit/:id', element: <NoticeBoardWrite isEdit={true} /> },
-      { path: ':id', element: <NoticeBoardDetail /> },
-      { path: 'alert', element: <NoticeAlertPage /> },
       {
         path: 'community',
         children: [

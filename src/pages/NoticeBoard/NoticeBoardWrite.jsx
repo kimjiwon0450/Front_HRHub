@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import { UserContext, UserContextProvider } from '../../context/UserContext';
 import { API_BASE_URL, NOTICE_SERVICE, HR_SERVICE } from '../../configs/host-config';
 import PublishModal from './PublishModal';
+import Editor from '../../components/Editor';
 
 const NoticeBoardWrite = ({ isEdit = false }) => {
 
@@ -270,12 +271,17 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
             />
-            <textarea
+            {/* <textarea
                 placeholder="내용을 입력하세요"
                 className="content-textarea"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-            />
+            /> */}
+
+            <div className="editor-wrapper">
+                <Editor content={content} onChange={setContent} />
+            </div>
+
 
             <div className="department-select">
                 <label htmlFor="department">공지 대상 부서 (선택사항):</label>
