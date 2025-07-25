@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import {
     API_BASE_URL,
     NOTICE_SERVICE
@@ -363,7 +364,10 @@ const NoticeBoardDetail = () => {
                 }
             </div>
             <hr />
-            <div className="content">{posts.content}</div>
+            <div
+                className="content"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(posts.content) }}
+            />
             <hr />
 
             {/* ✅ 첨부파일 미리보기 */}

@@ -49,65 +49,6 @@
     }
   }
 
-  .options {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 24px;
-
-    label {
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 500;
-
-      input[type='radio'] {
-        accent-color: #007bff;
-        transform: scale(1.2);
-        cursor: pointer;
-      }
-
-      &:first-child {
-        font-weight: 600;
-      }
-    }
-  }
-
-  .department-select {
-    margin-bottom: 24px;
-
-    label {
-      font-size: 15px;
-      font-weight: 500;
-      margin-right: 10px;
-    }
-
-    select {
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-
-      background-color: #f9f9f9;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 15px;
-      color: #333;
-      cursor: pointer;
-      transition: border-color 0.2s ease-in-out;
-
-      &:hover {
-        border-color: #007bff;
-      }
-
-      &:focus {
-        outline: none;
-        border-color: #007bff;
-        background-color: #fff;
-      }
-    }
-  }
-
   .attachments {
     margin-bottom: 24px;
 

@@ -47,6 +47,8 @@
         font-size: 13px;
         font-weight: 600;
         color: #333;
+        text-align: center; // 텍스트 가운데 정렬
+        display: inline-block; // width 적용 + 정렬 가능하게
       }
 
       input[type='color'] {
@@ -73,13 +75,15 @@
     .font-group {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 5px;
 
       label {
         font-size: 13px;
         font-weight: 600;
         color: #333;
         min-width: 60px;
+        text-align: center; // 텍스트 가운데 정렬
+        display: inline-block; // width 적용 + 정렬 가능하게
       }
 
       select {
