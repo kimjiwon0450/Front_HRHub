@@ -3,7 +3,7 @@ name: Deploy React App to S3 (Vite)
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   build-and-deploy:
