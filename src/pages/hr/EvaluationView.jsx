@@ -32,7 +32,12 @@ const DEFAULT_CRITERIA = [
   { key: 'problem', label: '문제해결능력' },
 ];
 
-export default function EvaluationView({ evaluation, onClose, onEdit }) {
+export default function EvaluationView({
+  evaluation,
+  onClose,
+  onEdit,
+  userId,
+}) {
   // evaluation: {
   //   name, dept, date, leadership, creativity, cooperation, problem, comment, avg
   // }
@@ -164,7 +169,7 @@ export default function EvaluationView({ evaluation, onClose, onEdit }) {
         <button className='btn dark' type='button' onClick={onClose}>
           닫기
         </button>
-        {onEdit && (
+        {onEdit && evaluation.evaluateeId !== userId && (
           <button
             className='btn blue'
             type='button'
