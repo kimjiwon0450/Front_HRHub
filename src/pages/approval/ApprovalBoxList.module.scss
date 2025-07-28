@@ -101,13 +101,19 @@
 
 .reportItem {
   display: flex;
-  padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.2s ease-in-out;
+  padding: 22px 28px;
+  border-bottom: 1.5px solid #f0f0f0;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.15s;
   cursor: pointer;
 
   &:hover {
-    background-color: #f9fafb;
+    background-color: #f3f8ff;
+    box-shadow: 0 4px 16px rgba(33, 150, 243, 0.08);
+    transform: translateY(-2px) scale(1.01);
   }
 }
 
@@ -181,20 +187,74 @@
   color: #888;
 }
 
+.schedule-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.schedule-indicator {
+  font-size: 14px;
+  color: #1565c0;
+  background-color: #e3f2fd;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid #90caf9;
+  font-weight: 600;
+  margin-bottom: 2px;
+  letter-spacing: 0.5px;
+}
+
+.time-until {
+  font-size: 12px;
+  color: #ff6b35;
+  font-weight: 700;
+  background: #fffbe7;
+  border-radius: 4px;
+  padding: 2px 8px;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.cancel-schedule-btn {
+  background: #fff;
+  border: 1px solid #ffb4a2;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #dc3545;
+  margin-left: 10px;
+  margin-top: 4px;
+  transition: all 0.2s;
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(255,107,53,0.04);
+  &:hover {
+    background-color: #ffe5e0;
+    border-color: #ff6b35;
+    color: #b71c1c;
+    transform: scale(1.08);
+  }
+}
+
 .noReports {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 60px 0;
+  padding: 80px 0;
   text-align: center;
   color: #888;
+  background: #f8fafc;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }
 
 .noReportsIcon {
-  font-size: 48px;
-  margin-bottom: 10px;
-  color: #ccc;
+  font-size: 54px;
+  margin-bottom: 14px;
+  color: #90caf9;
 }
 
 .attachmentSection {

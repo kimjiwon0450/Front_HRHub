@@ -572,68 +572,44 @@
   }
 }
 
-@page {
-  size: A4 portrait;
-  margin: 15mm 10mm 15mm 10mm;
-}
-
+/* ========== 인쇄 전용 스타일 (안전/실전 적용) ========== */
 @media print {
-  /* 1. 불필요한 UI 요소 숨기기 */
-  .sidebar, .header, .buttonGroup, .printButton, .approvalContainer .sidebar {
+  /* 1. 숨길 요소만 명확히 지정 */
+  .sidebar, .main > .header, .chatbot-fab, .hamburger-btn, .sidebar-overlay, .printButton, ._sidebar_nf9zc_2 {
     display: none !important;
   }
 
-  /* 2. 인쇄할 메인 컨텐츠 영역을 전체 화면으로 확장 */
-  .approvalContainer {
-    width: 210mm !important;
-    min-height: 297mm !important;
-    max-width: 210mm !important;
+  /* 2. 본문 컨테이너만 인쇄에 맞게 스타일링 (실제 클래스명으로!) */
+  ._approvalContainer_1diqn_3 {
+    display: block !important;
+    width: 100% !important;
+    max-width: 180mm !important;
     margin: 0 auto !important;
-    padding: 20mm 15mm !important;
+    padding: 15mm !important;
+    background: #fff !important;
+    border: 1px solid #ccc !important;
     box-sizing: border-box !important;
-    background: #fff !important;
+    color: #000 !important;
     position: static !important;
-    border: none !important;
-    box-shadow: none !important;
-    overflow: visible !important;
+    float: none !important;
     height: auto !important;
-  }
-
-  /* 3. 페이지 나뉨 방지 (결재선, 결재이력 등) */
-  .approvalLineBox, .historySection {
-    page-break-inside: avoid;
-  }
-
-  /* 4. 글자색/배경색 강제 */
-  body, html, .layout, .main, .content, .bottomSection {
-    display: block !important;
-    width: auto !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    background: #fff !important;
     overflow: visible !important;
   }
 
-  .content {
-    padding: 20mm !important;
-  }
-
-  .historySection, ._historySection_1s876_180 {
-    display: block !important;
-    visibility: visible !important;
-    overflow: visible !important;
-    page-break-before: auto;
-  }
-
-  img, table {
+  ._approvalContainer_1diqn_3 img,
+  ._approvalContainer_1diqn_3 table {
     max-width: 100% !important;
     page-break-inside: avoid;
   }
 
-  * {
+  ._approvalLineBox_1diqn_541,
+  ._historySection_1diqn_180 {
+    page-break-inside: avoid;
+    margin-top: 20px;
+  }
+
+  ._approvalContainer_1diqn_3 * {
     color: #000 !important;
+    background: transparent !important;
   }
 }
