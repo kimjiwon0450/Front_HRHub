@@ -30,11 +30,12 @@
       width: 130px;
       height: 130px;
       border-radius: 50%;
-      border: 2px solid #b6c2cf;
+      border: 3px solid #b6c2cf; // 테두리 두께 변경
       background: #f2f4f8;
       object-fit: cover;
       margin-right: 1.2rem;
       cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); // 그림자 추가
 
       &.disabled {
         cursor: default;
@@ -46,123 +47,182 @@
     }
 
     img:hover:not(.disabled) {
-      opacity: 0.8;
+      opacity: 0.9; // 호버 시 투명도 조절
+      transform: scale(1.02); // 호버 시 약간 확대
+      transition: all 0.2s ease-in-out; // 부드러운 전환
     }
   }
 
   .emp-info-table {
-    border-collapse: collapse;
-    width: 100%; // 추가: 테이블이 컨테이너 안에서 100%만 차지
-    max-width: 100%; // 추가: 더 커지지 않게
-    min-width: 700px; // 기존 (원하면 줄여도 됨)
-    table-layout: auto; // auto로 (혹시 fixed였으면)
+    border-collapse: separate; // border-spacing을 위해 separate로 변경
+    border-spacing: 0; // 셀 사이 간격 제거
+    width: 100%;
+    max-width: 100%;
+    min-width: 700px;
+    table-layout: fixed; // 테이블 레이아웃 고정
+    border-radius: 12px; // 모서리 둥글게
+    overflow: hidden; // border-radius 적용을 위해
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); // 그림자 추가
 
     th,
     td {
-      border: 1px solid #7e9cb0;
-      padding: 0.7em 1em;
+      border: none; // 기존 border 제거
+      padding: 1em 1.2em; // 패딩 증가
       font-size: 1rem;
       text-align: left;
-      background: #e2ecf3;
     }
     th {
-      font-weight: 500;
-      background: #bdd3e6;
-      min-width: 80px;
+      font-weight: 600; // 폰트 두께 변경
+      background: #e9f2f9; // 헤더 배경색 변경
+      color: #2c3e50; // 헤더 텍스트 색상 변경
+      min-width: 100px; // 최소 너비 조정
+      border-bottom: 1px solid #c8daea; // 하단 보더 추가
     }
     td {
-      background: #fff;
-      min-width: 110px;
+      background: #ffffff; // 데이터 셀 배경색
+      color: #34495e; // 데이터 셀 텍스트 색상
+      min-width: 120px;
+      border-bottom: 1px solid #f0f4f7; // 데이터 셀 하단 보더
+    }
+
+    tr:nth-child(even) {
+      td {
+        background: #f8fbfc; // 짝수 행 배경색
+      }
+    }
+
+    tr:last-child {
+      td {
+        border-bottom: none; // 마지막 행 하단 보더 제거
+      }
     }
   }
 }
 
 .emp-section {
-  margin-top: 2.2rem;
+  margin-top: 2.5rem; // 상단 여백 증가
 
   .emp-section-title {
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 0.7rem;
-    color: #222;
-    letter-spacing: 0.01em;
+    font-size: 1.2rem; // 폰트 크기 증가
+    font-weight: 700; // 폰트 두께 증가
+    margin-bottom: 1rem; // 하단 여백 증가
+    color: #2c3e50; // 색상 변경
+    border-left: 5px solid #3498db; // 좌측 라인 추가
+    padding-left: 10px; // 좌측 라인과의 간격
+    letter-spacing: 0.02em; // 자간 조정
   }
-  .emp-summary-table {
-    border-collapse: collapse;
+  .emp-summary-table,
+  .emp-edu-table {
+    border-collapse: separate; // border-spacing을 위해 separate로 변경
+    border-spacing: 0; // 셀 사이 간격 제거
     width: 100%;
+    border-radius: 12px; // 모서리 둥글게
+    overflow: hidden; // border-radius 적용을 위해
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); // 그림자 추가
+
     th,
     td {
-      border: 1px solid #b5c6d8;
-      padding: 0.7em 1em;
-      background: #f7fbfe;
-      font-size: 1rem;
-      font-weight: 400;
+      border: none; // 기존 border 제거
+      padding: 0.9em 1.1em; // 패딩 조정
+      font-size: 0.98rem;
     }
     th {
-      width: 180px;
-      background: #ddeaf4;
-      font-weight: 500;
+      background: #e9f2f9; // 헤더 배경색 변경
+      color: #2c3e50; // 헤더 텍스트 색상 변경
+      font-weight: 600; // 폰트 두께 변경
       text-align: left;
+      border-bottom: 1px solid #c8daea; // 하단 보더 추가
     }
     td {
-      background: #fff;
+      background: #ffffff; // 데이터 셀 배경색
+      color: #34495e; // 데이터 셀 텍스트 색상
+      border-bottom: 1px solid #f0f4f7; // 데이터 셀 하단 보더
+    }
+
+    tr:nth-child(even) {
+      td {
+        background: #f8fbfc; // 짝수 행 배경색
+      }
+    }
+
+    tr:last-child {
+      td {
+        border-bottom: none; // 마지막 행 하단 보더 제거
+      }
     }
   }
   .emp-edu-table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-top: 0.8rem;
+    margin-top: 1.5rem; // 상단 여백 증가
     th,
     td {
-      border: 1px solid #7e9cb0;
-      padding: 0.6em 0.7em;
-      font-size: 1rem;
-      text-align: center;
-    }
-    th {
-      background: #bdd3e6;
-      font-weight: 500;
-    }
-    td {
-      background: #fff;
+      text-align: center; // 교육 테이블은 중앙 정렬 유지
     }
   }
 }
 
 .emp-btns {
   display: flex;
-  justify-content: flex-end;
-  gap: 0.7rem;
-  margin-top: 2.4rem;
+  justify-content: center; // 중앙 정렬
+  gap: 1rem; // 버튼 간격 증가
+  margin-top: 3rem; // 상단 여백 증가
+  padding-bottom: 2rem; // 하단 여백
 
   a {
     text-decoration: none;
   }
 
   .btn {
-    min-width: 120px;
-    font-size: 1.05rem;
-    font-weight: 500;
-    padding: 0.7em 1.5em;
+    min-width: 140px; // 최소 너비 증가
+    font-size: 1.1rem; // 폰트 크기 증가
+    font-weight: 600; // 폰트 두께 증가
+    padding: 0.8em 1.8em; // 패딩 증가
     border: none;
-    border-radius: 8px;
-    margin-left: 0.1rem;
+    border-radius: 10px; // 모서리 둥글게
     cursor: pointer;
     transition:
-      background 0.13s,
-      color 0.13s;
+      transform 0.2s ease-in-out,
+      box-shadow 0.2s ease-in-out; // 트랜지션 효과 추가
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); // 그림자 추가
+
+    &:hover {
+      transform: translateY(-3px); // 호버 시 살짝 위로 이동
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); // 호버 시 그림자 강화
+    }
+
     &.blue {
-      background: #2196f3;
+      background: linear-gradient(45deg, #42a5f5, #2196f3); // 그라데이션 배경
       color: #fff;
       &:hover {
-        background: #1766ad;
+        background: linear-gradient(
+          45deg,
+          #1e88e5,
+          #1565c0
+        ); // 호버 시 그라데이션 변경
       }
     }
     &.green {
-      background: #41b339;
+      background: linear-gradient(45deg, #66bb6a, #43a047); // 그라데이션 배경
       color: #fff;
       &:hover {
-        background: #248a22;
+        background: linear-gradient(
+          45deg,
+          #4caf50,
+          #2e7d32
+        ); // 호버 시 그라데이션 변경
+      }
+    }
+    &.red {
+      background: linear-gradient(45deg, #ef5350, #e53935); // 빨간색 버튼 추가
+      color: #fff;
+      &:hover {
+        background: linear-gradient(45deg, #d32f2f, #c62828);
+      }
+    }
+    &.gray {
+      background: linear-gradient(45deg, #90a4ae, #78909c); // 회색 버튼 추가
+      color: #fff;
+      &:hover {
+        background: linear-gradient(45deg, #607d8b, #455a64);
       }
     }
   }
@@ -170,25 +230,25 @@
 
 .emp-detail-card {
   background: #fff;
-  border-radius: 1.5rem;
-  box-shadow: 0 6px 32px 0 rgba(33, 150, 243, 0.1);
-  padding: 1.2rem 0.7rem 1.2rem 0.7rem;
-  max-width: 850px; // 더 넓게
+  border-radius: 1.8rem; // 더 둥글게
+  box-shadow: 0 8px 40px 0 rgba(33, 150, 243, 0.12); // 그림자 강화
+  padding: 1.5rem 1rem 1.5rem 1rem; // 패딩 조정
+  max-width: 900px; // 더 넓게
   margin: 0 auto;
   overflow-x: visible;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   @media (max-width: 950px) {
-    padding: 0.7rem 0.2rem 0.7rem 0.2rem;
-    max-width: 99vw;
+    padding: 1rem 0.5rem 1rem 0.5rem; // 패딩 조정
+    max-width: 98vw; // 최대 너비 조정
   }
 }
 
-// 모달에서만 적용할 컴팩트 스타일
+// 모달에서만 적용할 컴팩트 스타일 (기존 유지, 필요한 경우 조정)
 .modal-compact {
   .emp-detail-card {
-    max-width: 600px;
+    max-width: 650px; // 조정
     width: 100%;
     min-width: 0;
     padding: 1.2rem 0.7rem 1.2rem 0.7rem;
@@ -211,17 +271,17 @@
 
 .emp-profile-main {
   display: flex;
-  gap: 2.2rem;
+  gap: 2.5rem; // 간격 증가
   align-items: center;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.5rem; // 하단 여백 증가
 }
 .emp-profile-img {
-  width: 110px;
-  height: 110px;
+  width: 120px; // 크기 증가
+  height: 120px; // 크기 증가
   border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 2px 12px 0 rgba(33, 150, 243, 0.13);
-  border: 3px solid #eaf3fa;
+  box-shadow: 0 4px 18px 0 rgba(33, 150, 243, 0.15); // 그림자 강화
+  border: 4px solid #eaf3fa; // 테두리 두께 변경
   background: #eaf3fa;
   img {
     width: 100%;
@@ -232,241 +292,105 @@
 .emp-main-info {
   flex: 1;
   .emp-name {
-    font-size: 1.45rem;
+    font-size: 1.6rem; // 폰트 크기 증가
     font-weight: 800;
-    color: #1766ad;
-    margin-bottom: 0.3rem;
+    color: #1a73e8; // 색상 변경
+    margin-bottom: 0.5rem; // 하단 여백 조정
   }
   .emp-meta {
     display: flex;
-    gap: 0.7rem;
-    font-size: 1.08rem;
-    color: #2196f3;
-    margin-bottom: 0.2rem;
+    gap: 1rem; // 간격 증가
+    font-size: 1.15rem; // 폰트 크기 증가
+    color: #42a5f5; // 색상 변경
+    margin-bottom: 0.4rem; // 하단 여백 조정
   }
   .emp-status {
-    font-size: 1.01rem;
+    font-size: 1.05rem; // 폰트 크기 증가
     color: #fff;
-    background: #2196f3;
-    border-radius: 1em;
-    padding: 0.2em 1em;
+    background: #42a5f5; // 배경색 변경
+    border-radius: 1.2em; // 둥글게
+    padding: 0.25em 1.1em; // 패딩 조정
     display: inline-block;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.4rem; // 하단 여백 조정
     &.inactive {
-      background: #b0b0b0; /* 회색 배경 */
+      background: #90a4ae; /* 회색 배경 */
       color: #fff; /* 흰색 글자 */
-      /* 필요시 폰트 스타일 등 추가 */
     }
   }
   .emp-contact {
-    font-size: 0.99rem;
-    color: #444;
+    font-size: 1.02rem; // 폰트 크기 조정
+    color: #555;
     display: flex;
-    gap: 1.1rem;
+    gap: 1.5rem; // 간격 증가
   }
 }
 .emp-detail-extra {
-  background: #f8fbff;
-  border-radius: 1rem;
-  padding: 1.1rem 1.2rem;
-  font-size: 1.01rem;
-  color: #666;
-  margin-bottom: 1.2rem;
+  background: #e3f2fd; // 배경색 변경
+  border-radius: 1.2rem; // 둥글게
+  padding: 1.3rem 1.5rem; // 패딩 조정
+  font-size: 1.02rem;
+  color: #555; // 색상 변경
+  margin-bottom: 1.5rem; // 하단 여백 조정
   .emp-memo,
   .emp-address {
-    margin-top: 0.7rem;
-    background: #f3f7fa;
-    border-radius: 0.7em;
-    padding: 0.5em 1em;
-    color: #888;
-    font-size: 0.97rem;
+    margin-top: 0.8rem; // 상단 여백 조정
+    background: #c7e0f0; // 배경색 변경
+    border-radius: 0.8em; // 둥글게
+    padding: 0.6em 1.2em; // 패딩 조정
+    color: #777; // 색상 변경
+    font-size: 0.99rem; // 폰트 크기 조정
   }
 }
 .emp-btns.modern {
-  margin-top: 1.2rem;
+  margin-top: 1.5rem; // 상단 여백 조정
   display: flex;
-  gap: 0.5rem;
+  gap: 0.7rem; // 간격 조정
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center; // 중앙 정렬
   .btn {
-    font-size: 0.98rem;
+    font-size: 1rem; // 폰트 크기 조정
     font-weight: 600;
-    border-radius: 0.7em;
-    padding: 0.55em 1.1em;
-    min-width: 90px;
-    box-shadow: 0 2px 6px 0 rgba(33, 150, 243, 0.06);
-    transition:
-      background 0.15s,
-      color 0.15s,
-      box-shadow 0.15s;
+    border-radius: 0.8em; // 둥글게
+    padding: 0.6em 1.2em; // 패딩 조정
+    min-width: 100px; // 최소 너비 조정
+    box-shadow: 0 3px 8px 0 rgba(33, 150, 243, 0.08); // 그림자 조정
     &:hover {
-      box-shadow: 0 4px 18px 0 rgba(33, 150, 243, 0.13);
+      box-shadow: 0 6px 20px 0 rgba(33, 150, 243, 0.18); // 호버 시 그림자 강화
+      transform: translateY(-2px); // 호버 시 살짝 위로 이동
     }
   }
   @media (max-width: 650px) {
-    gap: 0.3rem;
+    gap: 0.5rem; // 간격 조정
     .btn {
-      width: calc(50% - 0.3rem);
+      width: calc(50% - 0.5rem); // 너비 조정
       min-width: 0;
-      font-size: 0.95rem;
-      padding: 0.6em 0;
+      font-size: 0.98rem; // 폰트 크기 조정
+      padding: 0.65em 0; // 패딩 조정
     }
   }
 }
 
 .emp-info-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: #f8fbff;
-  border-radius: 1.1rem;
-  overflow-x: auto;
-  th,
-  td {
-    background: transparent;
-    border: none;
-    padding: 0.55em 0.6em;
-    font-size: 0.97rem;
-    transition:
-      background 0.15s,
-      color 0.15s;
-    white-space: normal;
-    word-break: break-all;
-  }
-  th {
-    color: #1766ad;
-    font-weight: 700;
-    background: #eaf3fa;
-    border-right: 1.5px solid #e0e4ea;
-    text-align: left;
-  }
-  td {
-    color: #444;
-    background: #fff;
-    text-align: left;
-  }
-  tr {
-    border-bottom: 1.5px solid #e0e4ea;
-    &:last-child {
-      border-bottom: none;
-    }
-  }
-  @media (max-width: 650px) {
-    th,
-    td {
-      font-size: 0.91rem;
-      padding: 0.38em 0.3em;
-    }
-  }
-}
-
-/* 최소 반응형 */
-@media (max-width: 900px) {
-  .emp-detail-main {
-    flex-direction: column;
-    gap: 1.2rem;
-    .emp-info-table {
-      min-width: 0;
-    }
-    .emp-profile {
-      margin-bottom: 0.6rem;
-    }
-  }
-}
-@media (max-width: 600px) {
-  .emp-section .emp-summary-table th,
-  .emp-section .emp-summary-table td,
-  .emp-section .emp-edu-table th,
-  .emp-section .emp-edu-table td,
-  .emp-detail-main .emp-info-table th,
-  .emp-detail-main .emp-info-table td {
-    font-size: 0.93rem;
-    padding: 0.5em 0.5em;
-  }
-}
-@media (max-width: 600px) {
-  .emp-detail-main {
-    flex-direction: column;
-    gap: 0.7rem;
-    align-items: stretch;
-  }
-  .emp-profile {
-    margin-bottom: 0.7rem;
-    display: flex;
-    justify-content: center;
-  }
-  .emp-info-table {
-    min-width: 0;
-    width: 100%;
-    display: block;
-    overflow-x: auto;
-  }
-  .emp-info-table thead,
-  .emp-info-table tbody,
-  .emp-info-table tr {
-    display: block;
-    width: 100%;
-  }
-  .emp-info-table tr {
-    margin-bottom: 0.7rem;
-    display: flex;
-    flex-wrap: wrap;
-    border-bottom: 1px solid #e0e4ea;
-    background: none;
-  }
-  .emp-info-table th,
-  .emp-info-table td {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 0.95rem;
-    padding: 0.45em 0.7em;
-    text-align: left;
-    border: none;
-    background: #fff;
-  }
-  .emp-info-table th {
-    background: #eaf3fa;
-    font-weight: 600;
-    color: #1766ad;
-    border-bottom: 1px solid #e0e4ea;
-  }
-  .emp-info-table td {
-    background: #fff;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  .emp-btns {
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: stretch;
-  }
-  .emp-btns .btn {
-    width: 100%;
-    min-width: 0;
-    font-size: 1rem;
-    padding: 0.7em 0;
-  }
-}
-.emp-info-table {
-  display: table;
+  // 중복되는 스타일 제거 및 위에서 정의된 스타일 사용
+  display: table; // 명시적 선언
   width: 100%;
   th,
   td {
-    white-space: nowrap;
-    min-width: 90px;
-    font-size: 0.97rem;
-    padding: 0.7em 0.7em;
+    white-space: normal; // 필요한 경우 줄바꿈 허용
+    min-width: 100px; // 최소 너비 조정
+    font-size: 1rem; // 폰트 크기 조정
+    padding: 0.8em 1em; // 패딩 조정
   }
 }
 
-// 모달 리디자인 스타일
+// 모달 리디자인 스타일 조정
 .emp-modal-redesign {
-  max-width: 650px;
+  max-width: 700px; // 너비 조정
   margin: 0 auto;
-  padding: 0 0 12px 0;
+  padding: 0; // 상하좌우 패딩 완전히 제거
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 6px 32px 0 rgba(33, 150, 243, 0.13);
+  border-radius: 20px; // 더 둥글게
+  box-shadow: 0 8px 40px 0 rgba(33, 150, 243, 0.15); // 그림자 강화
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -475,17 +399,17 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1.2rem 1.5rem 0.7rem 1.5rem;
-  border-bottom: 1px solid #eaf3fa;
+  gap: 1.8rem; // 간격 조정
+  padding: 1rem 1.2rem 0.7rem 1.2rem; // 패딩 조정
+  border-bottom: 1px solid #e0eaf3; // 보더 색상 조정
 }
 .emp-modal-profile-img {
-  width: 90px;
-  height: 90px;
+  width: 100px; // 크기 조정
+  height: 100px; // 크기 조정
   border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 2px 12px 0 rgba(33, 150, 243, 0.13);
-  border: 2px solid #eaf3fa;
+  box-shadow: 0 4px 18px 0 rgba(33, 150, 243, 0.18); // 그림자 강화
+  border: 3px solid #eaf3fa; // 테두리 두께 조정
   background: #eaf3fa;
   img {
     width: 100%;
@@ -497,59 +421,59 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.3rem; // 간격 조정
 }
 .emp-modal-name {
-  font-size: 1.35rem;
+  font-size: 1.45rem; // 폰트 크기 조정
   font-weight: 800;
-  color: #1766ad;
-  margin-bottom: 0.1rem;
+  color: #1a73e8; // 색상 조정
+  margin-bottom: 0.2rem; // 마진 조정
 }
 .emp-modal-meta {
   display: flex;
-  gap: 0.7rem;
-  font-size: 1.01rem;
-  color: #2196f3;
-  margin-bottom: 0.1rem;
+  gap: 0.8rem; // 간격 조정
+  font-size: 1.05rem; // 폰트 크기 조정
+  color: #42a5f5; // 색상 조정
+  margin-bottom: 0.2rem; // 마진 조정
 }
 .emp-modal-status {
-  font-size: 0.98rem;
+  font-size: 1rem; // 폰트 크기 조정
   color: #fff;
-  background: #2196f3;
-  border-radius: 1em;
-  padding: 0.13em 0.9em;
+  background: #42a5f5; // 배경색 조정
+  border-radius: 1.2em;
+  padding: 0.15em 1em; // 패딩 조정
   display: inline-block;
-  margin-bottom: 0.1rem;
+  margin-bottom: 0.2rem; // 마진 조정
   &.inactive {
-    background: #b0b0b0;
+    background: #90a4ae;
     color: #fff;
   }
 }
 .emp-modal-contact {
-  font-size: 0.97rem;
-  color: #444;
+  font-size: 1rem; // 폰트 크기 조정
+  color: #555;
   display: flex;
-  gap: 1.1rem;
+  gap: 1.2rem; // 간격 조정
 }
 .emp-modal-detail-box {
-  padding: 1.1rem 1.5rem 0.5rem 1.5rem;
+  padding: 1rem 1.2rem 0.7rem 1.2rem; // 패딩 조정
 }
 .emp-modal-detail-list {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.3rem; // 간격 조정
   margin: 0;
   dt {
     font-weight: 700;
-    color: #1766ad;
-    min-width: 80px;
+    color: #1a73e8; // 색상 조정
+    min-width: 90px; // 너비 조정
     display: inline-block;
-    font-size: 0.99rem;
+    font-size: 1rem; // 폰트 크기 조정
   }
   dd {
-    margin: 0 0 0 0.5em;
+    margin: 0 0 0 0.7em; // 마진 조정
     color: #444;
-    font-size: 0.99rem;
+    font-size: 1rem; // 폰트 크기 조정
     display: inline-block;
     word-break: break-all;
   }
@@ -557,58 +481,102 @@
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    padding: 0.13em 0;
+    padding: 0.15em 0; // 패딩 조정
   }
 }
 .emp-modal-btns {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: flex-start;
-  padding: 1.1rem 1.5rem 0.7rem 1.5rem;
+  gap: 0.7rem; // 간격 조정
+  justify-content: center; // 중앙 정렬
+  padding: 1rem 1.2rem 1rem 1.2rem; // 패딩 조정
   .btn {
-    font-size: 0.97rem;
+    font-size: 1rem;
     font-weight: 600;
-    border-radius: 0.7em;
-    padding: 0.55em 1.1em;
-    min-width: 90px;
-    box-shadow: 0 2px 6px 0 rgba(33, 150, 243, 0.06);
+    border-radius: 0.8em;
+    padding: 0.6em 1.2em;
+    min-width: 100px;
+    box-shadow: 0 3px 8px 0 rgba(33, 150, 243, 0.08); // 그림자 조정
     transition:
-      background 0.15s,
-      color 0.15s,
-      box-shadow 0.15s;
+      transform 0.2s ease-in-out,
+      box-shadow 0.2s ease-in-out; // 트랜지션 효과 추가
+
     &:hover {
-      box-shadow: 0 4px 18px 0 rgba(33, 150, 243, 0.13);
+      box-shadow: 0 6px 20px 0 rgba(33, 150, 243, 0.18); // 그림자 강화
+      transform: translateY(-2px);
+    }
+
+    &.blue {
+      background: linear-gradient(45deg, #42a5f5, #2196f3); // 그라데이션 배경
+      color: #fff;
+      &:hover {
+        background: linear-gradient(
+          45deg,
+          #1e88e5,
+          #1565c0
+        ); // 호버 시 그라데이션 변경
+      }
+    }
+    &.green {
+      background: linear-gradient(45deg, #66bb6a, #43a047); // 그라데이션 배경
+      color: #fff;
+      &:hover {
+        background: linear-gradient(
+          45deg,
+          #4caf50,
+          #2e7d32
+        ); // 호버 시 그라데이션 변경
+      }
+    }
+    &.red {
+      background: linear-gradient(45deg, #ef5350, #e53935); // 빨간색 버튼 추가
+      color: #fff;
+      &:hover {
+        background: linear-gradient(45deg, #d32f2f, #c62828);
+      }
+    }
+    &.gray {
+      background: linear-gradient(45deg, #90a4ae, #78909c); // 회색 버튼 추가
+      color: #fff;
+      &:hover {
+        background: linear-gradient(45deg, #607d8b, #455a64);
+      }
     }
   }
 }
 
 @media (max-width: 700px) {
   .emp-modal-redesign {
-    max-width: 99vw;
-    padding: 0 0 8px 0;
+    max-width: 98vw; // 최대 너비 조정
+    padding: 0; // 패딩 제거
   }
   .emp-modal-profile-box,
   .emp-modal-detail-box,
   .emp-modal-btns {
-    padding-left: 0.7rem;
-    padding-right: 0.7rem;
+    padding-left: 0.7rem; // 패딩 조정
+    padding-right: 0.7rem; // 패딩 조정
   }
   .emp-modal-profile-box {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.7rem;
+    align-items: center; // 중앙 정렬
+    gap: 1rem; // 간격 조정
+  }
+  .emp-modal-profile-main {
+    align-items: center; // 중앙 정렬
+  }
+  .emp-modal-contact {
+    justify-content: center; // 중앙 정렬
   }
 }
 
-// 가로형 2단 모달 리디자인
+// 가로형 2단 모달 리디자인 조정
 .emp-modal-redesign-horizontal {
-  max-width: 800px;
+  max-width: 850px; // 너비 조정
   margin: 0 auto;
-  padding: 0 0 12px 0;
+  padding: 0; // 상하좌우 패딩 완전히 제거
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 6px 32px 0 rgba(33, 150, 243, 0.13);
+  border-radius: 20px;
+  box-shadow: 0 8px 40px 0 rgba(33, 150, 243, 0.15);
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -616,26 +584,26 @@
 .emp-modal-content-row {
   display: flex;
   flex-direction: row;
-  gap: 2.2rem;
+  gap: 2.5rem; // 간격 조정
   align-items: flex-start;
-  padding: 1.2rem 1.5rem 0.7rem 1.5rem;
+  padding: 1rem 1.2rem 0.7rem 1.2rem; // 패딩 조정
 }
 .emp-modal-profile-col {
-  min-width: 180px;
-  max-width: 220px;
+  min-width: 200px; // 너비 조정
+  max-width: 250px; // 너비 조정
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.7rem;
+  gap: 1rem; // 간격 조정
 }
 .emp-modal-profile-img {
-  width: 90px;
-  height: 90px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 2px 12px 0 rgba(33, 150, 243, 0.13);
-  border: 2px solid #eaf3fa;
+  box-shadow: 0 4px 18px 0 rgba(33, 150, 243, 0.18);
+  border: 3px solid #eaf3fa;
   background: #eaf3fa;
   img {
     width: 100%;
@@ -648,114 +616,143 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.7rem;
-  margin-top: 0.5rem;
+  gap: 0.8rem; // 간격 조정
+  margin-top: 0.7rem; // 마진 조정
 }
 .emp-modal-contact-block {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  margin-top: 0.3rem;
+  gap: 0.4rem; // 간격 조정
+  margin-top: 0.4rem; // 마진 조정
 }
 .emp-modal-detail-list-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.7rem 1.2rem;
+  grid-template-columns: 1fr 1fr; // 그리드 컬럼 유지
+  gap: 0.8rem 1.5rem; // 그리드 아이템 간격 유지
   margin: 0;
   dt {
     font-weight: 700;
-    color: #1766ad;
-    font-size: 0.97rem;
+    color: #1a73e8; // 색상 조정
+    font-size: 1rem; // 폰트 크기 조정
+    min-width: 100px; /* 라벨 최소 너비 지정 */
+    flex-shrink: 0; /* 라벨이 줄어들지 않도록 */
+    /* margin-right 제거 */
+    text-align: right; /* 라벨 오른쪽 정렬 */
   }
   dd {
     color: #222;
     font-weight: 400;
-    font-size: 0.97rem;
+    font-size: 1rem; // 폰트 크기 조정
+    flex-grow: 1; /* 값이 남은 공간을 채우도록 */
+    margin: 0; /* 모든 마진 제거 */
+    word-break: break-all;
   }
   div {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    padding: 0.13em 0;
-    margin-bottom: 0.2rem;
+    gap: 0.8rem; /* dt와 dd 사이의 간격 조정 */
+    padding: 0.15em 0;
+    margin-bottom: 0.3rem; // 마진 조정
   }
 }
 .emp-modal-btns {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: flex-start;
-  padding: 1.1rem 1.5rem 0.7rem 1.5rem;
+  gap: 0.7rem;
+  justify-content: center;
+  padding: 1rem 1.2rem 1rem 1.2rem; // 패딩 조정
   .btn {
-    font-size: 0.97rem;
+    font-size: 1rem;
     font-weight: 600;
-    border-radius: 0.7em;
-    padding: 0.55em 1.1em;
-    min-width: 90px;
-    box-shadow: 0 2px 6px 0 rgba(33, 150, 243, 0.06);
-    transition:
-      background 0.15s,
-      color 0.15s,
-      box-shadow 0.15s;
+    border-radius: 0.8em;
+    padding: 0.6em 1.2em;
+    min-width: 100px;
+    box-shadow: 0 3px 8px 0 rgba(33, 150, 243, 0.08);
     &:hover {
-      box-shadow: 0 4px 18px 0 rgba(33, 150, 243, 0.13);
+      box-shadow: 0 6px 20px 0 rgba(33, 150, 243, 0.18);
+      transform: translateY(-2px);
     }
   }
 }
 
 @media (max-width: 900px) {
   .emp-modal-redesign-horizontal {
-    max-width: 99vw;
-    padding: 0 0 8px 0;
+    max-width: 98vw;
+    padding: 0; // 패딩 제거
   }
   .emp-modal-content-row {
     flex-direction: column;
-    gap: 1.2rem;
-    padding-left: 0.7rem;
-    padding-right: 0.7rem;
+    gap: 1.5rem; // 간격 조정
+    padding-left: 0.7rem; // 패딩 조정
+    padding-right: 0.7rem; // 패딩 조정
   }
   .emp-modal-profile-col,
   .emp-modal-detail-col {
     max-width: 100%;
     min-width: 0;
     width: 100%;
-    align-items: flex-start;
+    align-items: center; // 중앙 정렬
   }
   .emp-modal-profile-main,
   .emp-modal-contact {
-    align-items: flex-start;
+    align-items: center; // 중앙 정렬
   }
   .emp-modal-detail-list-grid {
-    grid-template-columns: 1fr;
+    display: block; /* 모바일에서는 블록 레벨로 변경하여 각 div가 한 줄 차지 */
+    /* grid-template-columns: 1fr; 제거 */
+    dt {
+      text-align: center; /* 모바일에서 라벨 중앙 정렬 */
+      min-width: auto; /* 모바일에서는 최소 너비 해제 */
+      margin-right: 0;
+      margin-bottom: 0.2em; /* 모바일에서 라벨 하단 여백 추가 */
+      padding: 0.3em 0.5em; /* dt 자체 패딩 조정 */
+      background: #eaf3fa; /* 라벨 배경색 추가 */
+      border-radius: 6px; /* 모서리 둥글게 */
+      color: #1a73e8; /* 폰트 색상 유지 */
+    }
+    dd {
+      margin: 0; /* 모바일에서도 dd 마진 제거 */
+      padding: 0; /* dd 자체 패딩 제거 */
+      text-align: center; /* 모바일에서 값 중앙 정렬 */
+      color: #222; /* 폰트 색상 유지 */
+    }
+    div {
+      flex-direction: column; /* 모바일에서는 라벨과 값을 세로로 쌓기 */
+      align-items: center; /* 중앙 정렬 */
+      gap: 0.2rem; /* 모바일에서 dt와 dd 사이 세로 간격 조정 */
+      padding: 0 0.5rem; /* 각 항목 블록의 좌우 패딩 */
+      margin-bottom: 0.5rem; /* 각 항목 블록 간의 세로 간격 */
+    }
   }
 }
 
-// 강조 및 색상 일관성
+// 강조 및 색상 일관성 조정
 .highlight-main {
-  color: #1766ad;
+  color: #1a73e8; // 색상 조정
   font-weight: 800;
-  font-size: 1.3rem;
+  font-size: 1.4rem; // 폰트 크기 조정
 }
 .highlight-sub {
-  color: #2196f3;
+  color: #42a5f5; // 색상 조정
   font-weight: 600;
-  font-size: 1.01rem;
+  font-size: 1.05rem; // 폰트 크기 조정
 }
 .highlight-status {
-  background: #2196f3;
+  background: #42a5f5; // 배경색 조정
   color: #fff !important;
-  border-radius: 1em;
-  padding: 0.13em 0.9em;
-  font-size: 0.97rem;
+  border-radius: 1.2em;
+  padding: 0.15em 1em;
+  font-size: 1rem; // 폰트 크기 조정
   display: inline-block;
-  margin-bottom: 0.1rem;
+  margin-bottom: 0.2rem;
 }
 .emp-modal-status.inactive.highlight-status {
-  background: #b0b0b0;
+  background: #90a4ae;
   color: #fff !important;
 }
 .highlight-phone {
-  color: #1766ad;
+  color: #1a73e8; // 색상 조정
   font-weight: 600;
 }
 .highlight-email {
@@ -763,14 +760,14 @@
   font-weight: 400;
 }
 
-// 상세정보 라벨/값 강조
+// 상세정보 라벨/값 강조 조정
 .emp-modal-detail-list-grid dt {
   font-weight: 700;
-  color: #1766ad;
-  font-size: 0.97rem;
+  color: #1a73e8; // 색상 조정
+  font-size: 1rem; // 폰트 크기 조정
 }
 .emp-modal-detail-list-grid dd {
   color: #222;
   font-weight: 400;
-  font-size: 0.97rem;
+  font-size: 1rem; // 폰트 크기 조정
 }
