@@ -191,10 +191,15 @@ export default function EmployeeRegister() {
   }
 
   const handleEmployeeSelect = (emp) => {
+    setEmail(emp['이메일'] || '');
+    setRole(emp['직책'] || 'EMPLOYEE');
+    setPosition(emp['직급'] || 'INTERN');
     setEmployeeName(emp['이름'] || '');
     setBirth(toDateInputFormat(emp['생년월일']));
     setAddress(emp['주소'] || '');
     setPhone(emp['핸드폰'] || '');
+    setHireDate(toDateInputFormat(emp['입사일']) || '');
+    setIsNewEmployee(emp['입사구분'] === '신입');
     setMemo(emp['메모'] || '');
 
     // 부서명 → id 변환
@@ -214,11 +219,12 @@ export default function EmployeeRegister() {
       <HRHeader />
       <div className='register-root'>
         <h2 className='register-title'>신규 등록</h2>
-        {/* 엑셀 업로더 및 직원 불러오기 버튼 */}
-        <div style={{ marginBottom: 16 }}>
+        {/* 엑셀 업로더 및 직원 불러오기 버튼을 form 바깥, 한 줄에 배치 */}
+        <div className='excel-upload-row'>
           <ExcelUploader onDataParsed={setExcelEmployees} />
           <button
             type='button'
+            className={`employee-select-btn${excelEmployees.length === 0 ? ' disabled' : ''}`}
             onClick={() => setShowEmployeeModal(true)}
             disabled={excelEmployees.length === 0}
           >

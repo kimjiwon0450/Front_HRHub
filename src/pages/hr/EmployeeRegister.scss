@@ -274,3 +274,59 @@
   letter-spacing: -0.01em;
   user-select: none;
 }
+
+.excel-upload-row {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 20px;
+}
+
+.excel-upload-btn,
+.employee-select-btn,
+.excel-upload-success {
+  height: 44px;
+  line-height: 44px;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  border-radius: 4px;
+}
+
+.excel-upload-btn,
+.employee-select-btn {
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.employee-select-btn.disabled,
+.employee-select-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  color: #fff;
+}
+
+.excel-upload-btn:hover:not(:disabled),
+.employee-select-btn:hover:not(.disabled):not(:disabled) {
+  background: #357abd;
+}
+
+.employee-select-btn {
+  margin-left: 12px;
+}
+
+.excel-upload-success {
+  margin-left: 12px;
+  background: none;
+  color: #4a90e2;
+  font-weight: 500;
+  border: none;
+  cursor: default;
+  padding: 0;
+}
