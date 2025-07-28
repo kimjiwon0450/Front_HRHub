@@ -24,8 +24,14 @@ const CommunityDetail = () => {
     const [editCommentId, setEditCommentId] = useState(null);
     const [editContent, setEditContent] = useState('');
 
+
     const { accessToken, userId, isInit, userName } = useContext(UserContext);
     const navigate = useNavigate();
+
+    // 신고 버튼 클릭 핸들러
+    const handleReportClick = () => {
+        navigate(`/community/report/${communityId}`);
+    };
 
     const handleDelete = () => {
         Swal.fire({
@@ -58,7 +64,7 @@ const CommunityDetail = () => {
 
 
     const handleEdit = () => {
-        navigate(`/notice/edit/${communityId}`);
+        navigate(`/community/edit/${communityId}`);
     };
 
     const handleBack = () => {
@@ -394,6 +400,11 @@ const CommunityDetail = () => {
                     <button onClick={handleDelete}>삭제</button>
                 </div>
             )}
+
+            <div className="buttons">
+                <button onClick={handleReportClick}>🚨 게시글 신고</button>
+                <button onClick={handleBack}>뒤로가기</button>
+            </div>
 
             {/* ✅ 댓글 영역 시작 */}
             <div className="comment-section">

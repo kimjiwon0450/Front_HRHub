@@ -1,5 +1,5 @@
 // src/components/Editor.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Underline } from '@tiptap/extension-underline';
@@ -10,6 +10,7 @@ import { FaListOl, FaStrikethrough } from 'react-icons/fa';  // FontAwesome에�
 // import FontFamily from '@tiptap/extension-font-family';
 // import FontSize from '@tiptap/extension-font-size';
 // import LineHeight from '@tiptap/extension-line-height';
+import { UserContext } from '../context/UserContext'; // UserContext import
 import './Editor.scss';
 
 import { FontSize } from '../extensions/FontSize';
@@ -48,6 +49,8 @@ const FONT_SIZES = [12, 14, 16, 18, 20, 24, 28, 32];
 const LINE_HEIGHTS = [1, 1.15, 1.5, 1.75, 2];
 
 const Editor = ({ content, onChange }) => {
+    const { accessToken } = useContext(UserContext);
+
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -62,10 +65,33 @@ const Editor = ({ content, onChange }) => {
             TextStyleBackground,
             LineHeight,
             TextAlign.configure({ types: ['heading', 'paragraph'] }),
+            SpellcheckMark,
         ],
         content,
-        onUpdate: ({ editor }) => {
-            onChange(editor.getHTML());
+        // onUpdate: ({ editor }) => {
+        //     onChange(editor.getHTML());
+        // },
+        onUpdate: async ({ editor }) => {
+            const html = editor.getHTML();
+            onChange(html);
+
+            const text = editor.getText();
+            if (!accessToken) return; // 토큰 없으면 맞춤법 검사 안함
+
+            const errorWords = await checkSpelling(text, accessToken);
+
+            editor.chain().focus().unsetMark('spellcheck').run();
+
+            errorWords.forEach((word) => {
+                const regex = new RegExp(word, 'gi');
+                const matches = [...text.matchAll(regex)];
+
+                matches.forEach((match) => {
+                    const from = match.index;
+                    const to = from + match[0].length;
+                    editor.chain().focus().setTextSelection({ from, to }).setMark('spellcheck').run();
+                });
+            });
         },
     });
 
@@ -222,6 +248,36 @@ const Editor = ({ content, onChange }) => {
                     <FiRotateCw />
                 </button>
 
+                <button
+                    type="button"
+                    onClick={async () => {
+                        // const { accessToken } = useContext(UserContext);
+                        if (!editor) return;
+                        if (!accessToken) {
+                            alert("로그인이 필요합니다.");
+                            return;
+                        }
+                        const text = editor.getText();
+                        const errorWords = await checkSpelling(text, accessToken);
+
+                        editor.chain().focus().unsetMark('spellcheck').run();
+
+                        errorWords.forEach((word) => {
+                            const regex = new RegExp(word, 'gi');
+                            const matches = [...text.matchAll(regex)];
+
+                            matches.forEach((match) => {
+                                const from = match.index;
+                                const to = from + match[0].length;
+                                editor.chain().focus().setTextSelection({ from, to }).setMark('spellcheck').run();
+                            });
+                        });
+                    }}
+                    title="맞춤법 검사"
+                >
+                    📝 맞춤법 검사
+                </button>
+
                 {/* 정렬 버튼 */}
                 <button
                     type="button"
@@ -312,6 +368,8 @@ const Editor = ({ content, onChange }) => {
                         ))}
                     </select>
                 </div>
+
+
             </div>
             <EditorContent editor={editor} />
         </div>
