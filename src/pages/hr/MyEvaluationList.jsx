@@ -5,6 +5,8 @@ import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import './EmployeeList.scss';
 import HRHeader from './HRHeader';
 import EvaluationView from './EvaluationView';
+import ModalPortal from '../../components/approval/ModalPortal';
+import styles from '../../components/approval/CategoryModal.module.scss';
 
 export default function MyEvaluationList() {
   const { userId } = useContext(UserContext);
@@ -129,14 +131,49 @@ export default function MyEvaluationList() {
           </button>
         </div>
       </div>
-      {/* 상세 정보는 선택 시 하단에만 노출 */}
+      {/* 상세 정보는 모달로 표시 */}
       {selectedEvaluation && (
-        <div className='emp-detail-below'>
-          <EvaluationView
-            evaluation={selectedEvaluation}
-            onClose={handleClose}
-          />
-        </div>
+        <ModalPortal>
+          <div
+            className={styles.modalOverlay}
+            onClick={() => setSelectedEvalId(null)}
+            style={{ zIndex: 1000 }}
+          >
+            <div
+              className={styles.modalContainer}
+              style={{
+                maxWidth: '1000px',
+                width: '90vw',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                position: 'relative',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setSelectedEvalId(null)}
+                style={{
+                  position: 'absolute',
+                  top: 18,
+                  right: 24,
+                  background: 'none',
+                  border: 'none',
+                  fontSize: 28,
+                  cursor: 'pointer',
+                  color: '#888',
+                  zIndex: 10,
+                }}
+                aria-label='닫기'
+              >
+                ×
+              </button>
+              <EvaluationView
+                evaluation={selectedEvaluation}
+                onClose={handleClose}
+              />
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </>
   );

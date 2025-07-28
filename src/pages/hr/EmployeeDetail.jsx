@@ -241,7 +241,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
         </div>
       </div>
       <div className='emp-modal-btns'>
-        {canEdit && (
+        {canEdit && employee.role !== 'ADMIN' && (
           <button className='btn blue' onClick={onEdit}>
             직원정보 수정
           </button>
