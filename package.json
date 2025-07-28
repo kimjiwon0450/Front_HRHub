@@ -23,6 +23,7 @@
     "@tiptap/starter-kit": "^3.0.7",
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
+    "dompurify": "^3.2.6",
     "framer-motion": "^12.23.7",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",

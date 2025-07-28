@@ -249,60 +249,69 @@ const Editor = ({ content, onChange }) => {
                 </button>
 
                 {/* 글자색 */}
-                <input
-                    type="color"
-                    title="글자 색상 선택"
-                    value={fontColor}
-                    onChange={(e) => setFontColorHandler(e.target.value)}
-                    className="color-input"
-                />
-                {/* 배경색 */}
-                <input
-                    type="color"
-                    title="글자 배경색 선택"
-                    value={bgColor}
-                    onChange={(e) => setBgColorHandler(e.target.value)}
-                    className="color-input"
-                />
+                <div className="color-group">
+                    <label htmlFor="fontColor">글자색</label>
+                    <input
+                        type="color"
+                        title="글자 색상 선택"
+                        value={fontColor}
+                        onChange={(e) => setFontColorHandler(e.target.value)}
+                        className="color-input"
+                    />
+                    {/* 배경색 */}
+                    <label htmlFor="bgColor">배경색</label>
+                    <input
+                        type="color"
+                        title="글자 배경색 선택"
+                        value={bgColor}
+                        onChange={(e) => setBgColorHandler(e.target.value)}
+                        className="color-input"
+                    />
+                </div>
 
                 {/* 글씨체 선택 */}
-                <select
-                    value={fontFamily}
-                    onChange={(e) => setFontFamilyHandler(e.target.value)}
-                    title="글씨체 선택"
-                >
-                    {FONT_FAMILIES.map(({ name, value }) => (
-                        <option key={value} value={value}>
-                            {name}
-                        </option>
-                    ))}
-                </select>
+                <div className="font-group">
+                    <label htmlFor="fontFamily">글씨체</label>
+                    <select
+                        value={fontFamily}
+                        onChange={(e) => setFontFamilyHandler(e.target.value)}
+                        title="글씨체 선택"
+                    >
+                        {FONT_FAMILIES.map(({ name, value }) => (
+                            <option key={value} value={value}>
+                                {name}
+                            </option>
+                        ))}
+                    </select>
 
-                {/* 글자 크기 선택 */}
-                <select
-                    value={fontSize}
-                    onChange={(e) => setFontSizeHandler(Number(e.target.value))}
-                    title="글자 크기 선택"
-                >
-                    {FONT_SIZES.map((size) => (
-                        <option key={size} value={size}>
-                            {size}px
-                        </option>
-                    ))}
-                </select>
+                    {/* 글자 크기 선택 */}
+                    <label htmlFor="fontSize">글자 크기</label>
+                    <select
+                        value={fontSize}
+                        onChange={(e) => setFontSizeHandler(Number(e.target.value))}
+                        title="글자 크기 선택"
+                    >
+                        {FONT_SIZES.map((size) => (
+                            <option key={size} value={size}>
+                                {size}px
+                            </option>
+                        ))}
+                    </select>
 
-                {/* 줄간격 선택 */}
-                <select
-                    value={lineHeight}
-                    onChange={(e) => setLineHeightHandler(Number(e.target.value))}
-                    title="줄 간격 선택"
-                >
-                    {LINE_HEIGHTS.map((lh) => (
-                        <option key={lh} value={lh}>
-                            {lh}
-                        </option>
-                    ))}
-                </select>
+                    {/* 줄간격 선택 */}
+                    <label htmlFor="lineHeight">줄 간격</label>
+                    <select
+                        value={lineHeight}
+                        onChange={(e) => setLineHeightHandler(Number(e.target.value))}
+                        title="줄 간격 선택"
+                    >
+                        {LINE_HEIGHTS.map((lh) => (
+                            <option key={lh} value={lh}>
+                                {lh}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
             <EditorContent editor={editor} />
         </div>
