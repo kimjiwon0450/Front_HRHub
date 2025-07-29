@@ -31,11 +31,9 @@ export default function UserCard({
         <div className='user-desc'>
           {departmentName ? `부서: ${departmentName}` : '부서 정보 없음'}
         </div>
-        {userRole !== 'ADMIN' && (
-          <div className='user-edit' onClick={onEditProfile}>
-            개인정보 수정
-          </div>
-        )}
+        <div className='user-edit' onClick={onEditProfile}>
+          개인정보 수정
+        </div>
       </div>
     </div>
   );
