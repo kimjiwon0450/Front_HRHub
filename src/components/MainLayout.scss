@@ -465,56 +465,88 @@ $border: #eceff3;
     padding-left: 3.2rem;
   }
 }
-@media print {
-  /* 1. 불필요한 모든 UI 요소를 확실하게 숨깁니다. */
-  .sidebar,
-  .main .header,
-  .buttonGroup,
-  .resubmitBtn,
-  .chatbot-fab,
-  .logout-btn,
-  .notice-icon {
-    display: none !important;
-  }
+/* ==========================================================================
+   ★★★ 인쇄 전용 스타일 (이 코드 하나로 모든 것을 해결합니다) ★★★
+   ========================================================================== */
+   @media print {
 
-  /* 2. 유령 공간을 만드는 부모 레이아웃의 스타일을 완전히 초기화합니다. */
-  body,
-  html,
-  .layout,
-  .main {
-    display: block !important;
-    width: auto !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    background: #fff !important;
-    overflow: visible !important;
+    /* --- 1단계: 기본 준비 --- */
+    // 모든 요소의 불필요한 효과(애니메이션, 그림자 등)를 제거하고
+    // 인쇄를 위한 기본 배경과 글자색을 설정합니다.
+    * {
+      transition: none !important;
+      animation: none !important;
+      text-shadow: none !important;
+      box-shadow: none !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+    
+    html, body {
+      width: 100%;
+      height: auto;
+      background: #fff !important;
+      color: #000 !important;
+    }
+  
+    /* --- 2단계: 무대 위의 모든 요소 숨기기 --- */
+    // 인쇄할 내용 외에 화면에 보이는 모든 UI 요소를 숨깁니다.
+    // CSS Modules로 생성된 동적 클래스명에도 대응할 수 있도록 속성 선택자([class*="..."])를 사용합니다.
+    .sidebar,                                 // 메인 레이아웃 사이드바
+    .main > .header,                          // 메인 레이아웃 헤더
+    .chatbot-fab,                             // 챗봇 버튼
+    .hamburger-btn,
+    .sidebar-overlay,
+    aside[class*="_sidebar"],                 // 결재 페이지 내부 사이드바
+    button[class*="_printButton"],            // 인쇄 버튼
+    button[class*="_viewMoreBtn"] {           // '전체보기' 같은 버튼
+      display: none !important;
+    }
+  
+    /* --- 3단계: 레이아웃의 모든 힘 무력화시키기 --- */
+    // 인쇄할 내용을 감싸고 있는 모든 부모 컨테이너들을 '평범한 div'로 만듭니다.
+    // Flex, Grid, Position, Overflow 등 레이아웃에 영향을 주는 모든 속성을 초기화합니다.
+    #root,
+    .layout,
+    .main,
+    .content,
+    div[class*="_approvalPageContainer"],
+    main[class*="_content"] {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+      position: static !important;
+      overflow: visible !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      background: transparent !important;
+      min-height: unset !important;
+    }
+  
+    /* --- 4단계: 진짜 주인공(인쇄할 내용)에게 스포트라이트 --- */
+    // 이제 모든 방해물이 사라졌으니, 인쇄할 컨테이너만 페이지 전체를 차지하도록 설정합니다.
+    div[class*="_approvalContainer"] {
+      width: 100% !important;
+      height: auto !important;
+      margin: 0 !important;
+      padding: 20mm !important; /* A4 용지에 적절한 여백 */
+      border: 1px solid #dee2e6 !important;
+      box-sizing: border-box !important;
+      background: white !important;
+    }
+    
+    /* --- 5단계: 내용물 다듬기 --- */
+    // 페이지가 넘어갈 때 내용이 잘리는 것을 방지합니다.
+    table,
+    img,
+    div[class*="_approvalLineBox"],
+    div[class*="_historySection"] {
+      page-break-inside: avoid;
+    }
+    
+    // 이미지가 용지 밖으로 나가지 않도록 합니다.
+    img {
+      max-width: 100% !important;
+    }
   }
-
-  /* 3. 실제 인쇄될 컨텐츠 영역만 보이도록 최종 조정합니다. */
-  .content {
-    margin: 0 !important;
-    padding: 20mm !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    width: 100% !important;
-    float: none !important;
-    position: static !important;
-    overflow: visible !important;
-  }
-
-  /* 4. 이미지, 테이블 등이 페이지를 넘어가지 않도록 설정합니다. */
-  img,
-  table {
-    max-width: 100% !important;
-    page-break-inside: avoid;
-  }
-
-  /* 5. 모든 텍스트 색상을 검은색으로 강제합니다. */
-  * {
-    color: #000 !important;
-  }
-}

@@ -377,6 +377,7 @@ export default function HRPage() {
           departmentName={departmentName}
           profileImageUri={profileImageUri}
           onEditProfile={() => setShowEdit(true)} // 수정 버튼 클릭 시 토글
+          userRole={userRole}
         />
         <div className='hr-weather-eom-container'>
           <EmployeeOfMonthCarousel

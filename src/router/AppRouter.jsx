@@ -29,7 +29,7 @@ import ApprovalPendingList from '../pages/approval/ApprovalPendingList';
 import TemplateAdminPage from '../pages/approval/TemplateAdminPage';
 import TemplateForm from '../pages/approval/TemplateForm';
 import AdminRoute from './AdminRoute';
-
+import ApprovalScheduled from "../pages/approval/ScheduledBox";
 // (사용하지 않는 ApprovalForm, TemplateList 등은 제외했습니다)
 
 // 공지사항

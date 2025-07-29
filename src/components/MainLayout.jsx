@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-
+import logo from '../assets/hrhub_logo.png';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import './MainLayout.scss';
 import {
@@ -158,7 +158,7 @@ export default function MainLayout() {
         } else {
           setError(
             res.data?.statusMessage ||
-            '결재 예정 문서를 불러오는 데 실패했습니다.',
+              '결재 예정 문서를 불러오는 데 실패했습니다.',
           );
         }
       } catch (err) {
@@ -194,7 +194,7 @@ export default function MainLayout() {
       {/* 데스크탑/태블릿 사이드바 */}
       <aside className={`sidebar${showSidebar ? ' sidebar--mobile-open' : ''}`}>
         <div className='logo' onClick={() => navigate('/dashboard')}>
-          <img src='/src/assets/hrhub_logo.png' alt='hrhub' />
+          <img src={logo} alt='hrhub' />
         </div>
         <nav className='nav'>
           {sidebarMenus.map((menu) => (

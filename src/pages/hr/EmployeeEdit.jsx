@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import { getDepartmentNameById } from '../../common/hr';
 import Swal from 'sweetalert2';
-import { swalConfirm } from '../../common/common';
+import { swalConfirm, swalError } from '../../common/common';
 import ModalPortal from '../../components/approval/ModalPortal';
 
 export default function EmployeeEdit({ employee, onClose, hideHeader }) {
@@ -199,7 +199,9 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
         confirmButtonText: '확인',
       });
     } catch (error) {
-      alert(error?.response?.data?.statusMessage || error.message);
+      swalError('서버 문제로 인해 수정할 수 없습니다.');
+      // console.log(error);
+      // alert(error?.response?.data?.statusMessage || error.message);
     }
   };
   const handleCancel = () => {
@@ -342,6 +344,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
                 >
                   <option value='EMPLOYEE'>EMPLOYEE</option>
                   <option value='HR_MANAGER'>HR_MANAGER</option>
+                  {role === 'ADMIN' && <option value='ADMIN'>ADMIN</option>}
                 </select>
                 {userRole === 'EMPLOYEE' ? (
                   <span className='input-lock-indicator'>🔒</span>

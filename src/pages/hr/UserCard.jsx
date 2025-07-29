@@ -7,6 +7,7 @@ export default function UserCard({
   departmentName,
   profileImageUri,
   onEditProfile,
+  userRole,
 }) {
   return (
     <div className='hr-usercard'>

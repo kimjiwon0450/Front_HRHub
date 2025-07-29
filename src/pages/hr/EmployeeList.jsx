@@ -418,8 +418,8 @@ export default function EmployeeList() {
             <div
               className={styles.modalContainer}
               style={{
-                maxWidth: '1000px',
-                width: '90vw',
+                maxWidth: '850px',
+                width: '85vw',
                 maxHeight: '90vh',
                 overflowY: 'auto',
                 position: 'relative',

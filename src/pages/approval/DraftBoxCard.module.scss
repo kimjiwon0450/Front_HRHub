@@ -43,6 +43,31 @@
   transition: all 0.2s ease;
 }
 
+.schedule-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.schedule-indicator {
+  font-size: 12px;
+  color: #ff9800;
+  background-color: #fff3e0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #ffcc80;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.time-until {
+  font-size: 11px;
+  color: #ff6b35;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .center-section {
   flex-grow: 1;
   min-width: 0;
@@ -93,7 +118,28 @@
 }
 
 .right-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   flex-shrink: 0;
+  width: 140px;
+  gap: 8px;
+}
+
+.cancel-schedule-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  color: #dc3545;
+  
+  &:hover {
+    background-color: #f8d7da;
+    transform: scale(1.1);
+  }
 }
 
 /* 카드 호버 애니메이션 */

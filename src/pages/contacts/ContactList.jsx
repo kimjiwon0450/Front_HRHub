@@ -152,7 +152,18 @@ const ContactList = () => {
             <input
               type='checkbox'
               checked={showInactive}
-              onChange={(e) => setShowInactive(e.target.checked)}
+              onChange={(e) => {
+                setShowInactive(e.target.checked);
+                getEmployeeList({
+                  field: searchField,
+                  keyword: searchText,
+                  department: searchDept,
+                  page: 0,
+                  size,
+                  isActive: !e.target.checked ? true : false, // true면 재직자, false면 퇴직자만
+                });
+                setPage(0);
+              }}
             />
             퇴직자만
           </label>

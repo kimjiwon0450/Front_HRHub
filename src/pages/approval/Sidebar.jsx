@@ -108,6 +108,16 @@ const Sidebar = () => {
             </li>
             <li>
               <NavLink
+                  to="/approval/scheduled"
+                className={({ isActive }) =>
+                  `${styles.menuItem} ${isActive ? styles.active : ''}`
+                }
+              >
+                  예약 문서함
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                   to="/approval/cc"
                 className={({ isActive }) =>
                   `${styles.menuItem} ${isActive ? styles.active : ''}`
