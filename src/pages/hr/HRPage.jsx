@@ -128,7 +128,7 @@ export default function HRPage() {
         ((tempDate.getTime() - week1.getTime()) / 86400000 -
           3 +
           ((week1.getDay() + 6) % 7)) /
-          7,
+        7,
       )
     );
   }
@@ -431,7 +431,7 @@ export default function HRPage() {
           <div className='hr-card hr-tab-card'>
             <div className='tabs'>
               <button className='active'>우리팀 직원</button>
-              <div className='menu-icon'>≡</div>
+              <div className='menu-icon' onClick={() => navigate(`/contacts`)}>≡</div>
             </div>
             <table
               className={`mini-table team-fade${fade ? ' team-fade-active' : ''}`}
