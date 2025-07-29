@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+  Fragment,
+} from 'react';
 import './EmployeeDetail.scss';
 import HRHeader from './HRHeader';
 import EmployeeEdit from './EmployeeEdit';
@@ -132,7 +138,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   // }
 
   return (
-    <div className='modal-compact emp-modal-redesign-horizontal'>
+    <Fragment>
       {showTransferHistory && (
         <TransferHistoryModal
           employeeId={employee.employeeId}
@@ -235,13 +241,13 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
         </div>
       </div>
       <div className='emp-modal-btns'>
-        {canEdit && (
+        {canEdit && employee.role !== 'ADMIN' && (
           <button className='btn blue' onClick={onEdit}>
             직원정보 수정
           </button>
         )}
         {canManage && localEmployee.status !== 'INACTIVE' && (
-          <button className='btn blue' onClick={handleDelete}>
+          <button className='btn red' onClick={handleDelete}>
             퇴사처리
           </button>
         )}
@@ -259,6 +265,6 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
           인사이동 이력
         </button>
       </div>
-    </div>
+    </Fragment>
   );
 }

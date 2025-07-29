@@ -374,6 +374,10 @@ const TemplateForm = () => {
           <span className={styles.infoIcon}>➕</span>필요하다면 결재 양식에 맞는
           입력 항목을 추가하세요.
         </div>
+        <div className={styles.infoNotice}>
+          <span className={styles.infoIcon}>⚠️</span>사용자 정의 컴포넌트 생성 시{' '}
+          <b>필드명(제목)은 필수 입력 항목</b>입니다.
+        </div>
         <DndProvider backend={HTML5Backend}>
           {customFields.map((field, index) => (
             <DraggableField

@@ -1,21 +1,29 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { useNavigate, useParams, useSearchParams, useBlocker } from 'react-router-dom';
-import styles from './ApprovalNew.module.scss';
-import { useApprovalForm } from '../../hooks/useApprovalForm';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
-import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
-import AttachmentList from '../../components/approval/AttachmentList';
-import FormField from './FormField';
-import QuillEditor from '../../components/editor/QuillEditor';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { UserContext } from '../../context/UserContext';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
-import TemplateSelectionModal from '../../components/approval/TemplateSelectionModal';
-import { UserContext } from '../../context/UserContext';
-import ModalPortal from '../../components/approval/ModalPortal';
+import { useApprovalForm } from '../../hooks/useApprovalForm';
+import Editor from '../../components/Editor'; // TipTap 에디터로 변경
+import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
+import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
+import MySwal from '../../common/common';
+import styles from './ApprovalNew.module.scss';
 
-const MySwal = withReactContent(Swal);
+// 불필요한 기본값들을 필터링하는 함수
+const sanitizeValue = (val) => {
+  if (!val) return '';
+  
+  // "ㅁㄴㅇㄹ" 같은 불필요한 기본값들 제거
+  const unwantedDefaults = ['ㅁㄴㅇㄹ', 'test', '테스트', '내용을 입력하세요'];
+  const trimmedValue = val.trim();
+  
+  if (unwantedDefaults.some(defaultVal => trimmedValue.includes(defaultVal))) {
+    return '';
+  }
+  
+  return val;
+};
 
 function ApprovalNew() {
   console.log('ApprovalNew mount');
@@ -744,10 +752,9 @@ function ApprovalNew() {
             <div className={styles.formLabel}>내용</div>
             <div className={`${styles.formField} ${styles.vertical}`}>
               <div className={styles.editorContainer}>
-                  <QuillEditor
-                    value={formData.content || ""}
-                  onChange={(content) => handleValueChange("content", content)}
-                    placeholder="내용을 입력하세요..."
+                  <Editor
+                    content={sanitizeValue(formData.content || "")}
+                    onChange={(content) => handleValueChange("content", content)}
                   />
               </div>
             </div>

@@ -49,10 +49,10 @@
   }
 
   .content {
-    font-size: 16px;
-    line-height: 1.7;
+    // font-size: 16px;
+    // line-height: 1.7;
     white-space: pre-wrap;
-    color: #444;
+    // color: #444;
     margin-bottom: 30px;
     word-break: break-word;
     // word-break: break-all;
@@ -65,6 +65,9 @@
     background: #f8fafc;
     border-radius: 8px;
     padding: 18px 16px;
+    p {
+      margin-bottom: 1em;
+    }
   }
 
   .attachment {

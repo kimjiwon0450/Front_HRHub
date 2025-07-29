@@ -1,6 +1,21 @@
 import React from 'react';
 import styles from './ApprovalNew.module.scss'; // 동일한 스타일 사용
-import QuillEditor from '../../components/editor/QuillEditor';
+import Editor from '../../components/Editor'; // TipTap 에디터로 변경
+
+// 불필요한 기본값들을 필터링하는 함수
+const sanitizeValue = (val) => {
+  if (!val) return '';
+  
+  // "ㅁㄴㅇㄹ" 같은 불필요한 기본값들 제거
+  const unwantedDefaults = ['ㅁㄴㅇㄹ', 'test', '테스트', '내용을 입력하세요'];
+  const trimmedValue = val.trim();
+  
+  if (unwantedDefaults.some(defaultVal => trimmedValue.includes(defaultVal))) {
+    return '';
+  }
+  
+  return val;
+};
 
 const FormField = ({ field, value, onChange, fieldKey }) => {
   const renderField = () => {
@@ -8,10 +23,9 @@ const FormField = ({ field, value, onChange, fieldKey }) => {
       case 'editor':
         return (
           <div className={styles.editorContainer}>
-            <QuillEditor
-              value={value[fieldKey] || field.value || ""}
+            <Editor
+              content={sanitizeValue(value[fieldKey] || field.value || "")}
               onChange={(content) => onChange(fieldKey, content)}
-              placeholder="내용을 입력하세요..."
             />
           </div>
         );

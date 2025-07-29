@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-
+import logo from '../assets/hrhub_logo.png';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import './MainLayout.scss';
 import {
@@ -25,7 +25,7 @@ import { FaUserCircle } from 'react-icons/fa';
 
 const sidebarMenus = [
   {
-    to: '/general',
+    to: '/notice',
     label: '공지사항',
     icon: <FaBullhorn style={{ color: '#ff8a80', opacity: 0.7 }} />,
   }, // 연한 빨강
@@ -194,7 +194,7 @@ export default function MainLayout() {
       {/* 데스크탑/태블릿 사이드바 */}
       <aside className={`sidebar${showSidebar ? ' sidebar--mobile-open' : ''}`}>
         <div className='logo' onClick={() => navigate('/dashboard')}>
-          <img src='/src/assets/hrhub_logo.png' alt='hrhub' />
+          <img src={logo} alt='hrhub' />
         </div>
         <nav className='nav'>
           {sidebarMenus.map((menu) => (

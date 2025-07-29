@@ -115,6 +115,31 @@ export default function HRPage() {
     setCalendarDate(new Date(year, month + 1, 1));
   };
 
+  // 1년 기준 현재 몇주차인지 계산하는 함수 (ISO 8601 주차)
+  function getWeekNumber(date) {
+    const tempDate = new Date(date.getTime());
+    tempDate.setHours(0, 0, 0, 0);
+    // 목요일이 포함된 주가 그 해의 첫 번째 주
+    tempDate.setDate(tempDate.getDate() + 3 - ((tempDate.getDay() + 6) % 7));
+    const week1 = new Date(tempDate.getFullYear(), 0, 4);
+    return (
+      1 +
+      Math.round(
+        ((tempDate.getTime() - week1.getTime()) / 86400000 -
+          3 +
+          ((week1.getDay() + 6) % 7)) /
+          7,
+      )
+    );
+  }
+
+  // 오늘이 현재 달력에 표시된 달에 포함되어 있으면 오늘 기준 주차, 아니면 달력의 1일 기준 주차
+  const isCurrentMonth =
+    today.getFullYear() === year && today.getMonth() === month;
+  const weekNumber = isCurrentMonth
+    ? getWeekNumber(today)
+    : getWeekNumber(calendarDate);
+
   useEffect(() => {
     async function fetchDepartments() {
       try {
@@ -352,21 +377,17 @@ export default function HRPage() {
           departmentName={departmentName}
           profileImageUri={profileImageUri}
           onEditProfile={() => setShowEdit(true)} // 수정 버튼 클릭 시 토글
+          userRole={userRole}
         />
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-          <div className='hr-tools'>
-            <CalendarWidget
-              calendarDate={calendarDate}
-              setCalendarDate={setCalendarDate}
-              today={today}
-              calendarMatrix={calendarMatrix}
-              monthNames={monthNames}
-              handlePrevMonth={handlePrevMonth}
-              handleNextMonth={handleNextMonth}
-              year={year}
-              month={month}
-            />
-          </div>
+        <div className='hr-weather-eom-container'>
+          <EmployeeOfMonthCarousel
+            teamEmployees={teamEmployees}
+            teamPage={teamPage}
+            changeTeamPage={changeTeamPage}
+            handleTeamDotClick={handleTeamDotClick}
+            autoSlideRef={autoSlideRef}
+          />
+          <Weather />
         </div>
       </div>
       {/* 메인 카드 섹션 */}
@@ -457,26 +478,24 @@ export default function HRPage() {
                       borderRadius: '50%',
                       background: idx === teamPage ? '#3b82f6' : '#d1d5db',
                       margin: '0 4px',
-                      transition: 'background 0.2s',
-                      cursor: 'pointer',
                     }}
-                  />
+                  ></span>
                 ))}
               </div>
             )}
           </div>
-          {/* 자주 방문하는 사이트 */}
-          <div className='hr-card hr-tab-card'>
-            <div className='tabs'>
-              <button className='active'>이달의 사원</button>
-              <div className='menu-icon'>≡</div>
-            </div>
-            <EmployeeOfMonthCarousel />
-          </div>
-          {/* 날씨 위젯 */}
-          <div className='hr-card'>
-            <Weather />
-          </div>
+          <CalendarWidget
+            calendarDate={calendarDate}
+            setCalendarDate={setCalendarDate}
+            today={today}
+            calendarMatrix={calendarMatrix}
+            monthNames={monthNames}
+            handlePrevMonth={handlePrevMonth}
+            handleNextMonth={handleNextMonth}
+            year={year}
+            month={month}
+            weekNumber={weekNumber}
+          />
         </div>
       </div>
     </div>
