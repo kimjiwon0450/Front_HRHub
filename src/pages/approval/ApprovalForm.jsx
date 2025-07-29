@@ -4,6 +4,7 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import styles from './ApprovalForm.module.scss';
 import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
+import Editor from '../../components/Editor'; // TipTap 에디터 추가
 import Swal from 'sweetalert2';
 
 const ApprovalForm = () => {
@@ -202,7 +203,7 @@ const ApprovalForm = () => {
         );
       case 'editor':
         return (
-          <SimpleWysiwygEditor
+          <Editor
             value={templateFormData[field.header] || ''}
             onChange={(value) => handleFormDataChange(field.header, value)}
           />
@@ -408,13 +409,12 @@ const ApprovalForm = () => {
       {(!template || !template.content || template.content.length === 0) && (
       <div className={styles.formGroup}>
         <label htmlFor='content'>상세 내용</label>
-        <textarea
-          id='content'
-          rows='10'
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder='상세 내용을 입력하세요'
-        ></textarea>
+        <div className={styles.editorContainer}>
+          <Editor
+            content={content}
+            onChange={setContent}
+          />
+        </div>
       </div>
       )}
       {/* 결재선 */}
@@ -503,14 +503,14 @@ const ApprovalForm = () => {
       {/* 버튼 그룹 */}
       <div className={styles.buttonGroup}>
         <button
-          onClick={() => handleSubmit(false)}
+          onClick={() => handleSaveDraft()}
           disabled={isSubmitting}
           className={styles.submitBtn}
         >
           {isSubmitting ? '처리 중...' : '상신하기'}
         </button>
         <button
-          onClick={() => handleSubmit(true)}
+          onClick={() => handleSaveDraft()}
           disabled={isSubmitting}
           className={styles.draftBtn}
         >

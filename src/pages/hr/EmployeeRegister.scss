@@ -76,6 +76,23 @@
   resize: none;
 }
 
+.reg-input--readonly {
+  border: 1.5px solid #e53935 !important;
+  color: #e53935 !important;
+  background: #fff0f0 !important;
+  cursor: default !important;
+}
+.reg-input--readonly:focus,
+.reg-input--readonly:hover,
+.reg-input--readonly:active {
+  border: 1.5px solid #e53935 !important;
+  color: #e53935 !important;
+  background: #fff0f0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: default !important;
+}
+
 .reg-textarea {
   min-height: 90px;
   margin-top: 0.4rem;
@@ -245,4 +262,71 @@
 // 주소 입력란만 길이 제한
 .reg-input[type='text'][readonly][placeholder='주소'] {
   max-width: 340px;
+}
+
+.input-lock-indicator {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  font-size: 0.98rem;
+  color: #e53935;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  user-select: none;
+}
+
+.excel-upload-row {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 20px;
+}
+
+.excel-upload-btn,
+.employee-select-btn,
+.excel-upload-success {
+  height: 44px;
+  line-height: 44px;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  border-radius: 4px;
+}
+
+.excel-upload-btn,
+.employee-select-btn {
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.employee-select-btn.disabled,
+.employee-select-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  color: #fff;
+}
+
+.excel-upload-btn:hover:not(:disabled),
+.employee-select-btn:hover:not(.disabled):not(:disabled) {
+  background: #357abd;
+}
+
+.employee-select-btn {
+  margin-left: 12px;
+}
+
+.excel-upload-success {
+  margin-left: 12px;
+  background: none;
+  color: #4a90e2;
+  font-weight: 500;
+  border: none;
+  cursor: default;
+  padding: 0;
 }

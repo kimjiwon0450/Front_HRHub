@@ -1,13 +1,19 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
 import './NoticeBoardWrite.scss';
 import Swal from 'sweetalert2';
 import { UserContext, UserContextProvider } from '../../context/UserContext';
 import { API_BASE_URL, NOTICE_SERVICE, HR_SERVICE } from '../../configs/host-config';
+import PublishModal from './PublishModal';
+import Editor from '../../components/Editor';
 
 const NoticeBoardWrite = ({ isEdit = false }) => {
-    const { id } = useParams();
+
+    console.log('작성 페이지 진입');
+    const { noticeId } = useParams();
     const navigate = useNavigate();
 
     const [title, setTitle] = useState('');
@@ -15,13 +21,27 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
     const [type, setType] = useState('post');
     const [files, setFiles] = useState([]);
     const [existingFiles, setExistingFiles] = useState([]); // ✅ 기존 파일 목록
+    const [position, setPosition] = useState('');
 
     const [departmentId, setDepartmentId] = useState(''); // 🔹 부서 ID
     const [departments, setDepartments] = useState([]);   // 🔹 부서 리스트
 
+    const [showPublishOptions, setShowPublishOptions] = useState(false);
+    const [publishType, setPublishType] = useState('now'); // 'now' or 'scheduled'
+    const [showModal, setShowModal] = useState(false);
+
+
     const { accessToken, userId, isInit, userRole } = useContext(UserContext); // ✅ 한 번에 구조 분해
 
 
+    const handleOpenPublishModal = () => {
+        setShowModal(true);
+    };
+
+    const handleModalConfirm = async (scheduledAt) => {
+        setShowModal(false);
+        await handleSubmit(scheduledAt); // scheduledTime이 null이면 지금 발행
+    }
     const parseAttachmentUri = (raw) => {
         try {
             const parsed = JSON.parse(raw);
@@ -32,11 +52,17 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
         }
     };
 
+    const formatToKSTLocalDateTime = (date) => {
+        const pad = (n) => (n < 10 ? '0' + n : n);
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    };
+
+
 
     // 수정 모드일 경우 게시글 불러오기
     useEffect(() => {
-        if (isEdit && id) {
-            axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/${id}`, {
+        if (isEdit && noticeId) {
+            axios.get(`${API_BASE_URL}${NOTICE_SERVICE}/${noticeId}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
@@ -47,6 +73,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     setContent(res.data.content ?? '');
                     setType(res.data.notice ? 'notice' : 'post');
                     setDepartmentId(res.data.departmentId || '');
+                    setPosition(res.data.position || '')
 
                     console.log('res.data.attachmentUri : ', res.data.attachmentUri);
 
@@ -69,27 +96,30 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     });
                 });
         }
-    }, [isEdit, id, accessToken]);
+    }, [isEdit, noticeId, accessToken]);
 
 
     // 부서 리스트 불러오기
     useEffect(() => {
+        // console.log('부서 요청 url : ', `${API_BASE_URL}${HR_SERVICE}/departments`)
         async function fetchDepartments() {
             try {
+                console.log('부서 요청 url : ', `${API_BASE_URL}${HR_SERVICE}/departments`)
                 const res = await axios.get(`${API_BASE_URL}${HR_SERVICE}/departments`, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
                 });
+                console.log('부서 요청 res : ', res)
+
                 setDepartments(res.data.result || []);
             } catch (err) {
                 console.error('부서 목록 불러오기 실패', err);
             }
         }
 
-        if (type === 'notice') {
-            fetchDepartments();
-        }
+        fetchDepartments();
+
     }, [type, accessToken]);
 
 
@@ -99,8 +129,7 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
     };
 
 
-    const handleSubmit = async () => {
-
+    const handleSubmit = async (scheduledAt = null) => {
         // ✅ 제목 또는 내용이 비어있을 경우 알림
         if (!title.trim()) {
             Swal.fire({
@@ -178,11 +207,13 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                 notice: type === 'notice',
                 departmentId: departmentId || null, // 🔥 부서 ID 포함
                 attachmentUri: combinedFiles.length > 0 ? JSON.stringify(combinedFiles) : null,
+                position: position || 'INTERN',
+                scheduledAt: scheduledAt ? formatToKSTLocalDateTime(scheduledAt) : null,
             };
             console.log('noticeData : ', noticeData);
 
             if (isEdit) {
-                const response = await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/${id}`, noticeData, {
+                const response = await axios.put(`${API_BASE_URL}${NOTICE_SERVICE}/edit/${noticeId}`, noticeData, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`
@@ -240,12 +271,17 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
             />
-            <textarea
+            {/* <textarea
                 placeholder="내용을 입력하세요"
                 className="content-textarea"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-            />
+            /> */}
+
+            <div className="editor-wrapper">
+                <Editor content={content} onChange={setContent} />
+            </div>
+
 
             <div className="department-select">
                 <label htmlFor="department">공지 대상 부서 (선택사항):</label>
@@ -262,6 +298,24 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     ))}
                 </select>
             </div>
+
+            <div className="department-select">
+                <label htmlFor="department">공지 대상 직급 :</label>
+                <select
+                    id="department"
+                    value={position}
+                    onChange={(e) => setPosition(e.target.value)}
+                >
+                    <option value="">-- 선택하세요 --</option>
+                    <option value="INTERN">INTERN</option>
+                    <option value="JUNIOR">JUNIOR</option>
+                    <option value="SENIOR">SENIOR</option>
+                    <option value="MANAGER">MANAGER</option>
+                    <option value="DIRECTOR">DIRECTOR</option>
+                    <option value="CEO">CEO</option>
+                </select>
+            </div>
+
 
 
             {/* ✅ 기존 파일 목록 */}
@@ -284,11 +338,18 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
             </div>
 
             <div className="buttons">
-                <button onClick={handleSubmit}>{isEdit ? '수정' : '저장'}</button>
+                <button onClick={handleOpenPublishModal}>{isEdit ? '수정' : '저장'}</button>
                 <button onClick={() => navigate(-1)}>뒤로가기</button>
             </div>
+            {showModal && (
+                <PublishModal
+                    onConfirm={handleModalConfirm}
+                    onClose={() => setShowModal(false)}
+                />
+            )}
         </div>
     );
 };
+
 
 export default NoticeBoardWrite;

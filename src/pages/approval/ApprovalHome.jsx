@@ -17,6 +17,7 @@ import historyIcon from '/icons/master.png';
 import templateIcon from '/icons/admin.png';
 import CcBox from './CcBox';
 import CompletedBox from './CompletedBox';
+import ScheduledBox from './ScheduledBox';
 
 const ApprovalHome = () => {
   const navigate = useNavigate();
@@ -36,9 +37,10 @@ const ApprovalHome = () => {
   const [frequentTemplates, setFrequentTemplates] = useState([]); // 자주 쓰는 템플릿 ID 배열
   const [inProgressTotal, setInProgressTotal] = useState(0);
   const [completedTotal, setCompletedTotal] = useState(0);
+  const [scheduledTotal, setScheduledTotal] = useState(0);
 
   // 어떤 목록을 보여줄지 상태로 관리
-  const [activeBox, setActiveBox] = useState('inProgress'); // 'inProgress', 'reference', 'history'
+  const [activeBox, setActiveBox] = useState('inProgress'); // 'inProgress', 'reference', 'history', 'scheduled'
 
   // --- 데이터 초기화 로직 ---
   useEffect(() => {
@@ -215,6 +217,13 @@ const ApprovalHome = () => {
           active={activeBox === 'inProgress'}
         />
         <SummaryCard
+          title='예약 문서함'
+          count={`${scheduledTotal}건`}
+          icon={<span style={{color: '#ff9800', fontSize: 22}}>⏰</span>}
+          onClick={() => setActiveBox('scheduled')}
+          active={activeBox === 'scheduled'}
+        />
+        <SummaryCard
           title='결재내역보기'
           count={`${summaryData.total}건`}
           icon={<span style={{color: '#6C757D', fontSize: 22}}>🗂️</span>}
@@ -229,6 +238,8 @@ const ApprovalHome = () => {
           <div className={styles.loading}>로딩 중...</div>
         ) : activeBox === 'inProgress' ? (
           <ApprovalPendingList onTotalCountChange={setInProgressTotal} />
+        ) : activeBox === 'scheduled' ? (
+          <ScheduledBox onTotalCountChange={setScheduledTotal} />
         ) : activeBox === 'history' ? (
           <CompletedBox onTotalCountChange={setCompletedTotal} />
         ) : null}

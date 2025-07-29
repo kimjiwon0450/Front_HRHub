@@ -8,6 +8,8 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import { getDepartmentNameById, getEmployeeList } from '../../common/hr';
 import { warn } from '../../common/common';
+import ModalPortal from '../../components/approval/ModalPortal';
+import styles from '../../components/approval/CategoryModal.module.scss';
 
 // 부서 목록을 서버에서 받아옴
 
@@ -31,6 +33,16 @@ export default function EmployeeList() {
     department: '전체',
     isActive: true, // 기본값: 재직자만
   });
+
+  // '퇴직자만' 체크박스가 변경될 때마다 바로 검색
+  React.useEffect(() => {
+    setAppliedSearch((prev) => ({
+      ...prev,
+      isActive: !showInactive,
+    }));
+    setPage(0); // 첫 페이지로 이동
+    setSelectedId(null); // 상세 닫기
+  }, [showInactive]);
 
   // 페이징 state
   const [page, setPage] = useState(0);
@@ -61,7 +73,36 @@ export default function EmployeeList() {
       setTotalPages,
     });
   };
-
+  const getEmployeeList = async ({
+    field = 'name',
+    keyword = '',
+    department = '전체',
+    page: reqPage = 0,
+    size: reqSize = 10,
+    sortField: reqSortField = null,
+    sortOrder: reqSortOrder = 'asc',
+    setEmployees,
+    setTotalPages,
+    isActive, // 추가
+  } = {}) => {
+    try {
+      let params = `?page=${reqPage}&size=${reqSize}`;
+      if (keyword.trim())
+        params += `&field=${field}&keyword=${encodeURIComponent(keyword)}`;
+      if (department !== '전체')
+        params += `&department=${encodeURIComponent(department)}`;
+      if (reqSortField) params += `&sort=${reqSortField},${reqSortOrder}`;
+      if (typeof isActive === 'boolean') params += `&isActive=${isActive}`; // 추가
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${HR_SERVICE}/employees${params}`,
+      );
+      setEmployees(res.data.result.content);
+      setTotalPages(res.data.result.totalPages || 1);
+    } catch (error) {
+      console.log(error + 'from getEmployeeList');
+      alert(error?.response?.data?.statusMessage || error.message);
+    }
+  };
   // 정렬, 페이지, 페이지 크기 변화 시 목록 재요청 (검색 조건은 appliedSearch 기준)
   useEffect(() => {
     getEmployeeList({
@@ -79,10 +120,14 @@ export default function EmployeeList() {
     // eslint-disable-next-line
   }, [page, size, sortField, sortOrder, appliedSearch]);
 
-  // 직원 선택시 상세 조회
+  // Modal open/close state
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  // 직원 선택시 상세 조회 및 모달 오픈
   useEffect(() => {
     if (selectedId == null) return;
     getEmployeeDetail(selectedId);
+    setIsDetailModalOpen(true);
     // eslint-disable-next-line
   }, [selectedId]);
 
@@ -154,6 +199,20 @@ export default function EmployeeList() {
     setSelectedId(null); // 검색하면 상세 닫기
   };
 
+  // 퇴직자만 체크박스 변경 시 바로 필터링
+  const handleShowInactiveChange = (e) => {
+    const checked = e.target.checked;
+    setShowInactive(checked);
+    setAppliedSearch({
+      field: searchField,
+      keyword: searchText,
+      department: searchDept,
+      isActive: !checked, // checked=true면 isActive=false(퇴직자만)
+    });
+    setPage(0);
+    setSelectedId(null);
+  };
+
   // 초기화
   const handleReset = () => {
     setSearchField('name');
@@ -161,6 +220,7 @@ export default function EmployeeList() {
     setSearchDept('전체');
     setSortField(null); // 정렬 초기화
     setSortOrder('asc'); // 정렬 초기화
+    setShowInactive(false); // 체크박스도 해제
     setAppliedSearch({
       field: 'name',
       keyword: '',
@@ -168,6 +228,7 @@ export default function EmployeeList() {
     });
     setPage(0);
     setSelectedId(null);
+    setShowInactive(false); // 체크박스도 해제
   };
 
   const handlePageChange = (newPage) => {
@@ -238,7 +299,7 @@ export default function EmployeeList() {
             <input
               type='checkbox'
               checked={showInactive}
-              onChange={(e) => setShowInactive(e.target.checked)}
+              onChange={handleShowInactiveChange}
             />
             퇴직자만
           </label>
@@ -348,14 +409,49 @@ export default function EmployeeList() {
       </div>
       {/* 상세 정보는 선택 시 하단에만 노출 */}
       {selectedId && (
-        <div className='emp-detail-below'>
-          <EmployeeDetail
-            employee={selectedDetail}
-            onEdit={handleEdit}
-            onEval={handleEvalWithCheck}
-            onClose={handleClose}
-          />
-        </div>
+        <ModalPortal>
+          <div
+            className={styles.modalOverlay}
+            onClick={() => setSelectedId(null)}
+            style={{ zIndex: 1000 }}
+          >
+            <div
+              className={styles.modalContainer}
+              style={{
+                maxWidth: '850px',
+                width: '85vw',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                position: 'relative',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setSelectedId(null)}
+                style={{
+                  position: 'absolute',
+                  top: 18,
+                  right: 24,
+                  background: 'none',
+                  border: 'none',
+                  fontSize: 28,
+                  cursor: 'pointer',
+                  color: '#888',
+                  zIndex: 10,
+                }}
+                aria-label='닫기'
+              >
+                ×
+              </button>
+              <EmployeeDetail
+                employee={selectedDetail}
+                onEdit={handleEdit}
+                onEval={handleEvalWithCheck}
+                onClose={() => setSelectedId(null)}
+              />
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </>
   );

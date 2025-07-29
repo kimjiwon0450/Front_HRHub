@@ -6,6 +6,21 @@ const QuillEditor = ({ value, onChange, placeholder, readOnly = false }) => {
   const editorRef = useRef(null);
   const quillInstanceRef = useRef(null); // Quill 인스턴스를 저장할 ref
 
+  // 불필요한 기본값들을 필터링하는 함수
+  const sanitizeValue = (val) => {
+    if (!val) return '';
+    
+    // "ㅁㄴㅇㄹ" 같은 불필요한 기본값들 제거
+    const unwantedDefaults = ['ㅁㄴㅇㄹ', 'test', '테스트', '내용을 입력하세요'];
+    const trimmedValue = val.trim();
+    
+    if (unwantedDefaults.some(defaultVal => trimmedValue.includes(defaultVal))) {
+      return '';
+    }
+    
+    return val;
+  };
+
   useEffect(() => {
     // 1. 이미 Quill 인스턴스가 있다면 새로 생성하지 않고 종료
     if (quillInstanceRef.current) {
@@ -35,8 +50,9 @@ const QuillEditor = ({ value, onChange, placeholder, readOnly = false }) => {
       // (단, 초기값 설정 후 변경 감지를 위해 text-change 이벤트는 나중에 붙여야 함)
       // 또는 value prop이 변경될 때만 설정하도록 별도의 useEffect에서 처리
       // 여기서는 초기값 설정만 담당합니다.
-      if (value) {
-        quill.root.innerHTML = value;
+      const sanitizedValue = sanitizeValue(value);
+      if (sanitizedValue) {
+        quill.root.innerHTML = sanitizedValue;
       }
 
       // 사용자가 내용을 변경했을 때의 이벤트 핸들러
@@ -60,8 +76,11 @@ const QuillEditor = ({ value, onChange, placeholder, readOnly = false }) => {
   // value prop이 변경될 때마다 에디터 내용 업데이트 (사용자 입력 중이 아닐 때만)
   useEffect(() => {
     const quill = quillInstanceRef.current;
-    if (quill && value !== quill.root.innerHTML && !quill.hasFocus()) {
-      quill.root.innerHTML = value || '';
+    if (quill) {
+      const sanitizedValue = sanitizeValue(value);
+      if (sanitizedValue !== quill.root.innerHTML && !quill.hasFocus()) {
+        quill.root.innerHTML = sanitizedValue || '';
+      }
     }
   }, [value]);
 

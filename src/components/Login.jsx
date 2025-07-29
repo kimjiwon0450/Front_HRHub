@@ -6,6 +6,7 @@ import { API_BASE_URL, HR_SERVICE } from '../configs/host-config';
 import { UserContext, UserContextProvider } from '../context/UserContext';
 import modalStyles from './ResetPasswordModal.module.scss';
 import { succeed, swalError, warn } from '../common/common';
+import logo from '../assets/hrhub_logo.png';
 
 // 모달 컴포넌트 추가
 function ResetPasswordModal({ isOpen, onClose }) {
@@ -99,12 +100,15 @@ export default function Login() {
 
   // localStorage에서 이메일 불러오기
   useEffect(() => {
-    const savedEmail = localStorage.getItem('rememberedEmail');
-    if (savedEmail) {
-      setEmail(savedEmail);
-      setRememberEmail(true);
+    if (!emailParam) {
+      // 쿼리스트링 email이 없을 때만
+      const savedEmail = localStorage.getItem('rememberedEmail');
+      if (savedEmail) {
+        setEmail(savedEmail);
+        setRememberEmail(true);
+      }
     }
-  }, []);
+  }, [emailParam]);
 
   const verifyPassword = () => {
     if (!newPassword || !newPasswordConfirm) {
@@ -168,7 +172,7 @@ export default function Login() {
   return (
     <div className='login-container'>
       <div className='login-box'>
-        <img src='/src/assets/hrhub_logo.png' alt='hrhub' className='logo' />
+        <img src={logo} alt='hrhub' className='logo' />
         <form className='login-form' onSubmit={handleSubmit}>
           {/* 로그인 or 비밀번호 재설정 분기 */}
           <label htmlFor='email'>Email address</label>

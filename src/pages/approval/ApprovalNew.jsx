@@ -1,21 +1,29 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { useNavigate, useParams, useSearchParams, useBlocker } from 'react-router-dom';
-import styles from './ApprovalNew.module.scss';
-import { useApprovalForm } from '../../hooks/useApprovalForm';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
-import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
-import AttachmentList from '../../components/approval/AttachmentList';
-import FormField from './FormField';
-import QuillEditor from '../../components/editor/QuillEditor';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { UserContext } from '../../context/UserContext';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
-import TemplateSelectionModal from '../../components/approval/TemplateSelectionModal';
-import { UserContext } from '../../context/UserContext';
-import ModalPortal from '../../components/approval/ModalPortal';
+import { useApprovalForm } from '../../hooks/useApprovalForm';
+import Editor from '../../components/Editor'; // TipTap 에디터로 변경
+import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
+import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
+import { warn, swalConfirm, swalError } from '../../common/common';
+import styles from './ApprovalNew.module.scss';
 
-const MySwal = withReactContent(Swal);
+// 불필요한 기본값들을 필터링하는 함수
+const sanitizeValue = (val) => {
+  if (!val) return '';
+  
+  // "ㅁㄴㅇㄹ" 같은 불필요한 기본값들 제거
+  const unwantedDefaults = ['ㅁㄴㅇㄹ', 'test', '테스트', '내용을 입력하세요'];
+  const trimmedValue = val.trim();
+  
+  if (unwantedDefaults.some(defaultVal => trimmedValue.includes(defaultVal))) {
+    return '';
+  }
+  
+  return val;
+};
 
 function ApprovalNew() {
   console.log('ApprovalNew mount');
@@ -52,12 +60,14 @@ function ApprovalNew() {
   const [isDirty, setIsDirty] = useState(false); // 폼 내용 변경 여부
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false); // 예약 상신 모달
+  const [isScheduling, setIsScheduling] = useState(false); // 예약 상신 중 상태
 
   // useCallback을 사용하여 함수가 항상 최신 상태를 참조하도록 함
   const handleFinalSubmit = useCallback(async (isSubmit = false, isMovingAway = false) => {
     // 필수값 유효성 검사
     if (!formData.title || formData.title.trim() === '') {
-      await MySwal.fire({
+      await warn({
         icon: 'warning',
         title: '제목은 필수 입력 항목입니다.',
         confirmButtonText: '확인',
@@ -318,7 +328,7 @@ function ApprovalNew() {
 
   // 상신/임시저장 전 사용자 확인 모달
   const handleSubmitWithConfirm = async (isSubmit) => {
-    const result = await MySwal.fire({
+    const result = await swalConfirm({
       title: isSubmit ? '정말 상신하시겠습니까?' : '임시 저장하시겠습니까?',
       icon: 'question',
       showCancelButton: true,
@@ -343,16 +353,363 @@ function ApprovalNew() {
     }
   };
 
+  // 예약 상신 API 호출 함수
+  const handleScheduleSubmit = async (scheduledAt) => {
+    // 필수값 유효성 검사
+    if (!formData.title || formData.title.trim() === '') {
+      await MySwal.fire({
+        icon: 'warning',
+        title: '제목은 필수 입력 항목입니다.',
+        confirmButtonText: '확인',
+      });
+      setIsScheduling(false);
+      return;
+    }
+    if (!approvalLine || approvalLine.length === 0) {
+      await MySwal.fire({
+        icon: 'warning',
+        title: '결재선을 한 명 이상 지정해야 합니다.',
+        confirmButtonText: '확인',
+      });
+      setIsScheduling(false);
+      return;
+    }
+
+    // content 필드 검사 추가
+    let contentValue = formData.content;
+    if (template && template.content) {
+      const editorField = template.content.find(f => f.type === 'editor');
+      let editorId = editorField?.id || (editorField ? 'content' : undefined);
+      if (editorId) {
+        contentValue = formData[editorId] || '';
+      }
+    }
+    
+    if (!contentValue || contentValue.trim() === '') {
+      await MySwal.fire({
+        icon: 'warning',
+        title: '내용은 필수 입력 항목입니다.',
+        confirmButtonText: '확인',
+      });
+      setIsScheduling(false);
+      return;
+    }
+
+    setIsScheduling(true);
+    let reqDto = null; // reqDto를 try 블록 밖에서 선언
+
+    try {
+      // editor 타입 필드 id 자동 보정
+      let fixedTemplate = template;
+      if (template && template.content) {
+        fixedTemplate = {
+          ...template,
+          content: template.content.map(f =>
+            f.type === 'editor' && !f.id ? { ...f, id: 'content' } : f
+          ),
+        };
+      }
+
+      // 예약 상신 요청 데이터 구성
+      reqDto = {
+        title: formData.title.trim(),
+        content: contentValue.trim(),
+        templateId: fixedTemplate?.id,
+        reportTemplateData: JSON.stringify(formData),
+        approvalLine: approvalLine.map(a => ({ 
+          employeeId: a.id || a.employeeId, 
+          approvalContext: a.approvalContext 
+        })),
+        references: references.map(r => ({ 
+          employeeId: r.id || r.employeeId 
+        })),
+        scheduledAt: scheduledAt // ISO 8601 형식의 예약 시간
+      };
+
+      const submissionData = new FormData();
+      submissionData.append('req', new Blob([JSON.stringify(reqDto)], { type: 'application/json' }));
+      files.forEach((file) => submissionData.append('files', file));
+
+      console.log('[ApprovalNew] 예약 상신 API 호출 준비:', reqDto);
+      console.log('[ApprovalNew] scheduledAt 형식 확인:', scheduledAt);
+      console.log('[ApprovalNew] 현재 시간:', new Date().toISOString());
+      console.log('[ApprovalNew] reqDto JSON:', JSON.stringify(reqDto, null, 2));
+
+      // 백엔드에서 제공한 정확한 엔드포인트 사용
+      const res = await axiosInstance.post(
+        `${API_BASE_URL}${APPROVAL_SERVICE}/schedule`,
+        submissionData
+      );
+
+      console.log('[ApprovalNew] 예약 상신 API 응답:', res.data);
+
+      if (res.data && res.data.statusCode === 201) {
+        setIsDirty(false);
+        await MySwal.fire({
+          icon: 'success',
+          title: '문서가 성공적으로 예약되었습니다.',
+          text: `예약 시간: ${new Date(scheduledAt).toLocaleString()}`,
+          confirmButtonText: '확인',
+        });
+        navigate('/approval/home'); // 예약 문서함으로 이동
+      } else {
+        throw new Error(res.data?.statusMessage || '예약 상신에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error('[ApprovalNew] 예약 상신 실패:', err);
+      console.error('[ApprovalNew] 서버 응답:', err.response?.data);
+      
+      // reqDto가 정의되지 않았을 수 있으므로 안전하게 처리
+      try {
+        console.error('[ApprovalNew] 요청 데이터:', reqDto);
+        console.error('[ApprovalNew] scheduledAt:', scheduledAt);
+      } catch (debugErr) {
+        console.error('[ApprovalNew] 디버깅 정보 출력 중 오류:', debugErr);
+      }
+      
+      await MySwal.fire({
+        icon: 'error',
+        title: '예약 상신 실패',
+        text: err.response?.data?.statusMessage || err.message,
+        confirmButtonText: '확인',
+      });
+    } finally {
+      setIsScheduling(false);
+      setIsScheduleModalOpen(false);
+    }
+  };
+
+  // 예약 시간 선택 모달
+  const ScheduleModal = () => {
+    const [selectedDate, setSelectedDate] = useState('');
+    const [selectedHour, setSelectedHour] = useState('');
+    const [selectedMinute, setSelectedMinute] = useState('');
+
+    // 서울 표준 시간(KST) 기준으로 10분 단위로 올림하여 최소 선택 가능 시간 설정
+    const getCurrentKSTTime = () => {
+      const now = new Date();
+      
+      // 10분 단위로 올림
+      const minutes = now.getMinutes();
+      const roundedMinutes = Math.ceil(minutes / 10) * 10;
+      
+      // 시간이 60을 넘으면 다음 시간으로 설정
+      let hours = now.getHours();
+      if (roundedMinutes >= 60) {
+        hours += 1;
+        now.setHours(hours, 0, 0, 0);
+      } else {
+        now.setMinutes(roundedMinutes, 0, 0);
+      }
+      
+      return {
+        date: now.toISOString().slice(0, 10),
+        hour: now.getHours().toString().padStart(2, '0'),
+        minute: now.getMinutes().toString().padStart(2, '0')
+      };
+    };
+
+    // 10분 단위 옵션 생성
+    const getMinuteOptions = () => {
+      return ['00', '10', '20', '30', '40', '50'];
+    };
+
+    // 시간 옵션 생성 (0-23)
+    const getHourOptions = () => {
+      return Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
+    };
+
+    // 현재 시간 기준으로 선택 가능한 최소 시간 계산
+    const getMinimumTime = () => {
+      const now = new Date();
+      
+      // 10분 단위로 올림
+      const minutes = now.getMinutes();
+      const roundedMinutes = Math.ceil(minutes / 10) * 10;
+      let minimumHours = now.getHours();
+      if (roundedMinutes >= 60) {
+        minimumHours += 1;
+        const newDate = new Date(now);
+        newDate.setHours(minimumHours, 0, 0, 0);
+        return {
+          date: newDate.toISOString().slice(0, 10),
+          hour: newDate.getHours().toString().padStart(2, '0'),
+          minute: newDate.getMinutes().toString().padStart(2, '0')
+        };
+      } else {
+        const newDate = new Date(now);
+        newDate.setMinutes(roundedMinutes, 0, 0);
+        return {
+          date: newDate.toISOString().slice(0, 10),
+          hour: newDate.getHours().toString().padStart(2, '0'),
+          minute: newDate.getMinutes().toString().padStart(2, '0')
+        };
+      }
+    };
+
+    // 현재 시간 (정확한 시간, 올림하지 않음)
+    const getCurrentTime = () => {
+      const now = new Date();
+      
+      console.log('현재 시간:', now.toLocaleString('ko-KR'));
+      
+      const result = {
+        date: now.toISOString().slice(0, 10),
+        hour: now.getHours().toString().padStart(2, '0'),
+        minute: now.getMinutes().toString().padStart(2, '0')
+      };
+      
+      console.log('계산된 시간:', result);
+      return result;
+    };
+
+    // 초기값 설정 - 현재 시간을 10분 단위로 올림
+    React.useEffect(() => {
+      const minTime = getMinimumTime();
+      setSelectedDate(minTime.date);
+      setSelectedHour(minTime.hour);
+      setSelectedMinute(minTime.minute);
+    }, []);
+
+    const handleScheduleConfirm = () => {
+      if (!selectedDate || !selectedHour || !selectedMinute) {
+        MySwal.fire({
+          icon: 'warning',
+          title: '예약 시간을 선택해주세요.',
+          confirmButtonText: '확인',
+        });
+        return;
+      }
+
+      // 선택된 시간을 KST 기준으로 비교
+      const selectedDateTime = `${selectedDate}T${selectedHour}:${selectedMinute}:00`;
+      const selectedTime = new Date(selectedDateTime);
+      const currentTime = getCurrentTime();
+      const currentDateTime = `${currentTime.date}T${currentTime.hour}:${currentTime.minute}:00`;
+      const currentTimeObj = new Date(currentDateTime);
+
+      // 현재 시간과 선택된 시간을 직접 비교 (10분 단위 고려)
+      if (selectedTime <= currentTimeObj) {
+        MySwal.fire({
+          icon: 'warning',
+          title: '이미 지나간 시간은 선택할 수 없습니다.',
+          text: '10분 단위로 현재 시간 이후의 시간을 선택해주세요.',
+          confirmButtonText: '확인',
+        });
+        return;
+      }
+
+      // KST 시간을 UTC로 변환하여 서버에 전송
+      // selectedDateTime은 KST 시간이므로, UTC로 변환
+      const kstTime = new Date(selectedDateTime + '+09:00'); // KST 시간으로 명시
+      const scheduledAt = kstTime.toISOString(); // 이미 UTC로 변환됨
+      
+      console.log('[ApprovalNew] 선택된 KST 시간:', selectedDateTime);
+      console.log('[ApprovalNew] 변환된 UTC 시간:', scheduledAt);
+      
+      handleScheduleSubmit(scheduledAt);
+    };
+
+    const minTime = getMinimumTime();
+    const currentTime = getCurrentTime();
+
+    return (
+      <ModalPortal>
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>예약 상신</h3>
+            <p>문서가 자동으로 상신될 시간을 선택해주세요. (서울 표준 시간 기준, 10분 단위)</p>
+            <p style={{fontSize: '12px', color: '#666', marginTop: '8px'}}>
+              현재 시간: {currentTime.date} {currentTime.hour}:{currentTime.minute}
+            </p>
+            
+            <div className={styles.formRow}>
+              <label>예약 날짜:</label>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                min={minTime.date}
+                className={styles.formInput}
+              />
+            </div>
+
+            <div className={styles.formRow}>
+              <label>예약 시간:</label>
+              <div className={styles.timeSelector}>
+                <select
+                  value={selectedHour}
+                  onChange={(e) => setSelectedHour(e.target.value)}
+                  className={styles.timeSelect}
+                >
+                  {getHourOptions().map(hour => {
+                    const currentTime = getCurrentTime();
+                    const isDisabled = selectedDate === currentTime.date && 
+                                     parseInt(hour) < parseInt(currentTime.hour);
+                    return (
+                      <option 
+                        key={hour} 
+                        value={hour}
+                        disabled={isDisabled}
+                      >
+                        {hour}시
+                      </option>
+                    );
+                  })}
+                </select>
+                <span className={styles.timeSeparator}>:</span>
+                <select
+                  value={selectedMinute}
+                  onChange={(e) => setSelectedMinute(e.target.value)}
+                  className={styles.timeSelect}
+                >
+                  {getMinuteOptions().map(minute => {
+                    const currentTime = getCurrentTime();
+                    const isDisabled = selectedDate === currentTime.date && 
+                                     selectedHour === currentTime.hour &&
+                                     parseInt(minute) < parseInt(currentTime.minute);
+                    return (
+                      <option 
+                        key={minute} 
+                        value={minute}
+                        disabled={isDisabled}
+                      >
+                        {minute}분
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            </div>
+
+            <div className={styles.modalButtons}>
+              <button
+                type="button"
+                onClick={handleScheduleConfirm}
+                disabled={isScheduling}
+                className={styles.submitButton}
+              >
+                {isScheduling ? '예약 중...' : '예약 상신'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsScheduleModalOpen(false)}
+                className={styles.cancelButton}
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      </ModalPortal>
+    );
+  };
+
   if (loading) return <p>로딩 중...</p>;
   if (error) return <p>오류: {error}</p>;
 
   return (
     <div className={styles.pageContainer}>
-      {/* 
-        각 input, QuillEditor, EmployeeSelectModal 등이 
-        위에서 수정한 핸들러 함수들(handleValueChange, handleSelectApprovers 등)을 
-        props로 잘 전달받고 있는지 확인하는 것이 중요합니다.
-      */}
       <form onSubmit={(e) => { e.preventDefault(); handleSubmitWithConfirm(true); }}>
         <div className={styles.section}>
           <div className={styles.formRow}>
@@ -390,10 +747,9 @@ function ApprovalNew() {
             <div className={styles.formLabel}>내용</div>
             <div className={`${styles.formField} ${styles.vertical}`}>
               <div className={styles.editorContainer}>
-                  <QuillEditor
-                    value={formData.content || ""}
-                  onChange={(content) => handleValueChange("content", content)}
-                    placeholder="내용을 입력하세요..."
+                  <Editor
+                    content={sanitizeValue(formData.content || "")}
+                    onChange={(content) => handleValueChange("content", content)}
                   />
               </div>
             </div>
@@ -514,6 +870,14 @@ function ApprovalNew() {
           </button>
           <button
             type="button"
+            onClick={() => setIsScheduleModalOpen(true)}
+            disabled={isSubmitting || isSaving || isScheduling}
+            className={styles.scheduleButton}
+          >
+            예약 상신
+          </button>
+          <button
+            type="button"
             onClick={() => handleSubmitWithConfirm(false)}
             disabled={isSubmitting || isSaving}
             className={styles.draftButton}
@@ -554,6 +918,7 @@ function ApprovalNew() {
           onStartWriting={(templateId) => navigate(`/approval/new?templateId=${templateId}`)}
         />
       )}
+      {isScheduleModalOpen && <ScheduleModal />}
     </div>
   );
 }

@@ -29,7 +29,7 @@ import ApprovalPendingList from '../pages/approval/ApprovalPendingList';
 import TemplateAdminPage from '../pages/approval/TemplateAdminPage';
 import TemplateForm from '../pages/approval/TemplateForm';
 import AdminRoute from './AdminRoute';
-
+import ApprovalScheduled from "../pages/approval/ScheduledBox";
 // (사용하지 않는 ApprovalForm, TemplateList 등은 제외했습니다)
 
 // 공지사항
@@ -43,6 +43,9 @@ import CommunityPostsPage from '../pages/NoticeBoard/CommunityPostsPage';
 
 // 주소록
 import ContactList from '../pages/contacts/ContactList';
+
+//직원 관리
+import ImportEmployee from '../pages/hr/ImportEmployee';
 
 // 라우팅 설정 객체 배열
 const AppRouter = [
@@ -67,6 +70,7 @@ const AppRouter = [
           { path: 'employee-eval', element: <EvaluationForm /> },
           { path: 'employee-eval-list', element: <EmployeeViewList /> },
           { path: 'my-evaluations', element: <MyEvaluationList /> },
+          { path: 'import-employee', element: <ImportEmployee /> },
         ],
       },
 
@@ -107,34 +111,14 @@ const AppRouter = [
         children: [
           { index: true, element: <NoticeBoardList /> }, // '/noticeboard' 접속 시 기본 페이지
           { path: 'my', element: <NoticeBoardList /> },
-          { path: 'mydepartment', element: <NoticeBoardList /> },
+          { path: 'schedule', element: <NoticeBoardList /> },
           { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
-          { path: 'edit/:id', element: <NoticeBoardWrite isEdit={true} /> },
-          { path: 'alert', element: <NoticeAlertPage /> },
-          { path: ':id', element: <NoticeBoardDetail /> },
-        ],
-      },
-      {
-        path: 'general',
-        children: [
-          { index: true, element: <NoticeBoardList /> }, // '/noticeboard' 접속 시 기본 페이지
-          { path: 'my', element: <NoticeBoardList /> },
-          // { path: 'mydepartment', element: <NoticeBoardList /> },
-          { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
-          {
-            path: 'edit/:noticeId',
-            element: <NoticeBoardWrite isEdit={true} />,
-          },
+          { path: 'edit/:noticeId', element: <NoticeBoardWrite isEdit={true} /> },
           { path: ':noticeId', element: <NoticeBoardDetail /> },
           { path: 'alert', element: <NoticeAlertPage /> },
+          { path: ':noticeId', element: <NoticeBoardDetail /> },
         ],
       },
-      { path: 'alert', element: <NoticeAlertPage /> },
-      // { path: 'mydepartment', element: <NoticeBoardList /> },
-      { path: 'write', element: <NoticeBoardWrite isEdit={false} /> },
-      { path: 'edit/:id', element: <NoticeBoardWrite isEdit={true} /> },
-      { path: ':id', element: <NoticeBoardDetail /> },
-      { path: 'alert', element: <NoticeAlertPage /> },
       {
         path: 'community',
         children: [

@@ -68,6 +68,7 @@ const AddFieldModal = ({ isOpen, onClose, onSelect }) => {
     icon: <IoCreateOutline />,
     name: '새 항목 직접 만들기',
     desc: '필드명, 필수 여부 등 모든 속성을 직접 설정합니다.',
+    note: '※ 필드명(제목)은 필수 입력 항목입니다.',
   };
 
   return (
@@ -123,6 +124,9 @@ const AddFieldModal = ({ isOpen, onClose, onSelect }) => {
               <div className={styles.details}>
                 <div className={styles.name}>{customOption.name}</div>
                 <div className={styles.desc}>{customOption.desc}</div>
+                {customOption.note && (
+                  <div className={styles.note}>{customOption.note}</div>
+                )}
               </div>
             </div>
           </div>

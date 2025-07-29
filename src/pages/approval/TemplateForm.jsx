@@ -5,7 +5,6 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import styles from './TemplateForm.module.scss';
-import QuillEditor from '../../components/editor/QuillEditor'; // 새로 만든 에디터 컴포넌트 import
 import CustomFieldModal from '../../components/approval/CustomFieldModal';
 import InfoChangeModal from '../../components/approval/InfoChangeModal';
 import AddFieldModal from '../../components/approval/AddFieldModal';
@@ -373,6 +372,10 @@ const TemplateForm = () => {
         <div className={styles.infoNotice}>
           <span className={styles.infoIcon}>➕</span>필요하다면 결재 양식에 맞는
           입력 항목을 추가하세요.
+        </div>
+        <div className={styles.infoNotice}>
+          <span className={styles.infoIcon}>⚠️</span>사용자 정의 컴포넌트 생성 시{' '}
+          <b>필드명(제목)은 필수 입력 항목</b>입니다.
         </div>
         <DndProvider backend={HTML5Backend}>
           {customFields.map((field, index) => (

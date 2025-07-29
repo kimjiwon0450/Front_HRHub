@@ -6,6 +6,8 @@ import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
 import { useNavigate } from 'react-router-dom';
 import { warn } from '../../common/common';
+import EmployeeSelectorModal from '../../common/EmployeeSelectorModal';
+import ExcelUploader from '../../common/ExcelUploader';
 
 export default function EmployeeRegister() {
   const [departments, setDepartments] = useState([]);
@@ -25,6 +27,8 @@ export default function EmployeeRegister() {
   const [hireDate, setHireDate] = useState('');
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
+  const [excelEmployees, setExcelEmployees] = useState([]);
+  const [showEmployeeModal, setShowEmployeeModal] = useState(false);
 
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -78,7 +82,7 @@ export default function EmployeeRegister() {
     if (!isFormValid()) return;
     setIsLoading(true); // 로딩 시작
     try {
-      await axiosInstance.post(`http://localhost:8000${HR_SERVICE}/employees`, {
+      await axiosInstance.post(`${API_BASE_URL}${HR_SERVICE}/employees`, {
         email,
         name: employeeName,
         birthday: birth,
@@ -119,7 +123,7 @@ export default function EmployeeRegister() {
     setIsDeptLoading(true);
     try {
       const res = await axiosInstance.post(
-        `http://localhost:8000${HR_SERVICE}/department/add`,
+        `${API_BASE_URL}${HR_SERVICE}/department/add`,
         {
           name: newDeptName,
         },
@@ -143,12 +147,67 @@ export default function EmployeeRegister() {
   const fetchDepartments = async () => {
     try {
       const res = await axiosInstance.get(
-        `http://localhost:8000${HR_SERVICE}/departments`,
+        `${API_BASE_URL}${HR_SERVICE}/departments`,
       );
       setDepartments(res.data.result);
     } catch (err) {
+      console.log(err, '부서 목록 못부름');
       alert('부서 목록을 불러오지 못했습니다.');
     }
+  };
+
+  function excelSerialToDate(serial) {
+    // 엑셀 기준: 1899-12-30
+    const excelEpoch = new Date(1899, 11, 30);
+    const date = new Date(
+      excelEpoch.getTime() + (serial - 1) * 24 * 60 * 60 * 1000,
+    );
+    // YYYY-MM-DD 형식으로 반환
+    return date.toISOString().slice(0, 10);
+  }
+
+  function toDateInputFormat(dateValue) {
+    if (!dateValue) return '';
+    // 이미 YYYY-MM-DD면 그대로 반환
+    if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue))
+      return dateValue;
+    // YYYY.MM.DD, YYYY/MM/DD, YYYY-M-D 등 처리
+    if (typeof dateValue === 'string') {
+      const parts = dateValue.replace(/[./]/g, '-').split('-');
+      if (parts.length === 3) {
+        const [y, m, d] = parts;
+        return [
+          y.padStart(4, '0'),
+          m.padStart(2, '0'),
+          d.padStart(2, '0'),
+        ].join('-');
+      }
+    }
+    // 엑셀 시리얼 넘버(숫자) 처리
+    if (!isNaN(dateValue)) {
+      return excelSerialToDate(Number(dateValue));
+    }
+    return '';
+  }
+
+  const handleEmployeeSelect = (emp) => {
+    setEmail(emp['이메일'] || '');
+    setRole(emp['직책'] || 'EMPLOYEE');
+    setPosition(emp['직급'] || 'INTERN');
+    setEmployeeName(emp['이름'] || '');
+    setBirth(toDateInputFormat(emp['생년월일']));
+    setAddress(emp['주소'] || '');
+    setPhone(emp['핸드폰'] || '');
+    setHireDate(toDateInputFormat(emp['입사일']) || '');
+    setIsNewEmployee(emp['입사구분'] === '신입');
+    setMemo(emp['메모'] || '');
+
+    // 부서명 → id 변환
+    const deptName = emp['부서'];
+    const matchedDept = departments.find((d) => d.name === deptName);
+    setDepartmentId(matchedDept ? matchedDept.id : 1); // 없으면 기본값 1
+
+    setShowEmployeeModal(false);
   };
 
   useEffect(() => {
@@ -160,6 +219,26 @@ export default function EmployeeRegister() {
       <HRHeader />
       <div className='register-root'>
         <h2 className='register-title'>신규 등록</h2>
+        {/* 엑셀 업로더 및 직원 불러오기 버튼을 form 바깥, 한 줄에 배치 */}
+        <div className='excel-upload-row'>
+          <ExcelUploader onDataParsed={setExcelEmployees} />
+          <button
+            type='button'
+            className={`employee-select-btn${excelEmployees.length === 0 ? ' disabled' : ''}`}
+            onClick={() => setShowEmployeeModal(true)}
+            disabled={excelEmployees.length === 0}
+          >
+            직원 불러오기
+          </button>
+        </div>
+        {/* 직원 선택 모달 */}
+        {showEmployeeModal && (
+          <EmployeeSelectorModal
+            employeeList={excelEmployees}
+            onSelect={handleEmployeeSelect}
+            onClose={() => setShowEmployeeModal(false)}
+          />
+        )}
         <form className='register-form' onSubmit={handleSubmit}>
           {/* 이메일 */}
           <label className='reg-label'>이메일</label>

@@ -3,6 +3,30 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../configs/host-config';
 
+// 불필요한 기본값들을 필터링하는 함수
+const sanitizeFormData = (data) => {
+  if (!data) return {};
+  
+  const unwantedDefaults = ['ㅁㄴㅇㄹ', 'test', '테스트', '내용을 입력하세요'];
+  const sanitizedData = {};
+  
+  Object.keys(data).forEach(key => {
+    const value = data[key];
+    if (typeof value === 'string') {
+      const trimmedValue = value.trim();
+      if (unwantedDefaults.some(defaultVal => trimmedValue.includes(defaultVal))) {
+        sanitizedData[key] = '';
+      } else {
+        sanitizedData[key] = value;
+      }
+    } else {
+      sanitizedData[key] = value;
+    }
+  });
+  
+  return sanitizedData;
+};
+
 export const useApprovalForm = (templateId, reportId) => {
   const navigate = useNavigate();
   
@@ -64,7 +88,9 @@ export const useApprovalForm = (templateId, reportId) => {
             setTemplate(null);
           }
           // formData는 template의 기본값과 실제 데이터를 합쳐서 설정할 수 있습니다.
-          setFormData(data.formData || {});
+          // 불필요한 기본값들을 필터링
+          const sanitizedFormData = sanitizeFormData(data.formData || {});
+          setFormData(sanitizedFormData);
           setApprovalLine(
             (data.approvalLine || []).map(emp => emp.id ? emp : { ...emp, id: emp.employeeId })
           );

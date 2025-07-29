@@ -6,6 +6,7 @@ import {
 } from '../../configs/host-config';
 import { UserContext, UserContextProvider } from '../../context/UserContext'; // 로그인 유저 정보
 import './NoticeBoardList.scss';
+import Swal from 'sweetalert2';
 
 const NoticeBoardList = () => {
     const navigate = useNavigate();
@@ -26,6 +27,53 @@ const NoticeBoardList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [pageSize, setPageSize] = useState(10); // ✅ 보기 개수
     const [loading, setLoading] = useState(false);
+    const [deletingId, setDeletingId] = useState(null); // 삭제 중인 공지 ID
+
+
+    const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    const dateTimeOptions = {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false,
+    };
+
+    const handleDeleteScheduled = async (noticeId) => {
+        const result = await Swal.fire({
+            title: '정말 삭제할까요?',
+            text: '예약된 공지를 삭제하면 복구할 수 없습니다.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '삭제',
+            cancelButtonText: '취소'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            setDeletingId(noticeId); // 삭제 중 상태
+            const res = await fetch(`${API_BASE_URL}${NOTICE_SERVICE}/schedule/${noticeId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (!res.ok) {
+                throw new Error('삭제 실패');
+            }
+
+            Swal.fire('삭제 완료', '해당 예약 공지가 삭제되었습니다.', 'success');
+            setNotices(prev => prev.filter(n => n.noticeId !== noticeId));
+        } catch (err) {
+            console.error('삭제 실패:', err);
+            Swal.fire('삭제 실패', '문제가 발생했습니다. 다시 시도해 주세요.', 'error');
+        } finally {
+            setDeletingId(null); // 로딩 상태 해제
+        }
+    };
+
 
     useEffect(() => {
         if (!isInit || !accessToken || !userId) return; // ✅ 초기화 완료 여부 확인
@@ -50,7 +98,10 @@ const NoticeBoardList = () => {
                 console.log('departmentId : ', departmentId);
                 if (viewMode === 'MY') {
                     url = `${API_BASE_URL}${NOTICE_SERVICE}/my`;
-                } else {
+                } else if (viewMode === 'SCHEDULE') {
+                    url = `${API_BASE_URL}${NOTICE_SERVICE}/schedule`;
+                }
+                else {
                     url = `${API_BASE_URL}${NOTICE_SERVICE}?${params.toString()}`;
                 }
 
@@ -63,15 +114,20 @@ const NoticeBoardList = () => {
                 if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
                 const data = await res.json();
 
+                console.log('data : ', data);
                 console.log('data.generalNotices : ', data.generalNotices);
                 console.log('data.notices : ', data.notices);
                 console.log('data.posts : ', data.posts);
 
                 if (viewMode === 'MY') {
                     setGeneralNotices([])
-                    // setNotices(data || []);
-                    setNotices(Array.isArray(data) ? data : data.data || []);
+                    setNotices(data.mynotices || []);
+                    // setNotices(Array.isArray(data) ? data : data.data || []);
                     setTotalPages(1); // 페이징 미적용이므로 1로 고정
+                } else if (viewMode === 'SCHEDULE') {
+                    setGeneralNotices([])
+                    setNotices(data.myschedule || []);
+                    setTotalPages(1);
                 } else {
                     setGeneralNotices(data.generalNotices || []);
                     setNotices(data.notices || []);
@@ -171,12 +227,12 @@ const NoticeBoardList = () => {
                         <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); navigate('/notice') }}>
                             전체
                         </button>
-                        <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate('my') }}>
+                        <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate('/notice/my') }}>
                             내가 쓴 글
                         </button>
-                        {/*<button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate(`/notice`) }}>*/}
-                        {/*    내 부서 글*/}
-                        {/*</button>*/}
+                        <button className={viewMode === 'SCHEDULE' ? 'active' : ''} onClick={() => { setViewMode('SCHEDULE'); setPage(0); navigate(`/notice/schedule`) }}>
+                            예약목록
+                        </button>
                     </div>
 
                     <div className="write-button-wrapper">
@@ -201,8 +257,9 @@ const NoticeBoardList = () => {
                                 <th></th>
                                 <th>제목</th>
                                 <th>작성자</th>
-                                <th>작성일</th>
+                                <th>{viewMode === 'SCHEDULE' ? '예약일' : '작성일'}</th>
                                 <th>조회수</th>
+                                {viewMode === 'SCHEDULE' && <th>삭제</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -232,11 +289,42 @@ const NoticeBoardList = () => {
                                     <td style={{
                                         color: post.position === userPosition ? '#28c309' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
-                                    }}>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                    }}>{viewMode === 'SCHEDULE'
+                                        ? new Date(post.scheduledAt).toLocaleString('ko-KR', dateTimeOptions)
+                                        : new Date(post.createdAt).toLocaleDateString('ko-KR', dateOptions)
+                                        }
+                                    </td>
                                     <td style={{
                                         color: post.position === userPosition ? '#28c309' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
                                     }}>{post.viewCount}</td>
+
+                                    {/* ❌ 삭제 버튼 */}
+                                    {viewMode === 'SCHEDULE' && (
+                                        <td onClick={(e) => e.stopPropagation()}>
+                                            <button
+                                                onClick={() => handleDeleteScheduled(post.noticeId)}
+                                                disabled={deletingId === post.noticeId}
+                                                style={{
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    color: 'red',
+                                                    fontSize: '1.1em',
+                                                    cursor: deletingId === post.noticeId ? 'not-allowed' : 'pointer',
+                                                    transition: 'color 0.2s',
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    if (deletingId !== post.noticeId) e.currentTarget.style.color = '#ff4444';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    if (deletingId !== post.noticeId) e.currentTarget.style.color = 'red';
+                                                }}
+                                                title="예약 공지 삭제"
+                                            >
+                                                {deletingId === post.noticeId ? '🔄' : '❌'}
+                                            </button>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
 
@@ -280,11 +368,41 @@ const NoticeBoardList = () => {
                                     <td style={{
                                         color: post.position === userPosition ? '#21429e' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
-                                    }}>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                    }}>{viewMode === 'SCHEDULE'
+                                        ? new Date(post.scheduledAt).toLocaleString('ko-KR', dateTimeOptions)
+                                        : new Date(post.createdAt).toLocaleDateString('ko-KR', dateOptions)
+                                        }
+                                    </td>
                                     <td style={{
                                         color: post.position === userPosition ? '#21429e' : '#000',
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
                                     }}>{post.viewCount}</td>
+                                    {/* ❌ 삭제 버튼 */}
+                                    {viewMode === 'SCHEDULE' && (
+                                        <td onClick={(e) => e.stopPropagation()}>
+                                            <button
+                                                onClick={() => handleDeleteScheduled(post.noticeId)}
+                                                disabled={deletingId === post.noticeId}
+                                                style={{
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    color: 'red',
+                                                    fontSize: '1.1em',
+                                                    cursor: deletingId === post.noticeId ? 'not-allowed' : 'pointer',
+                                                    transition: 'color 0.2s',
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    if (deletingId !== post.noticeId) e.currentTarget.style.color = '#ff4444';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    if (deletingId !== post.noticeId) e.currentTarget.style.color = 'red';
+                                                }}
+                                                title="예약 공지 삭제"
+                                            >
+                                                {deletingId === post.noticeId ? '🔄' : '❌'}
+                                            </button>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
 

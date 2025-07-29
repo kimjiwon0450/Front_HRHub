@@ -49,10 +49,10 @@
   }
 
   .content {
-    font-size: 16px;
-    line-height: 1.7;
+    // font-size: 16px;
+    // line-height: 1.7;
     white-space: pre-wrap;
-    color: #444;
+    // color: #444;
     margin-bottom: 30px;
     word-break: break-word;
     // word-break: break-all;
@@ -65,6 +65,9 @@
     background: #f8fafc;
     border-radius: 8px;
     padding: 18px 16px;
+    p {
+      margin-bottom: 1em;
+    }
   }
 
   .attachment {
@@ -314,5 +317,57 @@
         width: 100%;
       }
     }
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .notice-detail,
+  .notice-detail * {
+    visibility: visible;
+  }
+
+  .notice-detail {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white;
+  }
+
+  .buttons,
+  .comment-section {
+    display: none !important; // 버튼, 댓글은 인쇄 안 되게
+  }
+}
+
+.print-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 42px;
+  height: 42px;
+  // background-color: hsl(161, 15%, 57%);
+  color: white;
+  font-size: 18px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease-in-out;
+  &:hover {
+    background-color: hwb(200 42% 7%);
+  }
+}
+
+@media print {
+  .print-button {
+    display: none;
   }
 }
