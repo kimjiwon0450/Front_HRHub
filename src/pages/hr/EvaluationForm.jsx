@@ -6,6 +6,7 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import { useContext } from 'react';
 import { UserContext } from '../../context/UserContext';
+import { swalConfirm } from '../../common/common';
 
 // 별점 컴포넌트
 function StarRating({ value, onChange }) {
@@ -243,8 +244,9 @@ export default function EvaluationForm({
       alert('제출 실패: ' + (error.response?.data?.message || error.message));
     }
   };
-  const handleCancel = () => {
-    if (window.confirm('취소하시겠습니까?')) {
+  const handleCancel = async () => {
+    const result = await swalConfirm('취소하시겠습니까?');
+    if (result.isConfirmed) {
       if (onClose) {
         onClose();
       } else {
