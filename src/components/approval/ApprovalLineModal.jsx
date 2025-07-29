@@ -1,3 +1,5 @@
+// /src/components/approval/ApprovalLineModal.jsx (최종 완성본)
+
 import React, { useState, useEffect } from 'react';
 import styles from './ApprovalLineModal.module.scss';
 import VisualApprovalLine from './VisualApprovalLine';
@@ -10,7 +12,6 @@ import {
   ClockFill,
 } from 'react-bootstrap-icons';
 
-// 상태별 아이콘과 텍스트를 반환하는 작은 컴포넌트
 const StatusIcon = ({ status }) => {
   switch (status) {
     case 'APPROVED':
@@ -49,20 +50,18 @@ const ApprovalLineModal = ({ approvalLine, reportStatus, onClose }) => {
       }
       try {
         setLoading(true);
-        const employeeIds = approvalLine.map((a) => a.employeeId);
-        const response = await axiosInstance.get(
-          `${API_BASE_URL}${HR_SERVICE}/employees/details`,
-          {
-            params: { ids: employeeIds.join(',') },
-          },
+        const promises = approvalLine.map(approver =>
+          axiosInstance.get(`${API_BASE_URL}${HR_SERVICE}/employees/${approver.employeeId}`)
         );
-        const detailsMap = new Map(
-          response.data.result.map((detail) => [detail.employeeId, detail]),
-        );
-        const mergedDetails = approvalLine.map((approver) => {
+
+        const responses = await Promise.all(promises);
+        const detailsData = responses.map(res => res.data.result);
+        const detailsMap = new Map(detailsData.map(detail => [detail.employeeId, detail]));
+        const mergedDetails = approvalLine.map(approver => {
           const detail = detailsMap.get(approver.employeeId) || {};
           return { ...approver, ...detail };
         });
+
         setApproverDetails(mergedDetails);
       } catch (error) {
         console.error('결재자 정보를 불러오는 데 실패했습니다:', error);
@@ -71,6 +70,7 @@ const ApprovalLineModal = ({ approvalLine, reportStatus, onClose }) => {
         setLoading(false);
       }
     };
+
     fetchApproverDetails();
   }, [approvalLine]);
 
@@ -81,23 +81,22 @@ const ApprovalLineModal = ({ approvalLine, reportStatus, onClose }) => {
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h3>결재선 정보</h3>
-          <button onClick={onClose} className={styles.closeButton}>
-            &times;
-          </button>
+          <button onClick={onClose} className={styles.closeButton}>×</button>
         </div>
         <div className={styles.modalBody}>
           <div className={styles.visualLineWrapper}>
             <VisualApprovalLine
-              approvalLine={approvalLine}
+              approvalLine={approverDetails} // ★ 상세 정보가 포함된 데이터를 전달
               reportStatus={reportStatus}
               mode='full'
             />
           </div>
+
           {loading ? (
             <div className={styles.loading}>로딩 중...</div>
           ) : (
             <ul className={styles.approverList}>
-              {approverDetails.map((approver, index) => (
+              {approverDetails.map((approver) => (
                 <li key={approver.employeeId} className={styles.approverItem}>
                   <div className={styles.statusIconWrapper}>
                     <StatusIcon status={approver.approvalStatus} />
@@ -110,21 +109,14 @@ const ApprovalLineModal = ({ approvalLine, reportStatus, onClose }) => {
                         className={styles.profileImage}
                       />
                       <div className={styles.info}>
-                        <div className={styles.nameAndTimestamp}>
-                          <span className={styles.name}>{approver.name}</span>
-                          {approver.approvalDateTime && (
-                            <span className={styles.timestamp}>
-                              {new Date(
-                                approver.approvalDateTime,
-                              ).toLocaleString('ko-KR', {
-                                year: '2-digit',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </span>
-                          )}
+                        <div className={styles.nameAndPosition}>
+                           <span className={styles.name}>{approver.name}</span>
+                           {/* ★★★ 여기가 핵심 수정 부분입니다 ★★★ */}
+                           {/* 필드 이름을 positionName -> position, roleName -> role 로 변경 */}
+                           {/* 데이터가 없는 경우를 대비해 안정적인 코드로 변경 */}
+                           <span className={styles.position}>
+                             {[approver.position, approver.role].filter(Boolean).join(' / ')}
+                           </span>
                         </div>
                         <span className={styles.dept}>
                           {approver.department}
@@ -147,4 +139,4 @@ const ApprovalLineModal = ({ approvalLine, reportStatus, onClose }) => {
   );
 };
 
-export default ApprovalLineModal; 
+export default ApprovalLineModal;
