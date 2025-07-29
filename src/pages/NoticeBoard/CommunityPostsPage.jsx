@@ -6,12 +6,12 @@ import {
     COMMUNITY_SERVICE
 } from '../../configs/host-config';
 import { UserContext, UserContextProvider } from '../../context/UserContext'; // 로그인 유저 정보
-import './NoticeBoardList.scss';
+// import './NoticeBoardList.scss';
+import './CommunityPostsPage.scss';
 
 const CommunityPostsPage = () => {
     const navigate = useNavigate();
-    const { isInit, userId, accessToken, departmentId } = useContext(UserContext);
-
+    const { isInit, userId, accessToken, departmentId, userRole } = useContext(UserContext);
     const [viewMode, setViewMode] = useState('ALL'); // ALL | MY | DEPT
     const [posts, setPosts] = useState([]);
     const [filters, setFilters] = useState({
@@ -25,6 +25,7 @@ const CommunityPostsPage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [pageSize, setPageSize] = useState(10); // ✅ 보기 개수
     const [loading, setLoading] = useState(false);
+    const [reportCount, setReportCount] = useState(0);
 
     useEffect(() => {
         if (!isInit || !accessToken || !userId) return; // ✅ 초기화 완료 여부 확인
@@ -89,6 +90,27 @@ const CommunityPostsPage = () => {
         fetchPosts();
     }, [filters, page, pageSize, departmentId, isInit, viewMode, accessToken, userId]);
 
+    useEffect(() => {
+        // HR_MANAGER일 경우에만 신고 수를 불러옴
+        if (userRole === 'HR_MANAGER') {
+            const fetchReportCount = async () => {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/report/admin/list`, {
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                    });
+                    if (!res.ok) throw new Error('신고 목록 조회 실패');
+
+                    const data = await res.json();
+                    setReportCount(data.posts.length);
+                } catch (err) {
+                    console.error('신고 수 조회 실패:', err);
+                }
+            };
+
+            fetchReportCount();
+        }
+    }, [userRole, accessToken]);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFilters(prev => ({ ...prev, [name]: value }));
@@ -105,6 +127,17 @@ const CommunityPostsPage = () => {
     return (
         <div className="notice-board">
             <div className="header">
+                {userRole === 'HR_MANAGER' && (
+                    <div className="admin-controls">
+                        <button
+                            className="manage-button"
+                            onClick={() => navigate('/report/admin/list')}
+                        >
+                            🔧 게시글 관리
+                            {reportCount > 0 && <span className="report-badge">{reportCount}</span>}
+                        </button>
+                    </div>
+                )}
                 <h2>게시판</h2>
                 <div className="filters">
                     <input type="date" name="startDate" value={filters.startDate} onChange={handleInputChange} />
@@ -168,23 +201,23 @@ const CommunityPostsPage = () => {
                     >
                         초기화
                     </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
+                        <div className="view-mode-buttons">
+                            <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); navigate('/community') }}>
+                                전체
+                            </button>
+                            <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate('/community/my') }}>
+                                내가 쓴 글
+                            </button>
+                            <button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate('/community/mydepartment') }}>
+                                내 부서 글
+                            </button>
+                        </div>
 
-                    <div className="view-mode-buttons">
-                        <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); navigate('/community') }}>
-                            전체
-                        </button>
-                        <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate('/community/my') }}>
-                            내가 쓴 글
-                        </button>
-                        <button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate('/community/mydepartment') }}>
-                            내 부서 글
-                        </button>
+                        <div className="write-button-wrapper">
+                            <button className="write-button" onClick={() => navigate('/community/write')}>작성하기</button>
+                        </div>
                     </div>
-
-                    <div className="write-button-wrapper">
-                        <button className="write-button" onClick={() => navigate('/community/write')}>작성하기</button>
-                    </div>
-
                 </div>
             </div>
 

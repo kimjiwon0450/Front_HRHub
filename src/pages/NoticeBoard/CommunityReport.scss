@@ -1,56 +1,106 @@
-.community-report {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+.community-report-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #f8f9fa;
+}
+
+.report-box {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 600px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 
   h2 {
+    text-align: center; // 중앙 정렬
+    font-size: 1.5rem;
     margin-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0; // 연한 실선
+    padding-bottom: 0.8rem;
   }
+}
 
-  label {
-    display: block;
-    margin-top: 1rem;
-    font-weight: bold;
+.report-meta {
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e0e0e0; // 연한 실선
+
+  p {
+    margin: 0.3rem 0;
+    margin-bottom: 15px;
+    margin-left: 10px;
   }
+}
 
-  select,
-  textarea {
-    width: 100%;
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-    resize: vertical;
-  }
+.reason-section {
+  margin-bottom: 1.5rem;
 
-  textarea {
-    min-height: 100px;
-  }
+  ul {
+    list-style: none;
+    padding: 0;
 
-  .buttons {
-    margin-top: 1.5rem;
-    display: flex;
-    gap: 1rem;
+    li {
+      margin: 0.5rem 0;
+      margin-bottom: 15px;
 
-    button {
-      flex: 1;
-      padding: 0.7rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+      label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+      }
+
+      input[type='radio'] {
+        accent-color: hsl(247, 71%, 45%);
+      }
     }
+  }
+}
 
-    button:first-child {
-      background-color: #d33;
-      color: white;
-    }
+textarea {
+  width: 100%;
+  height: 100px;
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: none;
+  font-size: 0.95rem;
+}
 
-    button:last-child {
-      background-color: #ccc;
-    }
+.submit-button {
+  margin-top: 1.5rem;
+  width: 100%;
+  background-color: hsl(226, 69%, 55%);
+  color: white;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    background-color: hsl(207, 72%, 61%);
+  }
+}
+
+.cancel-button {
+  margin-top: 1rem;
+  background: none;
+  color: #888;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+  text-decoration: underline;
+
+  &:hover {
+    color: #000;
   }
 }

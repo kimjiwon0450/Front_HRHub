@@ -1,86 +1,133 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { API_BASE_URL, COMMUNITY_SERVICE } from '../../configs/host-config';
+import axios from 'axios';
+import { API_BASE_URL } from '../../configs/host-config';
 import { UserContext } from '../../context/UserContext';
 import './CommunityReport.scss';
+
+const reportReasons = [
+    '스팸홍보/도배입니다.',
+    '음란물입니다.',
+    '불법정보를 포함하고 있습니다.',
+    '청소년에게 유해한 내용입니다.',
+    '욕설/생명경시/혐오/차별적 표현입니다.',
+    '개인정보가 노출되었습니다.',
+    '불쾌한 표현이 있습니다.',
+    '명예훼손 또는 저작권이 침해되었습니다.',
+    '불법촬영물 등이 포함되어 있습니다.',
+];
 
 const CommunityReport = () => {
     const { communityId } = useParams();
     const navigate = useNavigate();
     const { accessToken } = useContext(UserContext);
 
-    const [reason, setReason] = useState('');
+    const [selectedReason, setSelectedReason] = useState('');
     const [details, setDetails] = useState('');
+    const [author, setAuthor] = useState('');
+    const [authorId, setAuthorId] = useState('');
+    const [content, setContent] = useState('');
 
+    // 게시글 정보 가져오기
+    useEffect(() => {
+        const fetchCommunityData = async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/community/${communityId}`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+
+                if (!res.ok) throw new Error('게시글 조회 실패');
+                const data = await res.json();
+
+                setAuthor(data.name || '알 수 없음');
+                setAuthorId(data.employeeId || '알 수 없음');
+                setContent(data.title || '');
+            } catch (err) {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: '게시글 정보를 불러오는 데 실패했습니다.',
+                });
+            }
+        };
+
+        fetchCommunityData();
+    }, [communityId, accessToken]);
+
+    // 신고 제출
     const handleSubmit = async () => {
-        if (!reason) {
-            Swal.fire({
-                icon: 'warning',
-                title: '신고 사유를 선택해 주세요.',
-            });
+        if (!selectedReason) {
+            Swal.fire({ icon: 'warning', title: '신고 사유를 선택해 주세요.' });
             return;
         }
 
+        const reportData = {
+            reporterId: authorId,
+            communityId: Number(communityId),
+            reason: selectedReason + details,
+        };
+        console.log('reportData : ', reportData);
+        console.log('url : ', `${API_BASE_URL}/report/${communityId}`);
         try {
-            const res = await fetch(`${API_BASE_URL}${COMMUNITY_SERVICE}/${communityId}/report`, {
-                method: 'POST',
+            const res = await axios.post(`${API_BASE_URL}/report/${communityId}`, reportData, {
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`,
+                    'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify({
-                    reason,
-                    details,
-                }),
             });
 
-            if (!res.ok) throw new Error('신고 요청 실패');
+            if (res.status !== 200) throw new Error('신고 요청 실패');
 
-            Swal.fire({
-                icon: 'success',
-                title: '신고가 접수되었습니다.',
-            }).then(() => {
+            Swal.fire({ icon: 'success', title: '신고가 접수되었습니다.' }).then(() => {
                 navigate(-1);
             });
         } catch (err) {
             console.error(err);
-            Swal.fire({
-                icon: 'error',
-                title: '신고 처리 중 오류가 발생했습니다.',
-            });
+            Swal.fire({ icon: 'error', title: '신고 처리 중 오류가 발생했습니다.' });
         }
     };
 
     return (
-        <div className="community-report">
-            <h2>게시글 신고하기</h2>
+        <div className="community-report-wrapper">
+            <div className="report-box">
+                <h2>신고하기</h2>
 
-            <label htmlFor="reason">신고 사유</label>
-            <select
-                id="reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-            >
-                <option value="">-- 신고 사유를 선택하세요 --</option>
-                <option value="spam">스팸/홍보성</option>
-                <option value="abuse">욕설/비방</option>
-                <option value="illegal">불법정보</option>
-                <option value="privacy">개인정보 침해</option>
-                <option value="other">기타</option>
-            </select>
+                <div className="report-meta">
+                    <p><strong>작성자</strong> | {author}</p>
+                    <p><strong>내용</strong>  | {content}</p>
+                </div>
 
-            <label htmlFor="details">상세 내용 (선택)</label>
-            <textarea
-                id="details"
-                placeholder="신고 내용을 자세히 작성해 주세요."
-                value={details}
-                onChange={(e) => setDetails(e.target.value)}
-            />
+                <div className="reason-section">
+                    <h4>사유선택</h4>
+                    <ul>
+                        {reportReasons.map((reason, idx) => (
+                            <li key={idx}>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name="reportReason"
+                                        value={reason}
+                                        checked={selectedReason === reason}
+                                        onChange={() => setSelectedReason(reason)}
+                                    />
+                                    {reason}
+                                </label>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
 
-            <div className="buttons">
-                <button onClick={handleSubmit}>신고 제출</button>
-                <button onClick={() => navigate(-1)}>취소</button>
+                <textarea
+                    placeholder="추가 입력이 필요한 경우 여기에 작성해 주세요."
+                    value={details}
+                    onChange={(e) => setDetails(e.target.value)}
+                />
+
+                <button className="submit-button" onClick={handleSubmit}>신고하기</button>
+                <button className="cancel-button" onClick={() => navigate(-1)}>취소</button>
             </div>
         </div>
     );
