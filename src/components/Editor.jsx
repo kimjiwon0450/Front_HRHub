@@ -89,8 +89,7 @@ const Editor = ({ content, onChange }) => {
       FontFamily,
       TextStyleBackground,
       LineHeight,
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      SpellcheckMark,
+      TextAlign.configure({ types: ['heading', 'paragraph'] })
     ],
     content,
     // onUpdate: ({ editor }) => {
@@ -292,40 +291,6 @@ const Editor = ({ content, onChange }) => {
           <FiRotateCw />
         </button>
 
-        <button
-          type='button'
-          onClick={async () => {
-            // const { accessToken } = useContext(UserContext);
-            if (!editor) return;
-            if (!accessToken) {
-              alert('로그인이 필요합니다.');
-              return;
-            }
-            const text = editor.getText();
-            const errorWords = await checkSpelling(text, accessToken);
-
-            editor.chain().focus().unsetMark('spellcheck').run();
-
-            errorWords.forEach((word) => {
-              const regex = new RegExp(word, 'gi');
-              const matches = [...text.matchAll(regex)];
-
-              matches.forEach((match) => {
-                const from = match.index;
-                const to = from + match[0].length;
-                editor
-                  .chain()
-                  .focus()
-                  .setTextSelection({ from, to })
-                  .setMark('spellcheck')
-                  .run();
-              });
-            });
-          }}
-          title='맞춤법 검사'
-        >
-          📝 맞춤법 검사
-        </button>
 
         {/* 정렬 버튼 */}
         <button
