@@ -115,7 +115,7 @@ export default function EvaluationForm({
           .then((res) =>
             setForm((prev) => ({ ...prev, name: res.data.result })),
           )
-          .catch(() => { });
+          .catch(() => {});
       }
       if (!evaluation.evaluateeDept && evaluation.evaluateeId) {
         axiosInstance
@@ -125,7 +125,7 @@ export default function EvaluationForm({
           .then((res) =>
             setForm((prev) => ({ ...prev, dept: res.data.result })),
           )
-          .catch(() => { });
+          .catch(() => {});
       }
     }
   }, [employee, evaluation]);
@@ -243,8 +243,6 @@ export default function EvaluationForm({
       alert('제출 실패: ' + (error.response?.data?.message || error.message));
     }
   };
-  const handleSave = () => alert('임시저장: ' + JSON.stringify(form, null, 2));
-  const handlePreview = () => alert('미리보기 (팝업 구현 가능)');
   const handleCancel = () => {
     if (window.confirm('취소하시겠습니까?')) {
       if (onClose) {
@@ -305,7 +303,7 @@ export default function EvaluationForm({
                   className='eval-date-picker'
                   title='달력 선택'
                   tabIndex={-1}
-                // react-datepicker 사용 중이면 필요 없음
+                  // react-datepicker 사용 중이면 필요 없음
                 >
                   🗓️
                 </button>
@@ -415,16 +413,6 @@ export default function EvaluationForm({
             <div className='eval-footer-btns'>
               <button className='btn dark' type='button' onClick={handleCancel}>
                 취소
-              </button>
-              <button
-                className='btn dark'
-                type='button'
-                onClick={handlePreview}
-              >
-                미리보기
-              </button>
-              <button className='btn dark' type='button' onClick={handleSave}>
-                임시저장
               </button>
               <button className='btn blue' type='submit'>
                 {isEdit ? '수정' : '등록'}
