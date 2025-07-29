@@ -47,6 +47,21 @@ const FONT_SIZES = [12, 14, 16, 18, 20, 24, 28, 32];
 // line-height 옵션
 const LINE_HEIGHTS = [1, 1.15, 1.5, 1.75, 2];
 
+// 불필요한 기본값들을 필터링하는 함수
+const sanitizeContent = (content) => {
+  if (!content) return '';
+  
+  // "ㅁㄴㅇㄹ" 같은 불필요한 기본값들 제거
+  const unwantedDefaults = ['ㅁㄴㅇㄹ', 'test', '테스트', '내용을 입력하세요'];
+  const trimmedContent = content.trim();
+  
+  if (unwantedDefaults.some(defaultVal => trimmedContent.includes(defaultVal))) {
+    return '';
+  }
+  
+  return content;
+};
+
 const Editor = ({ content, onChange }) => {
     const editor = useEditor({
         extensions: [
@@ -63,7 +78,7 @@ const Editor = ({ content, onChange }) => {
             LineHeight,
             TextAlign.configure({ types: ['heading', 'paragraph'] }),
         ],
-        content,
+        content: sanitizeContent(content),
         onUpdate: ({ editor }) => {
             onChange(editor.getHTML());
         },
@@ -147,6 +162,15 @@ const Editor = ({ content, onChange }) => {
         editor.chain().focus().setMark('textStyle', { backgroundColor: color }).run();
     };
 
+    // content prop이 변경될 때 에디터 내용 업데이트
+    useEffect(() => {
+        if (editor) {
+            const sanitizedContent = sanitizeContent(content);
+            if (sanitizedContent !== editor.getHTML()) {
+                editor.commands.setContent(sanitizedContent);
+            }
+        }
+    }, [content, editor]);
 
     return (
         <div className="tiptap-editor">

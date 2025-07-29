@@ -48,6 +48,13 @@
   border-color: #007bff;
 }
 
+.editorContainer {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  min-height: 300px;
+}
+
 .buttonGroup {
   display: flex;
   justify-content: flex-end;
