@@ -11,7 +11,7 @@ import './CommunityPostsPage.scss';
 
 const CommunityPostsPage = () => {
     const navigate = useNavigate();
-    const { isInit, userId, accessToken, departmentId, userRole } = useContext(UserContext);
+    const { isInit, userId, accessToken, departmentId, userRole, userPosition } = useContext(UserContext);
     const [viewMode, setViewMode] = useState('ALL'); // ALL | MY | DEPT
     const [posts, setPosts] = useState([]);
     const [filters, setFilters] = useState({
@@ -92,7 +92,7 @@ const CommunityPostsPage = () => {
 
     useEffect(() => {
         // HR_MANAGER일 경우에만 신고 수를 불러옴
-        if (userRole === 'HR_MANAGER') {
+        if (userRole === 'HR_MANAGER' && (userPosition === 'MANAGER' || userPosition === 'DIRECTOR' || userPosition === 'CEO')) {
             const fetchReportCount = async () => {
                 try {
                     const res = await fetch(`${API_BASE_URL}/report/admin/list`, {
@@ -109,7 +109,7 @@ const CommunityPostsPage = () => {
 
             fetchReportCount();
         }
-    }, [userRole, accessToken]);
+    }, [userRole, userPosition, accessToken]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -127,17 +127,18 @@ const CommunityPostsPage = () => {
     return (
         <div className="notice-board">
             <div className="header">
-                {userRole === 'HR_MANAGER' && (
-                    <div className="admin-controls">
-                        <button
-                            className="manage-button"
-                            onClick={() => navigate('/report/admin/list')}
-                        >
-                            🔧 게시글 관리
-                            {reportCount > 0 && <span className="report-badge">{reportCount}</span>}
-                        </button>
-                    </div>
-                )}
+                {userRole === 'HR_MANAGER' &&
+                    (userPosition === 'MANAGER' || userPosition === 'DIRECTOR' || userPosition === 'CEO') && (
+                        <div className="admin-controls">
+                            <button
+                                className="manage-button"
+                                onClick={() => navigate('/report/admin/list')}
+                            >
+                                🔧 게시글 관리
+                                {reportCount > 0 && <span className="report-badge">{reportCount}</span>}
+                            </button>
+                        </div>
+                    )}
                 <h2>게시판</h2>
                 <div className="filters">
                     <input type="date" name="startDate" value={filters.startDate} onChange={handleInputChange} />
