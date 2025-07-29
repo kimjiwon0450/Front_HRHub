@@ -41,6 +41,7 @@ import CommunityDetail from '../pages/NoticeBoard/CommunityDetail';
 import NoticeAlertPage from '../pages/NoticeBoard/NoticeAlertPage';
 import CommunityPostsPage from '../pages/NoticeBoard/CommunityPostsPage';
 import CommunityReport from '../pages/NoticeBoard/CommunityReport';
+import AdminReportList from '../pages/NoticeBoard/AdminReportList';
 
 
 // 주소록
@@ -133,9 +134,23 @@ const AppRouter = [
             element: <CommunityWrite isEdit={true} />,
           },
           { path: ':communityId', element: <CommunityDetail /> },
-          { path: 'report/:communityId', element: <CommunityReport /> },
         ],
       },
+      {
+        path: 'report',
+        children: [
+          { index: true, element: <AdminReportList /> }, // '/noticeboard' 접속 시 기본 페이지
+          { path: 'admin/list', element: <AdminReportList /> },
+          // { path: 'admin', element: <CommunityPostsPage /> },
+          // { path: 'write', element: <CommunityWrite isEdit={false} /> },
+          // {
+          //   path: 'edit/:communityId',
+          //   element: <CommunityWrite isEdit={true} />,
+          // },
+          { path: ':communityId', element: <CommunityReport /> },
+        ],
+      },
+
       // --- 주소록 라우트 (누락되었던 부분 추가) ---
       { path: 'contacts', element: <ContactList /> },
     ],

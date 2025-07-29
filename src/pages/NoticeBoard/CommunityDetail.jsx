@@ -30,7 +30,7 @@ const CommunityDetail = () => {
 
     // 신고 버튼 클릭 핸들러
     const handleReportClick = () => {
-        navigate(`/community/report/${communityId}`);
+        navigate(`/report/${communityId}`);
     };
 
     const handleDelete = () => {
@@ -449,10 +449,6 @@ const CommunityDetail = () => {
                         </div>
                     ))}
                 </div>
-            </div>
-
-            <div className="buttons">
-                <button onClick={handleBack}>뒤로가기</button>
             </div>
         </div>
     );

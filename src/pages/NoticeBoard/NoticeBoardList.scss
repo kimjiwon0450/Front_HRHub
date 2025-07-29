@@ -188,7 +188,11 @@
 .notice-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 1rem;
+
+  thead {
+    border-bottom: 1px solid #ccc; // ✅ 컬럼명 아래 실선
+  }
 
   th,
   td {
