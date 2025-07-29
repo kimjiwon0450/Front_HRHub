@@ -90,7 +90,6 @@ const Editor = ({ content, onChange }) => {
       TextStyleBackground,
       LineHeight,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      SpellcheckMark,
     ],
     content,
     // onUpdate: ({ editor }) => {
