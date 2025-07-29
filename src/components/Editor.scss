@@ -118,3 +118,17 @@
     background-color: white;
   }
 }
+
+.spellcheck-error {
+  text-decoration: red wavy underline;
+  text-decoration-skip-ink: none;
+}
+
+button[title='맞춤법 검사'] {
+  font-size: 14px;
+  padding: 4px 8px;
+  background-color: #eef;
+  border-radius: 4px;
+  margin-left: 8px;
+  cursor: pointer;
+}

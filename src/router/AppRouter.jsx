@@ -40,6 +40,8 @@ import NoticeBoardDetail from '../pages/NoticeBoard/NoticeBoardDetail';
 import CommunityDetail from '../pages/NoticeBoard/CommunityDetail';
 import NoticeAlertPage from '../pages/NoticeBoard/NoticeAlertPage';
 import CommunityPostsPage from '../pages/NoticeBoard/CommunityPostsPage';
+import CommunityReport from '../pages/NoticeBoard/CommunityReport';
+
 
 // 주소록
 import ContactList from '../pages/contacts/ContactList';
@@ -131,6 +133,7 @@ const AppRouter = [
             element: <CommunityWrite isEdit={true} />,
           },
           { path: ':communityId', element: <CommunityDetail /> },
+          { path: 'report/:communityId', element: <CommunityReport /> },
         ],
       },
       // --- 주소록 라우트 (누락되었던 부분 추가) ---
