@@ -1,3 +1,5 @@
+/* ApprovalLineModal.module.scss */
+
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -17,12 +19,7 @@
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
   width: 90vw;
-  max-width: 900px;
-  min-width: 0;
-  @media (max-width: 950px) {
-    max-width: 98vw;
-    width: 98vw;
-  }
+  max-width: 600px; /* 상세 정보에 맞게 너비 조정 */
 }
 
 .modalHeader {
@@ -53,6 +50,7 @@
   padding: 16px;
   background-color: #f8f9fa;
   border-radius: 8px;
+  overflow-x: auto; // 결재선 길어지면 스크롤
 }
 
 .loading {
@@ -65,29 +63,23 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  max-height: 400px; /* 내용 길어지면 스크롤 */
+  overflow-y: auto;
 }
 
 .approverItem {
   display: flex;
   position: relative;
-  padding-bottom: 24px;
+  padding: 16px 0;
 
-  // 결재 흐름선
-  &:not(:last-child)::before {
-    content: '';
-    position: absolute;
-    left: 20px;
-    top: 40px;
-    bottom: 0;
-    width: 2px;
-    background-color: #e9ecef;
+  &:not(:last-child) {
+    border-bottom: 1px solid #f1f3f5;
   }
 }
 
 .statusIconWrapper {
-  position: relative;
-  z-index: 2;
   margin-right: 16px;
+  flex-shrink: 0;
 }
 
 .statusBadge {
@@ -119,7 +111,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  justify-content: center;
+  flex-grow: 1;
 }
 
 .profile {
@@ -133,6 +125,7 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid #eee;
 }
 
 .info {
@@ -144,13 +137,19 @@
 .nameAndTimestamp {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 8px; // 이름과 (직급/직책) 사이의 간격
 }
 
 .name {
   font-size: 16px;
   font-weight: 600;
   color: #333;
+  margin-right: 8px; 
+}
+
+.position {
+  font-size: 14px;
+  color: #666;
 }
 
 .dept {
@@ -158,16 +157,12 @@
   color: #888;
 }
 
-.timestamp {
-  font-size: 13px;
-  color: #666;
-}
-
 .comment {
   font-size: 14px;
   background-color: #f8f9fa;
   border-radius: 6px;
   padding: 10px;
-  margin-left: 52px; // 아이콘 너비만큼 들여쓰기
   border: 1px solid #f1f3f5;
+  white-space: pre-wrap; // 줄바꿈 적용
+  word-break: break-all; // 긴 단어 줄바꿈
 }
