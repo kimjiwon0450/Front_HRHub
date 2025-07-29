@@ -7,7 +7,7 @@ import { useApprovalForm } from '../../hooks/useApprovalForm';
 import Editor from '../../components/Editor'; // TipTap 에디터로 변경
 import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
-import MySwal from '../../common/common';
+import { warn, swalConfirm, swalError } from '../../common/common';
 import styles from './ApprovalNew.module.scss';
 
 // 불필요한 기본값들을 필터링하는 함수
@@ -67,7 +67,7 @@ function ApprovalNew() {
   const handleFinalSubmit = useCallback(async (isSubmit = false, isMovingAway = false) => {
     // 필수값 유효성 검사
     if (!formData.title || formData.title.trim() === '') {
-      await MySwal.fire({
+      await warn({
         icon: 'warning',
         title: '제목은 필수 입력 항목입니다.',
         confirmButtonText: '확인',
@@ -328,7 +328,7 @@ function ApprovalNew() {
 
   // 상신/임시저장 전 사용자 확인 모달
   const handleSubmitWithConfirm = async (isSubmit) => {
-    const result = await MySwal.fire({
+    const result = await swalConfirm({
       title: isSubmit ? '정말 상신하시겠습니까?' : '임시 저장하시겠습니까?',
       icon: 'question',
       showCancelButton: true,
@@ -710,11 +710,6 @@ function ApprovalNew() {
 
   return (
     <div className={styles.pageContainer}>
-      {/* 
-        각 input, QuillEditor, EmployeeSelectModal 등이 
-        위에서 수정한 핸들러 함수들(handleValueChange, handleSelectApprovers 등)을 
-        props로 잘 전달받고 있는지 확인하는 것이 중요합니다.
-      */}
       <form onSubmit={(e) => { e.preventDefault(); handleSubmitWithConfirm(true); }}>
         <div className={styles.section}>
           <div className={styles.formRow}>

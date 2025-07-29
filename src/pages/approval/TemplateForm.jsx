@@ -5,7 +5,6 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import styles from './TemplateForm.module.scss';
-import QuillEditor from '../../components/editor/QuillEditor'; // 새로 만든 에디터 컴포넌트 import
 import CustomFieldModal from '../../components/approval/CustomFieldModal';
 import InfoChangeModal from '../../components/approval/InfoChangeModal';
 import AddFieldModal from '../../components/approval/AddFieldModal';
