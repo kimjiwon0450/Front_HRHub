@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import HRHeader from './HRHeader';
 import './EmployeeList.scss';
 import axiosInstance from '../../configs/axios-config';
@@ -10,8 +10,10 @@ import { getEmployeeList } from '../../common/hr';
 import { warn } from '../../common/common';
 import ModalPortal from '../../components/approval/ModalPortal';
 import styles from '../../components/approval/CategoryModal.module.scss';
+import { UserContext } from '../../context/UserContext';
 
 export default function EmployeeViewList() {
+  const { userId } = useContext(UserContext);
   const [selectedId, setSelectedId] = useState(null);
   const [selectedDetail, setSelectedDetail] = useState({});
   const [employees, setEmployees] = useState([]);
@@ -389,6 +391,7 @@ export default function EmployeeViewList() {
                       evaluation={evaluation}
                       onClose={handleClose}
                       onEdit={handleEditEvaluation}
+                      userId={userId}
                     />
                   </div>
                 </div>

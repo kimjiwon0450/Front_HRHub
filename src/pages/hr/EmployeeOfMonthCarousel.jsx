@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
 
 const EmployeeOfMonthCarousel = () => {
+  const navigate = useNavigate();
   const [eomList, setEomList] = useState([]);
 
   const getThisMonthEmployee = async () => {
@@ -49,7 +51,7 @@ const EmployeeOfMonthCarousel = () => {
     <div className='employee-of-month'>
       <div className='tabs'>
         <button className='active'>이달의 사원</button>
-        <div className='menu-icon'>≡</div>
+        <div className='menu-icon' onClick={() => navigate(`/hr`)} >≡</div>
       </div>
       <div className='eom-slider'>
         {eomList.map((eom, idx) => (

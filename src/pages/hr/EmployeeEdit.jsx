@@ -344,6 +344,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
                 >
                   <option value='EMPLOYEE'>EMPLOYEE</option>
                   <option value='HR_MANAGER'>HR_MANAGER</option>
+                  {role === 'ADMIN' && <option value='ADMIN'>ADMIN</option>}
                 </select>
                 {userRole === 'EMPLOYEE' ? (
                   <span className='input-lock-indicator'>🔒</span>
