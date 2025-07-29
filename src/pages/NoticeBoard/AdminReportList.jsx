@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../../configs/host-config';
 import { UserContext } from '../../context/UserContext';
 import Swal from 'sweetalert2';
 import './AdminReportList.scss';
 
 const AdminReportList = () => {
+    const navigate = useNavigate();
     const [pageInfo, setPageInfo] = useState({ totalPages: 0, currentPage: 0 });
     const [reports, setReports] = useState([]);
     const { accessToken } = useContext(UserContext);
@@ -26,6 +28,11 @@ const AdminReportList = () => {
             Swal.fire({ icon: 'error', title: '신고 목록을 불러올 수 없습니다.' });
         }
     };
+
+    const handleBack = () => {
+        navigate('/community');
+    };
+
 
     const handleAction = async (communityId, action) => {
         const actionText = action === 'delete' ? '삭제' : '공개';
@@ -80,7 +87,9 @@ const AdminReportList = () => {
                     </thead>
                     <tbody>
                         {reports.map((report) => (
-                            <tr key={report.communityReportId}>
+                            <tr key={report.communityReportId}
+                                onClick={() => navigate(`/community/${report.communityId}`)}
+                                className="clickable-row">
                                 <td>{report.communityReportId}</td>
                                 <td>{report.name}</td>
                                 <td>{report.title}</td>
@@ -89,15 +98,21 @@ const AdminReportList = () => {
                                 <td>
                                     <button
                                         className="btn delete"
-                                        onClick={() => handleAction(report.communityId, 'delete')}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // ✅ 클릭 이벤트 버블링 방지
+                                            handleAction(report.communityId, 'delete');
+                                        }}
                                     >
                                         삭제
                                     </button>
                                     <button
                                         className="btn recover"
-                                        onClick={() => handleAction(report.communityId, 'recover')}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // ✅ 클릭 이벤트 버블링 방지
+                                            handleAction(report.communityId, 'recover');
+                                        }}
                                     >
-                                        공개
+                                        복구
                                     </button>
                                 </td>
                             </tr>
@@ -105,6 +120,10 @@ const AdminReportList = () => {
                     </tbody>
                 </table>
             )}
+            <div className="buttons">
+                {/* <button onClick={handleReportClick}>🚨 게시글 신고</button> */}
+                <button onClick={handleBack}>뒤로가기</button>
+            </div>
         </div>
     );
 };
