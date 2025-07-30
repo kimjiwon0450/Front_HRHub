@@ -10,7 +10,6 @@ const reportReasons = [
     '스팸홍보/도배입니다.',
     '음란물입니다.',
     '불법정보를 포함하고 있습니다.',
-    '청소년에게 유해한 내용입니다.',
     '욕설/생명경시/혐오/차별적 표현입니다.',
     '개인정보가 노출되었습니다.',
     '불쾌한 표현이 있습니다.',
@@ -21,7 +20,7 @@ const reportReasons = [
 const CommunityReport = () => {
     const { communityId } = useParams();
     const navigate = useNavigate();
-    const { accessToken } = useContext(UserContext);
+    const { accessToken, userId } = useContext(UserContext);
 
     const [selectedReason, setSelectedReason] = useState('');
     const [details, setDetails] = useState('');
@@ -65,9 +64,9 @@ const CommunityReport = () => {
         }
 
         const reportData = {
-            reporterId: authorId,
+            reporterId: userId,
             communityId: Number(communityId),
-            reason: selectedReason + details,
+            reason: selectedReason + (details ? ` - ${details}` : ''),
         };
         console.log('reportData : ', reportData);
         console.log('url : ', `${API_BASE_URL}/report/${communityId}`);
@@ -77,12 +76,25 @@ const CommunityReport = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
+                validateStatus: (status) => true // axios가 오류로 간주하지 않도록 모든 상태 허용
             });
+
+            if (res.status === 409) {
+                // ✅ 중복 신고 처리
+                await Swal.fire({
+                    icon: 'warning',
+                    title: '이미 신고한 게시글입니다.',
+                    text: '이 게시글은 이미 신고하셨습니다.',
+                    confirmButtonText: '확인'
+                });
+                navigate('/community'); // 신고페이지 종료
+                return;
+            }
 
             if (res.status !== 200) throw new Error('신고 요청 실패');
 
             Swal.fire({ icon: 'success', title: '신고가 접수되었습니다.' }).then(() => {
-                navigate(-1);
+                navigate('/community');
             });
         } catch (err) {
             console.error(err);

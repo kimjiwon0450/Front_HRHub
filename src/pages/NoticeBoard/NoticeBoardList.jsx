@@ -236,11 +236,9 @@ const NoticeBoardList = () => {
                     </div>
 
                     <div className="write-button-wrapper">
-                        {(userRole === 'ADMIN' && ['MANAGER', 'DIRECTOR', 'CEO'].includes(userPosition)) && (
-                            <button className="write-button" onClick={() => navigate('/notice/write')}>
-                                작성하기
-                            </button>
-                        )}
+                        <button className="write-button" onClick={() => navigate('/notice/write')}>
+                            작성하기
+                        </button>
                     </div>
 
                 </div>
