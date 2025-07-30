@@ -29,22 +29,29 @@ const ApprovalPendingCard = ({ report }) => {
 
   return (
     <div className={styles['approvalpending-card']} onClick={handleClick}>
-      {/* 1. 제목과 상태/날짜/작성자를 묶는 컨테이너 추가 */}
-      <div className={styles['card-main-content']}>
-        <div className={styles['approvalpending-title']}>{report.title}</div>
-        <div className={styles['approvalpending-info']}>
-          <span className={styles['approvalpending-status']}>{reportStatusMap[report.reportStatus] || report.reportStatus}</span>
-          <span className={styles['approvalpending-date']}>{new Date(report.createdAt || report.reportCreatedAt).toLocaleDateString()}</span>
-          <span className={styles['approvalpending-writer']}>{report.name}</span>
-        </div>
+      <div className={styles['approvalpending-title']}>{report.title}</div>
+      <div className={styles['approvalpending-info']}>
+        <span className={styles['approvalpending-status']}>{reportStatusMap[report.reportStatus] || report.reportStatus}</span>
+        {/* 목록(reportCreatedAt)과 상세(createdAt)에서 오는 날짜 데이터를 모두 처리 */}
+        <span className={styles['approvalpending-date']}>{new Date(report.createdAt || report.reportCreatedAt).toLocaleDateString()}</span>
+        <span className={styles['approvalpending-writer']}>{report.name}</span>
       </div>
-      
-      {/* 2. 시각적 결재선은 데스크탑에서만 보이도록 별도 div로 감싸기 */}
       {report.approvalLine && (
-        <div className={styles['approval-line-desktop']}>
-          {/* ... 시각적 결재선 렌더링 로직 (VisualApprovalLine 컴포넌트로 대체하는 것을 추천) ... */}
+        <div className={styles['approval-line']}>
+          {report.approvalLine.map((a, i) => {
+            const s = approvalStatusMap[a.approvalStatus] || approvalStatusMap.PENDING;
+            return (
+              <div key={i} className={styles['approval-item']} style={{ borderColor: s.color }}>
+                <span className={styles['approval-status-icon']} style={{ color: s.color }}>{s.icon}</span>
+                <span className={styles['approver-name']}>{a.name}</span>
+                <span className={styles['approval-status']} style={{ color: s.color }}>{s.text}</span>
+                <span className={styles['approval-date']}>{a.approvedAt ? new Date(a.approvedAt).toLocaleDateString() : '-'}</span>
+              </div>
+            );
+          })}
         </div>
       )}
+
     </div>
   );
 };

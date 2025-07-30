@@ -1,88 +1,215 @@
-
 .reportItem {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  display: flex;
   padding: 16px 20px;
-  border: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  
-  // 기본(데스크탑): 가로 정렬
-  display: flex;
+  background-color: #fff;
+  border-radius: 8px;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-
   &:hover {
-    border-color: #007bff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transform: translateY(-2px);
+    background-color: #f9fafb;
   }
-}
-
-/* --- 각 섹션 스타일 --- */
-.left-section, .center-section, .right-section {
-  display: flex;
-  align-items: center;
 }
 
 .left-section {
-  gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
   flex-shrink: 0;
-  .doc-icon { font-size: 24px; }
-  .template-name { font-weight: 500; color: #555; }
-  .attachment-indicator { font-size: 13px; color: #888; }
+  width: 200px; /* 양식명 영역 너비 고정 */
+}
+
+.doc-icon {
+  font-size: 24px;
+  color: #868e96;
+  transition: all 0.3s ease;
+}
+
+.template-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+.attachment-indicator {
+  font-size: 12px;
+  color: #666;
+  background-color: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.schedule-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.schedule-indicator {
+  font-size: 12px;
+  color: #ff9800;
+  background-color: #fff3e0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #ffcc80;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.time-until {
+  font-size: 11px;
+  color: #ff6b35;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .center-section {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
   flex-grow: 1;
-  min-width: 0; // 제목이 길 때 줄바꿈 처리
-  .card-title {
-    font-size: 16px;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  min-width: 0;
+  padding: 0 24px;
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease;
+}
+
+.card-info {
+  font-size: 13px;
+  color: #888;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.card-info span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  display: inline-block;
+}
+
+@media (max-width: 700px) {
+  .center-section {
+    padding: 0 8px;
+  }
+  .card-title,
+  .card-info {
     max-width: 100%;
   }
-  .card-info { font-size: 13px; color: #888; }
+  .card-title {
+    font-size: 15px;
+  }
+  .card-info span {
+    max-width: 60px;
+  }
 }
 
 .right-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   flex-shrink: 0;
+  width: 140px;
+  gap: 8px;
 }
 
-
-/* --- 📱 모바일 반응형 스타일 (768px 미만) --- */
-@media (max-width: 768px) {
-  .reportItem {
-    // 모바일: 세로 정렬
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px 16px;
+.cancel-schedule-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  color: #dc3545;
+  
+  &:hover {
+    background-color: #f8d7da;
+    transform: scale(1.1);
   }
+}
 
-  .left-section {
-    order: 2; // 순서 변경: 제목 아래로
+/* 카드 호버 애니메이션 */
+.reportItem {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
     width: 100%;
-    .template-name, .attachment-indicator { font-size: 13px; }
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(33, 150, 243, 0.1), transparent);
+    transition: left 0.6s ease;
   }
   
-  .center-section {
-    order: 1; // 순서 변경: 맨 위로
-    width: 100%;
-    .card-title { font-size: 15px; }
-    .card-info { font-size: 12px; }
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #2196f3;
+    
+    &::before {
+      left: 100%;
+    }
+    
+    .doc-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+    
+    .attachment-indicator {
+      animation: bounce 0.6s ease-in-out;
+    }
   }
+  
+  &:active {
+    transform: translateY(-2px) scale(0.98);
+  }
+}
 
-  .right-section {
-    order: 3; // 순서 변경: 맨 아래로
-    width: 100%;
-    justify-content: flex-end; // 오른쪽 정렬
+/* 아이콘 애니메이션 */
+.doc-icon {
+  transition: all 0.3s ease;
+}
+
+/* 첨부파일 표시 애니메이션 */
+.attachment-indicator {
+  transition: all 0.2s ease;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
+}
+
+/* 카드 제목 호버 효과 */
+.card-title {
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #2196f3;
   }
 }

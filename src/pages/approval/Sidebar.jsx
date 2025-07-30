@@ -15,7 +15,7 @@ const ModalPortal = ({ children }) => {
   return modalRoot ? ReactDOM.createPortal(children, modalRoot) : null;
 };
 
-const Sidebar = ({isOpen , onClose}) => {
+const Sidebar = () => {
   const navigate = useNavigate();
   const { userRole } = useContext(UserContext);
 
@@ -26,7 +26,7 @@ const Sidebar = ({isOpen , onClose}) => {
   // 컴포넌트가 사이드바(<aside>)와 모달(<TemplateSelectionModal>) 두 개의 요소를 반환해야 하기 때문입니다.
   return (
     <>
-    <aside className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}>
+    <aside className={styles.sidebar}>
       <nav className={styles.menu}>
           <div
             className={styles.menuHeader}
