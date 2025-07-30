@@ -311,3 +311,63 @@
   font-weight: 600;
   color: #333;
 } 
+/* --- 📱 모바일 반응형 스타일 (768px 미만일 때 적용) --- */
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 16px;
+  }
+
+  .section {
+    padding: 16px;
+  }
+
+  // 1. 폼 행을 수직으로 변경
+  .formRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .formLabel {
+    // 레이블의 최소 너비 제한을 없애고, 굵게 표시
+    min-width: auto;
+    font-weight: 600;
+  }
+
+  // 2. 모든 입력 필드의 너비를 100%로
+  .formField {
+    width: 100%;
+  }
+
+  .formInput,
+  .editorContainer,
+  .actionButton,
+  .fileUploadButton {
+    width: 100%;
+    box-sizing: border-box; // 너비 100%가 패딩을 포함하도록
+  }
+
+  // 기간 선택 input 2개를 한 줄에 꽉 채움
+  .periodContainer {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 8px;
+    
+    input[type="date"] {
+      flex-grow: 1; // 남은 공간을 나눠 가짐
+    }
+  }
+
+  // 3. 하단 버튼 그룹을 세로로 쌓기
+  .buttonGroup {
+    flex-direction: column;
+    gap: 10px;
+    
+    // 모든 버튼이 컨테이너 너비에 꽉 차도록
+    & > button {
+      width: 100%;
+      margin: 0; // 혹시 모를 마진 제거
+    }
+  }
+}
