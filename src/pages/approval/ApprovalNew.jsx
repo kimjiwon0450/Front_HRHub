@@ -253,6 +253,17 @@ function ApprovalNew() {
   }, [effectiveReportId, user, navigate]);
 
   useEffect(() => {
+    if(isDirty){
+      const handleBeforeUnload = (e) => {
+        e.preventDefault();
+        e.returnValue = '작성중인 내용이 있습니다.';
+      };
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
+    console.log('blocker', blocker);
+  }, [blocker]);
+  useEffect(() => {
     if (blocker.state === 'blocked') {
       Swal.fire({
         title: '작성중인 내용이 있습니다.',
