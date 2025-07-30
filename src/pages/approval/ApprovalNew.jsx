@@ -331,7 +331,7 @@ function ApprovalNew() {
 
   // 상신/임시저장 전 사용자 확인 모달
   const handleSubmitWithConfirm = async (isSubmit) => {
-    const result = await swalConfirm({
+    const result = await Swal.fire({
       title: isSubmit ? '정말 상신하시겠습니까?' : '임시 저장하시겠습니까?',
       icon: 'question',
       showCancelButton: true,
