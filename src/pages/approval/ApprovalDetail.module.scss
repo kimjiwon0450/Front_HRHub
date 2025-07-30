@@ -1,409 +1,604 @@
-/* /src/pages/approval/ApprovalDetail.module.scss */
-
+/* Layout */
 .approvalContainer {
-  padding: 24px;
-  background-color: #f8f9fa;
-  min-height: 100vh;
   position: relative;
-}
-
-.detailMainBox {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 32px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e9ecef;
+  padding-left: 32px;
+  padding-right: 32px;
+  width: 100%;
 }
 
-.printButton {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  background: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
+.detailContainer {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-  &:hover {
-    transform: scale(1.1);
-    border-color: #007bff;
-    color: #007bff;
+  gap: 24px;
+  padding: 24px;
+  background-color: #f4f7f9;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-left: 32px;
+  padding-right: 32px;
+  width: 100%;
+}
+
+.mainContent {
+  flex: 3;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.sidebar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 20px;
+}
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #212529;
+}
+.statusBadge {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 16px;
+  align-self: flex-start;
+  
+  &.processing { background-color: #e0f2fe; color: #0284c7; }
+  &.approved { background-color: #dcfce7; color: #16a34a; }
+  &.rejected { background-color: #fee2e2; color: #dc2626; }
+  &.recalled { background-color: #e5e7eb; color: #4b5563; }
+}
+
+/* Button Group */
+.buttonGroup {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .approveBtn { background-color: #28a745; color: white; &:hover { background-color: #218838; }}
+  .rejectBtn { background-color: #dc3545; color: white; &:hover { background-color: #c82333; }}
+  .recallBtn { background-color: #6c757d; color: white; &:hover { background-color: #5a6268; }}
+  .defaultBtn { background-color: #f8f9fa; border: 1px solid #dee2e6; color: #343a40; &:hover { background-color: #e2e6ea; }}
+}
+
+/* Report Info */
+.reportInfo {
+  display: flex;
+  gap: 32px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 24px;
+}
+.infoItem { display: flex; flex-direction: column; gap: 4px; }
+.infoLabel { font-size: 13px; color: #6c757d; }
+.infoValue { font-size: 15px; color: #212529; font-weight: 500; }
+
+/* Content */
+.content {
+  line-height: 1.7;
+  color: #343a40;
+
+  h1,h2,h3,h4,h5,h6 { margin: 24px 0 16px; }
+  p { margin: 8px 0; }
+  ul, ol { padding-left: 20px; }
+  blockquote {
+    border-left: 4px solid #ced4da;
+    padding-left: 16px;
+    margin: 16px 0;
+    color: #6c757d;
   }
 }
 
-/* --- 상단 섹션 --- */
-.topSection {
-  border-bottom: 1px solid #e9ecef;
-  padding-bottom: 24px;
-  margin-bottom: 24px;
+/* History Section */
+.historySection {
+  margin-top: 32px;
+  border-top: 1px solid #e9ecef;
+  padding-top: 24px;
 }
-
-.titleBox {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #343a40;
   margin-bottom: 16px;
 }
-
-.title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #212529;
-  margin: 0;
+.historyList {
+  list-style: none;
+  padding: 0;
 }
-
-.statusBadge {
-  font-size: 14px;
+.historyItem {
+  padding: 16px;
+  border: 1px solid #f1f3f5;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  background-color: #f8f9fa;
+}
+.historyInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.historyApprover {
   font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 16px;
-  color: #fff;
+  color: #212529;
+}
+.historyStatus {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
 
-  &.approved { background-color: #28a745; }
-  &.in_progress { background-color: #007bff; }
-  &.rejected { background-color: #dc3545; }
-  &.recalled { background-color: #6c757d; }
-  &.draft { background-color: #ffc107; color: #212529; }
+  &.approved { background-color: #dcfce7; color: #16a34a; }
+  &.rejected { background-color: #fee2e2; color: #dc2626; }
+}
+.historyComment {
+  font-size: 14px;
+  color: #495057;
+  margin-bottom: 10px;
+}
+.historyTimestamp {
+  font-size: 12px;
+  color: #adb5bd;
+  text-align: right;
+}
+.noHistory {
+  color: #868e96;
+  padding: 20px 0;
+  text-align: center;
 }
 
-.infoRow {
+/* Sidebar */
+.sidebarSection {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.sidebarHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
+  margin-bottom: 16px;
 
-.buttonGroup {
-  display: flex;
-  gap: 8px;
+  h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #343a40;
+    margin: 0;
+  }
 }
-
-.resubmitBtn {
-  background-color: #007bff;
-  color: #fff;
+.viewMoreBtn {
+  background: none;
   border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 14px;
+  color: #007bff;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
-  &:hover:not(:disabled) {
-    background-color: #0056b3;
-  }
-  &:disabled {
-    background-color: #ced4da;
-    cursor: not-allowed;
-  }
+  &:hover { text-decoration: underline; }
 }
 
-.infoBox {
+/* Helpers */
+.loading, .error, .noData {
+  padding: 60px;
+  text-align: center;
+  font-size: 16px;
+  color: #6c757d;
+}
+.error { color: #dc3545; } 
+// ApprovalDetail.module.scss 에 추가할 예시 스타일
+
+.imageGallery {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.imageWrapper {
+  margin-bottom: 15px;
+  max-width: 100%;
+}
+
+.attachedImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.commonComments {
   display: flex;
-  gap: 24px;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.commentBtn {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: #bbdefb;
+  }
+}
+.commentInput {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #bdbdbd;
+  border-radius: 4px;
+  padding: 8px;
   font-size: 14px;
-  color: #495057;
-  b { color: #212529; }
+  margin-bottom: 8px;
+  resize: vertical;
+}
+.commentError {
+  color: #d32f2f;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.confirmModalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.confirmModal {
+  background: #fff;
+  border-radius: 8px;
+  padding: 32px 24px 24px 24px;
+  min-width: 320px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  text-align: center;
+}
+.confirmComment {
+  margin: 16px 0 24px 0;
+  font-size: 15px;
+  color: #333;
+}
+.confirmModalBtns {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+.confirmBtn {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.cancelBtn {
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
 }
 
-/* --- 중앙 섹션 --- */
-.contentSection {
-  padding-bottom: 24px;
-}
-
+/* 동적 폼 필드 스타일 */
 .dynamicFields {
-  margin-bottom: 32px;
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  overflow: hidden;
 }
 
 .reportTable {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  overflow: hidden;
+  background: #ffffff;
 }
 
 .tableRow {
-  &:not(:last-child) {
-    border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid #f1f3f4;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    background-color: #f8f9fa;
   }
 }
 
 .fieldLabel {
-  background-color: #f8f9fa;
-  padding: 12px 16px;
+  width: 25%;
+  padding: 16px 20px;
+  background: #f8f9fa;
   font-weight: 600;
-  color: #495057;
-  width: 150px;
-  text-align: left;
-  border-right: 1px solid #dee2e6;
+  color: #2c3e50;
+  font-size: 14px;
+  text-align: center;
+  vertical-align: middle;
+  border-right: 1px solid #e9ecef;
+  min-width: 120px;
 }
 
 .fieldValue {
-  padding: 12px 16px;
-  color: #212529;
+  padding: 16px 20px;
+  color: #495057;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+  background: #ffffff;
+  vertical-align: middle;
 }
 
+/* 본문 내용 스타일 */
 .contentBody {
-  font-size: 16px;
-  line-height: 1.8;
-  color: #343a40;
-  min-height: 150px;
-  
-  p, h1, h2, h3, h4, ul, ol {
-    margin-bottom: 1em;
-  }
-}
-
-.imageGallery {
-  margin-top: 24px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
-}
-
-.imageWrapper {
+  background: #ffffff;
   border: 1px solid #e9ecef;
   border-radius: 8px;
-  overflow: hidden;
-}
-
-.attachedImage {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-}
-
-.attachmentSection {
-  margin-top: 24px;
-}
-
-/* --- 하단 섹션 (결재 이력) --- */
-.bottomSection {
-  border-top: 1px solid #e9ecef;
-  padding-top: 24px;
-}
-
-.historySection {
-  width: 100%;
-}
-
-.historyHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.sectionTitle {
-  font-size: 20px;
-  font-weight: 600;
-  color: #212529;
-  margin: 0;
-}
-
-.viewMoreBtn {
-  background: none;
-  border: none;
-  color: #007bff;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  &:hover {
-    background-color: #e7f1ff;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: #2c3e50;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: #495057;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    
+    th, td {
+      border: 1px solid #dee2e6;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    
+    th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #2c3e50;
+    }
   }
 }
 
-.historyList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.detailMainBox {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 32px 32px 40px 32px;
+  margin-top: 32px;
 }
 
-/* 결재 이력 아이템 상세 스타일 */
-.historyItem {
+.topSection {
   display: flex;
+  flex-direction: row;
+  align-items: flex-end;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 16px 0;
-  &:not(:last-child) {
-    border-bottom: 1px solid #f1f3f5;
-  }
+  gap: 32px;
+  border-bottom: 1.5px solid #e9ecef;
+  padding-bottom: 18px;
+  margin-bottom: 32px;
 }
 
-.profile {
+.titleBox {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 12px;
-  flex-grow: 1;
 }
 
-.profileImage {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid #eee;
-  flex-shrink: 0;
-}
-
-.info {
+.infoBox {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  font-size: 15px;
+  color: #495057;
+  min-width: 180px;
+  align-items: flex-end;
 }
 
-.historyInfo {
+.contentSection {
+  margin-bottom: 40px;
+}
+
+.bottomSection {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 40px;
+  align-items: flex-start;
+  border-top: 1.5px solid #e9ecef;
+  padding-top: 32px;
+  margin-top: 32px;
 }
 
-.historyApprover {
+.approvalLineBox {
+  flex: 1.2;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px 18px 18px 18px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  margin-right: 12px;
+}
+
+.approvalLineHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  h4 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #222;
+    margin: 0;
+  }
+}
+
+.historySection {
+  flex: 2;
+  min-width: 320px;
+  margin-left: 12px;
+}
+
+.resubmitBtn {
+  min-width: 80px;
+  height: 38px;
+  padding: 0 20px;
   font-size: 16px;
   font-weight: 600;
-  color: #333;
-}
-
-.position {
-  font-size: 14px;
-  color: #666;
-}
-
-.historyStatus {
-  font-size: 13px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 12px;
-  &.approved {
-    background-color: #e6f4ea;
-    color: #34a853;
-  }
-  &.rejected {
-    background-color: #fce8e6;
-    color: #ea4335;
-  }
-}
-
-.historyComment {
-  font-size: 14px;
-  color: #555;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.historyTimestamp {
-  font-size: 13px;
-  color: #888;
-  text-align: right;
-  flex-shrink: 0;
-  margin-left: 16px;
-  padding-top: 4px;
-}
-
-.noHistory {
-  color: #868e96;
-  padding: 24px;
-  text-align: center;
-}
-
-
-/* --- 승인/반려 확인 모달 --- */
-.confirmModalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1010;
-}
-
-.confirmModal {
-  background: white;
-  padding: 24px;
-  border-radius: 8px;
-  width: 400px;
-  max-width: 90%;
-  
-  h3 { margin: 0 0 16px; }
-}
-
-.commonComments {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.commentBtn {
-  background: #f1f3f5;
-  border: 1px solid #dee2e6;
-  border-radius: 16px;
-  padding: 6px 12px;
-  font-size: 13px;
-  cursor: pointer;
-  &:hover {
-    background: #e9ecef;
-  }
-}
-
-.commentInput {
-  width: 100%;
-  min-height: 80px;
-  padding: 8px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  resize: vertical;
-}
-
-.commentError {
-  color: #dc3545;
-  font-size: 13px;
-  margin-top: 4px;
-}
-
-.confirmModalBtns {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.confirmBtn, .cancelBtn {
-  padding: 8px 16px;
-  border-radius: 4px;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.confirmBtn { background-color: #007bff; color: white; }
-.cancelBtn { background-color: #6c757d; color: white; }
+.buttonGroup {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.buttonGroup > .resubmitBtn:first-child {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.buttonGroup > .resubmitBtn:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.resubmitBtn {
+  border-radius: 6px;
+}
+.resubmitBtn + .resubmitBtn {
+  border-radius: 0 6px 6px 0;
+  margin-left: 0;
+}
+.infoBox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 0;
+}
+.resubmitBtn {
+  margin: 0 0 0 18px;
+  align-self: flex-start;
+  padding: 8px 20px;
+  background: #ffb300;
+  color: #222;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: background 0.2s;
+  height: 38px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  &:hover {
+    background: #ffa000;
+  }
+}
+.printButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 42px;
+  height: 42px;
+  color: white;
+  font-size: 18px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease-in-out;
+  &:hover {
+    background-color: hwb(200 42% 7%);
+  }
+}
 
-/* 인쇄 시 불필요한 UI 숨기기 */
+/* ========== 인쇄 전용 스타일 (공지사항 방식 적용) ========== */
 @media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .approvalContainer,
+  .approvalContainer * {
+    visibility: visible;
+  }
+
   .approvalContainer {
-    padding: 0;
-    background-color: #fff;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white;
   }
-  .printButton, .buttonGroup, .viewMoreBtn {
+
+  .resubmitBtn,
+  .buttonGroup,
+  .printButton {
+    display: none !important;
+  }
+}
+
+@media print {
+  .printButton {
     display: none;
-  }
-  .detailMainBox {
-    box-shadow: none;
-    border: none;
-    padding: 0;
   }
 }
