@@ -558,11 +558,19 @@
   }
   .reportItem {
     flex-direction: column;
-    padding: 10px 8px;
+    align-items: flex-start; // 왼쪽 정렬
+    padding: 12px 16px;
+    gap: 8px;
     font-size: 15px;
     .itemCell {
-      padding: 4px 0;
-      font-size: 15px;
+      padding: 0;
+      width: 100%;
+      display: flex; // 레이블과 값을 정렬하기 위해 flex 사용
+
+      // 가상 요소를 사용해 레이블 추가
+      &:nth-child(2)::before { content: '기안자: '; font-weight: 500; margin-right: 8px; color: #888; }
+      &:nth-child(3)::before { content: '기안일: '; font-weight: 500; margin-right: 8px; color: #888; }
+      &:nth-child(4)::before { content: '문서상태: '; font-weight: 500; margin-right: 8px; color: #888; }
     }
   }
   .dateHeader {
@@ -576,5 +584,8 @@
   .attachmentBadge {
     font-size: 13px;
     margin-left: 4px;
+  }
+  .listHeader {
+    display: none;
   }
 }
