@@ -3,11 +3,16 @@
 .approvalPageContainer {
   display: flex;
   min-height: 100vh;
+  width: 100%; // ★ 컨테이너 너비가 화면을 넘지 않도록
+  overflow: hidden; // ★ 내부 요소가 넘쳐도 숨김
 }
+
 
 .content {
   flex-grow: 1;
   background-color: #f4f6f8;
+  width: 100%; // ★ 너비를 명시
+  min-width: 0; // ★ flex 아이템이 줄어들 수 있도록 허용
 }
 
 /* --- 📱 모바일 레이아웃 스타일 --- */

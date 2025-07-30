@@ -550,3 +550,7 @@ $border: #eceff3;
       max-width: 100% !important;
     }
   }
+  .fab-container.fab-raised {
+    // 하단 탭 메뉴 높이(60px) + 기본 여백(2.5rem) 만큼 위로 올림
+    bottom: calc(70px + 2.5rem); 
+  }

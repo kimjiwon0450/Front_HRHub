@@ -72,6 +72,9 @@ export default function MainLayout() {
   const { onLogout } = useContext(UserContext);
   const navigate = useNavigate();
 
+  // 현재 페이지가 전자결재 페이지인지 확인
+  const isApprovalPage = location.pathname.startsWith('/approval');
+
   const handleLogoutClick = () => {
     onLogout();
     navigate('/');
@@ -276,7 +279,7 @@ export default function MainLayout() {
           <Outlet />
         </main>
         {/* 챗봇 플로팅 버튼 및 챗봇 카드 */}
-        <div>
+        <div className={isApprovalPage ? 'fab-raised' : ''}>
           {/* 플로팅 버튼 */}
           <button
             className='chatbot-fab'
