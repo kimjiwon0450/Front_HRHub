@@ -90,12 +90,18 @@ const ApprovalHome = () => {
           axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
             params: { role: 'approver', status: 'APPROVED', page: 0, size: 1 },
           }),
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/list/scheduled`, {
+            params: { role: 'writer', status: 'SCHEDULED', page: 0, size: 1 }, // 개수만 필요하므로 size: 1
+          }),
         ]);
         const totalWriter = writerRes.data.result?.totalElements || 0;
         const totalApprover = approverRes.data.result?.totalElements || 0;
-        setCompletedTotal(totalWriter + totalApprover);
+        const totalScheduled = scheduledRes.data.result?.totalElements || 0;
+
+        setCompletedTotal(totalWriter + totalApprover + totalScheduled);
       } catch (err) {
         setCompletedTotal(0);
+
       }
 
       setLoading(false);
@@ -108,6 +114,7 @@ const ApprovalHome = () => {
   useEffect(() => {
     setSummaryData({
       unchecked: inProgressTotal,
+      scheduled: scheduledTotal,
       total: completedTotal,
     });
   }, [inProgressTotal, completedTotal]);
@@ -218,7 +225,7 @@ const ApprovalHome = () => {
         />
         <SummaryCard
           title='예약 문서함'
-          count={`${scheduledTotal}건`}
+          count={`${summaryData.scheduled}건`}
           icon={<span style={{color: '#ff9800', fontSize: 22}}>⏰</span>}
           onClick={() => setActiveBox('scheduled')}
           active={activeBox === 'scheduled'}
