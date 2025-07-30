@@ -209,6 +209,12 @@ export default function MainLayout() {
             </Link>
           ))}
         </nav>
+        {/* 모바일 사이드바에서만 로그아웃 버튼 노출 */}
+        <div className='sidebar-logout-mobile'>
+          <button className='logout-btn' onClick={handleLogoutClick}>
+            Logout
+          </button>
+        </div>
       </aside>
       {/* 모바일 오버레이 */}
       {showSidebar && (
@@ -251,25 +257,27 @@ export default function MainLayout() {
               <span className='badge'>{unreadCount + unApprovalCount}</span>
             )}
           </div>
-          {/* 사용자 이름/부서명 표시 */}
-          {userName && departmentName && (
-            <div className='user-info'>
-              <FaUserCircle className='user-icon' />
-              <span className='user-name'>{userName}</span>
-              {userPosition && (
-                <span className='user-position'>{userPosition}</span>
-              )}
-              <span className='user-dept'>({departmentName})</span>
-              {userRole && (
-                <span className='user-role'>
-                  {roleMap[userRole] || userRole}
-                </span>
-              )}
-            </div>
-          )}
-          <button className='logout-btn' onClick={handleLogoutClick}>
-            Logout
-          </button>
+          {/* 데스크탑/태블릿에서만 사용자 정보와 로그아웃 버튼 노출, 모바일(430px 이하)에서는 숨김 */}
+          <div className='header-user-desktop'>
+            {userName && departmentName && (
+              <div className='user-info'>
+                <FaUserCircle className='user-icon' />
+                <span className='user-name'>{userName}</span>
+                {userPosition && (
+                  <span className='user-position'>{userPosition}</span>
+                )}
+                <span className='user-dept'>({departmentName})</span>
+                {userRole && (
+                  <span className='user-role'>
+                    {roleMap[userRole] || userRole}
+                  </span>
+                )}
+              </div>
+            )}
+            <button className='logout-btn' onClick={handleLogoutClick}>
+              Logout
+            </button>
+          </div>
         </header>
 
         <main className='content'>

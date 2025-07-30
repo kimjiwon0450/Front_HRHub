@@ -3,7 +3,7 @@
   margin: 32px auto 0 auto;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
   padding: 32px 48px 48px 48px;
 }
 
@@ -12,13 +12,13 @@
   background: #f8f9fb;
   border-radius: 8px;
   padding: 24px 24px 8px 24px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .formRow {
   display: flex;
   align-items: center; // 수직 중앙 정렬
-  min-height: 48px;   // 버튼 높이와 맞춤
+  min-height: 48px; // 버튼 높이와 맞춤
   gap: 0;
   margin-bottom: 18px;
 }
@@ -54,8 +54,11 @@
   min-height: 300px;
 }
 
-.formInput, .formField input, .formField textarea, .formField select {
-    width: 100%;
+.formInput,
+.formField input,
+.formField textarea,
+.formField select {
+  width: 100%;
   min-width: 0;
   max-width: 100%;
   padding: 10px 14px;
@@ -77,7 +80,8 @@
   gap: 10px;
 }
 
-.actionButton, .referenceButton {
+.actionButton,
+.referenceButton {
   background: #1976d2;
   color: #fff;
   border: none;
@@ -88,7 +92,9 @@
   cursor: pointer;
   margin-left: 0; // margin-left 제거
   transition: background 0.2s;
-  &:hover { background: #1251a3; }
+  &:hover {
+    background: #1251a3;
+  }
 }
 
 .fileUploadArea {
@@ -112,7 +118,9 @@
   cursor: pointer;
   font-weight: 500;
   transition: background 0.2s;
-  &:hover { background: #1251a3; }
+  &:hover {
+    background: #1251a3;
+  }
 }
 
 .selectedFilesSection {
@@ -128,9 +136,9 @@
   border-radius: 16px;
   padding: 6px 14px;
   font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .removeFileButton {
@@ -140,7 +148,9 @@
   font-size: 16px;
   cursor: pointer;
   margin-left: 4px;
-  &:hover { color: #b71c1c; }
+  &:hover {
+    color: #b71c1c;
+  }
 }
 
 .fileUploadHint {
@@ -176,7 +186,9 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-  &:hover { background: #1251a3; }
+  &:hover {
+    background: #1251a3;
+  }
 }
 
 .scheduleButton {
@@ -189,7 +201,9 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-  &:hover { background: #f57c00; }
+  &:hover {
+    background: #f57c00;
+  }
 }
 
 .draftButton {
@@ -202,7 +216,9 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-  &:hover { background: #bdbdbd; }
+  &:hover {
+    background: #bdbdbd;
+  }
 }
 .cancelButton {
   background: #fff;
@@ -214,7 +230,9 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-  &:hover { background: #ffeaea; }
+  &:hover {
+    background: #ffeaea;
+  }
 }
 
 @media (max-width: 900px) {
@@ -292,13 +310,13 @@
   background: #f9fafb;
   transition: border-color 0.2s;
   min-width: 80px;
-  
+
   &:focus {
     border-color: #1976d2;
     background: #fff;
     outline: none;
   }
-  
+
   &:disabled {
     background: #f5f5f5;
     color: #999;
@@ -310,4 +328,4 @@
   font-size: 18px;
   font-weight: 600;
   color: #333;
-} 
+}
