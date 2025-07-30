@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import { useParams, useSearchParams, useNavigate, useBlocker } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
@@ -9,7 +9,7 @@ import EmployeeSelectModal from '../../components/approval/EmployeeSelectModal';
 import VisualApprovalLine from '../../components/approval/VisualApprovalLine';
 import { warn, swalConfirm, swalError } from '../../common/common';
 import styles from './ApprovalNew.module.scss';
-import FormField from './FormField';
+
 // 불필요한 기본값들을 필터링하는 함수
 const sanitizeValue = (val) => {
   if (!val) return '';
