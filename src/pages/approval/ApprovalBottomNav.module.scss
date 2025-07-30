@@ -1,0 +1,41 @@
+/* /src/pages/approval/ApprovalBottomNav.module.scss (새 파일) */
+
+.bottomNav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #ffffff;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 100;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .navItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #888;
+    flex-grow: 1;
+    padding: 5px 0;
+    
+    .icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    
+    .label {
+      font-size: 11px;
+    }
+  
+    &.active {
+      color: #007bff;
+      font-weight: 600;
+    }
+  }

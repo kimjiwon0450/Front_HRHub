@@ -110,6 +110,7 @@
   border-right: 1px solid #dee2e6;
   height: 100%;
   padding: 20px;
+  transition: transform 0.3s ease-in-out; // 부드러운 애니메이션
 }
 
 .menuHeader {
@@ -206,5 +207,20 @@
 
   &:hover {
     background-color: #007bff;
+  }
+}
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed; // 화면에 고정
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 1000; // 다른 요소들 위로
+    transform: translateX(-100%); // 기본적으로 화면 왼쪽에 숨김
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  }
+
+  .sidebar.open {
+    transform: translateX(0); // 'open' 클래스가 있으면 보이도록 함
   }
 }

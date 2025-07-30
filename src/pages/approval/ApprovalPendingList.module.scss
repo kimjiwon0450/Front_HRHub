@@ -1,17 +1,19 @@
+/* /src/pages/approval/ApprovalPendingList.module.scss (최종 수정본) */
+
+/* --- 💻 데스크탑 기본 스타일 --- */
 .container {
   padding: 24px;
   background-color: #fff;
   border-radius: 12px;
-  min-height: 100vh;
   width: 100%;
 }
 
 .sectionTitle {
-    font-size: 24px;
-    font-weight: 700;
-    color: #222;
-    margin-bottom: 28px;
-  }
+  font-size: 24px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 28px;
+}
 
 .filterRow, .filterGroup {
   display: flex;
@@ -58,3 +60,27 @@
   margin-bottom: 10px;
   color: #ccc;
 } 
+
+
+/* --- 📱 모바일 반응형 스타일 (768px 미만일 때 적용) --- */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+    // 모바일에서는 화면 전체를 사용하므로 radius 제거
+    border-radius: 0; 
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .resultInfo {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .list, .reportList {
+    gap: 10px;
+  }
+}
