@@ -21,6 +21,7 @@ export default function EmployeeList() {
   const [selectedDetail, setSelectedDetail] = useState({});
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [evaluationStatus, setEvaluationStatus] = useState({});
 
   // 검색/필터 state
   const [searchField, setSearchField] = useState('name');
@@ -260,6 +261,30 @@ export default function EmployeeList() {
     return <EvaluationForm employee={selectedDetail} onClose={handleClose} />;
 
   // 기본(리스트/상세)
+  useEffect(() => {
+    // 직원별 인사평가 존재 여부 확인
+    const fetchEvaluationStatus = async () => {
+      const statusObj = {};
+      await Promise.all(
+        employees.map(async (emp) => {
+          const empKey = emp.employeeId || emp.id;
+          try {
+            const res = await axiosInstance.get(
+              `${API_BASE_URL}${HR_SERVICE}/evaluations/${empKey}`,
+            );
+            statusObj[empKey] =
+              Array.isArray(res.data.result.content) &&
+              res.data.result.content.length > 0;
+          } catch {
+            statusObj[empKey] = false;
+          }
+        }),
+      );
+      setEvaluationStatus(statusObj);
+    };
+    if (employees.length > 0) fetchEvaluationStatus();
+  }, [employees]);
+
   return (
     <>
       <HRHeader />
@@ -390,7 +415,34 @@ export default function EmployeeList() {
                         objectFit: 'cover',
                       }}
                     />
-                    {emp.name}
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <span>{emp.name}</span>
+                      {evaluationStatus[emp.employeeId || emp.id] === false && (
+                        <span
+                          style={{
+                            background: '#ff5252',
+                            color: '#fff',
+                            borderRadius: '10px',
+                            fontSize: '0.62em',
+                            padding: '0 5px',
+                            marginTop: '3px',
+                            fontWeight: 600,
+                            letterSpacing: '0.01em',
+                            height: '16px',
+                            lineHeight: '16px',
+                            display: 'inline-block',
+                          }}
+                        >
+                          평가 필요
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </td>
                 <td style={{ textAlign: 'center' }}>{emp.department}</td>
