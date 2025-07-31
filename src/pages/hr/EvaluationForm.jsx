@@ -6,7 +6,7 @@ import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import { useContext } from 'react';
 import { UserContext } from '../../context/UserContext';
-import { swalConfirm } from '../../common/common';
+import { succeed, swalConfirm, swalError } from '../../common/common';
 
 // 별점 컴포넌트
 function StarRating({ value, onChange }) {
@@ -218,7 +218,7 @@ export default function EvaluationForm({
             updateMemo,
           },
         );
-        alert('평가 수정 완료');
+        succeed('평가 수정 완료');
       } else {
         await axiosInstance.post(
           `${API_BASE_URL}${HR_SERVICE}/evaluation/${employee.employeeId}`,
@@ -236,12 +236,14 @@ export default function EvaluationForm({
             interviewDate: form.date,
           },
         );
-        alert('평가등록 완료');
+        succeed('평가등록 완료');
       }
       if (onSubmitSuccess) onSubmitSuccess();
       if (onClose) onClose();
     } catch (error) {
-      alert('제출 실패: ' + (error.response?.data?.message || error.message));
+      swalError(
+        '제출 실패: ' + (error.response?.data?.message || error.message),
+      );
     }
   };
   const handleCancel = async () => {

@@ -24,6 +24,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   const [imageUri, setImageUri] = useState('');
   const fileInputRef = useRef(null);
   const { userRole, userId } = useContext(UserContext);
+  const [hasEvaluation, setHasEvaluation] = useState(false);
 
   const canEdit =
     userRole === 'HR_MANAGER' ||
@@ -59,8 +60,24 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   };
 
   useEffect(() => {
+    // 기존 코드
     setLocalEmployee(employee);
     setImageUri(employee.profileImageUri);
+    // 인사평가 존재 여부 확인
+    if (employee && employee.employeeId) {
+      axiosInstance
+        .get(`${API_BASE_URL}${HR_SERVICE}/evaluations/${employee.employeeId}`)
+        .then((res) => {
+          // 평가가 1개 이상 있으면 true
+          setHasEvaluation(
+            Array.isArray(res.data.result.content) &&
+              res.data.result.content.length > 0,
+          );
+        })
+        .catch(() => setHasEvaluation(false));
+    } else {
+      setHasEvaluation(false);
+    }
   }, [employee]);
 
   function getAge(birth) {
@@ -261,7 +278,8 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
         )}
         {canManage &&
           localEmployee.status !== 'INACTIVE' &&
-          userId !== employee.employeeId && (
+          userId !== employee.employeeId &&
+          !hasEvaluation && (
             <button className='btn green' onClick={onEval}>
               인사평가
             </button>
