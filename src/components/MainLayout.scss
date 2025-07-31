@@ -209,7 +209,7 @@ $border: #eceff3;
       }
       .user-position {
         color: #7b8794;
-        font-style: italic;
+        // font-style: italic;
         font-size: 0.98em;
         margin: 0 0.4em 0 0.2em;
         font-weight: 500;
@@ -233,7 +233,7 @@ $border: #eceff3;
       background: $accent;
       color: #fff;
       border: none;
-      border-radius: 1rem;
+      border-radius: 6px;
       font-size: 1.04rem;
       padding: 0.55rem 1.35rem;
       font-weight: 600;

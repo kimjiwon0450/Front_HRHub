@@ -79,7 +79,15 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   function getServicePeriod(hireDate) {
     if (!hireDate) return '';
     const start = new Date(hireDate);
-    const end = new Date();
+
+    // 퇴사자의 경우 퇴사일을 기준으로 계산, 재직자의 경우 현재 날짜를 기준으로 계산
+    let end;
+    if (employee.status === 'INACTIVE' && localEmployee.retireDate) {
+      end = new Date(localEmployee.retireDate);
+    } else {
+      end = new Date();
+    }
+
     let years = end.getFullYear() - start.getFullYear();
     let months = end.getMonth() - start.getMonth();
     let days = end.getDate() - start.getDate();
@@ -241,7 +249,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
         </div>
       </div>
       <div className='emp-modal-btns'>
-        {canEdit && (
+        {canEdit && localEmployee.status !== 'INACTIVE' && (
           <button className='btn blue' onClick={onEdit}>
             직원정보 수정
           </button>

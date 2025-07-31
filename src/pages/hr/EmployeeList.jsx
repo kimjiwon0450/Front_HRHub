@@ -319,14 +319,14 @@ export default function EmployeeList() {
             <tr>
               <th
                 onClick={() => handleSort('name')}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', textAlign: 'center' }}
               >
                 이름{' '}
                 {sortField === 'name' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
               <th
                 onClick={() => handleSort('department')}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', textAlign: 'center' }}
               >
                 부서{' '}
                 {sortField === 'department'
@@ -337,7 +337,7 @@ export default function EmployeeList() {
               </th>
               <th
                 onClick={() => handleSort('position')}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', textAlign: 'center' }}
               >
                 직급{' '}
                 {sortField === 'position'
@@ -348,14 +348,14 @@ export default function EmployeeList() {
               </th>
               <th
                 onClick={() => handleSort('role')}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', textAlign: 'center' }}
               >
                 직책{' '}
                 {sortField === 'role' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
               </th>
               <th
                 onClick={() => handleSort('phone')}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', textAlign: 'center' }}
               >
                 연락처{' '}
                 {sortField === 'phone' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
@@ -370,11 +370,13 @@ export default function EmployeeList() {
                 className={selectedId === emp.id ? 'selected' : ''}
                 style={{ cursor: 'pointer' }}
               >
-                <td>{emp.name}</td>
-                <td>{emp.department}</td>
-                <td>{emp.position}</td>
-                <td>{emp.role}</td> {/* 직책 컬럼에 role 값 표시 */}
-                <td>{emp.phone}</td> {/* 연락처 컬럼에 phone 값 표시 */}
+                <td style={{ textAlign: 'center' }}>{emp.name}</td>
+                <td style={{ textAlign: 'center' }}>{emp.department}</td>
+                <td style={{ textAlign: 'center' }}>{emp.position}</td>
+                <td style={{ textAlign: 'center' }}>{emp.role}</td>{' '}
+                {/* 직책 컬럼에 role 값 표시 */}
+                <td style={{ textAlign: 'center' }}>{emp.phone}</td>{' '}
+                {/* 연락처 컬럼에 phone 값 표시 */}
               </tr>
             ))}
           </tbody>

@@ -252,7 +252,7 @@ export default function EmployeeViewList() {
                 <tr>
                   <th
                     onClick={() => handleSort('name')}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', textAlign: 'center' }}
                   >
                     이름{' '}
                     {sortField === 'name'
@@ -263,7 +263,7 @@ export default function EmployeeViewList() {
                   </th>
                   <th
                     onClick={() => handleSort('department')}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', textAlign: 'center' }}
                   >
                     부서{' '}
                     {sortField === 'department'
@@ -274,7 +274,7 @@ export default function EmployeeViewList() {
                   </th>
                   <th
                     onClick={() => handleSort('position')}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', textAlign: 'center' }}
                   >
                     직급{' '}
                     {sortField === 'position'
@@ -285,7 +285,7 @@ export default function EmployeeViewList() {
                   </th>
                   <th
                     onClick={() => handleSort('role')}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', textAlign: 'center' }}
                   >
                     직책{' '}
                     {sortField === 'role'
@@ -296,7 +296,7 @@ export default function EmployeeViewList() {
                   </th>
                   <th
                     onClick={() => handleSort('phone')}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', textAlign: 'center' }}
                   >
                     연락처{' '}
                     {sortField === 'phone'
@@ -315,11 +315,11 @@ export default function EmployeeViewList() {
                     className={selectedId === emp.id ? 'selected' : ''}
                     style={{ cursor: 'pointer' }}
                   >
-                    <td>{emp.name}</td>
-                    <td>{emp.department}</td>
-                    <td>{emp.position}</td>
-                    <td>{emp.role}</td>
-                    <td>{emp.phone}</td>
+                    <td style={{ textAlign: 'center' }}>{emp.name}</td>
+                    <td style={{ textAlign: 'center' }}>{emp.department}</td>
+                    <td style={{ textAlign: 'center' }}>{emp.position}</td>
+                    <td style={{ textAlign: 'center' }}>{emp.role}</td>
+                    <td style={{ textAlign: 'center' }}>{emp.phone}</td>
                   </tr>
                 ))}
               </tbody>
