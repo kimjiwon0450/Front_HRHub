@@ -102,8 +102,6 @@ const Editor = ({ content, onChange }) => {
       const text = editor.getText();
       if (!accessToken) return; // 토큰 없으면 맞춤법 검사 안함
 
-      const errorWords = await checkSpelling(text, accessToken);
-
       editor.chain().focus().unsetMark('spellcheck').run();
 
       errorWords.forEach((word) => {
