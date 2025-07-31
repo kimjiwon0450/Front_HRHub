@@ -98,29 +98,6 @@ const Editor = ({ content, onChange }) => {
     onUpdate: async ({ editor }) => {
       const html = editor.getHTML();
       onChange(html);
-
-      const text = editor.getText();
-      if (!accessToken) return; // 토큰 없으면 맞춤법 검사 안함
-
-      const errorWords = await checkSpelling(text, accessToken);
-
-      editor.chain().focus().unsetMark('spellcheck').run();
-
-      errorWords.forEach((word) => {
-        const regex = new RegExp(word, 'gi');
-        const matches = [...text.matchAll(regex)];
-
-        matches.forEach((match) => {
-          const from = match.index;
-          const to = from + match[0].length;
-          editor
-            .chain()
-            .focus()
-            .setTextSelection({ from, to })
-            .setMark('spellcheck')
-            .run();
-        });
-      });
     },
   });
 
@@ -329,14 +306,14 @@ const Editor = ({ content, onChange }) => {
             className='color-input'
           />
           {/* 배경색 */}
-          <label htmlFor='bgColor'>배경색</label>
+          {/* <label htmlFor='bgColor'>배경색</label>
           <input
             type='color'
             title='글자 배경색 선택'
             value={bgColor}
             onChange={(e) => setBgColorHandler(e.target.value)}
             className='color-input'
-          />
+          /> */}
         </div>
 
         {/* 글씨체 선택 */}
