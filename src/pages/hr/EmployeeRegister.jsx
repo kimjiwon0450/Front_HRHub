@@ -128,12 +128,12 @@ export default function EmployeeRegister() {
           name: newDeptName,
         },
       );
-      alert('부서 등록 성공!');
+      succeed('부서 등록 성공!');
       setNewDeptName('');
       setShowDeptModal(false);
       fetchDepartments();
     } catch (err) {
-      alert(
+      swalError(
         err.response?.data?.statusMessage ||
           err.response?.data?.message ||
           '부서 등록 실패',
