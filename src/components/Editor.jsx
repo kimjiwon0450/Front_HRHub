@@ -89,7 +89,7 @@ const Editor = ({ content, onChange }) => {
       FontFamily,
       TextStyleBackground,
       LineHeight,
-      TextAlign.configure({ types: ['heading', 'paragraph'] })
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
     content,
     // onUpdate: ({ editor }) => {
@@ -267,7 +267,6 @@ const Editor = ({ content, onChange }) => {
           {/* ↻ 다시실행 */}
           <FiRotateCw />
         </button>
-
 
         {/* 정렬 버튼 */}
         <button

@@ -668,3 +668,26 @@ body {
   // 하단 탭 메뉴 높이(60px) + 기본 여백(2.5rem) 만큼 위로 올림
   bottom: calc(70px + 2.5rem);
 }
+
+.nav a {
+  // Link 태그는 a 태그로 렌더링됩니다.
+  display: flex;
+  align-items: center;
+  gap: 12px; // 아이콘과 라벨 사이 간격
+}
+
+.menu-label {
+  flex-grow: 1; // 라벨이 남은 공간을 차지하도록
+}
+
+// 사이드바용 뱃지 스타일
+.sidebar-badge {
+  background-color: #dc3545;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 10px;
+  line-height: 1;
+  margin-left: auto; // 오른쪽 끝으로 밀어냄
+}

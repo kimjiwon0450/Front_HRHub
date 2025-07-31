@@ -612,16 +612,17 @@ function ApprovalNew() {
         });
         return;
       }
-
+      const selectedKstDateTimeString = `${selectedDate}T${selectedHour}:${selectedMinute}:00`;
+      const scheduledAtWithOffset = selectedKstDateTimeString + '+09:00';
       // KST 시간을 UTC로 변환하여 서버에 전송
       // selectedDateTime은 KST 시간이므로, UTC로 변환
       const kstTime = new Date(selectedDateTime + '+09:00'); // KST 시간으로 명시
       const scheduledAt = kstTime.toISOString(); // 이미 UTC로 변환됨
       
-      console.log('[ApprovalNew] 선택된 KST 시간:', selectedDateTime);
-      console.log('[ApprovalNew] 변환된 UTC 시간:', scheduledAt);
+      console.log('[ApprovalNew] 선택된 KST 시간:', selectedKstDateTimeString);
+      console.log('[ApprovalNew] 변환된 UTC 시간:', scheduledAtWithOffset);
       
-      handleScheduleSubmit(scheduledAt);
+      handleScheduleSubmit(scheduledAtWithOffset);
     };
 
     const minTime = getMinimumTime();
