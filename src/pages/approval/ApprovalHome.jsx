@@ -83,25 +83,19 @@ const ApprovalHome = () => {
 
       // --- 결재내역(완료) 전체 건수 미리 조회 ---
       try {
-        const [writerRes, approverRes, scheduledRes] = await Promise.all([
+        const [writerRes, approverRes] = await Promise.all([
           axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
             params: { role: 'writer', status: 'APPROVED', page: 0, size: 1 },
           }),
           axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
             params: { role: 'approver', status: 'APPROVED', page: 0, size: 1 },
           }),
-          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/list/scheduled`, {
-            params: { role: 'writer', status: 'SCHEDULED', page: 0, size: 1 }, // 개수만 필요하므로 size: 1
-          }),
         ]);
         const totalWriter = writerRes.data.result?.totalElements || 0;
         const totalApprover = approverRes.data.result?.totalElements || 0;
-        setScheduledTotal(scheduledRes.data.result?.totalElements || 0);
-
         setCompletedTotal(totalWriter + totalApprover);
       } catch (err) {
         setCompletedTotal(0);
-        setScheduledTotal(0);
       }
 
       setLoading(false);
@@ -114,10 +108,9 @@ const ApprovalHome = () => {
   useEffect(() => {
     setSummaryData({
       unchecked: inProgressTotal,
-      scheduled: scheduledTotal,
       total: completedTotal,
     });
-  }, [inProgressTotal, completedTotal, scheduledTotal]);
+  }, [inProgressTotal, completedTotal]);
 
   // --- 이벤트 핸들러 ---
 
@@ -225,7 +218,7 @@ const ApprovalHome = () => {
         />
         <SummaryCard
           title='예약 문서함'
-          count={`${summaryData.scheduled}건`}
+          count={`${scheduledTotal}건`}
           icon={<span style={{color: '#ff9800', fontSize: 22}}>⏰</span>}
           onClick={() => setActiveBox('scheduled')}
           active={activeBox === 'scheduled'}

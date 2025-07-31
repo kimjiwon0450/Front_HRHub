@@ -68,6 +68,7 @@ const headerMenus = [
 ];
 
 export default function MainLayout() {
+  
   const location = useLocation();
   const { onLogout } = useContext(UserContext);
   const navigate = useNavigate();
@@ -91,6 +92,7 @@ export default function MainLayout() {
     departmentId,
     userRole,
     userPosition,
+    setCounts
   } = useContext(UserContext);
   const [pendingReports, setPendingReports] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -104,6 +106,14 @@ export default function MainLayout() {
   const [chatbotError, setChatbotError] = useState('');
   const [departmentName, setDepartmentName] = useState('');
   const [showSidebar, setShowSidebar] = useState(false); // 모바일 사이드바 상태
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  const sidebarMenus = [
+    { to: '/notice', label: '공지사항', icon: <FaBullhorn style={{ color: '#ff8a80', opacity: 0.7 }} /> },
+    { to: '/dashboard', label: '대시보드', icon: <FaChartBar style={{ color: '#90caf9', opacity: 0.7 }} /> },
+    { to: '/hr', label: '인사관리', icon: <FaUsers style={{ color: '#81c784', opacity: 0.7 }} /> },
+    { to: '/approval', label: '전자결재', icon: <FaPen style={{ color: '#b39ddb', opacity: 0.7 }} /> },
+  ];
 
   useEffect(() => {
     if (!userId) return;
@@ -129,51 +139,39 @@ export default function MainLayout() {
     fetchUnreadCount();
   }, [user, location.pathname]);
 
+  
   useEffect(() => {
-    const fetchPending = async () => {
-      setLoading(true);
-      setError(null);
+    if (!user) return;
+    const fetchAllCounts = async () => {
       try {
-        const res = await axiosInstance.get(
-          `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
-          {
-            params: {
-              role: 'approver', // '내가 결재할 차례인 문서'를 의미
-              status: 'IN_PROGRESS', // 반려/완료된 문서를 제외하기 위해 반드시 필요
-              page: 0,
-              size: 10,
-            },
-          },
-        );
-        if (res.data?.statusCode === 200) {
-          const allReports = res.data.result.reports || [];
-          // 이중 필터링: API가 IN_PROGRESS 외 다른 상태를 보내주는 경우를 대비
-          const filteredReports = allReports.filter(
-            (report) => report.reportStatus === 'IN_PROGRESS',
-          );
-          console.log('filteredReports : ', filteredReports);
-          console.log('filteredReports.length : ', filteredReports.length);
-          setPendingReports(filteredReports);
-
-          const count = filteredReports.length;
-          setUnApprovalCount(count);
-          console.log('미결재 문서 :', count);
-        } else {
-          setError(
-            res.data?.statusMessage ||
-              '결재 예정 문서를 불러오는 데 실패했습니다.',
-          );
-        }
+        const countPromises = [
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, { params: { role: 'approver', status: 'IN_PROGRESS', size: 1 } }),
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, { params: { role: 'writer', status: 'IN_PROGRESS', size: 1 } }),
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, { params: { role: 'writer', status: 'REJECTED', size: 1 } }),
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, { params: { role: 'writer', status: 'DRAFT,RECALLED', size: 1 } }),
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/list/scheduled`, { params: { size: 1 } }),
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, { params: { role: 'reference', size: 1 } }),
+        ];
+        const responses = await Promise.all(countPromises);
+        const newCounts = {
+          pending: responses[0].data.result?.totalElements || 0,
+          inProgress: responses[1].data.result?.totalElements || 0,
+          rejected: responses[2].data.result?.totalElements || 0,
+          drafts: responses[3].data.result?.totalElements || 0,
+          scheduled: responses[4].data.result?.totalElements || 0,
+          cc: responses[5].data.result?.totalElements || 0,
+          completed: 0,
+        };
+        setCounts(newCounts);
+        setUnApprovalCount(newCounts.pending);
       } catch (err) {
-        console.error(err);
-        setError('네트워크 오류 또는 서버 오류');
-      } finally {
-        setLoading(false);
+        console.error("문서함 개수 조회 실패:", err);
       }
     };
-    fetchPending();
-  }, [user, location.pathname]);
+    fetchAllCounts();
+  }, [user, location.pathname, setCounts]);
 
+  // 3. (기존 코드 유지) 부서 이름 조회
   useEffect(() => {
     if (departmentId) {
       getDepartmentNameById(departmentId).then((name) => {
@@ -184,7 +182,37 @@ export default function MainLayout() {
     }
   }, [departmentId]);
 
-  // 역할 한글 매핑
+  // 4. (기존 코드 유지) 예약 상신 알람 (폴링)
+  useEffect(() => {
+    if (!user) return;
+    const intervalId = setInterval(async () => {
+      try {
+        const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
+          params: { role: 'approver', status: 'IN_PROGRESS', size: 1 },
+        });
+        const newCount = res.data.result?.totalElements || 0;
+        if (!isInitialLoad && newCount > unApprovalCount) {
+          Swal.fire({
+            icon: 'info',
+            title: '새로운 결재 문서가 도착했습니다.',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+          });
+        }
+        setUnApprovalCount(newCount);
+        if (isInitialLoad) {
+          setIsInitialLoad(false);
+        }
+      } catch (err) {
+        console.error("결재 문서 개수 폴링 중 오류 발생:", err);
+      }
+    }, 60000);
+    return () => clearInterval(intervalId);
+  }, [user, unApprovalCount, isInitialLoad]);
+
   const roleMap = {
     CEO: '대표',
     HR_MANAGER: '인사담당',
@@ -192,12 +220,12 @@ export default function MainLayout() {
     ADMIN: '관리자',
   };
 
+  // /src/components/MainLayout.jsx
+
   // 예약 상신 알람 
   useEffect(() => {
-    // 사용자가 로그인하지 않았으면 폴링을 시작하지 않음
     if (!user) return;
 
-    // 1. 1분(60000 밀리초)마다 API를 호출하는 타이머를 설정합니다.
     const intervalId = setInterval(async () => {
       try {
         const res = await axiosInstance.get(
@@ -206,40 +234,42 @@ export default function MainLayout() {
             params: {
               role: 'approver',
               status: 'IN_PROGRESS',
-              size: 1, // 전체 데이터가 아닌 개수만 필요하므로 size를 1로 최소화
+              size: 1,
             },
           },
         );
         
         const newCount = res.data.result?.totalElements || 0;
 
-        // 2. 이전에 저장된 개수(unApprovalCount)와 새로 받아온 개수(newCount)를 비교합니다.
-        //    (unApprovalCount가 0일 때는 초기 로딩일 수 있으므로 알림을 띄우지 않음)
-        if (newCount > unApprovalCount && unApprovalCount !== 0) {
-          // 3. 개수가 늘어났을 경우, 사용자에게 토스트 알림을 띄웁니다.
+        // ★★★ 2. 알림 조건 수정 ★★★
+        // 초기 로딩이 아니고, 새로운 개수가 이전 개수보다 많을 때 알림
+        if (!isInitialLoad && newCount > unApprovalCount) {
           Swal.fire({
             icon: 'info',
             title: '새로운 결재 문서가 도착했습니다.',
-            toast: true, // 작고 심플한 토스트 메시지 형태
-            position: 'top-end', // 화면 오른쪽 상단에 표시
-            showConfirmButton: false, // '확인' 버튼 숨김
-            timer: 3000, // 3초 후에 자동으로 사라짐
-            timerProgressBar: true, // 남은 시간을 보여주는 바
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
           });
         }
         
-        // 4. 최신 개수를 state에 업데이트합니다.
         setUnApprovalCount(newCount);
+
+        // ★ 3. 첫 폴링 이후에는 초기 로딩 상태를 false로 변경 ★
+        if (isInitialLoad) {
+          setIsInitialLoad(false);
+        }
 
       } catch (err) {
         console.error("결재 문서 개수 폴링 중 오류 발생:", err);
       }
-    }, 60000); // 60000ms = 1분
+    }, 60000);
 
-    // 5. 컴포넌트가 사라질 때(예: 로그아웃) 타이머를 반드시 정리해줍니다.
     return () => clearInterval(intervalId);
 
-  }, [user, unApprovalCount]); // user 또는 unApprovalCount가 변경될 때마다 이 로직을 재평가합니다.
+  }, [user, unApprovalCount, isInitialLoad]); // ★ 4. 의존성 배열에 isInitialLoad 추가
 
   return (
     <div className='layout'>
@@ -258,6 +288,9 @@ export default function MainLayout() {
             >
               <span className='menu-icon'>{menu.icon}</span>
               <span className='menu-label'>{menu.label}</span>
+              {menu.to === '/approval' && unApprovalCount > 0 && (
+                <span className='sidebar-badge'>{unApprovalCount}</span>
+              )}
             </Link>
           ))}
         </nav>
