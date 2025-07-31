@@ -5,7 +5,7 @@ import axios from 'axios';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
 import { useNavigate } from 'react-router-dom';
-import { warn } from '../../common/common';
+import { succeed, swalError, warn } from '../../common/common';
 import EmployeeSelectorModal from '../../common/EmployeeSelectorModal';
 import ExcelUploader from '../../common/ExcelUploader';
 
@@ -96,10 +96,10 @@ export default function EmployeeRegister() {
         hireDate,
         position, // 추가
       });
-      alert('등록 성공!');
+      succeed('등록 성공!');
       navigate('/hr/employee-list');
     } catch (error) {
-      alert(error.response?.data?.statusMessage || '등록 실패');
+      swalError(error.response?.data?.statusMessage || '등록 실패');
     } finally {
       setIsLoading(false); // 로딩 종료
     }
