@@ -11,6 +11,7 @@ import { warn } from '../../common/common';
 import ModalPortal from '../../components/approval/ModalPortal';
 import styles from '../../components/approval/CategoryModal.module.scss';
 import { UserContext } from '../../context/UserContext';
+import pin from '../../assets/pin.jpg';
 
 export default function EmployeeViewList() {
   const { userId } = useContext(UserContext);
@@ -315,7 +316,28 @@ export default function EmployeeViewList() {
                     className={selectedId === emp.id ? 'selected' : ''}
                     style={{ cursor: 'pointer' }}
                   >
-                    <td style={{ textAlign: 'center' }}>{emp.name}</td>
+                    <td style={{ textAlign: 'center' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                        }}
+                      >
+                        <img
+                          src={emp.profileImageUri || pin}
+                          alt='profile'
+                          style={{
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                          }}
+                        />
+                        {emp.name}
+                      </div>
+                    </td>
                     <td style={{ textAlign: 'center' }}>{emp.department}</td>
                     <td style={{ textAlign: 'center' }}>{emp.position}</td>
                     <td style={{ textAlign: 'center' }}>{emp.role}</td>

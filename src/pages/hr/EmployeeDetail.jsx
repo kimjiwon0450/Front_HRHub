@@ -218,7 +218,7 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
               <dd>
                 {localEmployee.retireDate
                   ? localEmployee.retireDate.split('T')[0]
-                  : ''}
+                  : '-'}
               </dd>
             </div>
             <div>

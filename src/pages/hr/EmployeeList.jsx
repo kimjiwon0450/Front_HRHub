@@ -10,6 +10,7 @@ import { getDepartmentNameById, getEmployeeList } from '../../common/hr';
 import { warn } from '../../common/common';
 import ModalPortal from '../../components/approval/ModalPortal';
 import styles from '../../components/approval/CategoryModal.module.scss';
+import pin from '../../assets/pin.jpg';
 
 // 부서 목록을 서버에서 받아옴
 
@@ -370,7 +371,28 @@ export default function EmployeeList() {
                 className={selectedId === emp.id ? 'selected' : ''}
                 style={{ cursor: 'pointer' }}
               >
-                <td style={{ textAlign: 'center' }}>{emp.name}</td>
+                <td style={{ textAlign: 'center' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <img
+                      src={emp.profileImageUri || pin}
+                      alt='profile'
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                    {emp.name}
+                  </div>
+                </td>
                 <td style={{ textAlign: 'center' }}>{emp.department}</td>
                 <td style={{ textAlign: 'center' }}>{emp.position}</td>
                 <td style={{ textAlign: 'center' }}>{emp.role}</td>{' '}

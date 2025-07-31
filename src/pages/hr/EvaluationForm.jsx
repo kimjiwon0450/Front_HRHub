@@ -300,15 +300,6 @@ export default function EvaluationForm({
                 >
                   ❌
                 </button>
-                <button
-                  type='button'
-                  className='eval-date-picker'
-                  title='달력 선택'
-                  tabIndex={-1}
-                  // react-datepicker 사용 중이면 필요 없음
-                >
-                  🗓️
-                </button>
               </div>
             </div>
             <div className='eval-field'>
@@ -398,7 +389,7 @@ export default function EvaluationForm({
             </div>
             <div className='eval-field avg'>
               <span>평균 점수</span>
-              <span className='avg-score'>{avg}</span>
+              <span className='avg-score'>{avg} / 5</span>
             </div>
             {isEdit && (
               <div className='eval-field'>
