@@ -307,12 +307,12 @@ const NoticeBoardWrite = ({ isEdit = false }) => {
                     onChange={(e) => setPosition(e.target.value)}
                 >
                     <option value="">-- 선택하세요 --</option>
-                    <option value="INTERN">INTERN</option>
-                    <option value="JUNIOR">JUNIOR</option>
-                    <option value="SENIOR">SENIOR</option>
-                    <option value="MANAGER">MANAGER</option>
-                    <option value="DIRECTOR">DIRECTOR</option>
-                    <option value="CEO">CEO</option>
+                    <option value="INTERN">INTERN ⬆️</option>
+                    <option value="JUNIOR">JUNIOR ⬆️</option>
+                    <option value="SENIOR">SENIOR ⬆️</option>
+                    <option value="MANAGER">MANAGER ⬆️</option>
+                    <option value="DIRECTOR">DIRECTOR ⬆️</option>
+                    {/* <option value="CEO">CEO</option> */}
                 </select>
             </div>
 

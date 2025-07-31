@@ -329,14 +329,14 @@ const Editor = ({ content, onChange }) => {
             className='color-input'
           />
           {/* 배경색 */}
-          <label htmlFor='bgColor'>배경색</label>
+          {/* <label htmlFor='bgColor'>배경색</label>
           <input
             type='color'
             title='글자 배경색 선택'
             value={bgColor}
             onChange={(e) => setBgColorHandler(e.target.value)}
             className='color-input'
-          />
+          /> */}
         </div>
 
         {/* 글씨체 선택 */}

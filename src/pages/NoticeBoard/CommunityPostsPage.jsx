@@ -244,12 +244,23 @@ const CommunityPostsPage = () => {
                                     <tr
                                         key={`post-${post.communityId}`}
                                         onClick={() => navigate(`/community/${post.communityId}`)}
-                                        style={{ fontWeight: post.notice ? 'bold' : 'normal' }} // ✅ 여기가 핵심
+                                        style={{
+                                            color: post.hidden ? 'rgba(171, 26, 26, 1)' : 'black',
+                                            background: post.hidden ? '#f4d7d7' : 'white'
+                                        }} // ✅ 여기가 핵심
                                         className={post.notice ? 'bold-row' : ''}
                                     >
                                         <td>{post.communityId}</td>
                                         <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri != '[]' ? '📎' : ''}</td>
-                                        <td>{post.title}</td>
+                                        <td>
+                                            {post.hidden ? (
+                                                <span>
+                                                    🚨{post.title}
+                                                </span>
+                                            ) : (
+                                                post.title
+                                            )}
+                                        </td>
                                         <td>
                                             {post.employStatus === 'INACTIVE' ? (
                                                 <span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
@@ -273,13 +284,13 @@ const CommunityPostsPage = () => {
                     </table>
 
                     <div className="pagination">
-                        <button onClick={() => setPage(p => Math.max(p - 1, 0))} disabled={page === 0}>Previous</button>
+                        <button onClick={() => setPage(p => Math.max(p - 1, 0))} disabled={page === 0}>이전</button>
                         {Array.from({ length: totalPages }, (_, i) => (
                             <button key={i} className={page === i ? 'active' : ''} onClick={() => setPage(i)}>
                                 {i + 1}
                             </button>
                         ))}
-                        <button onClick={() => setPage(p => Math.min(p + 1, totalPages - 1))} disabled={page === totalPages - 1}>Next</button>
+                        <button onClick={() => setPage(p => Math.min(p + 1, totalPages - 1))} disabled={page === totalPages - 1}>다음</button>
                     </div>
 
                     <div className="page-size-selector">
