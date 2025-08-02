@@ -227,6 +227,9 @@ export default function EmployeeRegister() {
             className={`employee-select-btn${excelEmployees.length === 0 ? ' disabled' : ''}`}
             onClick={() => setShowEmployeeModal(true)}
             disabled={excelEmployees.length === 0}
+            style={{
+              display: excelEmployees.length === 0 ? 'none' : 'block',
+            }}
           >
             직원 불러오기
           </button>
