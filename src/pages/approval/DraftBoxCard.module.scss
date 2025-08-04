@@ -10,6 +10,7 @@
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: background-color 0.2s;
+  overflow: visible; // 결재선이 잘리지 않도록 visible로 설정
 
   &:hover {
     background-color: #f8f9fa;
@@ -77,6 +78,8 @@
   align-items: center;
   justify-content: flex-end; // 오른쪽 정렬
   gap: 8px;
+  min-width: 0; // 결재선이 잘리지 않도록 최소 너비 제한 해제
+  overflow: visible; // 결재선이 잘리지 않도록 visible로 설정
 }
 
 .cancel-schedule-btn {

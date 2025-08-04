@@ -4,7 +4,7 @@
   padding-left: 32px;
   padding-right: 32px;
   width: 100%;
-  overflow-x: hidden;
+  overflow: visible; // 결재선이 잘리지 않도록 visible로 설정
   box-sizing: border-box;
   height: 100%;
 }
@@ -21,7 +21,7 @@
   padding-left: 32px;
   padding-right: 32px;
   width: 100%;
-  overflow-x: hidden;
+  overflow: visible; // 결재선이 잘리지 않도록 visible로 설정
   box-sizing: border-box;
   overflow-y: auto; // 세로 스크롤 활성화
 }
@@ -162,6 +162,7 @@
   .approvalContainer {
     padding-left: 16px;
     padding-right: 16px;
+    overflow: visible; // 결재선이 잘리지 않도록 visible로 설정
   }
 
   .container {
@@ -169,6 +170,7 @@
     height: calc(100vh - 150px); // 모바일에서 높이 조정
     padding-left: 16px;
     padding-right: 16px;
+    overflow: visible; // 결재선이 잘리지 않도록 visible로 설정
   }
 
   .sectionTitle {
