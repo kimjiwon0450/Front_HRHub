@@ -2,8 +2,10 @@
   padding: 24px;
   background-color: #fff;
   border-radius: 12px;
-  min-height: 100vh;
+  height: calc(100vh - 200px); // 고정 높이 설정
   width: 100%;
+  overflow-y: auto; // 세로 스크롤 활성화
+  overflow-x: visible; // 결재선이 잘리지 않도록 visible로 설정
 }
 
 .sectionTitle {
@@ -35,6 +37,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow: visible; // 결재선이 잘리지 않도록 visible로 설정
 }
 
 .error, .noReports {
@@ -57,4 +60,27 @@
   font-size: 48px;
   margin-bottom: 10px;
   color: #ccc;
+}
+
+/* --- 📱 모바일 반응형 스타일 (768px 미만일 때 적용) --- */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+    height: calc(100vh - 150px); // 모바일에서 높이 조정
+    overflow: visible; // 결재선이 잘리지 않도록 visible로 설정
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .filterRow, .filterGroup {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .list, .reportList {
+    gap: 8px;
+  }
 } 
