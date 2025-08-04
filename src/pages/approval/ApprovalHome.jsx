@@ -210,21 +210,21 @@ const ApprovalHome = () => {
       {/* 요약 카드 섹션 (일주일 이상 지연된 카드 제거, 클릭 시 목록 변경) */}
       <div className={styles.summarySection}>
         <SummaryCard
-          title='처리하지 않은 수신결재'
+          title='결재 예정 문서'
           count={`${summaryData.unchecked}건`}
           icon={<span style={{color: '#007BFF', fontSize: 22}}>📬</span>}
           onClick={() => setActiveBox('inProgress')}
           active={activeBox === 'inProgress'}
         />
         <SummaryCard
-          title='예약 문서함'
+          title='예약 문서'
           count={`${scheduledTotal}건`}
           icon={<span style={{color: '#ff9800', fontSize: 22}}>⏰</span>}
           onClick={() => setActiveBox('scheduled')}
           active={activeBox === 'scheduled'}
         />
         <SummaryCard
-          title='결재내역보기'
+          title='결재 완료 문서'
           count={`${summaryData.total}건`}
           icon={<span style={{color: '#6C757D', fontSize: 22}}>🗂️</span>}
           onClick={() => setActiveBox('history')}
