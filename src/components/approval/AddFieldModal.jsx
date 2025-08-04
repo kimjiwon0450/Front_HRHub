@@ -119,13 +119,14 @@ const AddFieldModal = ({ isOpen, onClose, onSelect }) => {
             <div
               className={styles.optionCard}
               onClick={() => onSelect(customOption.id)}
+              style={{ cursor: 'pointer' }}
             >
               <div className={styles.icon}>{customOption.icon}</div>
               <div className={styles.details}>
-                <div className={styles.name}>{customOption.name}</div>
-                <div className={styles.desc}>{customOption.desc}</div>
+                <div className={styles.name} style={{ cursor: 'pointer' }}>{customOption.name}</div>
+                <div className={styles.desc} style={{ cursor: 'pointer' }}>{customOption.desc}</div>
                 {customOption.note && (
-                  <div className={styles.note}>{customOption.note}</div>
+                  <div className={styles.note} style={{ cursor: 'pointer' }}>{customOption.note}</div>
                 )}
               </div>
             </div>
