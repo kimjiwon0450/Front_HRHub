@@ -10,7 +10,7 @@ import ModalPortal from '../../components/approval/ModalPortal';
 // ★ 1. props로 counts를 받도록 명시합니다.
 const Sidebar = () => {
   const navigate = useNavigate();
-  // ★ 2. useContext에서는 userRole만 가져옵니다. counts는 제거합니다.
+  // ★ 2. useContext에서는 userRole과 counts를 가져옵니다.
   const { userRole, counts } = useContext(UserContext);
   const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
 
@@ -49,46 +49,47 @@ const Sidebar = () => {
           <div className={styles.menuGroup}>
             <div className={styles.menuGroupHeader}>결재함</div>
             <ul className={styles.menuList}>
-              {/* ★ 4. props로 받은 counts(safeCounts)를 사용합니다. */}
+              {/* ★ 4. safeCounts를 사용합니다. */}
               <li>
                 <NavLink to="/approval/pending" className={({ isActive }) => `${styles.menuItem} ${isActive ? styles.active : ''}`}>
                   <span>결재 예정 문서함</span>
-                  {counts.pending > 0 && <span className={styles.countBadge}>{counts.pending}</span>}
+                  <span className={styles.countBadge} data-count={safeCounts.pending || 0}>{safeCounts.pending || 0}</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/approval/in-progress" className={({ isActive }) => `${styles.menuItem} ${isActive ? styles.active : ''}`}>
                   <span>결재 중 문서함</span>
-                  {counts.inProgress > 0 && <span className={styles.countBadge}>{counts.inProgress}</span>}
+                  <span className={styles.countBadge} data-count={safeCounts.inProgress || 0}>{safeCounts.inProgress || 0}</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/approval/completed" className={({ isActive }) => `${styles.menuItem} ${isActive ? styles.active : ''}`}>
                   <span>결재 완료 문서함</span>
+                  <span className={styles.countBadge} data-count={safeCounts.completed || 0}>{safeCounts.completed || 0}</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/approval/rejected" className={({ isActive }) => `${styles.menuItem} ${isActive ? styles.active : ''}`}>
                   <span>반려 문서함</span>
-                  {counts.rejected > 0 && <span className={styles.countBadge}>{counts.rejected}</span>}
+                  <span className={styles.countBadge} data-count={safeCounts.rejected || 0}>{safeCounts.rejected || 0}</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/approval/drafts" className={({ isActive }) => `${styles.menuItem} ${isActive ? styles.active : ''}`}>
                   <span>임시 저장 문서함</span>
-                  {counts.drafts > 0 && <span className={styles.countBadge}>{counts.drafts}</span>}
+                  <span className={styles.countBadge} data-count={safeCounts.drafts || 0}>{safeCounts.drafts || 0}</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/approval/scheduled" className={({ isActive }) => `${styles.menuItem} ${isActive ? styles.active : ''}`}>
                   <span>예약 문서함</span>
-                  {counts.scheduled > 0 && <span className={styles.countBadge}>{counts.scheduled}</span>}
+                  <span className={styles.countBadge} data-count={safeCounts.scheduled || 0}>{safeCounts.scheduled || 0}</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/approval/cc" className={({ isActive }) => `${styles.menuItem} ${isActive ? styles.active : ''}`}>
                   <span>수신 참조 문서함</span>
-                  {counts.cc > 0 && <span className={styles.countBadge}>{counts.cc}</span>}
+                  <span className={styles.countBadge} data-count={safeCounts.cc || 0}>{safeCounts.cc || 0}</span>
                 </NavLink>
               </li>
             </ul>

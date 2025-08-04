@@ -43,29 +43,31 @@ export const UserContextProvider = (props) => {
     scheduled: 0,
     cc: 0,
   });
-    useEffect(() => {
-    // 로그인 했을 때만 API 호출
-    if (accessToken) {
-      const fetchCounts = async () => {
-        try {
-          const res = await axiosInstance.get(
-            `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`
-          );
-          if (res.data?.statusCode === 200) {
-            setCounts(res.data.result);
-          }
-        } catch (err) {
-          console.error("문서함 개수 조회 실패:", err);
-        }
-      };
+  
+  // ★ 중복된 API 호출 제거 - ApprovalHome에서 이미 처리함
+  // useEffect(() => {
+  //   // 로그인 했을 때만 API 호출
+  //   if (accessToken) {
+  //     const fetchCounts = async () => {
+  //       try {
+  //         const res = await axiosInstance.get(
+  //           `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`
+  //         );
+  //         if (res.data?.statusCode === 200) {
+  //           setCounts(res.data.result);
+  //         }
+  //       } catch (err) {
+  //         console.error("문서함 개수 조회 실패:", err);
+  //       }
+  //     };
 
-      fetchCounts();
+  //     fetchCounts();
 
-      // (선택사항) 1분마다 폴링
-      const intervalId = setInterval(fetchCounts, 60000);
-      return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 인터벌 정리
-    }
-  }, [accessToken]); // accessToken이 생기거나 바뀔 때 실행
+  //     // (선택사항) 1분마다 폴링
+  //     const intervalId = setInterval(fetchCounts, 60000);
+  //     return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 인터벌 정리
+  //   }
+  // }, [accessToken]); // accessToken이 생기거나 바뀔 때 실행
 
   // 사용자 정보가 변경될 때마다 user 객체를 업데이트하는 useEffect
   useEffect(() => {
@@ -196,6 +198,7 @@ export const UserContextProvider = (props) => {
         accessToken,
         user, // Provider value에 user 객체 추가
         counts,
+        setCounts, // counts 업데이트 함수 추가
       }}
     >
       {props.children}

@@ -116,4 +116,25 @@
   padding: 2px 7px;
   font-size: 11px;
   font-weight: 600;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1.2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  
+  /* active 상태일 때도 뱃지가 잘 보이도록 */
+  .menuItem.active & {
+    background-color: #ff6b6b;
+    color: white;
+  }
+  
+  /* 0일 때는 연한 색상으로 표시 */
+  &:empty::before {
+    content: "0";
+  }
+  
+  /* 0일 때 스타일 */
+  &[data-count="0"] {
+    background-color: #adb5bd;
+    color: #6c757d;
+  }
 }
