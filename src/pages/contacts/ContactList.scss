@@ -212,7 +212,7 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 430px) {
+@media (max-width: 431px) {
   .contact-org h3,
   .contact-org ul {
     display: none;
@@ -226,6 +226,7 @@
   .contact-org {
     width: 100vw;
     min-width: 0;
+    min-height: fit-content;
     border-right: none;
     border-bottom: 1px solid #e3e8ee;
     padding: 16px 8px;
@@ -255,6 +256,9 @@
   }
   .contact-main {
     padding: 12px 20px 12px 5px;
+    min-height: 100%;
+    height: auto;
+    overflow-y: auto;
   }
   .contact-search {
     flex-direction: column;
@@ -312,7 +316,6 @@
     padding: 18px 0;
   }
 }
-
 @media (max-width: 360px) {
   .contact-org {
     padding: 8px 2px;
