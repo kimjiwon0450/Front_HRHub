@@ -12,7 +12,7 @@ import ScheduledBox from './ScheduledBox';
 
 const ApprovalHome = () => {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user, setCounts } = useContext(UserContext);
 
   // --- 상태(State) 선언 ---
   const [loading, setLoading] = useState(true);
@@ -35,23 +35,33 @@ const ApprovalHome = () => {
     const initialize = async () => {
       setLoading(true);
 
-      // ★ Promise.all을 사용하여 모든 데이터를 한 번에 조회합니다.
+      // ★ 실제 문서 데이터를 가져와서 개수를 세는 방식으로 변경
       try {
         const [
           templatesRes,
           pendingRes,
+          inProgressRes,
+          rejectedRes,
+          draftsRes,
           scheduledRes,
+          ccRes,
           completedWriterRes,
           completedApproverRes,
         ] = await Promise.all([
           // 1. 전체 템플릿 목록
+<<<<<<< HEAD
           axiosInstance.get(
             `${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`,
           ),
           // 2. 결재 예정 문서 개수 (size=1로 요청하여 totalElements만 확인)
+=======
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/templates/list`),
+          // 2. 결재 예정 문서 (실제 데이터)
+>>>>>>> 7f052367a475e9d2146604f39d113726c89435fa
           axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
-            params: { role: 'approver', status: 'IN_PROGRESS', size: 1 },
+            params: { role: 'approver', status: 'IN_PROGRESS', size: 1000 },
           }),
+<<<<<<< HEAD
           // 3. 예약 문서 개수
           axiosInstance.get(
             `${API_BASE_URL}${APPROVAL_SERVICE}/reports/list/scheduled`,
@@ -60,10 +70,33 @@ const ApprovalHome = () => {
             },
           ),
           // 4. 내가 기안한 완료 문서 개수
+=======
+          // 3. 결재 중 문서 (실제 데이터)
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
+            params: { role: 'writer', status: 'IN_PROGRESS', size: 1000 },
+          }),
+          // 4. 반려 문서 (실제 데이터)
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
+            params: { role: 'writer', status: 'REJECTED', size: 1000 },
+          }),
+          // 5. 임시저장 문서 (실제 데이터)
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
+            params: { role: 'writer', status: 'DRAFT,RECALLED', size: 1000 },
+          }),
+          // 6. 예약 문서 (실제 데이터)
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/list/scheduled`, {
+            params: { size: 1000 },
+          }),
+          // 7. 수신참조 문서 (실제 데이터)
+          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
+            params: { role: 'reference', size: 1000 },
+          }),
+          // 8. 내가 기안한 완료 문서 개수
+>>>>>>> 7f052367a475e9d2146604f39d113726c89435fa
           axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
             params: { role: 'writer', status: 'APPROVED', size: 1 },
           }),
-          // 5. 내가 결재한 완료 문서 개수
+          // 9. 내가 결재한 완료 문서 개수
           axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
             params: { role: 'approver', status: 'APPROVED', size: 1 },
           }),
@@ -84,6 +117,7 @@ const ApprovalHome = () => {
           serverTemplateIds.has(id),
         );
         setFrequentTemplates(validFrequentIds);
+<<<<<<< HEAD
 
         // 문서 개수 상태 설정
         setInProgressTotal(pendingRes.data.result?.totalElements || 0);
@@ -92,19 +126,52 @@ const ApprovalHome = () => {
         const totalApprover =
           completedApproverRes.data.result?.totalElements || 0;
         setCompletedTotal(totalWriter + totalApprover);
+=======
+        
+        // ★ 실제 데이터의 개수를 세어서 저장
+        const newCounts = {
+          pending: pendingRes.data.result?.reports?.length || 0,
+          inProgress: inProgressRes.data.result?.reports?.length || 0,
+          rejected: rejectedRes.data.result?.reports?.length || 0,
+          drafts: draftsRes.data.result?.reports?.length || 0,
+          scheduled: scheduledRes.data.result?.reports?.length || 0,
+          cc: ccRes.data.result?.reports?.length || 0,
+          completed: (completedWriterRes.data.result?.totalElements || 0) + (completedApproverRes.data.result?.totalElements || 0),
+        };
+
+        // UserContext의 counts 업데이트
+        setCounts(newCounts);
+        
+        // 문서 개수 상태 설정
+        setInProgressTotal(newCounts.pending);
+        setScheduledTotal(newCounts.scheduled);
+        setCompletedTotal(newCounts.completed);
+
+>>>>>>> 7f052367a475e9d2146604f39d113726c89435fa
       } catch (error) {
         console.error('전자결재 홈 데이터 초기화 실패:', error);
         // 에러 발생 시 모든 카운트를 0으로 설정하여 오해를 방지
         setInProgressTotal(0);
         setScheduledTotal(0);
         setCompletedTotal(0);
+        
+        // UserContext도 0으로 초기화
+        setCounts({
+          pending: 0,
+          inProgress: 0,
+          rejected: 0,
+          drafts: 0,
+          scheduled: 0,
+          cc: 0,
+          completed: 0,
+        });
       } finally {
         setLoading(false);
       }
     };
 
     initialize();
-  }, [user]);
+  }, [user, setCounts]);
 
   // --- 이벤트 핸들러 ---
   const handleSaveTemplates = (selectedTemplateIds) => {

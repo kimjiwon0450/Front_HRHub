@@ -92,7 +92,8 @@ export default function MainLayout() {
     departmentId,
     userRole,
     userPosition,
-    setCounts
+    setCounts,
+    counts
   } = useContext(UserContext);
   const [pendingReports, setPendingReports] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -107,6 +108,13 @@ export default function MainLayout() {
   const [departmentName, setDepartmentName] = useState('');
   const [showSidebar, setShowSidebar] = useState(false); // 모바일 사이드바 상태
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  // ★ counts가 업데이트될 때 unApprovalCount도 업데이트
+  useEffect(() => {
+    if (counts && counts.pending !== undefined) {
+      setUnApprovalCount(counts.pending);
+    }
+  }, [counts]);
 
   const sidebarMenus = [
     { to: '/notice', label: '공지사항', icon: <FaBullhorn style={{ color: '#ff8a80', opacity: 0.7 }} /> },
@@ -139,6 +147,7 @@ export default function MainLayout() {
     fetchUnreadCount();
   }, [user, location.pathname]);
 
+<<<<<<< HEAD
 
   useEffect(() => {
     if (!user) return;
@@ -171,6 +180,8 @@ export default function MainLayout() {
     fetchAllCounts();
   }, [user, location.pathname, setCounts]);
 
+=======
+>>>>>>> 7f052367a475e9d2146604f39d113726c89435fa
   // 3. (기존 코드 유지) 부서 이름 조회
   useEffect(() => {
     if (departmentId) {
@@ -182,7 +193,7 @@ export default function MainLayout() {
     }
   }, [departmentId]);
 
-  // 4. 예약 상신 알람 (폴링) - 중복 코드 제거하고 하나로 통합
+  // 4. 예약 상신 알람 (폴링) - counts를 사용하도록 수정
   useEffect(() => {
     if (!user) return;
 
@@ -194,12 +205,17 @@ export default function MainLayout() {
             params: {
               role: 'approver',
               status: 'IN_PROGRESS',
-              size: 1,
+              size: 1000, // 실제 데이터를 가져와서 개수를 세기
             },
           },
         );
+<<<<<<< HEAD
 
         const newCount = res.data.result?.totalElements || 0;
+=======
+        
+        const newCount = res.data.result?.reports?.length || 0;
+>>>>>>> 7f052367a475e9d2146604f39d113726c89435fa
 
         // 초기 로딩이 아니고, 새로운 개수가 이전 개수보다 많을 때 알림
         if (!isInitialLoad && newCount > unApprovalCount) {
@@ -212,6 +228,14 @@ export default function MainLayout() {
             timer: 3000,
             timerProgressBar: true,
           });
+          
+          // counts 업데이트
+          if (counts) {
+            setCounts({
+              ...counts,
+              pending: newCount,
+            });
+          }
         }
 
         setUnApprovalCount(newCount);
@@ -228,7 +252,7 @@ export default function MainLayout() {
 
     return () => clearInterval(intervalId);
 
-  }, [user, unApprovalCount, isInitialLoad]);
+  }, [user, unApprovalCount, isInitialLoad, counts, setCounts]);
 
   const roleMap = {
     CEO: '대표',
