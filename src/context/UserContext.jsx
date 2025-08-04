@@ -43,23 +43,6 @@ export const UserContextProvider = (props) => {
     scheduled: 0,
     cc: 0,
   });
-<<<<<<< HEAD
-  useEffect(() => {
-    // 로그인 했을 때만 API 호출
-    if (accessToken) {
-      const fetchCounts = async () => {
-        try {
-          const res = await axiosInstance.get(
-            `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`,
-          );
-          if (res.data?.statusCode === 200) {
-            setCounts(res.data.result);
-          }
-        } catch (err) {
-          console.error('문서함 개수 조회 실패:', err);
-        }
-      };
-=======
   
   // ★ 중복된 API 호출 제거 - ApprovalHome에서 이미 처리함
   // useEffect(() => {
@@ -77,7 +60,6 @@ export const UserContextProvider = (props) => {
   //         console.error("문서함 개수 조회 실패:", err);
   //       }
   //     };
->>>>>>> 7f052367a475e9d2146604f39d113726c89435fa
 
   //     fetchCounts();
 

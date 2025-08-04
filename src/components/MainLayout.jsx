@@ -147,41 +147,6 @@ export default function MainLayout() {
     fetchUnreadCount();
   }, [user, location.pathname]);
 
-<<<<<<< HEAD
-
-  useEffect(() => {
-    if (!user) return;
-    const fetchAllCounts = async () => {
-      try {
-        const countPromises = [
-          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, { params: { role: 'approver', status: 'IN_PROGRESS', size: 1 } }),
-          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, { params: { role: 'writer', status: 'IN_PROGRESS', size: 1 } }),
-          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, { params: { role: 'writer', status: 'REJECTED', size: 1 } }),
-          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, { params: { role: 'writer', status: 'DRAFT,RECALLED', size: 1 } }),
-          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/list/scheduled`, { params: { size: 1 } }),
-          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, { params: { role: 'reference', size: 1 } }),
-        ];
-        const responses = await Promise.all(countPromises);
-        const newCounts = {
-          pending: responses[0].data.result?.totalElements || 0,
-          inProgress: responses[1].data.result?.totalElements || 0,
-          rejected: responses[2].data.result?.totalElements || 0,
-          drafts: responses[3].data.result?.totalElements || 0,
-          scheduled: responses[4].data.result?.totalElements || 0,
-          cc: responses[5].data.result?.totalElements || 0,
-          completed: 0,
-        };
-        setCounts(newCounts);
-        setUnApprovalCount(newCounts.pending);
-      } catch (err) {
-        console.error("문서함 개수 조회 실패:", err);
-      }
-    };
-    fetchAllCounts();
-  }, [user, location.pathname, setCounts]);
-
-=======
->>>>>>> 7f052367a475e9d2146604f39d113726c89435fa
   // 3. (기존 코드 유지) 부서 이름 조회
   useEffect(() => {
     if (departmentId) {
@@ -209,13 +174,8 @@ export default function MainLayout() {
             },
           },
         );
-<<<<<<< HEAD
-
-        const newCount = res.data.result?.totalElements || 0;
-=======
         
         const newCount = res.data.result?.reports?.length || 0;
->>>>>>> 7f052367a475e9d2146604f39d113726c89435fa
 
         // 초기 로딩이 아니고, 새로운 개수가 이전 개수보다 많을 때 알림
         if (!isInitialLoad && newCount > unApprovalCount) {
