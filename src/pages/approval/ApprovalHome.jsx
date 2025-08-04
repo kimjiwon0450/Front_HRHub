@@ -112,6 +112,7 @@ const ApprovalHome = () => {
     });
   }, [inProgressTotal, completedTotal]);
 
+
   // --- 이벤트 핸들러 ---
 
   // 모달에서 '저장' 버튼을 눌렀을 때 실행될 콜백 함수
@@ -189,7 +190,7 @@ const ApprovalHome = () => {
                 >
                   ×
                 </button>
-                <span style={{fontSize: 32, color: '#007BFF', marginBottom: 6}}>📝</span>
+                <span style={{ fontSize: 32, color: '#007BFF', marginBottom: 6 }}>📝</span>
                 <span>{getTemplateTitle(templateId)}</span>
               </div>
             ))}
@@ -212,21 +213,23 @@ const ApprovalHome = () => {
         <SummaryCard
           title='처리하지 않은 수신결재'
           count={`${summaryData.unchecked}건`}
-          icon={<span style={{color: '#007BFF', fontSize: 22}}>📬</span>}
-          onClick={() => setActiveBox('inProgress')}
+          // count={`${inProgressTotal}건`}
+          icon={<span style={{ color: '#007BFF', fontSize: 22 }}>📬</span>}
           active={activeBox === 'inProgress'}
+        // onClick={() => navigate('/approval/in-progress')}  // ✅ 라우팅 이동
+        // active={window.location.pathname === '/approval/in-progress'} // ❗선택된 상태 표시 시 사용 가능
         />
         <SummaryCard
           title='예약 문서함'
           count={`${scheduledTotal}건`}
-          icon={<span style={{color: '#ff9800', fontSize: 22}}>⏰</span>}
+          icon={<span style={{ color: '#ff9800', fontSize: 22 }}>⏰</span>}
           onClick={() => setActiveBox('scheduled')}
           active={activeBox === 'scheduled'}
         />
         <SummaryCard
           title='결재내역보기'
           count={`${summaryData.total}건`}
-          icon={<span style={{color: '#6C757D', fontSize: 22}}>🗂️</span>}
+          icon={<span style={{ color: '#6C757D', fontSize: 22 }}>🗂️</span>}
           onClick={() => setActiveBox('history')}
           active={activeBox === 'history'}
         />

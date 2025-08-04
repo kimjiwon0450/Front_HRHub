@@ -5,6 +5,8 @@ import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import CategoryModal from '../../components/approval/CategoryModal';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import useWindowDimensions from '../../hooks/useWindowDimensions';
+
 
 const TemplateAdminPage = () => {
   const navigate = useNavigate();
@@ -215,15 +217,15 @@ const TemplateAdminPage = () => {
   return (
     <div className={styles.pageContainer}>
       {!isMobile && (
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
-          <h4>카테고리</h4>
-        </div>
-        <ul className={styles.categoryList}>
-          {renderCategoryList()}
-        </ul>
-        <button onClick={handleOpenCreateModal} className={styles.addCategoryButton}>+ 카테고리 추가</button>
-      </aside>
+        <aside className={styles.sidebar}>
+          <div className={styles.sidebarHeader}>
+            <h4>카테고리</h4>
+          </div>
+          <ul className={styles.categoryList}>
+            {renderCategoryList()}
+          </ul>
+          <button onClick={handleOpenCreateModal} className={styles.addCategoryButton}>+ 카테고리 추가</button>
+        </aside>
       )}
 
       <main className={styles.mainContent}>
@@ -244,7 +246,7 @@ const TemplateAdminPage = () => {
             </select>
           </div>
         )}
-        
+
         <div className={styles.controls}>
           <div className={styles.searchBar}>
             <input
