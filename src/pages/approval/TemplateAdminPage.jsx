@@ -5,6 +5,7 @@ import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import CategoryModal from '../../components/approval/CategoryModal';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import useWindowDimensions from '../../hooks/useWindowDimensions'
 
 const TemplateAdminPage = () => {
   const navigate = useNavigate();

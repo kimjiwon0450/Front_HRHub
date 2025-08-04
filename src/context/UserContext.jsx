@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
-import { API_BASE_URL } from '../configs/host-config';
+import axiosInstance  from '../configs/axios-config'
+import { API_BASE_URL, APPROVAL_SERVICE } from '../configs/host-config';
 import { removeLocalStorageForLogout } from '../common/common';
 
 export const UserContext = React.createContext({
