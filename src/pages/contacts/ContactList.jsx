@@ -183,9 +183,6 @@ const ContactList = () => {
             퇴직자만
           </label>
           <button type='submit'>검색</button>
-          <button type='button' onClick={handleReset}>
-            초기화
-          </button>
           <div className='contact-sort'>
             <span>정렬:</span>
             <select
@@ -196,6 +193,9 @@ const ContactList = () => {
               <option value='position'>직급순</option>
               <option value='role'>직책순</option>
             </select>
+            <button type='button' onClick={handleReset}>
+              초기화
+            </button>
           </div>
         </form>
         <div className='contact-list'>
