@@ -12,6 +12,7 @@ $border: #eceff3;
   min-height: 100vh;
   background: $main-bg;
   animation: fadeIn 0.8s ease-out;
+  overflow: hidden; // 전체 레이아웃 스크롤 방지
 }
 
 @keyframes fadeIn {
@@ -43,6 +44,7 @@ $border: #eceff3;
   transform: none !important;
   margin: 0 !important;
   animation: slideInLeft 0.6s ease-out;
+  overflow-y: auto; // 사이드바 스크롤 활성화
 
   .logo {
     margin-bottom: 0;
@@ -257,6 +259,8 @@ $border: #eceff3;
     margin: 1.3rem;
     box-shadow: 0 2px 12px 0 rgba(44, 62, 80, 0.08);
     overflow-x: auto;
+    overflow-y: auto; // 세로 스크롤 활성화
+    height: calc(100vh - 2.6rem); // 고정 높이 설정
 
     // 스크롤바 커스텀(크롬계열)
     &::-webkit-scrollbar {
@@ -639,6 +643,11 @@ body {
     .menu {
       margin-left: 3rem;
     }
+  }
+
+  .main .content {
+    height: calc(100vh - 120px) !important; // 모바일에서 높이 조정
+    overflow-y: auto !important; // 세로 스크롤 활성화
   }
 
   .header {
