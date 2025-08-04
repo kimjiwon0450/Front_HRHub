@@ -182,47 +182,7 @@ export default function MainLayout() {
     }
   }, [departmentId]);
 
-  // 4. (기존 코드 유지) 예약 상신 알람 (폴링)
-  useEffect(() => {
-    if (!user) return;
-    const intervalId = setInterval(async () => {
-      try {
-        const res = await axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
-          params: { role: 'approver', status: 'IN_PROGRESS', size: 1 },
-        });
-        const newCount = res.data.result?.totalElements || 0;
-        if (!isInitialLoad && newCount > unApprovalCount) {
-          Swal.fire({
-            icon: 'info',
-            title: '새로운 결재 문서가 도착했습니다.',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-          });
-        }
-        setUnApprovalCount(newCount);
-        if (isInitialLoad) {
-          setIsInitialLoad(false);
-        }
-      } catch (err) {
-        console.error("결재 문서 개수 폴링 중 오류 발생:", err);
-      }
-    }, 60000);
-    return () => clearInterval(intervalId);
-  }, [user, unApprovalCount, isInitialLoad]);
-
-  const roleMap = {
-    CEO: '대표',
-    HR_MANAGER: '인사담당',
-    EMPLOYEE: '사원',
-    ADMIN: '관리자',
-  };
-
-  // /src/components/MainLayout.jsx
-
-  // 예약 상신 알람 
+  // 4. 예약 상신 알람 (폴링) - 중복 코드 제거하고 하나로 통합
   useEffect(() => {
     if (!user) return;
 
@@ -241,7 +201,6 @@ export default function MainLayout() {
         
         const newCount = res.data.result?.totalElements || 0;
 
-        // ★★★ 2. 알림 조건 수정 ★★★
         // 초기 로딩이 아니고, 새로운 개수가 이전 개수보다 많을 때 알림
         if (!isInitialLoad && newCount > unApprovalCount) {
           Swal.fire({
@@ -257,7 +216,7 @@ export default function MainLayout() {
         
         setUnApprovalCount(newCount);
 
-        // ★ 3. 첫 폴링 이후에는 초기 로딩 상태를 false로 변경 ★
+        // 첫 폴링 이후에는 초기 로딩 상태를 false로 변경
         if (isInitialLoad) {
           setIsInitialLoad(false);
         }
@@ -265,11 +224,20 @@ export default function MainLayout() {
       } catch (err) {
         console.error("결재 문서 개수 폴링 중 오류 발생:", err);
       }
-    }, 60000);
+    }, 30000); // 30초로 조정
 
     return () => clearInterval(intervalId);
 
-  }, [user, unApprovalCount, isInitialLoad]); // ★ 4. 의존성 배열에 isInitialLoad 추가
+  }, [user, unApprovalCount, isInitialLoad]);
+
+  const roleMap = {
+    CEO: '대표',
+    HR_MANAGER: '인사담당',
+    EMPLOYEE: '사원',
+    ADMIN: '관리자',
+  };
+
+
 
   return (
     <div className='layout'>

@@ -18,7 +18,12 @@ const CategoryModal = ({ open, onClose, onSubmit, category }) => {
       setName('');
       setDescription('');
     }
-  }, [open, category]);
+    // 모달이 닫힐 때 상태 초기화
+    else if (!open) {
+      setName('');
+      setDescription('');
+    }
+  }, [open, category?.id, category?.categoryName, category?.categoryDescription]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -39,6 +44,12 @@ const CategoryModal = ({ open, onClose, onSubmit, category }) => {
 
   const handleDelete = async () => {
     onSubmit(null, true); 
+  };
+
+  const handleClose = () => {
+    setName('');
+    setDescription('');
+    onClose();
   };
 
   if (!open) {
@@ -77,7 +88,7 @@ const CategoryModal = ({ open, onClose, onSubmit, category }) => {
                 삭제
               </button>
             )}
-            <button type='button' onClick={onClose} className={styles.cancelButton}>
+            <button type='button' onClick={handleClose} className={styles.cancelButton}>
               취소
             </button>
             <button type='submit' className={styles.saveButton}>
