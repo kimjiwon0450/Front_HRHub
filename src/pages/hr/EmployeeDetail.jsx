@@ -62,17 +62,18 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
   useEffect(() => {
     setLocalEmployee(employee);
     setImageUri(employee.profileImageUri);
-    // 인사평가 존재 여부 확인
+
     if (employee && employee.employeeId) {
       axiosInstance
-        .get(`${API_BASE_URL}${HR_SERVICE}/evaluations/${employee.employeeId}`)
+        .get(`${API_BASE_URL}${HR_SERVICE}/evaluation/${employee.employeeId}`)
         .then((res) => {
-          setHasEvaluation(
-            Array.isArray(res.data.result.content) &&
-              res.data.result.content.length > 0,
-          );
+          console.log('평가 있음 (then):', res.data);
+          setHasEvaluation(true);
         })
-        .catch(() => setHasEvaluation(false));
+        .catch((err) => {
+          console.log('평가 없음 (catch):', err?.response?.status);
+          setHasEvaluation(false);
+        });
     } else {
       setHasEvaluation(false);
     }
@@ -137,6 +138,18 @@ export default function EmployeeDetail({ employee, onEval, onEdit, onClose }) {
       console.error(error);
     }
   };
+  console.log(
+    'canManage:',
+    canManage,
+    'localEmployee.status:',
+    localEmployee.status,
+    'userId:',
+    userId,
+    'employee.employeeId:',
+    employee.employeeId,
+    'hasEvaluation:',
+    hasEvaluation,
+  );
 
   // showEdit, showEval, showTransferHistory 모달 관리
   // 메인 상세는 항상 렌더링, 버튼 누르면 각 모달만 show~로 제어

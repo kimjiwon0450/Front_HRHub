@@ -262,20 +262,21 @@ export default function EmployeeList() {
 
   // 기본(리스트/상세)
   useEffect(() => {
-    // 직원별 인사평가 존재 여부 확인
     const fetchEvaluationStatus = async () => {
       const statusObj = {};
       await Promise.all(
         employees.map(async (emp) => {
           const empKey = emp.employeeId || emp.id;
           try {
+            // 엔드포인트: /evaluation/{empKey}
             const res = await axiosInstance.get(
-              `${API_BASE_URL}${HR_SERVICE}/evaluations/${empKey}`,
+              `${API_BASE_URL}${HR_SERVICE}/evaluation/${empKey}`,
             );
-            statusObj[empKey] =
-              Array.isArray(res.data.result.content) &&
-              res.data.result.content.length > 0;
+            // 평가 데이터가 존재하면 true, 없으면 false
+            const data = res.data.result;
+            statusObj[empKey] = !!data; // null, undefined면 false, 아니면 true
           } catch {
+            // 에러(404 등)는 평가 없음으로 처리
             statusObj[empKey] = false;
           }
         }),
