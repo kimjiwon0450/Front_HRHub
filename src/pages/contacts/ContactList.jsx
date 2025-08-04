@@ -13,9 +13,24 @@ const ContactList = () => {
   const [searchDept, setSearchDept] = useState('전체');
   const [showInactive, setShowInactive] = useState(false); // 퇴직자만 체크박스
   const [page, setPage] = useState(0); // 0-based
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(window.innerWidth <= 600 ? 5 : 10);
   const [totalPages, setTotalPages] = useState(1);
   const [departmentList, setDepartmentList] = useState([]);
+
+  // 반응형: 화면 크기에 따라 size 자동 조정
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 600) {
+        setSize(5);
+      } else {
+        setSize(10);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    // 최초 진입 시도 반영
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // 부서 목록 최초 1회
   useEffect(() => {

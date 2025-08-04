@@ -357,8 +357,8 @@ export default function EmployeeViewList() {
                           src={emp.profileImageUri || pin}
                           alt='profile'
                           style={{
-                            width: '24px',
-                            height: '24px',
+                            width: '43px',
+                            height: '43px',
                             borderRadius: '50%',
                             objectFit: 'cover',
                           }}
