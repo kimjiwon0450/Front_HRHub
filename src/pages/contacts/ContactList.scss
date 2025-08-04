@@ -226,7 +226,6 @@
   .contact-org {
     width: 100vw;
     min-width: 0;
-    min-height: fit-content;
     border-right: none;
     border-bottom: 1px solid #e3e8ee;
     padding: 16px 8px;
@@ -256,9 +255,6 @@
   }
   .contact-main {
     padding: 12px 20px 12px 5px;
-    min-height: 100%;
-    height: auto;
-    overflow-y: auto;
   }
   .contact-search {
     flex-direction: column;
