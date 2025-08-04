@@ -473,3 +473,301 @@ html,
 body {
   overflow-x: hidden;
 }
+@media (max-width: 360px) {
+  .main .header {
+    padding: 0.4rem 0.1rem;
+    .menu {
+      gap: 0.2rem;
+      a {
+        font-size: 0.88rem;
+        padding: 0.15rem 0.2rem;
+        max-width: 70px;
+      }
+    }
+  }
+}
+
+.notice-icon {
+  position: relative;
+  cursor: pointer;
+  padding: 0 10px;
+  font-size: 16px;
+  margin-right: 16px;
+
+  .badge {
+    padding: 2px 6px;
+    font-size: 12px;
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 18px;
+  }
+}
+
+// 챗봇 플로팅 버튼
+.chatbot-fab {
+  position: fixed;
+  right: 2.5rem;
+  bottom: 2.5rem;
+  z-index: 1000;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #2b80ff;
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 16px rgba(30, 65, 112, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.chatbot-fab:hover {
+  background: #1d5bbf;
+}
+
+// 챗봇 팝업 위치
+.chatbot-popup {
+  position: fixed;
+  right: 2.5rem;
+  bottom: 6.5rem;
+  z-index: 1001;
+  box-shadow: 0 8px 32px rgba(30, 65, 112, 0.18);
+}
+
+@media (max-width: 600px) {
+  .chatbot-fab {
+    right: 1rem;
+    bottom: 1rem;
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+  }
+  .chatbot-popup {
+    right: 1rem;
+    bottom: 5.5rem;
+    max-width: 95vw;
+  }
+}
+
+// 햄버거 버튼 (모바일)
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  margin-right: 1rem;
+  color: #384048;
+  cursor: pointer;
+  z-index: 1201;
+}
+
+// 오버레이 (모바일 사이드바 열릴 때)
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 1200;
+}
+
+// 모바일 사이드바 오픈 시 스타일
+.sidebar.sidebar--mobile-open {
+  display: flex !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 220px;
+  min-width: 0;
+  max-width: 80vw;
+  box-shadow: 2px 0 16px 0 rgba(44, 62, 80, 0.18);
+  z-index: 1202;
+  background: $sidebar-bg;
+  animation: slideInLeft 0.3s;
+}
+
+@media (max-width: 600px) {
+  .hamburger-btn {
+    display: block;
+    position: absolute;
+    left: 1rem;
+    top: 1.1rem;
+  }
+  .sidebar {
+    display: none;
+  }
+  .sidebar.sidebar--mobile-open {
+    display: flex !important;
+  }
+  .sidebar-overlay {
+    display: block;
+  }
+  .main .header {
+    padding-left: 3.2rem;
+  }
+}
+/* ==========================================================================
+   ★★★ 인쇄 전용 스타일 (이 코드 하나로 모든 것을 해결합니다) ★★★
+   ========================================================================== */
+@media print {
+  /* --- 1단계: 기본 준비 --- */
+  // 모든 요소의 불필요한 효과(애니메이션, 그림자 등)를 제거하고
+  // 인쇄를 위한 기본 배경과 글자색을 설정합니다.
+  * {
+    transition: none !important;
+    animation: none !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  html,
+  body {
+    width: 100%;
+    height: auto;
+    background: #fff !important;
+    color: #000 !important;
+    overflow-x: hidden;
+  }
+
+  /* --- 2단계: 무대 위의 모든 요소 숨기기 --- */
+  // 인쇄할 내용 외에 화면에 보이는 모든 UI 요소를 숨깁니다.
+  // CSS Modules로 생성된 동적 클래스명에도 대응할 수 있도록 속성 선택자([class*="..."])를 사용합니다.
+  .sidebar,                                 // 메인 레이아웃 사이드바
+    .main > .header,                          // 메인 레이아웃 헤더
+    .chatbot-fab,                             // 챗봇 버튼
+    .hamburger-btn,
+    .sidebar-overlay,
+    aside[class*="_sidebar"],                 // 결재 페이지 내부 사이드바
+    button[class*="_printButton"],            // 인쇄 버튼
+    button[class*="_viewMoreBtn"] {
+    // '전체보기' 같은 버튼
+    display: none !important;
+  }
+
+  /* --- 3단계: 레이아웃의 모든 힘 무력화시키기 --- */
+  // 인쇄할 내용을 감싸고 있는 모든 부모 컨테이너들을 '평범한 div'로 만듭니다.
+  // Flex, Grid, Position, Overflow 등 레이아웃에 영향을 주는 모든 속성을 초기화합니다.
+  #root,
+  .layout,
+  .main,
+  .content,
+  div[class*='_approvalPageContainer'],
+  main[class*='_content'] {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    position: static !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    min-height: unset !important;
+  }
+
+  /* --- 4단계: 진짜 주인공(인쇄할 내용)에게 스포트라이트 --- */
+  // 이제 모든 방해물이 사라졌으니, 인쇄할 컨테이너만 페이지 전체를 차지하도록 설정합니다.
+  div[class*='_approvalContainer'] {
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 20mm !important; /* A4 용지에 적절한 여백 */
+    border: 1px solid #dee2e6 !important;
+    box-sizing: border-box !important;
+    background: white !important;
+  }
+
+  /* --- 5단계: 내용물 다듬기 --- */
+  // 페이지가 넘어갈 때 내용이 잘리는 것을 방지합니다.
+  table,
+  img,
+  div[class*='_approvalLineBox'],
+  div[class*='_historySection'] {
+    page-break-inside: avoid;
+  }
+
+  // 이미지가 용지 밖으로 나가지 않도록 합니다.
+  img {
+    max-width: 100% !important;
+  }
+}
+
+.header-user-desktop {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.sidebar-logout-mobile {
+  display: none;
+  width: 100%;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+@media (max-width: 431px) {
+  .header-user-desktop {
+    display: none !important;
+  }
+  .sidebar.sidebar--mobile-open .sidebar-logout-mobile {
+    display: block;
+  }
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+@media (max-width: 431px) {
+  .layout,
+  .main,
+  .main .content,
+  .main .header {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    margin: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    justify-content: center;
+    .menu {
+      margin-left: 3rem;
+    }
+  }
+
+  .main .content {
+    height: calc(100vh - 120px) !important; // 모바일에서 높이 조정
+    overflow-y: auto !important; // 세로 스크롤 활성화
+  }
+
+  .header {
+    .hamburger-btn {
+      left: 0.1rem;
+      top: 0.1rem;
+    }
+  }
+
+  body {
+    overflow-x: hidden !important;
+  }
+}
