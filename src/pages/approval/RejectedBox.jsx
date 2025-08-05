@@ -92,12 +92,17 @@ const ScheduledBox = () => {
   // ★★★ JSX 구조와 클래스명을 RejectedBox와 동일하게 맞춥니다. ★★★
   return (
     <div className={styles.container}>
-      <h2 className={styles.sectionTitle}>내 예약함</h2>
+      <h2 className={styles.sectionTitle}>내 반려함</h2>
       <ReportFilter onFilterChange={handleFilterChange} />
       
-      {loading && <div className={styles.loading}>로딩 중...</div>}
       {error && <div className={styles.error}>{error}</div>}
-
+  
+      {loading && (
+        <div className={styles.list}>
+          {Array.from({ length: 5 }).map((_, index) => <SkeletonCard key={index} />)}
+        </div>
+      )}
+  
       {!loading && !error && (
         <>
           {totalCount > 0 && (
@@ -105,21 +110,10 @@ const ScheduledBox = () => {
           )}
           {filteredReports.length > 0 ? (
             <div className={styles.list}>
-              {filteredReports.map((doc) => (
-                <DraftBoxCard
-                  key={doc.id}
-                  draft={doc}
-                  showScheduleInfo={true}
-                  // 실수로 빠져있던 onCancelSchedule prop을 다시 추가합니다.
-                  onCancelSchedule={handleCancelSchedule} 
-                />
-              ))}
+              {filteredReports.map((doc) => <DraftBoxCard key={doc.id} draft={doc} />)}
             </div>
           ) : (
-            <EmptyState 
-              message="예약된 문서가 없습니다."
-              subMessage="문서 작성 시 '예약 상신'을 선택하여 미래 시간에 자동 상신되도록 설정할 수 있습니다."
-            />
+            <EmptyState icon="📄" message="반려된 문서가 없습니다." />
           )}
           {totalPages > 1 && (
             <div className={styles.paginationContainer}>

@@ -9,6 +9,7 @@ import EmptyState from '../../components/approval/EmptyState';
 import Swal from 'sweetalert2';
 import Pagination from '../../components/approval/Pagination';
 import { UserContext } from '../../context/UserContext'; // UserContext import 추가
+import SkeletonCard from '../../components/approval/SkeletonCard';
 
 // onTotalCountChange prop 제거
 const ScheduledBox = () => {
@@ -59,9 +60,14 @@ const ScheduledBox = () => {
       <h2 className={styles.sectionTitle}>내 예약함</h2>
       <ReportFilter onFilterChange={handleFilterChange} />
       
-      {loading && <div className={styles.loading}>로딩 중...</div>}
       {error && <div className={styles.error}>{error}</div>}
-
+  
+      {loading && (
+        <div className={styles.list}>
+          {Array.from({ length: 5 }).map((_, index) => <SkeletonCard key={index} />)}
+        </div>
+      )}
+  
       {!loading && !error && (
         <>
           {totalCount > 0 && (
@@ -74,7 +80,7 @@ const ScheduledBox = () => {
                   key={doc.id}
                   draft={doc}
                   showScheduleInfo={true}
-
+                  onCancelSchedule={handleCancelSchedule} 
                 />
               ))}
             </div>

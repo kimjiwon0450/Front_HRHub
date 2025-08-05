@@ -8,6 +8,7 @@ import { useReportFilter } from '../../hooks/useReportFilter';
 import { UserContext } from '../../context/UserContext';
 import EmptyState from '../../components/approval/EmptyState';
 import Pagination from '../../components/approval/Pagination';
+import SkeletonCard from '../../components/approval/SkeletonCard';
 
 const ApprovalPendingList = () => {
   const [pendingReports, setPendingReports] = useState([]);
@@ -64,29 +65,40 @@ const ApprovalPendingList = () => {
   };
 
   return (
-    <div className={styles.container + ' page-fade'}>
-      <h2 className="sectionTitle">결재 예정 문서함</h2>
+    <div className={styles.container}>
+      <h2 className={styles.sectionTitle}>결재 예정 문서함</h2>
       <ReportFilter onFilterChange={handleFilterChange} />
-      <div className={styles.list}>
-        {loading && <p>로딩 중...</p>}
-        {error && <p className={styles.error}>{error}</p>}
-        {!loading && !error && (filteredReports.length > 0 || totalCount > 0) ? (
-          <>
-            <div className={styles.resultInfo}>
-              총 {totalCount}건의 문서가 있습니다.
+      
+      {error && <div className={styles.error}>{error}</div>}
+  
+      {loading && (
+        <div className={styles.list}>
+          {Array.from({ length: 5 }).map((_, index) => <SkeletonCard key={index} />)}
+        </div>
+      )}
+  
+      {!loading && !error && (
+        <>
+          {totalCount > 0 && (
+            <div className={styles.resultInfo}>총 {totalCount}건의 문서가 있습니다.</div>
+          )}
+          {filteredReports.length > 0 ? (
+            <div className={styles.list}>
+              {filteredReports.map((report) => (
+                <ApprovalPendingCard key={report.id} report={report} />
+              ))}
             </div>
-            {filteredReports.map((report) => (
-              <ApprovalPendingCard key={report.id} report={report} />
-            ))}
-            {totalPages > 1 && (
+          ) : (
+            <EmptyState icon="⏳" message="결재 예정 문서가 없습니다." />
+          )}
+          {totalPages > 1 && (
+            <div className={styles.paginationContainer}>
               <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-            )}
-          </>
-        ) : (
-          !loading && !error && <EmptyState icon="⏳" message="결재 예정 문서가 없습니다." />
-        )}
-      </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
-};
+}
 export default ApprovalPendingList;

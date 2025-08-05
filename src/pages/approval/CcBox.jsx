@@ -8,8 +8,10 @@ import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
 import EmptyState from '../../components/approval/EmptyState';
 import Pagination from '../../components/approval/Pagination';
+import SkeletonCard from '../../components/approval/SkeletonCard';
 
 const CcBox = () => {
+  const [scheduledDocs, setScheduledDocs] = useState([]);
   const [ccDocs, setCcDocs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -66,35 +68,37 @@ const CcBox = () => {
   };
 
   return (
-    <div className={styles.reportListContainer}>
-      <h3 className="sectionTitle">수신 참조 문서함</h3>
-      
+    <div className={styles.container}>
+      <h2 className={styles.sectionTitle}>수신 참조 문서함</h2>
       <ReportFilter onFilterChange={handleFilterChange} />
       
-      <div className={styles.reportList}>
-        {loading && <p>로딩 중...</p>}
-        {error && <p className={styles.error}>{error}</p>}
-        {!loading && !error && (filteredReports.length > 0 || totalCount > 0) ? (
-          <>
-            <div className={styles.resultInfo}>
-              총 {totalCount}건의 문서가 있습니다.
+      {error && <div className={styles.error}>{error}</div>}
+  
+      {loading && (
+        <div className={styles.list}>
+          {Array.from({ length: 5 }).map((_, index) => <SkeletonCard key={index} />)}
+        </div>
+      )}
+  
+      {!loading && !error && (
+        <>
+          {totalCount > 0 && (
+            <div className={styles.resultInfo}>총 {totalCount}건의 문서가 있습니다.</div>
+          )}
+          {filteredReports.length > 0 ? (
+            <div className={styles.list}>
+              {filteredReports.map((doc) => <CcBoxCard key={doc.id} doc={doc} />)}
             </div>
-            {filteredReports.map((doc) => <CcBoxCard key={doc.id} doc={doc} />)}
-
-            {totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-            )}
-          </>
-        ) : (
-          !loading && !error && (
+          ) : (
             <EmptyState icon="📧" message="수신 참조된 문서가 없습니다." />
-          )
-        )}
-      </div>
+          )}
+          {totalPages > 1 && (
+            <div className={styles.paginationContainer}>
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

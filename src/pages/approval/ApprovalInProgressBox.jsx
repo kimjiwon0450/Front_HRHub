@@ -7,8 +7,10 @@ import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
 import EmptyState from '../../components/approval/EmptyState';
 import Pagination from '../../components/approval/Pagination';
+import SkeletonCard from '../../components/approval/SkeletonCard';
 
 const ApprovalInProgressBox = () => {
+  const [scheduledDocs, setScheduledDocs] = useState([]);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -61,32 +63,40 @@ const ApprovalInProgressBox = () => {
   const handlePageChange = (newPage) => {
     fetchInProgressReports(newPage);
   };
-
   return (
-    <div className={styles.reportListContainer}>
-      <h2 className="sectionTitle">내 결재함</h2>
+    <div className={styles.container}>
+      <h2 className={styles.sectionTitle}>내 결재함</h2>
       <ReportFilter onFilterChange={handleFilterChange} />
-      <div className={styles.reportList}>
-        {loading && <p>로딩 중...</p>}
-        {error && <p className={styles.error}>{error}</p>}
-        {(filteredReports.length > 0 || totalCount > 0) ? (
-          <>
-            <div className={styles.resultInfo}>
-              총 {totalCount}건의 문서가 있습니다.
+      
+      {error && <div className={styles.error}>{error}</div>}
+  
+      {loading && (
+        <div className={styles.list}>
+          {Array.from({ length: 5 }).map((_, index) => <SkeletonCard key={index} />)}
+        </div>
+      )}
+  
+      {!loading && !error && (
+        <>
+          {totalCount > 0 && (
+            <div className={styles.resultInfo}>총 {totalCount}건의 문서가 있습니다.</div>
+          )}
+          {filteredReports.length > 0 ? (
+            <div className={styles.list}>
+              {filteredReports.map((report) => (
+                <DraftBoxCard key={report.id} draft={report} />
+              ))}
             </div>
-            {filteredReports.map((report) => (
-              <DraftBoxCard key={report.id} draft={report} />
-            ))}
-            {totalPages > 1 && (
-              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-            )}
-          </>
-        ) : (
-          !loading && !error && (
+          ) : (
             <EmptyState icon="📄" message="현재 진행 중인 문서가 없습니다." />
-          )
-        )}
-      </div>
+          )}
+          {totalPages > 1 && (
+            <div className={styles.paginationContainer}>
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };
