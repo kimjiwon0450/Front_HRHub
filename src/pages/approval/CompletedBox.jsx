@@ -1,80 +1,71 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../configs/axios-config';
-import DraftBoxCard from './DraftBoxCard'; // 재사용 가능한 카드 컴포넌트
-import styles from './ApprovalBoxList.module.scss'; // 재사용 가능한 스타일
+import DraftBoxCard from './DraftBoxCard';
+import styles from './ApprovalBoxList.module.scss';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
 import PropTypes from 'prop-types';
 import EmptyState from '../../components/approval/EmptyState';
+import Pagination from '../../components/Pagination'; // 페이지네이션을 위해 추가
 
-const CompletedBox = ({ onTotalCountChange }) => {
+// onTotalCountChange prop은 더 이상 사용하지 않으므로 제거합니다.
+const CompletedBox = () => {
   const [completedDocs, setCompletedDocs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [totalCount, setTotalCount] = useState(0);
+
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   
-  // 필터링 훅 사용
   const { filteredReports, handleFilterChange } = useReportFilter(completedDocs);
 
-  useEffect(() => {
-    const fetchCompletedDocs = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const responses = await Promise.all([
-          // 1. 내가 기안한 승인 문서 (최신순 정렬 요청)
-          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
-            params: { 
-              role: 'writer', 
-              status: 'APPROVED', 
-              sortBy: 'reportCreatedAt',
-              sortOrder: 'desc',
-              page: 0, 
-              size: 50 
-            },
-          }),
-          // 2. 내가 결재한 승인 문서 (최신순 정렬 요청)
-          axiosInstance.get(`${API_BASE_URL}${APPROVAL_SERVICE}/reports`, {
-            params: { 
-              role: 'approver', 
-              status: 'APPROVED', 
-              sortBy: 'reportCreatedAt',
-              sortOrder: 'desc',
-              page: 0, 
-              size: 50 
-            },
-          }),
-        ]);
+  const fetchCompletedDocs = async (page = 0) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // ★★★ 핵심: API를 단 한 번, 명확한 조건으로 호출합니다. ★★★
+      const response = await axiosInstance.get(
+        `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
+        {
+          params: { 
+            role: 'writer',           // 1. 내가 기안한 문서
+            status: 'APPROVED',       // 2. 상태가 '승인'인 문서
+            sortBy: 'reportCreatedAt',
+            sortOrder: 'desc',
+            page: page, 
+            size: 10 // 한 페이지에 10개씩
+          },
+        }
+      );
 
-        const allDocs = responses.flatMap(res => res.data.result?.reports || []);
+      // ★★★ 디버깅을 위한 로그 추가 ★★★
+      console.log("📄 [CompletedBox] '내가 기안한 완료 문서' API 응답:", response.data.result);
 
-        // 중복 제거
-        const uniqueDocsMap = new Map(allDocs.map(doc => [doc.id, doc]));
-        
-        // ★★★ 최종적으로 합쳐진 배열을 프론트엔드에서 다시 한번 최신순으로 정렬합니다. ★★★
-        const sortedDocs = Array.from(uniqueDocsMap.values()).sort(
-          (a, b) => new Date(b.createdAt || b.reportCreatedAt) - new Date(a.createdAt || a.reportCreatedAt)
-        );
-
-        setCompletedDocs(sortedDocs);
-        // writer/approver 중 더 많은 totalElements를 전체 건수로 사용
-        const totalWriter = responses[0].data.result?.totalElements || 0;
-        const totalApprover = responses[1].data.result?.totalElements || 0;
-        setTotalCount(totalWriter + totalApprover);
-        if (onTotalCountChange) onTotalCountChange(totalWriter + totalApprover);
-      } catch (err) {
-        console.error('완료 문서를 불러오는 중 오류 발생:', err.response?.data || err);
-        setCompletedDocs([]);
-        setTotalCount(0);
-        setError('완료된 문서를 불러오는 데 실패했습니다.');
-      } finally {
-        setLoading(false);
+      if (response.data?.result) {
+        const { reports, totalPages, number } = response.data.result;
+        setCompletedDocs(reports || []);
+        setTotalPages(totalPages || 0);
+        setCurrentPage(number || 0);
+      } else {
+        throw new Error('완료된 문서를 불러오지 못했습니다.');
       }
-    };
+    } catch (err) {
+      console.error('완료 문서를 불러오는 중 오류 발생:', err.response?.data || err);
+      setError('완료된 문서를 불러오는 데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchCompletedDocs();
-  }, []);
+  }, []); // 컴포넌트가 처음 마운트될 때 한 번만 호출
+
+  const handlePageChange = (newPage) => {
+    fetchCompletedDocs(newPage);
+  };
 
   return (
     <div className={styles.reportListContainer}>
@@ -88,13 +79,20 @@ const CompletedBox = ({ onTotalCountChange }) => {
         {!loading && !error && filteredReports.length > 0 ? (
           <>
             <div className={styles.resultInfo}>
-              총 {totalCount}건의 문서가 있습니다.
+              총 {filteredReports.length}건의 문서가 검색되었습니다.
             </div>
             {filteredReports.map((doc) => <DraftBoxCard key={doc.id} draft={doc} />)}
+            
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            )}
           </>
         ) : (
-          !loading &&
-          !error && (
+          !loading && !error && (
             <EmptyState icon="📁" message="완료된 문서가 없습니다." />
           )
         )}
@@ -102,9 +100,4 @@ const CompletedBox = ({ onTotalCountChange }) => {
     </div>
   );
 };
-
-CompletedBox.propTypes = {
-  onTotalCountChange: PropTypes.func,
-};
-
 export default CompletedBox;

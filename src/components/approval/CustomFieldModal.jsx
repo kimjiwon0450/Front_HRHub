@@ -57,7 +57,7 @@ const CustomFieldModal = ({ isOpen, onClose, onSave, field }) => {
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-        <h2>{isEditMode ? '텍스트트 수정' : '텍스트 추가'}</h2>
+        <h2>{isEditMode ? '텍스트 수정' : '텍스트 추가'}</h2>
         
         <div className={styles.formGroup}>
             <label htmlFor="header">

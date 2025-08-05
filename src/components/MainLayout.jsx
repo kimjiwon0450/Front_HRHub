@@ -22,6 +22,7 @@ import {
 } from 'react-icons/fa';
 import { getDepartmentNameById } from '../common/hr';
 import { FaUserCircle } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 const sidebarMenus = [
   {
