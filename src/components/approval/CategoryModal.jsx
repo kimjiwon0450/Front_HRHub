@@ -40,6 +40,7 @@ const CategoryModal = ({ open, onClose, onSubmit, category }) => {
       categoryName: name,
       categoryDescription: description,
     });
+    console.log(category.categoryDescription);
   };
 
   const handleDelete = async () => {
@@ -80,6 +81,7 @@ const CategoryModal = ({ open, onClose, onSubmit, category }) => {
               onChange={(e) => setDescription(e.target.value)}
               placeholder='카테고리에 대한 간단한 설명을 입력하세요.'
               rows='3'
+              
             ></textarea>
           </div>
           <div className={styles.buttonGroup}>

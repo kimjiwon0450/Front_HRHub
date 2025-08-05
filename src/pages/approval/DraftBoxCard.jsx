@@ -125,15 +125,14 @@ const DraftBoxCard = ({ draft, showScheduleInfo = false, onCancelSchedule }) => 
             mode='summary'
           />
         </div>
-        {/* 예약 취소 버튼 추가 */}
+        {/* ★★★ 예약 취소 버튼 추가 ★★★ */}
         {showScheduleInfo && draft.reportStatus === 'SCHEDULED' && onCancelSchedule && (
           <button
-            onClick={e => {
-              e.stopPropagation();
+            className={styles['cancel-schedule-btn']}
+            onClick={(e) => {
+              e.stopPropagation(); // 카드 클릭(수정페이지 이동) 방지
               onCancelSchedule(draft.id);
             }}
-            className={styles['cancel-schedule-btn']}
-            title='예약 취소'
           >
             예약 취소
           </button>
