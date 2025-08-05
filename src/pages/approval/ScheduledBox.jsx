@@ -1,82 +1,140 @@
-import React, { useState, useContext } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import styles from './Sidebar.module.scss';
-import { UserContext } from '../../context/UserContext';
-import { GearFill } from 'react-bootstrap-icons';
-import TemplateSelectionModal from '../../components/approval/TemplateSelectionModal';
-import ModalPortal from '../../components/approval/ModalPortal';
+import React, { useEffect, useState, useContext } from 'react'; // useContext 추가
+import axiosInstance from '../../configs/axios-config';
+import DraftBoxCard from './DraftBoxCard';
+import styles from './ApprovalBoxList.module.scss';
+import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
+import ReportFilter from '../../components/approval/ReportFilter';
+import { useReportFilter } from '../../hooks/useReportFilter';
+import EmptyState from '../../components/approval/EmptyState';
+import Swal from 'sweetalert2';
+import Pagination from '../../components/approval/Pagination';
+import { UserContext } from '../../context/UserContext'; // UserContext import 추가
+import SkeletonCard from '../../components/approval/SkeletonCard';
 
-const Sidebar = () => {
-  const navigate = useNavigate();
-  const { userRole, counts } = useContext(UserContext);
-  const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
+// onTotalCountChange prop 제거
+const ScheduledBox = () => {
+  const [scheduledDocs, setScheduledDocs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const { user } = useContext(UserContext); // user 가져오기
   
-  const safeCounts = counts || {};
+  const { filteredReports, handleFilterChange } = useReportFilter(scheduledDocs);
+
+  const fetchScheduledDocs = async (page = 0) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axiosInstance.get(
+        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/list/scheduled`,
+        { params: { page, size: 10 } }
+      );
+      if (response.data?.statusCode === 200) {
+        const { reports, totalElements, totalPages, number } = response.data.result;
+        setScheduledDocs(reports || []);
+        setTotalCount(totalElements || 0);
+        setTotalPages(totalPages || 0);
+        setCurrentPage(number || 0);
+      } else {
+        throw new Error('예약 문서를 불러오는 데 실패했습니다.');
+      }
+    } catch (err) {
+      setError('네트워크 오류 또는 서버 오류');
+    } finally {
+      setLoading(false);
+    }
+  };
   
-  // ★★★ 메뉴 데이터를 배열로 관리하여 코드를 더 깔끔하게 만듭니다. ★★★
-  const menuItems = [
-    { to: "/approval/pending", label: "결재 예정 문서함", count: safeCounts.pending || 0, isPrimary: true },
-    { to: "/approval/in-progress", label: "내 결재함", count: safeCounts.inProgress || 0 },
-    { to: "/approval/completed", label: "완료 문서함", count: safeCounts.completed || 0 },
-    { to: "/approval/rejected", label: "내 반려함", count: safeCounts.rejected || 0 },
-    { to: "/approval/drafts", label: "내 임시저장함", count: safeCounts.drafts || 0 },
-    { to: "/approval/scheduled", label: "내 예약함", count: safeCounts.scheduled || 0 },
-    { to: "/approval/cc", label: "수신 참조 문서함", count: safeCounts.cc || 0 },
-  ];
+  useEffect(() => {
+    if (user?.id) fetchScheduledDocs();
+  }, [user?.id]); // 의존성 배열 수정
+
+  const handlePageChange = (newPage) => {
+    fetchScheduledDocs(newPage);
+  };
+  const handleCancelSchedule = async (reportId) => {
+    const result = await Swal.fire({
+      title: '예약을 취소하시겠습니까?',
+      text: '예약이 취소되면 문서가 임시저장 상태로 돌아갑니다.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: '예약 취소',
+      cancelButtonText: '취소'
+    });
+    if (result.isConfirmed) {
+      try {
+        const response = await axiosInstance.put(
+          `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/recall`
+        );
+        if (response.data?.statusCode === 200) {
+          await Swal.fire({
+            icon: 'success',
+            title: '예약이 취소되었습니다.',
+            text: '문서가 회수되어 임시저장 상태로 변경되었습니다.'
+          });
+          // 목록을 새로고침하여 취소된 문서를 즉시 반영
+          fetchScheduledDocs(currentPage);
+        } else {
+          throw new Error(response.data?.statusMessage || '예약 취소에 실패했습니다.');
+        }
+      } catch (err) {
+        await Swal.fire({
+          icon: 'error',
+          title: '예약 취소 실패',
+          text: err.response?.data?.statusMessage || err.message
+        });
+      }
+    }
+  };
 
   return (
-    <>
-      <aside className={styles.sidebar}>
-        <nav className={styles.menu}>
-          <div className={styles.menuHeader} onClick={() => navigate('/approval/home')}>
-            전자결재
-          </div>
-          <button className={styles.newApprovalBtn} onClick={() => setIsSelectionModalOpen(true)}>
-            + 새 결재 작성
-          </button>
-          {userRole === 'ADMIN' && (
-            <button className={styles.adminSettingsBtn} onClick={() => navigate('/approval/admin/templates')}>
-              <GearFill />
-              <span>문서양식관리</span>
-            </button>
-          )}
-          <div className={styles.menuGroup}>
-            <div className={styles.menuGroupHeader}>결재함</div>
-            <ul className={styles.menuList}>
-              {/* ★★★ 배열을 map으로 돌려 렌더링합니다. */}
-              {menuItems.map(item => (
-                <li key={item.to}>
-                  <NavLink to={item.to} className={({ isActive }) => `${styles.menuItem} ${isActive ? styles.active : ''}`}>
-                    <span>{item.label}</span>
-                    {/* ★★★ isPrimary 값에 따라 다른 클래스를 적용합니다. ★★★ */}
-                    <span 
-                      className={`${styles.countBadge} ${item.isPrimary ? styles.primaryBadge : styles.secondaryBadge}`} 
-                      data-count={item.count}
-                    >
-                      {item.count}
-                    </span>
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </nav>
-      </aside>
-
-      {isSelectionModalOpen && (
-        <ModalPortal>
-          <TemplateSelectionModal
-            open={isSelectionModalOpen}
-            onClose={() => setIsSelectionModalOpen(false)}
-            onStartWriting={(templateId) => {
-              setIsSelectionModalOpen(false);
-              navigate(`/approval/new?templateId=${templateId}`);
-            }}
-          />
-        </ModalPortal>
+    <div className={styles.container}>
+      <h2 className={styles.sectionTitle}>내 예약함</h2>
+      <ReportFilter onFilterChange={handleFilterChange} />
+      
+      {error && <div className={styles.error}>{error}</div>}
+  
+      {loading && (
+        <div className={styles.list}>
+          {Array.from({ length: 5 }).map((_, index) => <SkeletonCard key={index} />)}
+        </div>
       )}
-    </>
+  
+      {!loading && !error && (
+        <>
+          {totalCount > 0 && (
+            <div className={styles.resultInfo}>총 {totalCount}건의 문서가 있습니다.</div>
+          )}
+          {filteredReports.length > 0 ? (
+            <div className={styles.list}>
+              {filteredReports.map((doc) => (
+                <DraftBoxCard
+                  key={doc.id}
+                  draft={doc}
+                  showScheduleInfo={true}
+                  onCancelSchedule={handleCancelSchedule} 
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState 
+              message="예약된 문서가 없습니다."
+              subMessage="문서 작성 시 '예약 상신'을 선택하여 미래 시간에 자동 상신되도록 설정할 수 있습니다."
+            />
+          )}
+          {totalPages > 1 && (
+            <div className={styles.paginationContainer}>
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            </div>
+          )}
+        </>
+      )}
+    </div>
   );
 };
 
-export default Sidebar;
+export default ScheduledBox;
