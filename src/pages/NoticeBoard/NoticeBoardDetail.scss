@@ -328,6 +328,57 @@
   }
 }
 
+@media (max-width: 431px) {
+  textarea {
+    width: 92% !important;
+  }
+
+  hr {
+    visibility: hidden !important;
+  }
+
+  .notice-detail {
+    margin: 0 !important;
+    padding: 500px 10px;
+  }
+
+  .meta {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    grid-row-gap: 8px !important;
+    grid-column-gap: 0px !important;
+    text-align: left !important;
+    justify-items: start !important;
+  }
+  .meta p {
+    margin: 0;
+  }
+  // .meta p:nth-child(2) {
+  //   margin-left: -25px !important;
+  // }
+  // .meta p:nth-child(3) {
+  //   margin-right: 25px !important;
+  // }
+
+  .meta-with-attachment {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .attachment-link {
+    display: none !important;
+  }
+
+  .buttons {
+    button:not(:last-child) {
+      display: none !important;
+    }
+  }
+}
+
 @media print {
   body * {
     visibility: hidden;
