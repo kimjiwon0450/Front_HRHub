@@ -89,9 +89,9 @@ const CommunityPostsPage = () => {
                 console.log('viewMode : ', viewMode);
                 console.log('departmentId : ', departmentId);
                 if (viewMode === 'MY') {
-                    url = `${API_BASE_URL}${COMMUNITY_SERVICE}/my`;
+                    url = `${API_BASE_URL}${COMMUNITY_SERVICE}/my?${params.toString()}`;
                 } else if (viewMode === 'DEPT') {
-                    url = `${API_BASE_URL}${COMMUNITY_SERVICE}/mydepartment`;
+                    url = `${API_BASE_URL}${COMMUNITY_SERVICE}/mydepartment?${params.toString()}`;
                 } else {
                     url = `${API_BASE_URL}${COMMUNITY_SERVICE}?${params.toString()}`;
                 }

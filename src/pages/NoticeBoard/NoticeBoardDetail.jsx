@@ -337,7 +337,7 @@ const NoticeBoardDetail = () => {
 
     return (
         <div className="notice-detail">
-            <h2>{posts.notice ? '[공지] ' : ''}{posts.title}</h2>
+            <h2>{posts.departmentId === 0 ? '[공지] ' : ''}{posts.title}</h2>
             <button className="print-button" onClick={() => window.print()} title="인쇄하기">🖨️</button>
             <div className="meta-with-attachment">
                 <div className="meta">
@@ -401,7 +401,7 @@ const NoticeBoardDetail = () => {
             )}
 
             {/* ✅ 댓글 영역 시작 */}
-            <div className="comment-section">
+            {posts.published === true && (<div className="comment-section">
                 <h3>댓글</h3>
                 <div className="comment-input">
                     <textarea
@@ -443,7 +443,7 @@ const NoticeBoardDetail = () => {
                         </div>
                     ))}
                 </div>
-            </div>
+            </div>)}
 
             <div className="buttons">
                 <button onClick={handleBack}>뒤로가기</button>
