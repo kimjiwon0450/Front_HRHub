@@ -9,6 +9,7 @@ import EmptyState from '../../components/approval/EmptyState';
 import Swal from 'sweetalert2';
 import Pagination from '../../components/approval/Pagination';
 import { UserContext } from '../../context/UserContext';
+import SkeletonCard from '../../components/approval/SkeletonCard';
 
 const ScheduledBox = () => {
   const [scheduledDocs, setScheduledDocs] = useState([]);
