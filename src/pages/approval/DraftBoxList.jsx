@@ -6,7 +6,7 @@ import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
 import EmptyState from '../../components/approval/EmptyState';
-import Pagination from '../../components/Pagination'; // 페이지네이션 추가
+import Pagination from '../../components/approval/Pagination'; // 페이지네이션 추가
 
 const DraftBoxList = () => {
   const [reports, setReports] = useState([]);
@@ -126,6 +126,7 @@ const DraftBoxList = () => {
             {filteredReports.map((report) => (
               <DraftBoxCard key={report.id} draft={report} />
             ))}
+
             {totalPages > 1 && (
               <Pagination
                 currentPage={currentPage}

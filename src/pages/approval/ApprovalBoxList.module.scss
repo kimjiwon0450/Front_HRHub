@@ -606,3 +606,11 @@
     margin-bottom: 20px;
   }
 }
+
+/* --- 페이지네이션 --- */
+.paginationContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 0 8px 0;
+}

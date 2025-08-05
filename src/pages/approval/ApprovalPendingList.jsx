@@ -7,7 +7,7 @@ import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
 import { UserContext } from '../../context/UserContext';
 import EmptyState from '../../components/approval/EmptyState';
-import Pagination from '../../components/Pagination';
+import Pagination from '../../components/approval/Pagination';
 
 const ApprovalPendingList = () => {
   const [pendingReports, setPendingReports] = useState([]);

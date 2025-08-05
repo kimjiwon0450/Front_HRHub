@@ -6,7 +6,7 @@ import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
 import EmptyState from '../../components/approval/EmptyState';
-import Pagination from '../../components/Pagination';
+import Pagination from '../../components/approval/Pagination';
 
 const ApprovalInProgressBox = () => {
   const [reports, setReports] = useState([]);

@@ -7,7 +7,7 @@ import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
 import EmptyState from '../../components/approval/EmptyState';
 import Swal from 'sweetalert2';
-import Pagination from '../../components/Pagination';
+import Pagination from '../../components/approval/Pagination';
 import { UserContext } from '../../context/UserContext'; // UserContext import 추가
 
 // onTotalCountChange prop 제거

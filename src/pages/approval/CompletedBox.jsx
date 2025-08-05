@@ -7,7 +7,7 @@ import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
 import PropTypes from 'prop-types';
 import EmptyState from '../../components/approval/EmptyState';
-import Pagination from '../../components/Pagination'; // 페이지네이션을 위해 추가
+import Pagination from '../../components/approval/Pagination'; // 페이지네이션을 위해 추가
 
 // onTotalCountChange prop은 더 이상 사용하지 않으므로 제거합니다.
 const CompletedBox = () => {
