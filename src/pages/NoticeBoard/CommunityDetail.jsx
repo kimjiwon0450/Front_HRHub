@@ -626,7 +626,7 @@ const CommunityDetail = () => {
                 </div>
 
                 <div className="comment-list">
-                    {comments.length === 0 && <p>아직 댓글이 없습니다.</p>}
+                    {comments.length === 0 && <p className='noComment'>아직 댓글이 없습니다.</p>}
                     {renderComments(comments)}
                 </div>
             </div>

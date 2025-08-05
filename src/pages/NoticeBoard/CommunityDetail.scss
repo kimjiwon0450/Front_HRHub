@@ -231,6 +231,10 @@
       flex-direction: column;
       gap: 18px;
 
+      .noComment {
+        margin-left: 30px;
+      }
+
       .comment-item {
         padding: 12px 16px;
         background-color: #f8fafc;

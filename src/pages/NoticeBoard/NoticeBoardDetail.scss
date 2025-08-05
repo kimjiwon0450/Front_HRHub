@@ -233,6 +233,10 @@
       flex-direction: column;
       gap: 18px;
 
+      .noComment {
+        margin-left: 30px;
+      }
+
       .comment-item {
         padding: 12px 16px;
         background-color: #f8fafc;
@@ -466,4 +470,8 @@
   margin-left: 20px;
   border-left: 2px solid #eee;
   padding-left: 10px;
+}
+
+.reply-input button {
+  border-radius: 6px;
 }

@@ -243,7 +243,7 @@ $border: #eceff3;
       transition: background 0.16s;
 
       &:hover {
-        background: darken($accent, 8%);
+        background: darken(#3b82f6, 8%);
       }
     }
   }
