@@ -42,7 +42,7 @@ export const UserContextProvider = (props) => {
 
     try {
       const res = await axiosInstance.get(
-        '${API_BASE_URL}${APPROVAL_SERVICE}/report/counts',
+        '${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts',
         { headers: { Authorization: 'Bearer ${token}' } },
       );
       if (res.data?.statusCode === 200) {
