@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import axiosInstance from '../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../configs/host-config';
 import { removeLocalStorageForLogout } from '../common/common';
@@ -20,6 +20,7 @@ export const UserContext = React.createContext({
   accessToken: '',
   counts: {},
   setCounts: () => {},
+  refetchCounts: () => {},
 });
 
 export const UserContextProvider = (props) => {
@@ -34,6 +35,25 @@ export const UserContextProvider = (props) => {
   const [departmentId, setDepartmentId] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [user, setUser] = useState(null); // user 객체 상태 추가
+
+  const refetchCounts = useCallback(async () => {
+    const token = localStorage.getItem('ACCESS_TOKEN');
+    if (!token) return;
+
+    try {
+      const res = await axiosInstance.get(
+        '${API_BASE_URL}${APPROVAL_SERVICE}/report/counts',
+        { headers: { Authorization: 'Bearer ${token}' } },
+      );
+      if (res.data?.statusCode === 200) {
+        const newCounts = res.data.result;
+        setCounts(newCounts);
+        localStorage.setItem('APPROVAL_COUNTS', JSON.stringify(newCounts));
+      }
+    } catch (err) {
+      console.error('문서함 개수 조회 실패:', err);
+    }
+  }, []);
 
   const [counts, setCounts] = useState({
     pending: 0,
@@ -141,10 +161,7 @@ export const UserContextProvider = (props) => {
 
       fetchCounts();
 
-      intervalId = setInterval(() => {
-        console.log('🔄 Polling for new counts...');
-        fetchCounts();
-      }, 60000);
+      refetchCounts();
 
       if (storedImage) {
         setUserImage(storedImage);
@@ -181,7 +198,7 @@ export const UserContextProvider = (props) => {
         clearInterval(intervalId);
       }
     };
-  }, []);
+  }, [refetchCounts]);
 
   const fetchCounts = async (token) => {
     try {
@@ -221,6 +238,7 @@ export const UserContextProvider = (props) => {
         user, // Provider value에 user 객체 추가
         counts,
         setCounts, // counts 업데이트 함수 추가
+        refetchCounts,
       }}
     >
       {props.children}
