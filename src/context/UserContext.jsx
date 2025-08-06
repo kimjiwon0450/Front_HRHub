@@ -19,6 +19,7 @@ export const UserContext = React.createContext({
   isInit: false,
   accessToken: '',
   counts: {},
+  setCounts: () => {},
 });
 
 export const UserContextProvider = (props) => {
@@ -97,7 +98,7 @@ export const UserContextProvider = (props) => {
     setUserPosition(loginData.position);
     setDepartmentId(loginData.departmentId);
     setAccessToken(loginData.token);
-    fetchCounts(loginData.token);
+    fetchCounts();
   };
 
   const logoutHandler = () => {
@@ -135,11 +136,11 @@ export const UserContextProvider = (props) => {
       setUserPosition(storedPosition);
       setUserName(storedName);
 
-      fetchCounts(storedToken);
+      fetchCounts();
 
       intervalId = setInterval(() => {
         console.log('🔄 Polling for new counts...');
-        fetchCounts(storedToken);
+        fetchCounts();
       }, 60000);
 
       setIsInit(true);
@@ -172,12 +173,7 @@ export const UserContextProvider = (props) => {
   const fetchCounts = async (token) => {
     try {
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`,
-        {
-          // ★★★ 인자로 받은 토큰을 직접 사용합니다.
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`,      );
       if (res.data?.statusCode === 200) {
         const newCounts = res.data.result;
 

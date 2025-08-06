@@ -19,7 +19,7 @@ const ScheduledBox = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const { user } = useContext(UserContext); // user 가져오기
+  const { user, counts, setCounts } = useContext(UserContext); // user 가져오기
   
   const { filteredReports, handleFilterChange } = useReportFilter(scheduledDocs);
 
@@ -67,7 +67,7 @@ const ScheduledBox = () => {
     });
     if (result.isConfirmed) {
       try {
-        const response = await axiosInstance.put(
+        const response = await axiosInstance.post(
           `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/recall`
         );
         if (response.data?.statusCode === 200) {
@@ -76,6 +76,11 @@ const ScheduledBox = () => {
             title: '예약이 취소되었습니다.',
             text: '문서가 회수되어 임시저장 상태로 변경되었습니다.'
           });
+
+          setCounts(prevCounts => ({
+            ...prevCounts,
+            scheduled: (prevCounts.scheduled || 1) 
+          }))
           // 목록을 새로고침하여 취소된 문서를 즉시 반영
           fetchScheduledDocs(currentPage);
         } else {
