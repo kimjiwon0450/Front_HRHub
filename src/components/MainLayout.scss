@@ -489,8 +489,9 @@ body {
   position: relative;
   cursor: pointer;
   padding: 0 10px;
-  font-size: 16px;
-  margin-right: 16px;
+  font-size: 20px;
+  margin-right: 30px;
+  margin-left: auto;
 
   .badge {
     padding: 2px 6px;
@@ -502,13 +503,13 @@ body {
     color: white;
     font-weight: bold;
     border-radius: 50%;
-    width: 18px;
+    width: 14px;
     height: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
 
-    min-width: 18px;
+    min-width: 14px;
   }
 }
 

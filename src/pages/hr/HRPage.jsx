@@ -209,26 +209,14 @@ export default function HRPage() {
     const fetchDeptNotices = async () => {
       setLoading(true);
       try {
-        console.log('API_BASE_URL:', API_BASE_URL);
-        console.log('NOTICE_SERVICE:', NOTICE_SERVICE);
-        console.log('Full URL:', `${API_BASE_URL}${NOTICE_SERVICE}`);
-
         const url = `${API_BASE_URL}${NOTICE_SERVICE}`;
-
         const res = await fetch(url, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-
-        // const res = await axiosInstance.get(url);
-
-        console.log('부서 공지 응답 res : ', res);
-
         const data = await res.json();
-        console.log('부서 공지 응답 data : ', data);
-
         setDeptNotices(data.notices || []);
       } catch (err) {
         console.error('부서 공지 가져오기 실패', err);
@@ -237,14 +225,12 @@ export default function HRPage() {
         setLoading(false);
       }
     };
-
     fetchDeptNotices();
   }, [departmentId, accessToken]);
 
   // 전체 공지 불러오기 useEffect
   useEffect(() => {
     if (!accessToken) return;
-
     const fetchAllNotices = async () => {
       try {
         const url = `${API_BASE_URL}${NOTICE_SERVICE}`;
@@ -254,9 +240,7 @@ export default function HRPage() {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-        // const res = await axiosInstance.get(url);
         const data = await res.json();
-        console.log('전체 공지 응답 data : ', data);
         setAllNotices(data.generalNotices || []);
       } catch (err) {
         console.error('전체 공지 가져오기 실패', err);
@@ -267,36 +251,7 @@ export default function HRPage() {
     fetchAllNotices();
   }, [accessToken]);
 
-  // 이달의 사원 예시 데이터
-  const eomList = [
-    {
-      name: '홍길동',
-      dept: '영업팀',
-      comment: '항상 밝은 에너지로 팀을 이끄는 홍길동님!',
-      img: pin,
-    },
-    // {
-    //   name: '김철수',
-    //   dept: '개발팀',
-    //   comment: '혁신적인 아이디어로 프로젝트를 성공시킨 김철수님!',
-    //   img: pin,
-    // },
-    // {
-    //   name: '이영희',
-    //   dept: '인사팀',
-    //   comment: '세심한 배려로 모두를 챙기는 이영희님!',
-    //   img: pin,
-    // },
-  ];
   const [eomIndex, setEomIndex] = useState(0);
-  // 자동 슬라이드
-  useEffect(() => {
-    if (eomList.length <= 1) return;
-    const timer = setInterval(() => {
-      setEomIndex((prev) => (prev + 1) % eomList.length);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, [eomList.length]);
 
   // 부서명 변경 시 우리팀 직원 목록 fetch
   useEffect(() => {
@@ -438,7 +393,6 @@ export default function HRPage() {
 
   return (
     <div className='hrpage-root'>
-      {/* <HRHeader /> */}
       {/* 유저 카드 + 검색/달력 */}
       <div
         className='hr-top'
@@ -466,7 +420,6 @@ export default function HRPage() {
       {/* 메인 카드 섹션 */}
       <div className='hr-main-cards'>
         <div className='hr-row'>
-          {/* 신청한내역 */}
           <ApprovalRequestTabs />
           {/* 공지사항 */}
           <div className='hr-card hr-tab-card' style={{ flex: 2 }}>
@@ -475,16 +428,18 @@ export default function HRPage() {
                 className={noticeTab === '전체' ? 'active' : ''}
                 onClick={() => setNoticeTab('전체')}
               >
+                {' '}
                 전체공지
               </button>
               <button
                 className={noticeTab === '부서' ? 'active' : ''}
                 onClick={() => setNoticeTab('부서')}
               >
+                {' '}
                 부서공지
               </button>
               <div className='menu-icon' onClick={() => navigate(`/notice`)}>
-                ≡
+                ≡{' '}
               </div>
             </div>
 

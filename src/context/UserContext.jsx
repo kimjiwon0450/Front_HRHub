@@ -162,6 +162,14 @@ export const UserContextProvider = (props) => {
           console.error('⚠️ 로컬 배지 파싱 실패:', e);
         }
       }
+
+      setIsInit(true);
+
+      return () => {
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+      };
     }
 
     // 토큰이 있든 없든 초기화는 완료로 표시

@@ -80,6 +80,8 @@ const CommunityPostsPage = () => {
         page,
         pageSize,
       });
+    useEffect(() => {
+        // if (!isInit || !accessToken || !userId) return; // ✅ 초기화 완료 여부 확인
 
       let url;
       console.log('CommunityPostsPage API 호출 정보:', {
@@ -263,6 +265,89 @@ const CommunityPostsPage = () => {
                   <span className='report-badge'>{reportCount}</span>
                 )}
               </button>
+                    <div className="sort-options" style={{ display: 'flex', alignItems: 'center' }}>
+                        <select
+                            name="sortBy"
+                            value={filters.sortBy}
+                            onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
+                        >
+                            <option value="createdAt">등록일</option>
+                            <option value="title">제목</option>
+                            <option value="viewCount">조회수</option>
+                        </select>
+
+                        <button
+                            onClick={() =>
+                                setFilters(prev => ({
+                                    ...prev,
+                                    sortDir: prev.sortDir === 'asc' ? 'desc' : 'asc'
+                                }))
+                            }
+                            style={{
+                                // marginLeft: '8px',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: '1.2em',
+                            }}
+                            title={filters.sortDir === 'asc' ? '오름차순' : '내림차순'}
+                        >
+                            {filters.sortDir === 'asc' ? '⬆️' : '⬇️'}
+                        </button>
+                    </div>
+
+
+                    {/* <button className='search-button' onClick={handleSearch}>검색</button> */}
+                    <button
+                        className="reset-button"
+                        onClick={() => {
+                            setFilters({
+                                startDate: '',
+                                endDate: '',
+                                keyword: '',
+                                sortBy: 'createdAt',
+                                sortDir: 'desc'
+                            });
+                            setPage(0);
+                            setPageSize(10);
+                        }}
+                    >
+                        초기화
+                    </button>
+
+                    <div
+                        className="write-button-wrapper"
+                    // style={{ marginLeft: '270px' }}
+                    >
+                        <button className="write-button" onClick={() => navigate('/community/write')}>작성하기</button>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: 'auto' }}>
+                        <div className="view-mode-buttons">
+                            <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); navigate('/community') }}>
+                                전체
+                            </button>
+                            <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate('/community/my') }}>
+                                내가 쓴 글
+                            </button>
+                            <button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate('/community/mydepartment') }}>
+                                내 부서 글
+                            </button>
+                        </div>
+                        <div className="hide-reported" style={{ display: 'flex', alignItems: 'left', marginRight: '1rem' }}>
+                            <input
+                                type="checkbox"
+                                id="hideReported"
+                                checked={hideReported}
+                                onChange={(e) => setHideReported(e.target.checked)}
+                                style={{ marginRight: '6px' }}
+                            />
+                            <label htmlFor="hideReported" className='hideReported' style={{ fontSize: '0.95rem', color: '#333' }}>
+                                신고된 게시글 제외
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
           )}
         <h2>게시판</h2>
