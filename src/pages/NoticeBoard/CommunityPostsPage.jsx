@@ -61,7 +61,10 @@ const CommunityPostsPage = () => {
 
   const fetchPosts = async () => {
     if (!accessToken || !userId) {
-      console.log('CommunityPostsPage: API 호출 조건 불충족', { accessToken: !!accessToken, userId });
+      console.log('CommunityPostsPage: API 호출 조건 불충족', {
+        accessToken: !!accessToken,
+        userId,
+      });
       return;
     }
 
@@ -76,16 +79,9 @@ const CommunityPostsPage = () => {
         sortDir,
         page,
         pageSize,
-        // ✅ 여기에 추가
       });
 
       let url;
-      // if (departmentId != null && departmentId !== 'undefined') {
-      //     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department/${departmentId}?${params.toString()}`;
-      // } else {
-      //     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
-      // }
-
       console.log('CommunityPostsPage API 호출 정보:', {
         viewMode,
         departmentId,
@@ -183,141 +179,21 @@ const CommunityPostsPage = () => {
         accessToken: !!accessToken,
         userId,
       });
-      
+
       // isInit이 false인 경우 3초 후 강제로 API 호출 시도
       if (!isInit && accessToken && userId) {
-        console.log('CommunityPostsPage: isInit이 false이지만 3초 후 강제 API 호출 시도');
+        console.log(
+          'CommunityPostsPage: isInit이 false이지만 3초 후 강제 API 호출 시도',
+        );
         const timer = setTimeout(() => {
           console.log('CommunityPostsPage: 강제 API 호출 실행');
           fetchPosts();
         }, 3000);
         return () => clearTimeout(timer);
       }
-      
+
       return; // ✅ 초기화 완료 여부 확인
     }
-
-    fetchPosts();
-  }, [
-    filters,
-    page,
-    pageSize,
-    departmentId,
-    isInit,
-    viewMode,
-    accessToken,
-    userId,
-  ]);
-      setLoading(true);
-      try {
-        const { keyword, startDate, endDate, sortBy, sortDir } = filters;
-        const params = new URLSearchParams({
-          keyword: filters.keyword.trim(),
-          fromDate: startDate,
-          toDate: endDate,
-          sortBy,
-          sortDir,
-          page,
-          pageSize,
-          // ✅ 여기에 추가
-        });
-
-        let url;
-        // if (departmentId != null && departmentId !== 'undefined') {
-        //     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department/${departmentId}?${params.toString()}`;
-        // } else {
-        //     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
-        // }
-
-        console.log('CommunityPostsPage API 호출 정보:', {
-          viewMode,
-          departmentId,
-          userId,
-          accessToken: !!accessToken,
-          filters,
-          page,
-          pageSize,
-        });
-
-        if (viewMode === 'MY') {
-          url = `${API_BASE_URL}${COMMUNITY_SERVICE}/my?${params.toString()}`;
-        } else if (viewMode === 'DEPT') {
-          url = `${API_BASE_URL}${COMMUNITY_SERVICE}/mydepartment?${params.toString()}`;
-        } else {
-          url = `${API_BASE_URL}${COMMUNITY_SERVICE}?${params.toString()}`;
-        }
-
-        console.log('CommunityPostsPage API URL:', url);
-
-        const res = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        if (!res.ok) {
-          console.error(
-            'CommunityPostsPage API 오류:',
-            res.status,
-            res.statusText,
-          );
-          throw new Error(`서버 오류: ${res.status}`);
-        }
-
-        const data = await res.json();
-        console.log('CommunityPostsPage API 응답:', data);
-        console.log('CommunityPostsPage 응답 키들:', Object.keys(data));
-        console.log(
-          'CommunityPostsPage 게시글 수:',
-          data.posts?.length ||
-            data.myposts?.length ||
-            data.mydepposts?.length ||
-            0,
-        );
-
-        // 각 viewMode별 데이터 존재 여부 확인
-        console.log('CommunityPostsPage 데이터 존재 여부:', {
-          posts: !!data.posts,
-          myposts: !!data.myposts,
-          mydepposts: !!data.mydepposts,
-          currentViewMode: viewMode,
-        });
-
-        if (viewMode === 'MY') {
-          const myPosts = data.myposts || [];
-          console.log(
-            'CommunityPostsPage MY 모드 설정:',
-            myPosts.length,
-            '개 게시글',
-          );
-          setPosts(myPosts);
-          setTotalPages(data.totalPages || 1);
-        } else if (viewMode === 'DEPT') {
-          const deptPosts = data.mydepposts || [];
-          console.log(
-            'CommunityPostsPage DEPT 모드 설정:',
-            deptPosts.length,
-            '개 게시글',
-          );
-          setPosts(deptPosts);
-          setTotalPages(data.totalPages || 1);
-        } else {
-          const allPosts = data.posts || [];
-          console.log(
-            'CommunityPostsPage ALL 모드 설정:',
-            allPosts.length,
-            '개 게시글',
-          );
-          setPosts(allPosts);
-          setTotalPages(data.totalPages || 1);
-        }
-      } catch (err) {
-        console.error('CommunityPostsPage 게시글 불러오기 실패:', err);
-        setPosts([]); // 에러 시 빈 배열로 설정
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchPosts();
   }, [
