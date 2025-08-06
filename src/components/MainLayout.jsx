@@ -175,7 +175,7 @@ export default function MainLayout() {
             },
           },
         );
-        
+
         const newCount = res.data.result?.reports?.length || 0;
 
         // 초기 로딩이 아니고, 새로운 개수가 이전 개수보다 많을 때 알림
@@ -189,7 +189,7 @@ export default function MainLayout() {
             timer: 3000,
             timerProgressBar: true,
           });
-          
+
           // counts 업데이트
           if (counts) {
             setCounts({
@@ -290,7 +290,7 @@ export default function MainLayout() {
             className='notice-icon'
             onClick={() => navigate('/notice/alert')}
           >
-            <FaBullhorn color='#ff5252' style={{ verticalAlign: 'middle' }} />
+            <FaBullhorn color='#ff5252' style={{ verticalAlign: 'middle', fontSize: '20px' }} />
             {(unreadCount > 0 || unApprovalCount > 0) && (
               <span className='badge'>{unreadCount + unApprovalCount}</span>
             )}

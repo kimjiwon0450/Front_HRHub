@@ -62,7 +62,7 @@ const CommunityPostsPage = () => {
 
 
     useEffect(() => {
-        if (!isInit || !accessToken || !userId) return; // ✅ 초기화 완료 여부 확인
+        // if (!isInit || !accessToken || !userId) return; // ✅ 초기화 완료 여부 확인
 
         const fetchPosts = async () => {
             setLoading(true);
@@ -260,6 +260,17 @@ const CommunityPostsPage = () => {
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: 'auto' }}>
+                        <div className="view-mode-buttons">
+                            <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); navigate('/community') }}>
+                                전체
+                            </button>
+                            <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate('/community/my') }}>
+                                내가 쓴 글
+                            </button>
+                            <button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate('/community/mydepartment') }}>
+                                내 부서 글
+                            </button>
+                        </div>
                         <div className="hide-reported" style={{ display: 'flex', alignItems: 'left', marginRight: '1rem' }}>
                             <input
                                 type="checkbox"
@@ -271,17 +282,6 @@ const CommunityPostsPage = () => {
                             <label htmlFor="hideReported" className='hideReported' style={{ fontSize: '0.95rem', color: '#333' }}>
                                 신고된 게시글 제외
                             </label>
-                        </div>
-                        <div className="view-mode-buttons">
-                            <button className={viewMode === 'ALL' ? 'active' : ''} onClick={() => { setViewMode('ALL'); setPage(0); navigate('/community') }}>
-                                전체
-                            </button>
-                            <button className={viewMode === 'MY' ? 'active' : ''} onClick={() => { setViewMode('MY'); setPage(0); navigate('/community/my') }}>
-                                내가 쓴 글
-                            </button>
-                            <button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate('/community/mydepartment') }}>
-                                내 부서 글
-                            </button>
                         </div>
                     </div>
                 </div>

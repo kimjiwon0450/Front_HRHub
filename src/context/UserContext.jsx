@@ -5,21 +5,21 @@ import { removeLocalStorageForLogout } from '../common/common';
 
 export const UserContext = React.createContext({
   isLoggedIn: false,
-  onLogin: () => {},
-  onLogout: () => {},
+  onLogin: () => { },
+  onLogout: () => { },
   userRole: '',
   userPosition: '',
   userName: '',
   badge: null,
-  setBadge: () => {},
+  setBadge: () => { },
   userId: null,
   departmentId: null,
   userImage: '', // 유저 프로필사진
-  setUserImage: () => {},
+  setUserImage: () => { },
   isInit: false,
   accessToken: '',
   counts: {},
-  setCounts: () => {},
+  setCounts: () => { },
 });
 
 export const UserContextProvider = (props) => {
@@ -143,8 +143,6 @@ export const UserContextProvider = (props) => {
         fetchCounts();
       }, 60000);
 
-      setIsInit(true);
-    
       if (storedImage) {
         setUserImage(storedImage);
       }
@@ -162,8 +160,10 @@ export const UserContextProvider = (props) => {
         }
       }
 
+      setIsInit(true);
+
       return () => {
-        if(intervalId){
+        if (intervalId) {
           clearInterval(intervalId);
         }
       }
@@ -173,12 +173,12 @@ export const UserContextProvider = (props) => {
   const fetchCounts = async (token) => {
     try {
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`,      );
+        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`,);
       if (res.data?.statusCode === 200) {
         const newCounts = res.data.result;
 
         console.log('✅ [UserContext] 사이드바 개수 API 응답:', newCounts);
-        
+
         setCounts(newCounts);
         localStorage.setItem('APPROVAL_COUNTS', JSON.stringify(newCounts));
       }
