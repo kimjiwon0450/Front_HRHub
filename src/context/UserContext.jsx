@@ -19,6 +19,7 @@ export const UserContext = React.createContext({
   isInit: false,
   accessToken: '',
   counts: {},
+  setCounts: () => {},
 });
 
 export const UserContextProvider = (props) => {
@@ -43,31 +44,7 @@ export const UserContextProvider = (props) => {
     scheduled: 0,
     cc: 0,
   });
-  useEffect(() => {
-    // 로그인 했을 때만 API 호출
-    if (accessToken) {
-      const fetchCounts = async () => {
-        try {
-          const res = await axiosInstance.get(
-            `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`,
-          );
-          if (res.data?.statusCode === 200) {
-            setCounts(res.data.result);
-          }
-        } catch (err) {
-          console.error('문서함 개수 조회 실패:', err);
-        }
-      };
 
-      fetchCounts();
-
-      // (선택사항) 1분마다 폴링
-      const intervalId = setInterval(fetchCounts, 60000);
-      return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 인터벌 정리
-    }
-  }, [accessToken]); // accessToken이 생기거나 바뀔 때 실행
-
-  // 사용자 정보가 변경될 때마다 user 객체를 업데이트하는 useEffect
   useEffect(() => {
     if (isLoggedIn) {
       setUser({
@@ -121,6 +98,7 @@ export const UserContextProvider = (props) => {
     setUserPosition(loginData.position);
     setDepartmentId(loginData.departmentId);
     setAccessToken(loginData.token);
+    fetchCounts();
   };
 
   const logoutHandler = () => {
@@ -141,6 +119,7 @@ export const UserContextProvider = (props) => {
     console.log('🌀 [useEffect] 초기 렌더링 시 로컬스토리지 확인');
     const storedToken = localStorage.getItem('ACCESS_TOKEN');
 
+    let intervalId = null;
     if (storedToken) {
       const storedId = localStorage.getItem('USER_ID');
       const storedRole = localStorage.getItem('USER_ROLE');
@@ -156,6 +135,16 @@ export const UserContextProvider = (props) => {
       setUserRole(storedRole);
       setUserPosition(storedPosition);
       setUserName(storedName);
+
+      fetchCounts();
+
+      intervalId = setInterval(() => {
+        console.log('🔄 Polling for new counts...');
+        fetchCounts();
+      }, 60000);
+
+      setIsInit(true);
+    
       if (storedImage) {
         setUserImage(storedImage);
       }
@@ -172,10 +161,31 @@ export const UserContextProvider = (props) => {
           console.error('⚠️ 로컬 배지 파싱 실패:', e);
         }
       }
-    }
 
-    setIsInit(true);
+      return () => {
+        if(intervalId){
+          clearInterval(intervalId);
+        }
+      }
+    }
   }, []);
+
+  const fetchCounts = async (token) => {
+    try {
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`,      );
+      if (res.data?.statusCode === 200) {
+        const newCounts = res.data.result;
+
+        console.log('✅ [UserContext] 사이드바 개수 API 응답:', newCounts);
+        
+        setCounts(newCounts);
+        localStorage.setItem('APPROVAL_COUNTS', JSON.stringify(newCounts));
+      }
+    } catch (err) {
+      console.error("문서함 개수 조회 실패:", err);
+    }
+  };
 
   return (
     <UserContext.Provider
@@ -196,6 +206,7 @@ export const UserContextProvider = (props) => {
         accessToken,
         user, // Provider value에 user 객체 추가
         counts,
+        setCounts, // counts 업데이트 함수 추가
       }}
     >
       {props.children}
