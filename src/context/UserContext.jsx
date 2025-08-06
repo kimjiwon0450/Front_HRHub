@@ -98,6 +98,7 @@ export const UserContextProvider = (props) => {
     setUserPosition(loginData.position);
     setDepartmentId(loginData.departmentId);
     setAccessToken(loginData.token);
+    setIsInit(true); // 로그인 시에도 초기화 완료로 설정
     fetchCounts();
   };
 
@@ -113,6 +114,8 @@ export const UserContextProvider = (props) => {
     setUserId(null); // Clear userId on logout
     setUserPosition(''); // Clear userPosition on logout
     setDepartmentId(null); // Clear departmentId on logout
+    // 로그아웃 후에도 초기화는 완료 상태 유지
+    setIsInit(true);
   };
 
   useEffect(() => {
@@ -143,8 +146,6 @@ export const UserContextProvider = (props) => {
         fetchCounts();
       }, 60000);
 
-      setIsInit(true);
-    
       if (storedImage) {
         setUserImage(storedImage);
       }
@@ -161,29 +162,34 @@ export const UserContextProvider = (props) => {
           console.error('⚠️ 로컬 배지 파싱 실패:', e);
         }
       }
-
-      return () => {
-        if(intervalId){
-          clearInterval(intervalId);
-        }
-      }
     }
+
+    // 토큰이 있든 없든 초기화는 완료로 표시
+    console.log('✅ UserContext 초기화 완료 - isInit을 true로 설정');
+    setIsInit(true);
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
   }, []);
 
   const fetchCounts = async (token) => {
     try {
       const res = await axiosInstance.get(
-        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`,      );
+        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`,
+      );
       if (res.data?.statusCode === 200) {
         const newCounts = res.data.result;
 
         console.log('✅ [UserContext] 사이드바 개수 API 응답:', newCounts);
-        
+
         setCounts(newCounts);
         localStorage.setItem('APPROVAL_COUNTS', JSON.stringify(newCounts));
       }
     } catch (err) {
-      console.error("문서함 개수 조회 실패:", err);
+      console.error('문서함 개수 조회 실패:', err);
     }
   };
 
