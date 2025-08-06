@@ -349,7 +349,7 @@ const NoticeBoardList = () => {
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
                                     }}>
                                         {/* ⭐ 별 아이콘 표시 */}
-                                        <button
+                                        {viewMode !== 'SCHEDULE' && <button
                                             className={`favorite-btn ${favoriteList.includes(post.noticeId) ? 'active' : ''}`}
                                             onClick={(e) => {
                                                 e.stopPropagation(); // 클릭 이벤트 버블링 방지
@@ -358,7 +358,7 @@ const NoticeBoardList = () => {
                                             title={favoriteList.includes(post.noticeId) ? '즐겨찾기 해제' : '즐겨찾기 추가'}
                                         >
                                             <span className="star-icon">{favoriteList.includes(post.noticeId) ? '★' : '☆'}</span>
-                                        </button>
+                                        </button>}
                                         <span onClick={() => navigate(`/notice/${post.noticeId}`)}>
                                             {post.commentCount === 0 ? (
                                                 truncateTitle(`${post.title}`)
@@ -457,7 +457,7 @@ const NoticeBoardList = () => {
                                         fontWeight: post.position === userPosition ? 'bold' : 'normal'
                                     }}>
                                         {/* ⭐ 별 아이콘 표시 */}
-                                        <button
+                                        {viewMode !== 'SCHEDULE' && <button
                                             className={`favorite-btn ${favoriteList.includes(post.noticeId) ? 'active' : ''}`}
                                             onClick={(e) => {
                                                 e.stopPropagation(); // 클릭 이벤트 버블링 방지
@@ -466,7 +466,7 @@ const NoticeBoardList = () => {
                                             title={favoriteList.includes(post.noticeId) ? '즐겨찾기 해제' : '즐겨찾기 추가'}
                                         >
                                             <span className="star-icon">{favoriteList.includes(post.noticeId) ? '★' : '☆'}</span>
-                                        </button>
+                                        </button>}
                                         <span onClick={() => navigate(`/notice/${post.noticeId}`)}>
                                             {post.commentCount === 0 ? (
                                                 truncateTitle(`${post.title}`)
