@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import logo from '../assets/hrhub_logo.png';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import './MainLayout.scss';
@@ -111,7 +111,10 @@ export default function MainLayout() {
 
   const [prevPendingCount, setPrevPendingCount] = useState(counts?.pending || 0);
   const [newPendingReportId, setNewPendingReportId] = useState(null);
-  const [showToast, setShowToast] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const isFirstLoad = useRef(true);
+  const isFirstUpdate = useRef(true);
 
   const sidebarMenus = [
     {
@@ -197,46 +200,61 @@ export default function MainLayout() {
     ADMIN: '관리자',
   };
 
-useEffect(() => {
-  if (counts?.pending > prevPendingCount) {
-    // 1) 방금 올라온 문서 1건만 가져오기
-    axiosInstance.get(
-      `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
-      {
-        params: {
-          role: 'approver',
-          status: 'IN_PROGRESS',
-          page: 0,
-          size: 1,
-          sortBy: 'reportCreatedAt',
-          sortOrder: 'desc',
-        },
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    ).then(res => {
-      const latest = res.data?.result?.reports?.[0];
-      if (latest?.id) {
-        setNewPendingReportId(latest.id);
-        setShowToast(true);
-        // 5초 뒤 자동 닫기
-        setTimeout(() => setShowToast(false), 5000);
-      }
-    }).catch(console.error);
-  }
-  setPrevPendingCount(counts?.pending || 0);
-}, [counts?.pending]);
+ useEffect(() => {
+    if (!userId) return; // 유저 정보 준비 전엔 스킵
+
+    // counts.pending이 숫자로 확실히 들어온 뒤에 비교 시작
+    if (typeof counts.pending !== 'number') {
+      return;
+    }
+
+    // 2) 첫 비교는 스킵
+    if (isFirstUpdate.current) {
+      isFirstUpdate.current = false;
+      setPrevPendingCount(counts.pending);
+      return;
+    }
+
+    // 3) 이후에만 pending 증가 감지
+    if (counts.pending > prevPendingCount) {
+      axiosInstance.get(
+        `/reports`,
+        {
+          params: {
+            role: 'approver',
+            status: 'IN_PROGRESS',
+            page: 0,
+            size: 1,
+            sortBy: 'reportCreatedAt',
+            sortOrder: 'desc'
+          },
+          headers: { Authorization: `Bearer ${accessToken}` }
+        }
+      ).then(res => {
+        const latest = res.data?.result?.reports?.[0];
+        if (latest?.id) {
+          setNewPendingReportId(latest.id);
+          setShowModal(true);
+          setTimeout(() => setShowModal(false), 5000);
+        }
+      }).catch(console.error);
+    }
+
+    setPrevPendingCount(counts.pending);
+  }, [counts.pending, userId, accessToken, prevPendingCount]);
+
   return (
-    
+    <>
+    {showModal && newPendingReportId && (
+      <ModalPortal>
+        <NewPendingModal
+          reportId={newPendingReportId}
+          onClose={() => setShowModal(false)}
+        />
+      </ModalPortal>
+    )}
     <div className='layout'>
-      {/* 데스크탑/태블릿 사이드바 */}
-      {showToast && newPendingReportId && (
-        <ModalPortal>
-          <NewPendingModal
-            reportId={newPendingReportId}
-            onClose={() => setShowToast(false)}
-          />
-        </ModalPortal>
-      )}
+      
       <aside className={`sidebar${showSidebar ? ' sidebar--mobile-open' : ''}`}>
         <div className='logo' onClick={() => navigate('/dashboard')}>
           <img src={logo} alt='hrhub' />
@@ -388,5 +406,6 @@ useEffect(() => {
         </div>
       </div>
     </div>
+    </>
   );
 }
