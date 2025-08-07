@@ -23,6 +23,8 @@ import {
 import { getDepartmentNameById } from '../common/hr';
 import { FaUserCircle } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import ModalPortal from '../components/approval/ModalPortal';
+import NewPendingModal from '../components/approval/NewPendingModal';
 
 const sidebarMenus = [
   {
@@ -106,6 +108,11 @@ export default function MainLayout() {
   const [showSidebar, setShowSidebar] = useState(false); // 모바일 사이드바 상태
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
+
+  const [prevPendingCount, setPrevPendingCount] = useState(counts?.pending || 0);
+  const [newPendingReportId, setNewPendingReportId] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+
   const sidebarMenus = [
     {
       to: '/notice',
@@ -163,15 +170,13 @@ export default function MainLayout() {
       setDepartmentName('');
     }
   }, [departmentId]);
+
   useEffect(() => {
-    if (!refetchCounts) return; // refetchCounts 함수가 없을 경우를 대비한 방어 코드
+    if (!refetchCounts) return; 
 
     const handleVisibilityChange = () => {
-      // document.hidden이 false이면, 탭이 다시 화면에 보인다는 의미
-      if (document.visibilityState === 'visible') {
-        console.log('👀 Tab is visible again, refetching counts...');
+  
         refetchCounts();
-      }
     };
 
     // 이벤트 리스너 등록
@@ -192,9 +197,46 @@ export default function MainLayout() {
     ADMIN: '관리자',
   };
 
+useEffect(() => {
+  if (counts?.pending > prevPendingCount) {
+    // 1) 방금 올라온 문서 1건만 가져오기
+    axiosInstance.get(
+      `${API_BASE_URL}${APPROVAL_SERVICE}/reports`,
+      {
+        params: {
+          role: 'approver',
+          status: 'IN_PROGRESS',
+          page: 0,
+          size: 1,
+          sortBy: 'reportCreatedAt',
+          sortOrder: 'desc',
+        },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    ).then(res => {
+      const latest = res.data?.result?.reports?.[0];
+      if (latest?.id) {
+        setNewPendingReportId(latest.id);
+        setShowToast(true);
+        // 5초 뒤 자동 닫기
+        setTimeout(() => setShowToast(false), 5000);
+      }
+    }).catch(console.error);
+  }
+  setPrevPendingCount(counts?.pending || 0);
+}, [counts?.pending]);
   return (
+    
     <div className='layout'>
       {/* 데스크탑/태블릿 사이드바 */}
+      {showToast && newPendingReportId && (
+        <ModalPortal>
+          <NewPendingModal
+            reportId={newPendingReportId}
+            onClose={() => setShowToast(false)}
+          />
+        </ModalPortal>
+      )}
       <aside className={`sidebar${showSidebar ? ' sidebar--mobile-open' : ''}`}>
         <div className='logo' onClick={() => navigate('/dashboard')}>
           <img src={logo} alt='hrhub' />

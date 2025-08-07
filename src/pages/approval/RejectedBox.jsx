@@ -43,6 +43,7 @@ const RejectedBox = () => {
         setTotalPages(totalPages || 0);
         setCurrentPage(number || 0);
         setTotalCount(totalElements || 0); // 백엔드가 알려주는 진짜 총 개수 저장
+        await refetchCounts();
       } else {
         throw new Error('반려된 문서를 불러오지 못했습니다.');
       }
