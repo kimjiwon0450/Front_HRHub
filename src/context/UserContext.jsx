@@ -38,20 +38,20 @@ export const UserContextProvider = (props) => {
   
   const refetchCounts = useCallback(async () => {
     const token = localStorage.getItem('ACCESS_TOKEN');
-    if(!token) return;
+    if (!token) return;
 
-    try{
+    try {
       const res = await axiosInstance.get(
-        '${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts',
-        { headers: {Authorization: 'Bearer ${token}'}}
+        `${API_BASE_URL}${APPROVAL_SERVICE}/reports/counts`,
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-      if(res.data?.statusCode === 200){
+      if (res.data?.statusCode === 200) {
         const newCounts = res.data.result;
         setCounts(newCounts);
         localStorage.setItem('APPROVAL_COUNTS', JSON.stringify(newCounts));
       }
-    } catch (err){
-      console.error("문서함 개수 조회 실패:", err);
+    } catch (err) {
+      console.error('문서함 개수 조회 실패:', err);
     }
   }, []);
 
