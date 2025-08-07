@@ -385,7 +385,7 @@
 }
 @media (max-width: 431px) {
   .notice-board {
-    min-height: 100%;
+    // min-height: 100%; << 이중 스크롤 문제 해결
     margin-top: 0;
     .page-size-selector {
       display: none;
