@@ -13,7 +13,7 @@ const RejectedBox = () => {
   const [rejectedDocs, setRejectedDocs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { user } = useContext(UserContext);
+  const { user, refetchCounts } = useContext(UserContext);
 
   // 페이지네이션 및 총 개수 상태 추가
   const [currentPage, setCurrentPage] = useState(0);
