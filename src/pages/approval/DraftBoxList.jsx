@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axiosInstance from '../../configs/axios-config';
 import DraftBoxCard from './DraftBoxCard';
-import styles from './DraftBoxList.module.scss';
+import styles from './ApprovalBoxList.module.scss';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import ReportFilter from '../../components/approval/ReportFilter';
 import { useReportFilter } from '../../hooks/useReportFilter';
