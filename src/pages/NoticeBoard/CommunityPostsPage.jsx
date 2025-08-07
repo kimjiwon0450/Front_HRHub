@@ -56,6 +56,25 @@ const CommunityPostsPage = () => {
     const [loading, setLoading] = useState(false);
     const [reportCount, setReportCount] = useState(0);
 
+    const DateInput = ({ name, value, onChange, placeholder }) => {
+        const [type, setType] = useState('text');
+
+        return (
+            <input
+                className="custom-date-input"
+                type={type}
+                name={name}
+                value={value}
+                placeholder={placeholder}
+                onFocus={() => setType('date')}
+                onBlur={() => {
+                    if (!value) setType('text');
+                }}
+                onChange={onChange}
+            />
+        );
+    };
+
     const truncateTitle = (title, maxLength = 35) => {
         return title.length > maxLength ? `${title.slice(0, maxLength)}...` : title;
     };
@@ -182,16 +201,22 @@ const CommunityPostsPage = () => {
                     )}
                 <h2>게시판</h2>
                 <div className="filters">
-                    <input type="date" name="startDate" value={filters.startDate}
-                        onChange={handleInputChange}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSearch();
-                        }} />
-                    <input type="date" name="endDate" value={filters.endDate}
-                        onChange={handleInputChange}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSearch();
-                        }} />
+                    <div className="date-wrapper">
+                        <DateInput
+                            name="startDate"
+                            value={filters.startDate}
+                            onChange={handleInputChange}
+                            placeholder="시작일"
+                        />
+                    </div>
+                    <div className="date-wrapper">
+                        <DateInput
+                            name="endDate"
+                            value={filters.endDate}
+                            onChange={handleInputChange}
+                            placeholder="종료일"
+                        />
+                    </div>
                     <input type="text"
                         name="keyword"
                         value={filters.keyword}

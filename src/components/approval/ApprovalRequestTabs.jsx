@@ -12,7 +12,7 @@ export default function ApprovalRequestTabs() {
   const [reportList, setReportList] = useState([]);
   const [reportLoading, setReportLoading] = useState(false);
 
-  const truncateTitle = (title, maxLength = 15) => {
+  const truncateTitle = (title, maxLength = 13) => {
     return title.length > maxLength ? `${title.slice(0, maxLength)}...` : title;
   };
 
