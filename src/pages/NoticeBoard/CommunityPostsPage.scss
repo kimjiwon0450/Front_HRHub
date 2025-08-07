@@ -538,3 +538,22 @@
     }
   }
 }
+
+.date-wrapper {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.custom-date-input {
+  width: 160px;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  color: #000;
+
+  &::placeholder {
+    color: #999;
+  }
+}
