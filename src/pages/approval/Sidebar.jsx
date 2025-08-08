@@ -1,6 +1,8 @@
 // /src/pages/approval/Sidebar.jsx
 
+
 import React, { useState, useContext, useEffect, useRef } from 'react';
+
 import { NavLink, useNavigate } from 'react-router-dom';
 import styles from './Sidebar.module.scss';
 import { UserContext } from '../../context/UserContext';
@@ -14,6 +16,7 @@ const Sidebar = () => {
   const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
 
   const safeCounts = counts || {};
+
   const prevCountsRef = useRef(safeCounts);
   const [newFlags, setNewFlags] = useState({});
   const isFirstRender = useRef(true);
@@ -37,6 +40,7 @@ const Sidebar = () => {
   }, [safeCounts]);
 
   const handleLinkClick = (key) => {
+
     setNewFlags((prev) => ({ ...prev, [key]: false }));
   };
 
