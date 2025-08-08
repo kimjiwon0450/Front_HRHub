@@ -347,13 +347,24 @@ $border: #eceff3;
     min-height: fit-content;
   }
 
+  .hamburger-btn {
+    align-items: center;
+    top: 0.4rem !important;
+  }
+
+  .notice-icon {
+    .badge {
+      font-size: 0.65rem !important;
+    }
+  }
+
   .main .header {
     padding: 0.7rem 0.5rem;
     .menu {
       gap: 0.5rem;
       flex-wrap: nowrap;
       a {
-        font-size: 0.95rem;
+        font-size: 0.85rem;
         padding: 0.25rem 0.5rem;
         white-space: nowrap;
         min-width: 0;
@@ -727,6 +738,12 @@ body {
   }
   .sidebar.sidebar--mobile-open .sidebar-logout-mobile {
     display: block;
+  }
+
+  .main .header .menu {
+    display: flex;
+    justify-content: space-between;
+    width: -webkit-fill-available;
   }
 }
 
