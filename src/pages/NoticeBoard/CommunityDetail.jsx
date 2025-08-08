@@ -526,10 +526,10 @@ const CommunityDetail = () => {
                                     <p className="commentContent">{reply.content}</p>
                                     <p className="commentDate">{reply.createdAt?.substring(0, 16).replace('T', ' ')}</p>
                                     <div className="comment-buttons">
-                                        <button className="reply-btn" onClick={() => {
+                                        {/* <button className="reply-btn" onClick={() => {
                                             setReplyTargetId(topComment.communityComentId);
                                             setReplyContent('');
-                                        }}>답글</button>
+                                        }}>답글</button> */}
                                     </div>
                                 </>
                             )}
