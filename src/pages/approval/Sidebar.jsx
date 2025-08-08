@@ -1,6 +1,8 @@
 // /src/pages/approval/Sidebar.jsx
 
-import React, { useState, useContext, useEffect } from 'react';
+
+import React, { useState, useContext, useEffect, useRef } from 'react';
+
 import { NavLink, useNavigate } from 'react-router-dom';
 import styles from './Sidebar.module.scss';
 import { UserContext } from '../../context/UserContext';
@@ -14,39 +16,31 @@ const Sidebar = () => {
   const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
 
   const safeCounts = counts || {};
+
+  const prevCountsRef = useRef(safeCounts);
   const [newFlags, setNewFlags] = useState({});
-  const STORAGE_KEY = 'approvalCounts';
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    setNewFlags((prevFlags) => {
-      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      let updateStorage = false;
-      const nextFlags = { ...prevFlags };
+    if (isFirstRender.current) {
+      prevCountsRef.current = safeCounts;
+      isFirstRender.current = false;
+      return;
+    }
 
-      Object.keys(safeCounts).forEach((key) => {
-        const current = safeCounts[key] || 0;
-        const prev = stored[key];
-        if (prev === undefined || current < prev) {
-          stored[key] = current;
-          updateStorage = true;
-          delete nextFlags[key];
-        } else if (current > prev) {
-          nextFlags[key] = true;
-        }
-      });
-
-      if (updateStorage) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+    const prev = prevCountsRef.current;
+    const updated = { ...newFlags };
+    Object.keys(safeCounts).forEach((key) => {
+      if ((safeCounts[key] || 0) > (prev[key] || 0)) {
+        updated[key] = true;
       }
-
-      return nextFlags;
     });
+    prevCountsRef.current = safeCounts;
+    setNewFlags(updated);
   }, [safeCounts]);
 
   const handleLinkClick = (key) => {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    stored[key] = safeCounts[key] || 0;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+
     setNewFlags((prev) => ({ ...prev, [key]: false }));
   };
 
