@@ -13,10 +13,10 @@ const NewPendingModal = ({ reportId, onClose }) => {
 
   return (
     <div className={styles.toast}>
-      <button className={styles.closeBtn} onClick={onClose}>×</button>
-      <div className={styles.message}>
-        새로운 결재 문서가 도착했습니다!
-      </div>
+      <button className={styles.closeBtn} onClick={onClose}>
+        ×
+      </button>
+      <div className={styles.message}>새로운 결재 문서가 도착했습니다.</div>
       <button className={styles.goBtn} onClick={handleGo}>
         보러 가기
       </button>

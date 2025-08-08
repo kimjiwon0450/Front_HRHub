@@ -110,7 +110,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
           name: newDeptName,
         },
       );
-      alert('부서 등록 성공!');
+      alert('부서 등록 성공');
       setNewDeptName('');
       setShowDeptModal(false);
       fetchDepartments();
@@ -153,7 +153,7 @@ export default function EmployeeEdit({ employee, onClose, hideHeader }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValidEmail(email)) {
-      alert('유효하지 않은 이메일 형식입니다!');
+      alert('유효하지 않은 이메일 형식입니다.');
       return;
     }
     if (!hireDate.trim()) {
