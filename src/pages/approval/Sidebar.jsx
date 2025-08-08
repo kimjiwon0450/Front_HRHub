@@ -22,6 +22,8 @@ const Sidebar = () => {
   const isFirstRender = useRef(true);
 
   useEffect(() => {
+    const flags = {};
+
     if (isFirstRender.current) {
       prevCountsRef.current = safeCounts;
       isFirstRender.current = false;
@@ -30,17 +32,16 @@ const Sidebar = () => {
 
     const prev = prevCountsRef.current;
     const updated = { ...newFlags };
-    Object.keys(safeCounts).forEach((key) => {
-      if ((safeCounts[key] || 0) > (prev[key] || 0)) {
-        updated[key] = true;
-      }
+    Object.entries(safeCounts).forEach(([key, cnt]) => {
+      const seen = parseInt(localStorage.getItem(`approvalSidebar_seen_${key}`) || '0', 10);
+      flags[key] = cnt > seen;  // 새 문서가 있으면 true
     });
-    prevCountsRef.current = safeCounts;
-    setNewFlags(updated);
+    setNewFlags(flags);
   }, [safeCounts]);
 
   const handleLinkClick = (key) => {
-
+    const cnt = safeCounts[key] || 0;
+    localStorage.setItem(`approvalSidebar_seen_${key}`, String(cnt));
     setNewFlags((prev) => ({ ...prev, [key]: false }));
   };
 

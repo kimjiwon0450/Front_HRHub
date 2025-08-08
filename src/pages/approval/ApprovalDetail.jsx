@@ -65,6 +65,8 @@ const ApprovalDetail = () => {
 
       const reportData = reportResponse.data?.result;
       const historyData = historyResponse.data?.result;
+      console.log('🧐 reportData from GET /reports/:', reportData);
+      
 
       if (historyData && historyData.length > 0) {
         const employeeIds = [...new Set(historyData.map(h => h.employeeId))];

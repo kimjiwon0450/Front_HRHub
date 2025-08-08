@@ -109,12 +109,12 @@ export default function MainLayout() {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
 
-  const [prevPendingCount, setPrevPendingCount] = useState(counts?.pending || 0);
+  const prevPendingCountRef = useRef(counts.pending);
   const [newPendingReportId, setNewPendingReportId] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const didInitRef = useRef(false);
 
-  const isFirstLoad = useRef(true);
-  const isFirstUpdate = useRef(true);
+
 
   const sidebarMenus = [
     {
@@ -202,21 +202,17 @@ export default function MainLayout() {
 
  useEffect(() => {
     if (!userId) return; // 유저 정보 준비 전엔 스킵
+    
+    if (typeof counts.pending !== 'number') return;
 
-    // counts.pending이 숫자로 확실히 들어온 뒤에 비교 시작
-    if (typeof counts.pending !== 'number') {
-      return;
-    }
-
-    // 2) 첫 비교는 스킵
-    if (isFirstUpdate.current) {
-      isFirstUpdate.current = false;
-      setPrevPendingCount(counts.pending);
+    if (!didInitRef.current) {
+      prevPendingCountRef.current = counts.pending;
+      didInitRef.current = true;
       return;
     }
 
     // 3) 이후에만 pending 증가 감지
-    if (counts.pending > prevPendingCount) {
+    if (counts.pending > prevPendingCountRef.current) {
       axiosInstance.get(
         `/reports`,
         {
@@ -240,8 +236,8 @@ export default function MainLayout() {
       }).catch(console.error);
     }
 
-    setPrevPendingCount(counts.pending);
-  }, [counts.pending, userId, accessToken, prevPendingCount]);
+    prevPendingCountRef.current = counts.current;
+  }, [counts.pending, userId, accessToken]);
 
   return (
     <>
