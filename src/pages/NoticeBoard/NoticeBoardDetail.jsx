@@ -517,10 +517,14 @@ const NoticeBoardDetail = () => {
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
             />
-            <button onClick={() => handleAddReply(topComment.noticeCommentId)}>
-              등록
-            </button>
-            <button onClick={() => setReplyTargetId(null)}>취소</button>
+            <div className='reply-input-buttons'>
+              <button
+                onClick={() => handleAddReply(topComment.noticeCommentId)}
+              >
+                등록
+              </button>
+              <button onClick={() => setReplyTargetId(null)}>취소</button>
+            </div>
           </div>
         )}
 
