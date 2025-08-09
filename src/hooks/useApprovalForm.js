@@ -42,6 +42,11 @@ export const useApprovalForm = (templateId, reportId) => {
   const [error, setError] = useState(null);
   const [reportStatus, setReportStatus] = useState(null);
 
+  const [templateIdState, setTemplateIdState] = useState(
+    templateId != null ? Number(templateId) : null
+  );
+
+
   useEffect(() => {
     const fetchData = async () => {
       // ★ 1. ID가 둘 다 없으면 API를 호출하지 않고 즉시 종료합니다.
@@ -73,11 +78,20 @@ export const useApprovalForm = (templateId, reportId) => {
         if (res.data?.statusCode === 200) {
           const data = res.data.result;
           console.log(`%c[useApprovalForm] API 응답 성공:`, 'color: green;', data);
-
+          // reportId로 상세 조회한 경우: 서버 응답의 top-level templateId를 state에 저장
+          if (reportId && data.templateId != null) {
+            setTemplateIdState(Number(data.templateId));
+          }
+                    
+          // 신규 작성(템플릿 선택 진입)인 경우: 쿼리의 templateId로 고정
+          if (!reportId && templateId != null) {
+            setTemplateIdState(Number(templateId));
+          }
 
           if (reportId && data.reportStatus) {
             setReportStatus(data.reportStatus);
           }
+
           // ★ 3. 응답 데이터를 각 상태에 맞게 설정합니다.
           // 템플릿 정보가 누락되어 있으면 templateId로 추가 조회
           if (data.template) {
@@ -146,5 +160,7 @@ export const useApprovalForm = (templateId, reportId) => {
     loading,
     error,
     reportStatus,
+    templateId: templateIdState,
+    setTemplateId: setTemplateIdState,
   };
 }; 

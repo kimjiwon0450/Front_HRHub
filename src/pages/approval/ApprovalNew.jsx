@@ -48,6 +48,8 @@ function ApprovalNew() {
   });
   const {
     template,
+    templateId,
+    setTemplateId,
     formData,
     setFormData,
     approvalLine,
@@ -133,7 +135,7 @@ function ApprovalNew() {
       const updateDto = {
         title: formData.title,
         content: contentValue,
-        templateId: template?.templateId,
+        templateId: templateId,
         reportTemplateData: JSON.stringify(formData),
         approvalLine: approvalLine.map(a => ({ employeeId: a.id || a.employeeId, approvalContext: a.approvalContext })),
         references: references.map(r => ({ employeeId: r.id || r.employeeId })),
@@ -156,7 +158,7 @@ function ApprovalNew() {
       const reqDto = {
         title: formData.title,
         content: contentValue,
-        templateId: template?.templateId,
+        templateId: templateId,
         reportTemplateData: JSON.stringify(formData),
         approvalLine: approvalLine.map(a => ({ employeeId: a.id || a.employeeId, approvalContext: a.approvalContext })),
         references: references.map(r => ({ employeeId: r.id || r.employeeId })),
@@ -412,7 +414,7 @@ function ApprovalNew() {
       reqDto = {
         title: formData.title.trim(),
         content: contentValue.trim(),
-        templateId: fixedTemplate?.templateId,
+        templateId: templateId,
         reportTemplateData: JSON.stringify(formData),
         approvalLine: approvalLine.map(a => ({ 
           employeeId: a.id || a.employeeId, 
