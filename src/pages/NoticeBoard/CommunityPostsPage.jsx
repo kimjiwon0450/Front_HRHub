@@ -6,7 +6,7 @@ import {
     COMMUNITY_SERVICE
 } from '../../configs/host-config';
 import { UserContext, UserContextProvider } from '../../context/UserContext'; // 로그인 유저 정보
-// import './NoticeBoardList.scss';
+import { fetchFavoriteCommunity, toggleFavoriteCommunity } from '../../api/favorite-api';
 import './CommunityPostsPage.scss';
 
 const fileIconMap = {
@@ -39,9 +39,11 @@ const fileIconMap = {
 const CommunityPostsPage = () => {
     const navigate = useNavigate();
     const { isInit, userId, accessToken, departmentId, userRole, userPosition } = useContext(UserContext);
+    const [favoriteList, setFavoriteList] = useState([]);
     const [viewMode, setViewMode] = useState('ALL'); // ALL | MY | DEPT
     const [posts, setPosts] = useState([]);
     const [hideReported, setHideReported] = useState(false);
+    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
     const [filters, setFilters] = useState({
         startDate: '',
@@ -74,6 +76,10 @@ const CommunityPostsPage = () => {
             />
         );
     };
+
+    const filteredCommunity = showFavoritesOnly
+        ? posts.filter(posts => favoriteList.includes(posts.communityId))
+        : posts;
 
     const truncateTitle = (title, maxLength = 35) => {
         return title.length > maxLength ? `${title.slice(0, maxLength)}...` : title;
@@ -182,6 +188,24 @@ const CommunityPostsPage = () => {
         console.log('Number(e.target.value) : ', Number(e.target.value));
         setPageSize(Number(e.target.value));
         setPage(0); // 첫 페이지로 초기화
+    };
+
+    useEffect(() => {
+        if (accessToken) {
+            fetchFavoriteCommunity(accessToken)
+                .then(setFavoriteList)
+                .catch(console.error);
+        }
+    }, [accessToken]);
+
+    const handleFavoriteClick = async (communityId) => {
+        try {
+            await toggleFavoriteCommunity(communityId, accessToken);
+            const updated = await fetchFavoriteCommunity(accessToken);
+            setFavoriteList(updated);
+        } catch (err) {
+            alert('즐겨찾기 처리 중 오류가 발생했습니다.');
+        }
     };
 
     return (
@@ -295,6 +319,18 @@ const CommunityPostsPage = () => {
                             <button className={viewMode === 'DEPT' ? 'active' : ''} onClick={() => { setViewMode('DEPT'); setPage(0); navigate('/community/mydepartment') }}>
                                 내 부서 글
                             </button>
+                            <button
+                                className="favorite-toggle-icon"
+                                onClick={() => setShowFavoritesOnly(prev => !prev)}
+                                title={showFavoritesOnly ? '즐겨찾기 해제' : '즐겨찾기만 보기'}
+                            >
+                                <span className={showFavoritesOnly ? 'active-star' : 'star'}>
+                                    {showFavoritesOnly ? '★ ' : '☆ '}
+                                </span>
+                                <label>
+                                    즐겨찾기
+                                </label>
+                            </button>
                         </div>
                         <div className="hide-reported" style={{ display: 'flex', alignItems: 'left', marginRight: '1rem' }}>
                             <input
@@ -328,73 +364,87 @@ const CommunityPostsPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {(hideReported ? posts.filter(post => !post.hidden) : posts).length > 0 ? (
-                                (hideReported ? posts.filter(post => !post.hidden) : posts).map(post => (
-                                    <tr
-                                        key={`post-${post.communityId}`}
-                                        onClick={() => navigate(`/community/${post.communityId}`)}
-                                        style={{
-                                            color: post.hidden ? 'rgba(171, 26, 26, 1)' : 'black',
-                                            background: post.hidden ? '#f4d7d7' : 'white'
-                                        }}
-                                        className={post.notice ? 'bold-row' : ''}
-                                    >
-                                        <td>{post.communityId}</td>
-                                        {/* <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri !== '[]' ? '📎' : ''}</td> */}
-                                        <td>
-                                            {(() => {
-                                                try {
-                                                    const files = JSON.parse(post.attachmentUri); // attachmentUri는 JSON 문자열
-                                                    if (!Array.isArray(files) || files.length === 0) return null;
+                            {/* {(hideReported ? posts.filter(post => !post.hidden) : posts).length > 0 ? (
+                                (hideReported ? posts.filter(post => !post.hidden) : posts).map(post => ( */}
+                            {filteredCommunity.map(post => (
+                                <tr
+                                    key={`post-${post.communityId}`}
 
-                                                    if (files.length === 1) {
-                                                        const ext = files[0].split('.').pop().toLowerCase();
-                                                        const iconPath = fileIconMap[ext] || '/icons/default.png';
-                                                        return <img src={iconPath} alt={ext} style={{ width: '20px', height: '20px' }} />;
-                                                    } else {
-                                                        return <img src="/icons/multiple.png" alt="multiple files" style={{ width: '20px', height: '20px' }} />;
-                                                    }
-                                                } catch (e) {
-                                                    return null;
+                                    style={{
+                                        color: post.hidden ? 'rgba(171, 26, 26, 1)' : 'black',
+                                        background: post.hidden ? '#f4d7d7' : 'white'
+                                    }}
+                                    className={post.notice ? 'bold-row' : ''}
+                                >
+                                    <td>{post.communityId}</td>
+                                    {/* <td>{post.attachmentUri && post.attachmentUri.length > 0 && post.attachmentUri !== '[]' ? '📎' : ''}</td> */}
+                                    <td>
+                                        {(() => {
+                                            try {
+                                                const files = JSON.parse(post.attachmentUri); // attachmentUri는 JSON 문자열
+                                                if (!Array.isArray(files) || files.length === 0) return null;
+
+                                                if (files.length === 1) {
+                                                    const ext = files[0].split('.').pop().toLowerCase();
+                                                    const iconPath = fileIconMap[ext] || '/icons/default.png';
+                                                    return <img src={iconPath} alt={ext} style={{ width: '20px', height: '20px' }} />;
+                                                } else {
+                                                    return <img src="/icons/multiple.png" alt="multiple files" style={{ width: '20px', height: '20px' }} />;
                                                 }
-                                            })()}
-                                        </td>
-
-                                        {/* <td>{post.hidden ? <span>🚨{post.title}</span> : post.title}</td> */}
-                                        <td title={post.title}>
-                                            {post.hidden ? (
-                                                <span>
-                                                    🚨{truncateTitle(post.title)}
-                                                    {Number(post.commentCount) > 0 && (
-                                                        <span style={{ color: '#777', fontSize: '0.9em' }}> ({post.commentCount})</span>
-                                                    )}
-                                                </span>
-                                            ) : (
-                                                <>
-                                                    {truncateTitle(post.title)}
-                                                    {Number(post.commentCount) > 0 && (
-                                                        <span style={{ color: '#777', fontSize: '0.9em' }}> ({post.commentCount})</span>
-                                                    )}
-                                                </>
-                                            )}
-                                        </td>
+                                            } catch (e) {
+                                                return null;
+                                            }
+                                        })()}
+                                    </td>
 
 
-
-                                        <td>{post.employStatus === 'INACTIVE' ? (
-                                            <span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
-                                                {post.name}(퇴사)
+                                    {/* <td>{post.hidden ? <span>🚨{post.title}</span> : post.title}</td> */}
+                                    <td title={post.title}>
+                                        {/* ⭐ 별 아이콘 표시 */}
+                                        {viewMode !== 'SCHEDULE' && <button
+                                            className={`favorite-btn ${favoriteList.includes(post.communityId) ? 'active' : ''}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // 클릭 이벤트 버블링 방지
+                                                handleFavoriteClick(post.communityId);
+                                            }}
+                                            title={favoriteList.includes(post.communityId) ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+                                        >
+                                            <span className="star-icon">{favoriteList.includes(post.communityId) ? '★' : '☆'}</span>
+                                        </button>}
+                                        {post.hidden ? (
+                                            <span onClick={() => navigate(`/community/${post.communityId}`)}>
+                                                🚨{truncateTitle(post.title)}
+                                                {Number(post.commentCount) > 0 && (
+                                                    <span style={{ color: '#777', fontSize: '0.9em' }}> ({post.commentCount})</span>
+                                                )}
                                             </span>
-                                        ) : post.name}</td>
-                                        <td>{new Date(post.createdAt).toLocaleDateString()}</td>
-                                        <td>{post.viewCount}</td>
-                                    </tr>
-                                ))
+                                        ) : (
+                                            <>
+                                                {truncateTitle(post.title)}
+                                                {Number(post.commentCount) > 0 && (
+                                                    <span style={{ color: '#777', fontSize: '0.9em' }}> ({post.commentCount})</span>
+                                                )}
+                                            </>
+                                        )}
+                                    </td>
+
+
+
+                                    <td>{post.employStatus === 'INACTIVE' ? (
+                                        <span style={{ color: '#aaa', fontStyle: 'italic', marginLeft: '4px' }}>
+                                            {post.name}(퇴사)
+                                        </span>
+                                    ) : post.name}</td>
+                                    <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                                    <td>{post.viewCount}</td>
+                                </tr>
+                            ))}
+                            {/* ))
                             ) : (
                                 <tr>
                                     <td colSpan="6" className="no-post">게시글이 없습니다</td>
                                 </tr>
-                            )}
+                            )} */}
 
                         </tbody>
                     </table>
