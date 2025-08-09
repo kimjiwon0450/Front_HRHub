@@ -32,6 +32,7 @@ const fileIconMap = {
     ppt: '/icons/ppt.png',
     exe: '/icons/exe.png',
     svg: '/icons/svg.png',
+    webp: '/icons/webp.jpg',
 };
 
 const NoticeBoardDetail = () => {
@@ -100,7 +101,7 @@ const NoticeBoardDetail = () => {
                         },
                     );
                     Swal.fire('삭제 완료!', '게시글이 삭제되었습니다.', 'success');
-                    navigate(-1);
+                    navigate('/community');
                 } catch (err) {
                     console.error(err);
                     Swal.fire('오류 발생', '삭제 중 오류가 발생했습니다.', 'error');
@@ -317,7 +318,7 @@ const NoticeBoardDetail = () => {
 
     useEffect(() => {
         // if (!isInit || !accessToken) return;
-
+        console.log('hi')
         const fetchPost = async () => {
             setLoading(true);
             try {
@@ -532,10 +533,10 @@ const NoticeBoardDetail = () => {
                                     <p className="commentContent">{reply.content}</p>
                                     <p className="commentDate">{reply.createdAt?.substring(0, 16).replace('T', ' ')}</p>
                                     <div className="comment-buttons">
-                                        <button className="reply-btn" onClick={() => {
+                                        {/* <button className="reply-btn" onClick={() => {
                                             setReplyTargetId(topComment.noticeCommentId);
                                             setReplyContent('');
-                                        }}>답글</button>
+                                        }}>답글</button> */}
                                     </div>
                                 </>
                             )}
@@ -552,7 +553,7 @@ const NoticeBoardDetail = () => {
                 <p>불러오는 중...</p>
             ) : (
                 <>
-                    <h2>{posts.departmentId === 0 ? '[공지] ' : ''}{posts.title}</h2>
+                    <h2>{posts.departmentId === 0 ? '[전체] ' : ''}{posts.title}</h2>
                     <button className="print-button" onClick={() => window.print()} title="인쇄하기">🖨️</button>
                     <div className="meta-with-attachment">
                         <div className="meta">
@@ -582,7 +583,7 @@ const NoticeBoardDetail = () => {
                     <hr />
                     <div
                         className="content"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(posts.content) }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(posts.content.replace(/(<p>\s*<\/p>)+/g, '').replace(/(<br\s*\/?>\s*){2,}/g, '<br>')) }}
                     />
                     <hr />
 

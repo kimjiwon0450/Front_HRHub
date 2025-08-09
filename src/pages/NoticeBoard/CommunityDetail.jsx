@@ -35,6 +35,7 @@ const fileIconMap = {
     ppt: '/icons/ppt.png',
     exe: '/icons/exe.png',
     svg: '/icons/svg.png',
+    webp: '/icons/webp.jpg',
 };
 
 const CommunityDetail = () => {
@@ -104,7 +105,7 @@ const CommunityDetail = () => {
                         },
                     });
                     Swal.fire('삭제 완료!', '게시글이 삭제되었습니다.', 'success');
-                    navigate(-1);
+                    navigate('/notice');
                 } catch (err) {
                     console.error(err);
                     Swal.fire('오류 발생', '삭제 중 오류가 발생했습니다.', 'error');
@@ -542,11 +543,12 @@ const CommunityDetail = () => {
 
     return (
         <div className="notice-detail">
-            <div>{posts.hidden ? (
-                <span style={{ color: 'rgba(171, 26, 26, 1)', fontWeight: 'bold' }}>
-                    🚨이 글은 신고된 글입니다.
-                </span>
-            ) : (<span></span>)}
+            <div>
+                {posts.hidden ? (
+                    <span style={{ color: 'rgba(171, 26, 26, 1)', fontWeight: 'bold' }}>
+                        🚨이 글은 신고된 글입니다.
+                    </span>
+                ) : (<span></span>)}
             </div>
             <h2>{posts.title}</h2>
             <div className="meta-with-attachment">
@@ -615,20 +617,25 @@ const CommunityDetail = () => {
 
             {/* ✅ 댓글 영역 시작 */}
             <div className="comment-section">
-                <h3>댓글</h3>
-                <div className="comment-input">
-                    <textarea
-                        placeholder="댓글을 입력하세요..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                    />
-                    <button onClick={handleAddComment}>등록</button>
-                </div>
+                {!posts.hidden ? (
+                    <>
+                        <h3>댓글</h3>
+                        <div className="comment-input">
+                            <textarea
+                                placeholder="댓글을 입력하세요..."
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                            />
+                            <button onClick={handleAddComment}>등록</button>
+                        </div>
 
-                <div className="comment-list">
-                    {comments.length === 0 && <p className='noComment'>아직 댓글이 없습니다.</p>}
-                    {renderComments(comments)}
-                </div>
+                        <div className="comment-list">
+                            {comments.length === 0 && <p className='noComment'>아직 댓글이 없습니다.</p>}
+                            {renderComments(comments)}
+                        </div>
+                    </>) : (
+                    <span></span>
+                )}
             </div>
         </div>
     );
