@@ -64,6 +64,16 @@ const ApprovalDetail = () => {
       ]);
 
       const reportData = reportResponse.data?.result;
+      if (!reportData.template?.content?.length && reportData.templateId) {
+        const tplRes = await axiosInstance.get(
+          `${API_BASE_URL}${APPROVAL_SERVICE}/form?templateId=${reportData.templateId}`
+        );
+        if (tplRes.data.statusCode === 200) {
+          reportData.template = tplRes.data.result.template;
+        }
+      }
+      setReport(reportData);
+      
       const historyData = historyResponse.data?.result;
       console.log('🧐 reportData from GET /reports/:', reportData);
       

@@ -56,6 +56,8 @@ export const useApprovalForm = (templateId, reportId) => {
       try {
         console.log('[useApprovalForm] fetchData params:', { templateId, reportId });
         let url;
+        console.log('[useApprovalForm] fetchData params:', { templateId, reportId });
+
         // ★ 2. 수정 모드(reportId)인지, 신규 작성 모드(templateId)인지 명확하게 구분합니다.
         if (reportId) {
           // 수정 모드: 기존 문서 상세 정보를 가져옵니다.
@@ -80,7 +82,9 @@ export const useApprovalForm = (templateId, reportId) => {
           // 템플릿 정보가 누락되어 있으면 templateId로 추가 조회
           if (data.template) {
             setTemplate(data.template);
+
             console.log('[useApprovalForm] template set directly from response:', data.template);
+
           } else if (data.templateId) {
             // templateId로 템플릿 구조 추가 조회
             try {
@@ -94,7 +98,9 @@ export const useApprovalForm = (templateId, reportId) => {
               }
             } catch (e) {
               setTemplate(null);
+
               console.log('[useApprovalForm] template fetch error:', e);
+
             }
           } else {
             setTemplate(null);
