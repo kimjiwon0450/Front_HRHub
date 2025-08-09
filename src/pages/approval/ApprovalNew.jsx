@@ -118,13 +118,15 @@ function ApprovalNew() {
       method = 'post';
       url = `${API_BASE_URL}${APPROVAL_SERVICE}/reports/${resubmitId}/resubmit`;
       const resubmitDto = {
-        newTitle: formData.title,
-        newContent: contentValue,
+        newTitle: (formData.title || '').trim(),
+        newContent: (contentValue ?? '').toString().trim(),
+        templateId,
+        reportTemplateData: JSON.stringify(formData || {}),
         approvalLine: approvalLine.map(a => ({ employeeId: a.id || a.employeeId, approvalContext: a.approvalContext })),
         attachments: attachments.map(f => ({ fileName: f.fileName || f.name, url: f.url })),
         references: references.map(r => ({ employeeId: r.id || r.employeeId })),
       };
-      submissionData = JSON.stringify(resubmitDto);
+      submissionData = resubmitDto;
       console.log('[ApprovalNew] 재상신 API 호출 준비:', url, resubmitDto);
 
     } else if (effectiveReportId) {
@@ -184,7 +186,7 @@ function ApprovalNew() {
         : {};
 
       if (method === 'post') {
-        res = await axiosInstance.post(url, submissionData, { headers });
+        res = await axiosInstance.post(url, submissionData, {params: {submit: isSubmit}});
       } else { // method === 'put'
         res = await axiosInstance.put(url, submissionData);
       }
@@ -194,7 +196,9 @@ function ApprovalNew() {
       if (res.data && (res.data.statusCode === 201 || res.data.statusCode === 200)) {
         setIsDirty(false);
         await Swal.fire({ icon: 'success', title: successMessage });
+        if(!isMovingAway){
         navigate(isSubmit ? '/approval/home' : '/approval/drafts');
+        }
       } else {
         throw new Error(res.data?.statusMessage || '요청에 실패했습니다.');
       }
