@@ -540,6 +540,30 @@
   padding-left: 10px;
 }
 
-.reply-input button {
-  border-radius: 6px;
+.reply-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 8px;
+
+  .reply-input-buttons {
+    display: flex;
+    gap: 6px;
+    align-self: normal;
+  }
+
+  button {
+    border-radius: 6px;
+    background-color: hsl(205, 75.3424657534%, 63.5%);
+    color: white;
+    padding: 6px 12px;
+    font-size: 11px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease-in-out;
+  }
 }
