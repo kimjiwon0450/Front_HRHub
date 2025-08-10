@@ -10,31 +10,29 @@ import { fetchFavoriteCommunity, toggleFavoriteCommunity } from '../../api/favor
 import './CommunityPostsPage.scss';
 
 const fileIconMap = {
-    txt: '/icons/txt.png',
-    doc: '/icons/doc.png',
-    docx: '/icons/docx.png',
-    pdf: '/icons/pdf.png',
-    php: '/icons/php.png',
-    xls: '/icons/xls.png',
-    xlsx: '/icons/xlsx.png',
-    csv: '/icons/csv.png',
-    css: '/icons/css.png',
-    jpg: '/icons/jpg.png',
-    jpeg: '/icons/jpg.png',
-    js: '/icons/js.png',
-    png: '/icons/png.png',
-    gif: '/icons/gif.png',
-    htm: '/icons/htm.png',
-    html: '/icons/html.png',
-    zip: '/icons/zip.png',
-    mp3: '/icons/mp3.png',
-    mp4: '/icons/mp4.png',
-    ppt: '/icons/ppt.png',
-    exe: '/icons/exe.png',
-    svg: '/icons/svg.png',
+  txt: '/icons/txt.png',
+  doc: '/icons/doc.png',
+  docx: '/icons/docx.png',
+  pdf: '/icons/pdf.png',
+  php: '/icons/php.png',
+  xls: '/icons/xls.png',
+  xlsx: '/icons/xlsx.png',
+  csv: '/icons/csv.png',
+  css: '/icons/css.png',
+  jpg: '/icons/jpg.png',
+  jpeg: '/icons/jpg.png',
+  js: '/icons/js.png',
+  png: '/icons/png.png',
+  gif: '/icons/gif.png',
+  htm: '/icons/htm.png',
+  html: '/icons/html.png',
+  zip: '/icons/zip.png',
+  mp3: '/icons/mp3.png',
+  mp4: '/icons/mp4.png',
+  ppt: '/icons/ppt.png',
+  exe: '/icons/exe.png',
+  svg: '/icons/svg.png',
 };
-
-
 
 const CommunityPostsPage = () => {
     const navigate = useNavigate();
@@ -58,24 +56,25 @@ const CommunityPostsPage = () => {
     const [loading, setLoading] = useState(false);
     const [reportCount, setReportCount] = useState(0);
 
-    const DateInput = ({ name, value, onChange, placeholder }) => {
-        const [type, setType] = useState('text');
+  // DateInput: 텍스트 → date 전환 입력 컴포넌트
+  const DateInput = ({ name, value, onChange, placeholder }) => {
+    const [type, setType] = useState('text');
 
-        return (
-            <input
-                className="custom-date-input"
-                type={type}
-                name={name}
-                value={value}
-                placeholder={placeholder}
-                onFocus={() => setType('date')}
-                onBlur={() => {
-                    if (!value) setType('text');
-                }}
-                onChange={onChange}
-            />
-        );
-    };
+    return (
+      <input
+        className='custom-date-input'
+        type={type}
+        name={name}
+        value={value}
+        placeholder={placeholder}
+        onFocus={() => setType('date')}
+        onBlur={() => {
+          if (!value) setType('text');
+        }}
+        onChange={onChange}
+      />
+    );
+  };
 
     const filteredCommunity = showFavoritesOnly
         ? posts.filter(posts => favoriteList.includes(posts.communityId))
@@ -85,104 +84,120 @@ const CommunityPostsPage = () => {
         return title.length > maxLength ? `${title.slice(0, maxLength)}...` : title;
     };
 
+  // 게시글 목록 불러오기
+  const fetchPosts = async () => {
+    if (!accessToken || !userId) {
+      setPosts([]);
+      setTotalPages(1);
+      return;
+    }
 
-    useEffect(() => {
-        // if (!isInit || !accessToken || !userId) return; // ✅ 초기화 완료 여부 확인
+    setLoading(true);
 
-        const fetchPosts = async () => {
-            setLoading(true);
-            try {
-                const { keyword, startDate, endDate, sortBy, sortDir } = filters;
-                const params = new URLSearchParams({
-                    keyword: filters.keyword.trim(),
-                    fromDate: startDate,
-                    toDate: endDate,
-                    sortBy,
-                    sortDir,
-                    page,
-                    pageSize,
-                    // ✅ 여기에 추가
-                });
+    try {
+      const { keyword, startDate, endDate, sortBy, sortDir } = filters;
+      const params = new URLSearchParams({
+        keyword: keyword.trim(),
+        fromDate: startDate,
+        toDate: endDate,
+        sortBy,
+        sortDir,
+        page,
+        pageSize,
+      });
 
-                let url;
-                // if (departmentId != null && departmentId !== 'undefined') {
-                //     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard/department/${departmentId}?${params.toString()}`;
-                // } else {
-                //     url = `${API_BASE_URL}${NOTICE_SERVICE}/noticeboard?${params.toString()}`;
-                // }
+      let url = '';
+      if (viewMode === 'MY') {
+        url = `${API_BASE_URL}${COMMUNITY_SERVICE}/my?${params.toString()}`;
+      } else if (viewMode === 'DEPT') {
+        url = `${API_BASE_URL}${COMMUNITY_SERVICE}/mydepartment?${params.toString()}`;
+      } else {
+        url = `${API_BASE_URL}${COMMUNITY_SERVICE}?${params.toString()}`;
+      }
 
-                console.log('viewMode : ', viewMode);
-                console.log('departmentId : ', departmentId);
-                if (viewMode === 'MY') {
-                    url = `${API_BASE_URL}${COMMUNITY_SERVICE}/my?${params.toString()}`;
-                } else if (viewMode === 'DEPT') {
-                    url = `${API_BASE_URL}${COMMUNITY_SERVICE}/mydepartment?${params.toString()}`;
-                } else {
-                    url = `${API_BASE_URL}${COMMUNITY_SERVICE}?${params.toString()}`;
-                }
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-                const res = await fetch(url, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                    }
-                });
+      if (!res.ok) {
+        throw new Error(`서버 오류: ${res.status}`);
+      }
 
-                if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
-                const data = await res.json();
+      const data = await res.json();
 
-                console.log('data : ', data);
-                console.log('data.posts : ', data.posts);
+      if (viewMode === 'MY') {
+        setPosts(data.myposts || []);
+        setTotalPages(data.totalPages || 1);
+      } else if (viewMode === 'DEPT') {
+        setPosts(data.mydepposts || []);
+        setTotalPages(data.totalPages || 1);
+      } else {
+        setPosts(data.posts || []);
+        setTotalPages(data.totalPages || 1);
+      }
+    } catch (err) {
+      console.error('CommunityPostsPage 게시글 불러오기 실패:', err);
+      setPosts([]);
+      setTotalPages(1);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                if (viewMode === 'MY') {
-                    setPosts(data.myposts || []); // 서버에서 단일 배열을 반환하므로 전체를 posts로 처리
-                    setTotalPages(data.totalPages || 1);
-                } else {
-                    if (viewMode === 'DEPT') {
-                        setPosts(data.mydepposts || []); // 서버에서 단일 배열을 반환하므로 전체를 posts로 처리
-                        setTotalPages(data.totalPages || 1);
-                    } else {
-                        setPosts(data.posts || []);
-                        setTotalPages(data.totalPages || 1);
-                    }
-                }
+  // 게시글 목록 fetch 트리거
+  useEffect(() => {
+    if (!isInit || !accessToken || !userId) {
+      setPosts([]);
+      setTotalPages(1);
+      return;
+    }
+    fetchPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    filters,
+    page,
+    pageSize,
+    departmentId,
+    isInit,
+    viewMode,
+    accessToken,
+    userId,
+  ]);
 
-            } catch (err) {
-                console.error('게시글 불러오기 실패:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
+  // 신고된 글 개수 fetch
+  useEffect(() => {
+    if (
+      userRole === 'HR_MANAGER' &&
+      (userPosition === 'MANAGER' ||
+        userPosition === 'DIRECTOR' ||
+        userPosition === 'CEO')
+    ) {
+      const fetchReportCount = async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}/report/admin/list`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          if (!res.ok) throw new Error('신고 목록 조회 실패');
 
-        fetchPosts();
-    }, [filters, page, pageSize, departmentId, isInit, viewMode, accessToken, userId]);
-
-    useEffect(() => {
-        // HR_MANAGER일 경우에만 신고 수를 불러옴
-        if (userRole === 'HR_MANAGER' && (userPosition === 'MANAGER' || userPosition === 'DIRECTOR' || userPosition === 'CEO')) {
-            const fetchReportCount = async () => {
-                try {
-                    const res = await fetch(`${API_BASE_URL}/report/admin/list`, {
-                        headers: { Authorization: `Bearer ${accessToken}` },
-                    });
-                    if (!res.ok) throw new Error('신고 목록 조회 실패');
-
-                    const data = await res.json();
-                    setReportCount(data.posts.length);
-                } catch (err) {
-                    console.error('신고 수 조회 실패:', err);
-                }
-            };
-
-            fetchReportCount();
+          const data = await res.json();
+          setReportCount(data.posts?.length || 0);
+        } catch (err) {
+          console.error('신고 수 조회 실패:', err);
         }
-    }, [userRole, userPosition, accessToken]);
+      };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFilters(prev => ({ ...prev, [name]: value }));
-    };
+      fetchReportCount();
+    }
+  }, [userRole, userPosition, accessToken]);
 
-    const handleSearch = () => setPage(0);
+  // 핸들러
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleSearch = () => setPage(0);
 
     const handlePageSizeChange = (e) => {
         console.log('Number(e.target.value) : ', Number(e.target.value));

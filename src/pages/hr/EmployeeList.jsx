@@ -7,10 +7,11 @@ import './EmployeeList.scss';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, HR_SERVICE } from '../../configs/host-config';
 import { getDepartmentNameById } from '../../common/hr';
-import { warn } from '../../common/common';
+import { swalError, warn } from '../../common/common';
 import ModalPortal from '../../components/approval/ModalPortal';
 import styles from '../../components/approval/CategoryModal.module.scss';
 import pin from '../../assets/pin.jpg';
+import TransferHistoryModal from './TransferHistoryModal'; // 추가
 
 export default function EmployeeList() {
   const [mode, setMode] = useState('list'); // 'list', 'edit', 'eval'
@@ -35,6 +36,10 @@ export default function EmployeeList() {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState('asc');
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  // 인사이동 이력 모달 상태/데이터 추가
+  const [isTransferHistoryOpen, setIsTransferHistoryOpen] = useState(false);
+  const [transferHistoryList, setTransferHistoryList] = useState([]);
 
   useEffect(() => {
     getEmployeeList({
@@ -266,6 +271,21 @@ export default function EmployeeList() {
     setSelectedId(null);
   };
 
+  // *** 인사이동 이력 핸들러 ***
+  const handleTransferHistory = async (employee) => {
+    if (!employee?.employeeId) return;
+    try {
+      const res = await axiosInstance.get(
+        `${API_BASE_URL}${HR_SERVICE}/transfer-history/${employee.employeeId}`,
+      );
+      setTransferHistoryList(res.data.result || []);
+      setIsTransferHistoryOpen(true);
+    } catch (err) {
+      swalError('이력 조회에 실패했습니다.');
+      console.log(err, '이력조회실패에러');
+    }
+  };
+
   // 전체 페이지 전환 분기
   if (mode === 'edit')
     return <EmployeeEdit employee={selectedDetail} onClose={handleClose} />;
@@ -416,25 +436,29 @@ export default function EmployeeList() {
                       }}
                     >
                       <span>{emp.name}</span>
-                      {evaluationStatus[emp.employeeId || emp.id] === false && (
-                        <span
-                          style={{
-                            background: '#ff5252',
-                            color: '#fff',
-                            borderRadius: '10px',
-                            fontSize: '0.62em',
-                            padding: '0 5px',
-                            marginTop: '3px',
-                            fontWeight: 600,
-                            letterSpacing: '0.01em',
-                            height: '16px',
-                            lineHeight: '16px',
-                            display: 'inline-block',
-                          }}
-                        >
-                          평가 필요
-                        </span>
-                      )}
+
+                      {/* “평가 필요” 뱃지 – 재직자만 표시 */}
+                      {!showInactive /* 퇴직자 화면이면 건너뜀 */ &&
+                        evaluationStatus[emp.employeeId || emp.id] ===
+                          false && (
+                          <span
+                            style={{
+                              background: '#ff5252',
+                              color: '#fff',
+                              borderRadius: '10px',
+                              fontSize: '0.62em',
+                              padding: '0 5px',
+                              marginTop: '3px',
+                              fontWeight: 600,
+                              letterSpacing: '0.01em',
+                              height: '16px',
+                              lineHeight: '16px',
+                              display: 'inline-block',
+                            }}
+                          >
+                            평가 필요
+                          </span>
+                        )}
                     </div>
                   </div>
                 </td>
@@ -513,10 +537,20 @@ export default function EmployeeList() {
                 employee={selectedDetail}
                 onEdit={handleEdit}
                 onEval={handleEvalWithCheck}
-                onTransferHistory={() => {}}
+                onTransferHistory={handleTransferHistory} // 빈 함수 아님!
               />
             </div>
           </div>
+        </ModalPortal>
+      )}
+
+      {/* 인사이동 이력 모달 */}
+      {isTransferHistoryOpen && (
+        <ModalPortal>
+          <TransferHistoryModal
+            employeeId={selectedDetail.employeeId ?? selectedDetail.id}
+            onClose={() => setIsTransferHistoryOpen(false)}
+          />
         </ModalPortal>
       )}
     </>

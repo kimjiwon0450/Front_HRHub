@@ -23,7 +23,7 @@ const COMMON_COMMENTS = [
 const ApprovalDetail = () => {
   const { reportId } = useParams();
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user, refetchCounts } = useContext(UserContext);
 
   const [report, setReport] = useState(null);
   const [history, setHistory] = useState([]);
@@ -136,6 +136,7 @@ const ApprovalDetail = () => {
         comment: comment || (isApproved ? '승인합니다.' : ''),
       });
       await Swal.fire({ icon: 'success', title: '성공적으로 처리되었습니다.', confirmButtonText: '확인' });
+      await refetchCounts();
       fetchReportDetail();
     } catch (err) {
       await Swal.fire({
@@ -166,6 +167,7 @@ const ApprovalDetail = () => {
       await Swal.fire({ icon: 'success', title: '성공적으로 처리되었습니다.', confirmButtonText: '확인' });
       setConfirmModalOpen(false);
       setApprovalComment('');
+      await refetchCounts();
       fetchReportDetail();
     } catch (err) {
       await Swal.fire({
@@ -192,6 +194,8 @@ const ApprovalDetail = () => {
     try {
       await axiosInstance.post(`${API_BASE_URL}${APPROVAL_SERVICE}/reports/${reportId}/recall`);
       await Swal.fire({ icon: 'success', title: '회수 처리되었습니다.', confirmButtonText: '확인' });
+      await refetchCounts();
+      fetchReportDetail();
       navigate('/approval/drafts');
     } catch (err) {
       await Swal.fire({
