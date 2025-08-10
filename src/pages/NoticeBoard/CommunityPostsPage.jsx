@@ -11,28 +11,28 @@ import { fetchFavoriteCommunity, toggleFavoriteCommunity } from '../../api/favor
 import './CommunityPostsPage.scss';
 
 const fileIconMap = {
-  txt: '/icons/txt.png',
-  doc: '/icons/doc.png',
-  docx: '/icons/docx.png',
-  pdf: '/icons/pdf.png',
-  php: '/icons/php.png',
-  xls: '/icons/xls.png',
-  xlsx: '/icons/xlsx.png',
-  csv: '/icons/csv.png',
-  css: '/icons/css.png',
-  jpg: '/icons/jpg.png',
-  jpeg: '/icons/jpg.png',
-  js: '/icons/js.png',
-  png: '/icons/png.png',
-  gif: '/icons/gif.png',
-  htm: '/icons/htm.png',
-  html: '/icons/html.png',
-  zip: '/icons/zip.png',
-  mp3: '/icons/mp3.png',
-  mp4: '/icons/mp4.png',
-  ppt: '/icons/ppt.png',
-  exe: '/icons/exe.png',
-  svg: '/icons/svg.png',
+    txt: '/icons/txt.png',
+    doc: '/icons/doc.png',
+    docx: '/icons/docx.png',
+    pdf: '/icons/pdf.png',
+    php: '/icons/php.png',
+    xls: '/icons/xls.png',
+    xlsx: '/icons/xlsx.png',
+    csv: '/icons/csv.png',
+    css: '/icons/css.png',
+    jpg: '/icons/jpg.png',
+    jpeg: '/icons/jpg.png',
+    js: '/icons/js.png',
+    png: '/icons/png.png',
+    gif: '/icons/gif.png',
+    htm: '/icons/htm.png',
+    html: '/icons/html.png',
+    zip: '/icons/zip.png',
+    mp3: '/icons/mp3.png',
+    mp4: '/icons/mp4.png',
+    ppt: '/icons/ppt.png',
+    exe: '/icons/exe.png',
+    svg: '/icons/svg.png',
 };
 
 const CommunityPostsPage = () => {
@@ -57,25 +57,25 @@ const CommunityPostsPage = () => {
     const [loading, setLoading] = useState(false);
     const [reportCount, setReportCount] = useState(0);
 
-  // DateInput: 텍스트 → date 전환 입력 컴포넌트
-  const DateInput = ({ name, value, onChange, placeholder }) => {
-    const [type, setType] = useState('text');
+    // DateInput: 텍스트 → date 전환 입력 컴포넌트
+    const DateInput = ({ name, value, onChange, placeholder }) => {
+        const [type, setType] = useState('text');
 
-    return (
-      <input
-        className='custom-date-input'
-        type={type}
-        name={name}
-        value={value}
-        placeholder={placeholder}
-        onFocus={() => setType('date')}
-        onBlur={() => {
-          if (!value) setType('text');
-        }}
-        onChange={onChange}
-      />
-    );
-  };
+        return (
+            <input
+                className='custom-date-input'
+                type={type}
+                name={name}
+                value={value}
+                placeholder={placeholder}
+                onFocus={() => setType('date')}
+                onBlur={() => {
+                    if (!value) setType('text');
+                }}
+                onChange={onChange}
+            />
+        );
+    };
 
     const filteredCommunity = showFavoritesOnly
         ? posts.filter(posts => favoriteList.includes(posts.communityId))
@@ -85,120 +85,120 @@ const CommunityPostsPage = () => {
         return title.length > maxLength ? `${title.slice(0, maxLength)}...` : title;
     };
 
-  // 게시글 목록 불러오기
-  const fetchPosts = async () => {
-    if (!accessToken || !userId) {
-      setPosts([]);
-      setTotalPages(1);
-      return;
-    }
+    // 게시글 목록 불러오기
+    const fetchPosts = async () => {
+        if (!accessToken || !userId) {
+            setPosts([]);
+            setTotalPages(1);
+            return;
+        }
 
-    setLoading(true);
+        setLoading(true);
 
-    try {
-      const { keyword, startDate, endDate, sortBy, sortDir } = filters;
-      const params = new URLSearchParams({
-        keyword: keyword.trim(),
-        fromDate: startDate,
-        toDate: endDate,
-        sortBy,
-        sortDir,
+        try {
+            const { keyword, startDate, endDate, sortBy, sortDir } = filters;
+            const params = new URLSearchParams({
+                keyword: keyword.trim(),
+                fromDate: startDate,
+                toDate: endDate,
+                sortBy,
+                sortDir,
+                page,
+                pageSize,
+            });
+
+            let url = '';
+            if (viewMode === 'MY') {
+                url = `${API_BASE_URL}${COMMUNITY_SERVICE}/my?${params.toString()}`;
+            } else if (viewMode === 'DEPT') {
+                url = `${API_BASE_URL}${COMMUNITY_SERVICE}/mydepartment?${params.toString()}`;
+            } else {
+                url = `${API_BASE_URL}${COMMUNITY_SERVICE}?${params.toString()}`;
+            }
+
+            const res = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+
+            if (!res.ok) {
+                throw new Error(`서버 오류: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (viewMode === 'MY') {
+                setPosts(data.myposts || []);
+                setTotalPages(data.totalPages || 1);
+            } else if (viewMode === 'DEPT') {
+                setPosts(data.mydepposts || []);
+                setTotalPages(data.totalPages || 1);
+            } else {
+                setPosts(data.posts || []);
+                setTotalPages(data.totalPages || 1);
+            }
+        } catch (err) {
+            console.error('CommunityPostsPage 게시글 불러오기 실패:', err);
+            setPosts([]);
+            setTotalPages(1);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // 게시글 목록 fetch 트리거
+    useEffect(() => {
+        if (!isInit || !accessToken || !userId) {
+            setPosts([]);
+            setTotalPages(1);
+            return;
+        }
+        fetchPosts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        filters,
         page,
         pageSize,
-      });
+        departmentId,
+        isInit,
+        viewMode,
+        accessToken,
+        userId,
+    ]);
 
-      let url = '';
-      if (viewMode === 'MY') {
-        url = `${API_BASE_URL}${COMMUNITY_SERVICE}/my?${params.toString()}`;
-      } else if (viewMode === 'DEPT') {
-        url = `${API_BASE_URL}${COMMUNITY_SERVICE}/mydepartment?${params.toString()}`;
-      } else {
-        url = `${API_BASE_URL}${COMMUNITY_SERVICE}?${params.toString()}`;
-      }
+    // 신고된 글 개수 fetch
+    useEffect(() => {
+        if (
+            userRole === 'HR_MANAGER' &&
+            (userPosition === 'MANAGER' ||
+                userPosition === 'DIRECTOR' ||
+                userPosition === 'CEO')
+        ) {
+            const fetchReportCount = async () => {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/report/admin/list`, {
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                    });
+                    if (!res.ok) throw new Error('신고 목록 조회 실패');
 
-      const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+                    const data = await res.json();
+                    setReportCount(data.posts?.length || 0);
+                } catch (err) {
+                    console.error('신고 수 조회 실패:', err);
+                }
+            };
 
-      if (!res.ok) {
-        throw new Error(`서버 오류: ${res.status}`);
-      }
-
-      const data = await res.json();
-
-      if (viewMode === 'MY') {
-        setPosts(data.myposts || []);
-        setTotalPages(data.totalPages || 1);
-      } else if (viewMode === 'DEPT') {
-        setPosts(data.mydepposts || []);
-        setTotalPages(data.totalPages || 1);
-      } else {
-        setPosts(data.posts || []);
-        setTotalPages(data.totalPages || 1);
-      }
-    } catch (err) {
-      console.error('CommunityPostsPage 게시글 불러오기 실패:', err);
-      setPosts([]);
-      setTotalPages(1);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 게시글 목록 fetch 트리거
-  useEffect(() => {
-    if (!isInit || !accessToken || !userId) {
-      setPosts([]);
-      setTotalPages(1);
-      return;
-    }
-    fetchPosts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    filters,
-    page,
-    pageSize,
-    departmentId,
-    isInit,
-    viewMode,
-    accessToken,
-    userId,
-  ]);
-
-  // 신고된 글 개수 fetch
-  useEffect(() => {
-    if (
-      userRole === 'HR_MANAGER' &&
-      (userPosition === 'MANAGER' ||
-        userPosition === 'DIRECTOR' ||
-        userPosition === 'CEO')
-    ) {
-      const fetchReportCount = async () => {
-        try {
-          const res = await fetch(`${API_BASE_URL}/report/admin/list`, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
-          if (!res.ok) throw new Error('신고 목록 조회 실패');
-
-          const data = await res.json();
-          setReportCount(data.posts?.length || 0);
-        } catch (err) {
-          console.error('신고 수 조회 실패:', err);
+            fetchReportCount();
         }
-      };
+    }, [userRole, userPosition, accessToken]);
 
-      fetchReportCount();
-    }
-  }, [userRole, userPosition, accessToken]);
-
-  // 핸들러
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
-  const handleSearch = () => setPage(0);
+    // 핸들러
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFilters((prev) => ({ ...prev, [name]: value }));
+    };
+    const handleSearch = () => setPage(0);
 
     const handlePageSizeChange = (e) => {
         console.log('Number(e.target.value) : ', Number(e.target.value));
@@ -435,12 +435,12 @@ const CommunityPostsPage = () => {
                                                 )}
                                             </span>
                                         ) : (
-                                            <>
+                                            <span onClick={() => navigate(`/community/${post.communityId}`)}>
                                                 {truncateTitle(post.title)}
                                                 {Number(post.commentCount) > 0 && (
                                                     <span style={{ color: '#777', fontSize: '0.9em' }}> ({post.commentCount})</span>
                                                 )}
-                                            </>
+                                            </span>
                                         )}
                                     </td>
 
