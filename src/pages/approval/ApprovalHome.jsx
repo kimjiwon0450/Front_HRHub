@@ -9,6 +9,7 @@ import ApprovalPendingList from './ApprovalPendingList';
 import FrequentTemplatesModal from './FrequentTemplatesModal';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import CompletedBox from './CompletedBox';
+import { succeed } from '../../common/common';
 import ScheduledBox from './ScheduledBox';
 
 const ApprovalHome = () => {
@@ -103,7 +104,7 @@ const ApprovalHome = () => {
     localStorage.setItem('frequentTemplates', JSON.stringify(selectedTemplateIds));
     setFrequentTemplates(selectedTemplateIds);
     setIsModalOpen(false);
-    alert('설정이 저장되었습니다.');
+    succeed('설정이 저장되었습니다.');
   };
 
   const handleRemoveFrequentTemplate = (e, templateIdToRemove) => {
