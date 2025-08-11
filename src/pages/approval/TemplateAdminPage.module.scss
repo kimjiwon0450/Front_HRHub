@@ -155,64 +155,81 @@
 }
 
 .controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 12px;
+  flex-wrap: nowrap; /* 한 줄 유지 */
+  overflow-x: auto; /* 좁은 화면에서 가로 스크롤 */
+  -webkit-overflow-scrolling: touch;
 }
 
 .searchBar {
-    flex-grow: 1;
-    input {
-        width: 100%;
-        max-width: 350px;
-        padding: 0.7rem 1rem;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
-        font-size: 0.95rem;
-    }
+  flex: 1 1 260px;
+  input {
+    width: 100%;
+    max-width: 420px;
+    padding: 0.7rem 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+  }
 }
 
 .filterTabs {
-    display: flex;
-    gap: 0.5rem;
-    button {
-        padding: 0.6rem 1.2rem;
-        border: 1px solid transparent;
-        background-color: transparent;
-        color: #868e96;
-        cursor: pointer;
-        font-size: 0.95rem;
-        font-weight: 500;
-        border-radius: 6px;
-        transition: background-color 0.2s, color 0.2s;
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
 
-        &.active {
-            background-color: #fff;
-            color: #0052cc;
-            font-weight: 700;
-            border: 1px solid #dee2e6;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
+  button {
+    padding: 0.6rem 1rem;
+    background-color: #fff;
+    color: #495057;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      background-color: #f1f3f5;
+      border-color: #cfd8dc;
     }
+
+    &.active {
+      background-color: #007bff;
+      border-color: #007bff;
+      color: #fff;
+      font-weight: 700;
+    }
+  }
 }
 
-
-.actions .addButton {
+.actions {
+  flex: 0 0 auto;
+  .addButton {
+    height: 40px;
+    padding: 0 16px;
     background-color: #0052cc;
-    color: white;
+    color: #fff;
     border: none;
-    padding: 0.7rem 1.5rem;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
     font-size: 0.95rem;
-    transition: background-color 0.2s;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+    &:hover { background-color: #0041a3; }
+  }
+}
 
-    &:hover {
-        background-color: #0041a3;
-    }
+@media (max-width: 768px) {
+  .controls { gap: 8px; }
+  .searchBar { flex: 1 1 200px; }
 }
 
 .templateListContainer {
@@ -463,4 +480,40 @@
           gap: 8px;
         }
     }
+}
+
+@media (min-width: 769px) {
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr auto auto; /* 검색 | 전체 | 추가 */
+    align-items: center;
+    column-gap: 16px;
+    overflow: visible; /* 데스크톱에서는 스크롤 제거 */
+  }
+  .filterTabs { white-space: nowrap; }
+  .actions { white-space: nowrap; }
+  .actions .addButton { width: auto; }
+}
+
+@media (max-width: 576px) {
+  .controls {
+    flex-wrap: wrap; /* 두 줄 배치로 변경 */
+    gap: 10px;
+  }
+  .searchBar {
+    order: 1;
+    flex: 1 1 100%;
+    input { max-width: none; }
+  }
+  .filterTabs {
+    order: 2;
+    flex: 1 1 auto;
+  }
+  .actions {
+    order: 3;
+    flex: 1 1 100%;
+    display: flex;
+    justify-content: flex-end;
+    .addButton { width: 100%; }
+  }
 }

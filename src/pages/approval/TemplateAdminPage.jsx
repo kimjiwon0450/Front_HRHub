@@ -276,9 +276,7 @@ const TemplateAdminPage = () => {
           {templatesError && <p className={styles.error}>{templatesError}</p>}
           {!templatesLoading && !templatesError && filteredTemplates.map(template => (
             <div key={template.templateId} className={styles.templateItem}>
-              <div className={styles.checkboxContainer}>
-                <input type="checkbox" />
-              </div>
+              {/* 체크박스 제거됨 */}
               <div className={styles.templateDetails}>
                 <div className={styles.templateTitle}>
                   {template.template.title}
