@@ -13,6 +13,10 @@ export default function ApprovalRequestTabs() {
   const [reportList, setReportList] = useState([]);
   const [reportLoading, setReportLoading] = useState(false);
 
+  const truncateTitle = (title, maxLength = 13) => {
+    return title.length > maxLength ? `${title.slice(0, maxLength)}...` : title;
+  };
+
   // 결재요청 목록 API 호출
   useEffect(() => {
     if (approvalTab !== '결재요청' && approvalTab !== '미승인결재') return;
@@ -58,7 +62,13 @@ export default function ApprovalRequestTabs() {
         >
           미승인결재
         </button>
-        <div className='menu-icon' style={{ cursor: 'pointer' }} onClick={() => navigate('/approval/home')}>≡</div>
+        <div
+          className='menu-icon'
+          style={{ cursor: 'pointer' }}
+          onClick={() => navigate('/approval/home')}
+        >
+          ≡
+        </div>
       </div>
       {approvalTab === '결재요청' && (
         <table className='mini-table'>
@@ -94,12 +104,13 @@ export default function ApprovalRequestTabs() {
                   parsedTitle = report.title;
                 }
                 return (
-                  <tr key={report.id || idx}>
+                  <tr
+                    key={report.id || idx}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => navigate(`/approval/reports/${report.id}`)}
+                  >
                     <td>
-                      <span style={{ color: '#1976d2', cursor: 'pointer', textDecoration: 'underline' }}
-                        onClick={() => navigate(`/approval/reports/${report.id}`)}>
-                        {parsedTitle}
-                      </span>
+                      <span>{truncateTitle(parsedTitle)}</span>
                     </td>
                     <td>
                       {report.reportCreatedAt
@@ -159,7 +170,7 @@ export default function ApprovalRequestTabs() {
                 }
                 return (
                   <tr key={report.id || idx}>
-                    <td>{parsedTitle}</td>
+                    <td>{truncateTitle(parsedTitle)}</td>
                     <td>
                       {report.reportCreatedAt
                         ? report.reportCreatedAt.slice(0, 10)
