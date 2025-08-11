@@ -128,13 +128,15 @@ const EmployeeSelectModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className={styles.modalTitle}>직원 선택</h3>
-        <input
-          type='text'
-          placeholder='이름/부서/직급/직책 검색'
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className={styles.searchInput}
-        />
+        <div className={styles.searchRow}>
+          <input
+            type='text'
+            placeholder='이름/부서/직급/직책 검색'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
         <div className={styles.tabGroup}>
           <button
             className={activeTab === '전체' ? styles.activeTab : styles.tab}
