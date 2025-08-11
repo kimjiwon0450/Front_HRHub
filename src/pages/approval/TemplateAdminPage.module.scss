@@ -1,14 +1,13 @@
-
 .pageContainer {
     display: flex;
     height: calc(100vh - 120px); // Adjust based on actual header height
-    background-color: $gray-50;
+    background-color: #f4f6f8;
 }
 
 .sidebar {
     width: 240px;
     background-color: #ffffff;
-    border-right: 1px solid $gray-200;
+    border-right: 1px solid #e9e9e9;
     display: flex;
     flex-direction: column;
     padding: 1rem;
@@ -123,18 +122,18 @@
 .addCategoryButton {
     width: 100%;
     padding: 10px;
-    background-color: $gray-50;
-    border: 1px dashed $gray-300;
-    border-radius: $radius-6;
+    background-color: #f8f9fa;
+    border: 1px dashed #ced4da;
+    border-radius: 6px;
     cursor: pointer;
     text-align: center;
     margin-top: auto;
-    color: $gray-700;
+    color: #495057;
     transition: background-color 0.2s, border-color 0.2s;
     
     &:hover {
-        background-color: $gray-100;
-        border-color: $gray-400;
+        background-color: #f1f3f5;
+        border-color: #adb5bd;
     }
 }
 
@@ -156,63 +155,64 @@
 }
 
 .controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  gap: 1rem;
-  flex-wrap: nowrap; /* 항상 한 줄 유지 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
 }
 
 .searchBar {
-  flex: 1 1 240px; /* 검색 영역은 유연, 최소 240px */
-  input {
-    width: 100%;
-    max-width: 420px; /* 너무 커지지 않게 상한 설정 */
-    padding: 0.7rem 1rem;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    font-size: 0.95rem;
-  }
+    flex-grow: 1;
+    input {
+        width: 100%;
+        max-width: 350px;
+        padding: 0.7rem 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        font-size: 0.95rem;
+    }
 }
 
 .filterTabs {
-  display: flex;
-  gap: 0.5rem;
-  flex: 0 0 auto;
+    display: flex;
+    gap: 0.5rem;
+    button {
+        padding: 0.6rem 1.2rem;
+        border: 1px solid transparent;
+        background-color: transparent;
+        color: #868e96;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: background-color 0.2s, color 0.2s;
 
-  button {
-    @include chip;
-    padding: 0.6rem 1.2rem;
-    background-color: #fff;
-    color: $gray-700;
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-
-    &:hover {
-      background-color: $gray-100;
-      border-color: $gray-400;
+        &.active {
+            background-color: #fff;
+            color: #0052cc;
+            font-weight: 700;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
     }
-
-    &.active {
-      background-color: $primary;
-      border-color: $primary;
-      color: #fff;
-      font-weight: 700;
-      box-shadow: $shadow-soft;
-    }
-  }
 }
 
-.actions {
-  flex: 0 0 auto;
 
-  .addButton {
-    @include btn-primary;
-    white-space: nowrap;
-  }
+.actions .addButton {
+    background-color: #0052cc;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: #0041a3;
+    }
 }
 
 .templateListContainer {
