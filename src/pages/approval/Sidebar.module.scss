@@ -152,8 +152,10 @@
 
   /* ★★★ 1. 메뉴 이름(span)은 항상 기본 색상을 유지합니다. ★★★ */
   span {
-    color: #495057; /* 기본 텍스트 색상 (원래의 검은색 계열) */
-    font-weight: 500; /* 기본 굵기 */
+    span:not(.countBadge):not(.newBadge) {
+      color: #495057;
+      font-weight: 500;
+    }
   }
 
   &:hover {
