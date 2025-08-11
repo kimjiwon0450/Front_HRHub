@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import axiosInstance from '../../configs/axios-config';
 import { useNavigate } from 'react-router-dom';
+import { SkeletonBlock } from '../common/Skeleton';
 
 export default function ApprovalRequestTabs() {
   // 결재요청/미승인결재 탭 상태
@@ -45,7 +46,7 @@ export default function ApprovalRequestTabs() {
   return (
     <div className='hr-card hr-tab-card'>
       <div className='tabs'>
-        <button 원비
+        <button
           className={approvalTab === '결재요청' ? 'active' : ''}
           onClick={() => setApprovalTab('결재요청')}
         >
@@ -72,7 +73,13 @@ export default function ApprovalRequestTabs() {
           <tbody>
             {reportLoading ? (
               <tr>
-                <td colSpan={4}>로딩중...</td>
+                <td colSpan={4}>
+                  <div style={{ padding: '6px 0' }}>
+                    <SkeletonBlock height={12} style={{ width: '70%', marginBottom: 6 }} />
+                    <SkeletonBlock height={12} style={{ width: '45%', marginBottom: 6 }} />
+                    <SkeletonBlock height={12} style={{ width: '55%' }} />
+                  </div>
+                </td>
               </tr>
             ) : displayList.length === 0 ? (
               <tr>
@@ -130,7 +137,13 @@ export default function ApprovalRequestTabs() {
           <tbody>
             {reportLoading ? (
               <tr>
-                <td colSpan={4}>로딩중...</td>
+                <td colSpan={4}>
+                  <div style={{ padding: '6px 0' }}>
+                    <SkeletonBlock height={12} style={{ width: '70%', marginBottom: 6 }} />
+                    <SkeletonBlock height={12} style={{ width: '45%', marginBottom: 6 }} />
+                    <SkeletonBlock height={12} style={{ width: '55%' }} />
+                  </div>
+                </td>
               </tr>
             ) : displayList.length === 0 ? (
               <tr>

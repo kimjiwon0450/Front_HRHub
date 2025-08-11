@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styles from './TemplateAdminPage.module.scss';
+import { SkeletonBlock } from '../../components/common/Skeleton';
 import axiosInstance from '../../configs/axios-config';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
 import CategoryModal from '../../components/approval/CategoryModal';
@@ -172,7 +173,10 @@ const TemplateAdminPage = () => {
 
   const renderCategoryList = () => {
     if (loading) {
-      return <li key="loading">로딩 중...</li>;
+      return <li key="loading" style={{ listStyle: 'none' }}>
+        <SkeletonBlock height={14} style={{ width: '60%', marginBottom: 8 }} />
+        <SkeletonBlock height={14} style={{ width: '40%' }} />
+      </li>;
     }
     if (error) {
       return <li key="error" className={styles.error}>{error}</li>;

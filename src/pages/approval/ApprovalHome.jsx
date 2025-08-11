@@ -4,6 +4,7 @@ import axiosInstance from '../../configs/axios-config';
 import { UserContext } from '../../context/UserContext';
 import styles from './ApprovalHome.module.scss';
 import SummaryCard from './SummaryCard';
+import ListSkeleton from '../../components/common/Skeleton';
 import ApprovalPendingList from './ApprovalPendingList';
 import FrequentTemplatesModal from './FrequentTemplatesModal';
 import { API_BASE_URL, APPROVAL_SERVICE } from '../../configs/host-config';
@@ -197,7 +198,7 @@ const ApprovalHome = () => {
 
       <div className={styles.reportListContainer}>
         {loading ? (
-          <div className={styles.loading}>로딩 중...</div>
+          <ListSkeleton items={5} />
         ) : activeBox === 'inProgress' ? (
           <ApprovalPendingList />
         ) : activeBox === 'scheduled' ? (

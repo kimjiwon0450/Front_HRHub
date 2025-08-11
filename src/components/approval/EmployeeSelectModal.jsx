@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './EmployeeSelectModal.module.scss';
+import { SkeletonBlock } from '../common/Skeleton';
 import axiosInstance from '../../configs/axios-config';
 import {
   API_BASE_URL,
@@ -151,7 +152,13 @@ const EmployeeSelectModal = ({
           </button>
         </div>
 
-        {loading && <div className={styles.loading}>로딩 중...</div>}
+        {loading && (
+          <div style={{padding: '8px 0'}}>
+            <SkeletonBlock height={12} style={{ width: '30%', marginBottom: 6 }} />
+            <SkeletonBlock height={12} style={{ width: '55%', marginBottom: 6 }} />
+            <SkeletonBlock height={12} style={{ width: '45%' }} />
+          </div>
+        )}
         {error && <div className={styles.error}>{error}</div>}
 
         {!loading && !error && activeTab === '전체' && (
