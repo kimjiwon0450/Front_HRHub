@@ -9,6 +9,7 @@ import {
 import { UserContext, UserContextProvider } from '../../context/UserContext'; // 로그인 유저 정보
 import { fetchFavoriteCommunity, toggleFavoriteCommunity } from '../../api/favorite-api';
 import './CommunityPostsPage.scss';
+import ListSkeleton from '../../components/common/Skeleton';
 
 const fileIconMap = {
     txt: '/icons/txt.png',
@@ -365,7 +366,9 @@ const CommunityPostsPage = () => {
             </div>
 
             {loading ? (
-                <p>불러오는 중...</p>
+                <div style={{ padding: '12px 0' }}>
+                    <ListSkeleton items={8} />
+                </div>
             ) : (
                 <>
                     <table className="notice-table">
