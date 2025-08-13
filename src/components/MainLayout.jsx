@@ -232,7 +232,7 @@ export default function MainLayout() {
         .catch(console.error);
     }
 
-    prevPendingCountRef.current = counts.current;
+    prevPendingCountRef.current = counts.pending;
   }, [counts.pending, userId, accessToken]);
 
   return (
