@@ -3,7 +3,7 @@
 - **플랫폼명**: HRHub
 - **팀명**: DCT(Dreams Come True)
 - **개발방식**: React 기반 Single Page Application(SPA)
-- **소스 코드(GitHub)**: [HRHub 프론트 소스코드](https://github.com/ehgus8/petwiz-front/tree/dev)
+- **소스 코드(GitHub)**: [HRHub 프론트 소스코드](https://github.com/kimjiwon0450/Front_HRHub)
 - **주요 서비스**:
     - HR 서비스 (직원 등록, 조회, 평가)
     - 전자결재 서비스 (결재 양식 생성, 결재 흐름)
@@ -17,11 +17,11 @@
 
 - 1. 로그인 페이지
     
-    ![로그인실패.gif](attachment:4c25b683-695b-4bd6-8401-a0a3bd12a078:로그인실패.gif)
+    ![로그인실패.gif](./images/로그인실패.gif)
     
     로그인 실패
     
-    ![로그인성공.gif](attachment:87bb4e62-a8c6-4c03-8df2-1169d54b1d25:로그인성공.gif)
+    ![로그인성공.gif](./images/로그인성공.gif)
     
     로그인 성공
     
@@ -32,42 +32,42 @@
     > 
 - 2. 직원 등록 페이지
     
-    ![직원신규등록-직접입력.gif](attachment:d90c2589-7101-4601-a855-5d6c83688cda:직원신규등록-직접입력.gif)
+    ![직원신규등록-직접입력.gif](./images/직원신규등록-직접입력.gif)
     
     직접 작성
     
-    ![직원신규등록-엑셀로직원불러오기.gif](attachment:926127dd-3411-485c-8c1e-deb714953b53:직원신규등록-엑셀로직원불러오기.gif)
+    ![직원신규등록-엑셀로직원불러오기.gif](./images/직원신규등록-엑셀로직원불러오기.gif)
     
     엑셀파일 업로드
     
-    ![직원신규등록-직원업로드.gif](attachment:3f5a156c-b9f1-44fe-b3a7-17f2b333a07c:직원신규등록-직원업로드.gif)
+    ![직원신규등록-직원업로드.gif](./images/직원신규등록-직원업로드.gif)
     
     엑셀 파일 데이터 불러오기
     
-    ![직원신규등록-직원등록완료.gif](attachment:35e1ee20-9ba9-4b01-b319-71007965fdfd:직원신규등록-직원등록완료.gif)
+    ![직원신규등록-직원등록완료.gif](./images/직원신규등록-직원등록완료.gif)
     
     직원 등록 완료
     
     > 관리자는 신규 직원을 등록할 수 있으며, 부서, 직급, 입사일 등 필드를 입력합니다.
     > 
     
-    ![부서등록1.gif](attachment:b35dadcb-73b0-41a6-a161-fe7a2f9a9f07:부서등록1.gif)
+    ![부서등록1.gif](./images/부서등록1.gif)
     
     이달의 사원의 햄버거 버튼을 통한 페이지 이동
     
-    ![부서등록2.gif](attachment:9ad724f4-8b10-4700-9c70-0796af3b2ed8:부서등록2.gif)
+    ![부서등록2.gif](./images/부서등록2.gif)
     
-    ![부서등록3.gif](attachment:ca428fa1-d5d9-4ece-afd5-bc88f01b5b86:부서등록3.gif)
+    ![부서등록3.gif](./images/부서등록3.gif)
     
     > 관리자는 신규 직원 등록 페이지에서 신규 부서 또한 추가 및 관리가 가능합니다.
     > 
 - 3. 인사 조회
     
-    ![일반직원인사조회.gif](attachment:389e70e9-c9d4-4c09-beee-b2fcf9c18d52:일반직원인사조회.gif)
+    ![일반직원인사조회.gif](./images/일반직원인사조회.gif)
     
     일반 직원 인사 조회
     
-    ![인사직원인사조회.gif](attachment:33bdcf8a-266f-4032-9d52-1e48a6ab8d7f:인사직원인사조회.gif)
+    ![인사직원인사조회.gif](./images/인사직원인사조회.gif)
     
     인사 직원 인사 조회
     
@@ -76,15 +76,15 @@
     
 - 4.직원 연락처
     
-    ![연락처-부서별조회.gif](attachment:b2ccc9c1-5a0f-489d-a94d-837f67f5f4c2:연락처-부서별조회.gif)
+    ![연락처-부서별조회.gif](./images/연락처-부서별조회.gif)
     
     부서별 조회
     
-    ![연락처-이름검색.gif](attachment:7cfb50a1-e288-4e14-8055-a0c04e6fbc2b:연락처-이름검색.gif)
+    ![연락처-이름검색.gif](./images/연락처-이름검색.gif)
     
     이름 검색 조회
     
-    ![연락처-퇴직자조회.gif](attachment:d9777645-badc-44c2-9aa0-7edd8cc25b8a:연락처-퇴직자조회.gif)
+    ![연락처-퇴직자조회.gif](./images/연락처-퇴직자조회.gif)
     
     퇴직자만 조회
     
@@ -95,40 +95,40 @@
     > 
 - 5.인사 평가
     
-    ![인사평가-이미평가한 직원.gif](attachment:9cf12988-4948-45dc-ac9e-a656c750175c:인사평가-이미평가한_직원.gif)
+    ![인사평가-이미평가한 직원.gif](./images/인사평가-이미평가한_직원.gif)
     
     이미 평가한 직원을 인사 평가 하려고 하는 경우
     
-    ![인사평가1.gif](attachment:3cb90fda-411c-41db-8fe0-290f1dffcd75:인사평가1.gif)
+    ![인사평가1.gif](./images/인사평가1.gif)
     
-    ![인사평가2.gif](attachment:37ce1a01-2fe9-4cc1-a495-250cd3f1e056:인사평가2.gif)
+    ![인사평가2.gif](./images/인사평가2.gif)
     
-    ![인사평가3.gif](attachment:9abda957-9e49-4a69-92af-e242647dcf66:인사평가3.gif)
+    ![인사평가3.gif](./images/인사평가3.gif)
     
     인사 평가 신규 항목 추가
     
-    ![인사평가4.gif](attachment:6c5cd623-6e93-4400-87e8-c6641883a114:인사평가4.gif)
+    ![인사평가4.gif](./images/인사평가4.gif)
     
     인사 평가 완료
     
-    ![인사평가5.gif](attachment:fcf23b60-290a-484c-81f6-f60e1e52320f:인사평가5.gif)
+    ![인사평가5.gif](./images/인사평가5.gif)
     
-    ![인사평가6.gif](attachment:34ad34d2-de28-4fdb-bf49-c621081b4ad2:인사평가6.gif)
+    ![인사평가6.gif](./images/인사평가6.gif)
     
     평가한 직원의 인사 평가 조회
     
     ---
     
-    ![인사평가-사원이본인의평가조회1.gif](attachment:bd70d250-a3ae-458d-8fda-7a5f972d893a:인사평가-사원이본인의평가조회1.gif)
+    ![인사평가-사원이본인의평가조회1.gif](./images/인사평가-사원이본인의평가조회1.gif)
     
-    ![인사평가-사원이본인의평가조회2.gif](attachment:1f172293-25a8-4153-ab72-f319bc2daa4a:인사평가-사원이본인의평가조회2.gif)
+    ![인사평가-사원이본인의평가조회2.gif](./images/인사평가-사원이본인의평가조회2.gif)
     
     피 평가자의 인사 평가 조회
     
     > 인사 평가는 월1회 인사팀 직원에 의해 평가되며, 인사팀 직원이 아닌 일반 직원은 본인의 인사 평가만 조회
     > 
     
-    ![이달의사원.gif](attachment:80aeaddb-a761-46fc-b8e1-7c1ad4ea71df:이달의사원.gif)
+    ![이달의사원.gif](./images/이달의사원.gif)
     
     > 인사평가 평가 점수가 가장 높은 3명은 메인화면에서 보이는          이달의 사원에 등극
     > 
@@ -138,29 +138,29 @@
 
 - 1.결재 작성/양식 선택
     
-    ![결재상신1.gif](attachment:565e3328-85c7-48a5-ac5a-1c53091444f6:결재상신1.gif)
+    ![결재상신1.gif](./images/결재상신1.gif)
     
-    ![결재상신2.gif](attachment:3ce18350-7987-4295-9ae7-9e3bb899e421:결재상신2.gif)
+    ![결재상신2.gif](./images/결재상신2.gif)
     
     결재선과 참조자, 첨부 파일을 선택 후 결재 상신
     
-    ![결재상신-확인.gif](attachment:6777184d-1397-4afb-883d-7981141f3701:결재상신-확인.gif)
+    ![결재상신-확인.gif](./images/결재상신-확인.gif)
     
     상신한 결재문저는 결재 중 문서함에서 확인
     
 - 2.결재 문서 임시 저장
     
-    ![결재문서 임시저장1.gif](attachment:b345ec36-2ab6-4ccf-a808-d5e1370ba32a:결재문서_임시저장1.gif)
+    ![결재문서 임시저장1.gif](./images/결재문서_임시저장1.gif)
     
     결재 문서 작성 중 다른 페이지로 이동하려고 하는 경우 나타나는           임시 저장 확인 창 → 임시 저장함으로 이동
     
-    ![결재문서 임시저장2.gif](attachment:dfa814f6-7216-4c18-9491-1ff02515a2c9:결재문서_임시저장2.gif)
+    ![결재문서 임시저장2.gif](./images/결재문서_임시저장2.gif)
     
     임시 저장함으로 이동 된 결재 문서
     
 - 3.결재 문서 회수
     
-    ![결재문서 회수.gif](attachment:9199f1c1-e6c8-4c31-a083-6b6c4fb095af:결재문서_회수.gif)
+    ![결재문서 회수.gif](./images/결재문서_회수.gif)
     
     > 결재가 아직 진행되지 않은 경우 상신한 결재 문서 회수 가능
     > 
@@ -169,65 +169,65 @@
     > 
 - 4.결재 문서 승인/반려
     
-    ![KakaoTalk_20250801_155715196.gif](attachment:66d668ee-a8e5-49f5-abaf-5dd3481475bf:KakaoTalk_20250801_155715196.gif)
+    ![알림페이지에서 결재함 이동.gif](./images/알림페이지에서_결재함_이동.gif)
     
     결재 문서를 확인하기 위해서 상단에 뜬 알림 페이지를 통해서도 이동 
     
-    ![KakaoTalk_20250801_155715196_01.gif](attachment:5757d948-0b3e-44d7-87b7-d66ff03c6c42:KakaoTalk_20250801_155715196_01.gif)
+    ![결재문서 승인처리1.gif](./images/결재문서_승인처리1.gif)
     
     결재 문서를 승인또는 반려 하는 경우 사유 입력
     
-    ![KakaoTalk_20250801_155715196_02.gif](attachment:8b66ad3f-338c-48f8-9107-19fb08be3909:KakaoTalk_20250801_155715196_02.gif)
+    ![결재문서 승인처리2.gif](./images/결재문서_승인처리2.gif)
     
     결재 문서의 승인 처리(반려의 경우에도 동일)
     
 - 5.결재 카테고리 추가(by 관리자)
     
-    ![KakaoTalk_20250801_162511785.gif](attachment:eda6abf3-eb2f-4f9e-b910-452dd32866c2:KakaoTalk_20250801_162511785.gif)
+    ![결재카테고리관리1.gif](./images/결재카테고리관리1.gif)
     
     관리자에게만 보이는 문서양식관리 버튼
     
     해당 버튼을 통해 카테고리/양식 관리 페이지 진입
     
-    ![KakaoTalk_20250801_162511785_01.gif](attachment:c0f2d973-fc4b-4d78-8f9a-86e1a774ee57:KakaoTalk_20250801_162511785_01.gif)
+    ![결재카테고리관리2.gif](./images/결재카테고리관리2.gif)
     
-    ![결재카테고리관리3.gif](attachment:b4ed26e3-5270-4e3b-9043-6ed57087d7de:결재카테고리관리3.gif)
+    ![결재카테고리관리3.gif](./images/결재카테고리관리3.gif)
     
     추가한 카테고리는 즉시 확인 가능
     
 - 6.결재 템플릿 추가(by 관리자)
     
-    ![KakaoTalk_20250801_162233422.gif](attachment:bab359a1-527f-466d-b955-7b3bf2228d88:KakaoTalk_20250801_162233422.gif)
+    ![결재문서 양식생성1.gif](./images/결재문서_양식생성1.gif)
     
     관리자만 이동할 수 있는 카테고리/양식 관리 페이지에서 양식 추가
     
-    ![KakaoTalk_20250801_162233422_01.gif](attachment:3d776593-6ac2-4c23-98cb-be585b813c44:KakaoTalk_20250801_162233422_01.gif)
+    ![결재문서 양식생성2.gif](./images/결재문서_양식생성2.gif)
     
-    ![KakaoTalk_20250801_162233422_02.gif](attachment:118716f2-7bc1-4fc3-804e-4e1d81bd813c:KakaoTalk_20250801_162233422_02.gif)
+    ![결재문서 양식생성3.gif](./images/결재문서_양식생성3.gif)
     
     사용자의 마음대로 양식 추가
     
-    ![KakaoTalk_20250801_162233422_03.gif](attachment:26c91d38-90bb-4f88-8e82-818e5e28a0ef:KakaoTalk_20250801_162233422_03.gif)
+    ![결재문서 양식생성4.gif](./images/결재문서_양식생성4.gif)
     
     사용자가 임의로 형식 지정도 가능
     
-    ![KakaoTalk_20250801_162233422_04.gif](attachment:e2fcbc57-140d-4ecf-96cc-5a768b14ea3d:KakaoTalk_20250801_162233422_04.gif)
+    ![결재문서 양식생성5.gif](./images/결재문서_양식생성5.gif)
     
     템플릿 생성 완료
     
-    ![KakaoTalk_20250801_162233422_05.gif](attachment:cfaa5b72-a08c-4aa7-b9bf-1518b45e56d5:KakaoTalk_20250801_162233422_05.gif)
+    ![결재문서 양식생성6-새로운 탬플릿 적용.gif](./images/결재문서_양식생성6-새로운_탬플릿_적용.gif)
     
-    ![KakaoTalk_20250801_162233422_06.gif](attachment:144d9801-f090-438c-a481-85a9fb86f76d:KakaoTalk_20250801_162233422_06.gif)
+    ![결재문서 양식생성7-새로운탬플릿적용.gif](./images/결재문서_양식생성7-새로운탬플릿적용.gif)
     
     새로운 탬플릿으로 바로 결재 문서 작성
     
-    ![KakaoTalk_20250801_162233422_07.gif](attachment:cdb27142-7857-40a6-93d1-4b8be9acbe7f:KakaoTalk_20250801_162233422_07.gif)
+    ![결재문서 양식 수정1.gif](./images/결재문서_양식_수정1.gif)
     
-    ![KakaoTalk_20250801_162233422_08.gif](attachment:e0954cb3-f47b-47f1-9af0-0d9f22b311a2:KakaoTalk_20250801_162233422_08.gif)
+    ![결재문서 양식 수정2.gif](./images/결재문서_양식_수정2.gif)
     
     생성한 양식 수정
     
-    ![KakaoTalk_20250801_162233422_09.gif](attachment:f08d253a-904c-465c-981e-719f428c730c:KakaoTalk_20250801_162233422_09.gif)
+    ![결재문서 양식 수정3.gif](./images/결재문서_양식_수정3.gif)
     
     양식 수정 내용 즉시 반영
     
@@ -268,7 +268,7 @@
     
 - 3.공지글/게시판 댓글
     
-    ![게시글 공지글 댓글 작성.gif](attachment:250cf31d-7f4d-4d03-9303-b4d0e34a003a:게시글_공지글_댓글_작성.gif)
+    ![게시글 공지글 댓글 작성.gif](./images/게시글_공지글_댓글_작성.gif)
     
     게시글과 공지글 하단 댓글 작성 기능
     
