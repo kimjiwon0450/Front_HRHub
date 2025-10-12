@@ -236,75 +236,75 @@
 
 - 1.공지 작성(즉시 발행)
     
-    ![KakaoTalk_20250801_161230146_03.gif](attachment:ff9019c5-a00a-47fe-b78a-1f3ea5ac8ceb:KakaoTalk_20250801_161230146_03.gif)
+    ![공지글작성및레벨링4.gif](./images/공지글작성및레벨링4.gif)
     
-    ![KakaoTalk_20250801_161230146_04.gif](attachment:27f32acc-021f-4a68-aa96-c416b8c566fe:KakaoTalk_20250801_161230146_04.gif)
+    ![공지글작성및레벨링5.gif](./images/공지글작성및레벨링5.gif)
     
     공지글 작성 시 제목, 내용, 직급이 누락되는 경우 알림창 발생
     
-    ![KakaoTalk_20250801_161230146_02.gif](attachment:549a9a72-c6e9-4abe-879f-400ef8ff6e5f:KakaoTalk_20250801_161230146_02.gif)
+    ![공지글작성및레벨링3.gif](./images/공지글작성및레벨링3.gif)
     
     즉시 업로드 또는 예약 업로드 할 수 있는 기능
     
-    ![KakaoTalk_20250801_161230146_01.gif](attachment:4876723f-b347-47c3-a0c2-9863aa0f423c:KakaoTalk_20250801_161230146_01.gif)
+    ![공지글작성및레벨링2.gif](./images/공지글작성및레벨링2.gif)
     
     Manager를 대상으로 작성한 공지글은 Manager 이상의 직원들에게만 조회 권한 부여(Manager급 이하의 직원들에게는 해당 글이 보이지 않음)
     
-    ![KakaoTalk_20250801_161230146_05.gif](attachment:6777cf49-9f31-45fa-ad62-777f4ab4901c:KakaoTalk_20250801_161230146_05.gif)
+    ![공지글작성및레벨링6.gif](./images/공지글작성및레벨링6.gif)
     
     Manager 이하의 직원이 볼 수 있는 공지 화면
     
-    ![KakaoTalk_20250801_161230146.gif](attachment:5cdffe8c-6f5d-41d0-98ad-5f30764521d3:KakaoTalk_20250801_161230146.gif)
+    ![공지글작성및레벨링1.gif](./images/공지글작성및레벨링1.gif)
     
     공지글의 인쇄 기능
     
 - 2.공지 작성(예약 발행)
     
-    ![KakaoTalk_20250801_161459706.gif](attachment:0fdbcc2d-e8a1-4913-b52d-57749de7d81b:KakaoTalk_20250801_161459706.gif)
+    ![공지글예약발행1.gif](./images/공지글예약발행1.gif)
     
-    ![KakaoTalk_20250801_161459706_01.gif](attachment:87807b7e-692d-4a14-a4d9-436a3e11b768:KakaoTalk_20250801_161459706_01.gif)
+    ![공지글예약발행2.gif](./images/공지글예약발행2.gif)
     
     예약한 공지글은 예약한 문서에서 따로 조회 및 삭제 가능
     
 - 3.공지글/게시판 댓글
     
-    ![게시글 공지글 댓글 작성.gif](./images/게시글_공지글_댓글_작성.gif)
+    ![게시글공지글댓글작성.gif](./images/게시글신고1.gif)
     
     게시글과 공지글 하단 댓글 작성 기능
     
 - 4.게시글 신고
     
-    ![KakaoTalk_20250801_155249637.gif](attachment:0f33941a-b161-4df8-b26c-22276d8c5ef0:KakaoTalk_20250801_155249637.gif)
+    ![게시글신고1.gif](./images/게시글신고1.gif)
     
     문제가 있는 게시글의 경우 신고 사유와 함께 게시글 신고
     
-    ![KakaoTalk_20250801_155249637_01.gif](attachment:93e1aee7-c281-4813-ba50-93063eeaccbd:KakaoTalk_20250801_155249637_01.gif)
+    ![게시글신고2.gif](./images/게시글신고2.gif)
     
     신고된 글은 관리자의 조치가 있기 전까지는 리스트에서 붉은 색 배경처리와 함께 상세 페이지에는 신고된 게시글이라는 문구가 추가됨
     
 - 5.게시글 신고 처리
     
-    ![KakaoTalk_20250801_163453658.gif](attachment:55b3994d-7135-4ae1-ba71-7cc6dca0159f:KakaoTalk_20250801_163453658.gif)
+    ![신고된게시글보이는화면.gif](./images/신고된게시글보이는화면.gif)
     
     인사담당자면서 Manager급 이상의 직원에게만 보이는 게시글 관리 버튼
     
-    ![KakaoTalk_20250801_163453658_01.gif](attachment:957611b0-eede-4ea1-a6d8-0d0bfa7945eb:KakaoTalk_20250801_163453658_01.gif)
+    ![게시글관리페이지진입.gif](./images/게시글관리페이지진입.gif)
     
     게시글 관리 페이지에 진입하면 신고된 게시글들만 조회 가능
     
-    ![KakaoTalk_20250801_163453658_02.gif](attachment:8c13d5a3-4889-4256-9db3-110eb5f63476:KakaoTalk_20250801_163453658_02.gif)
+    ![신고된게시글관리1.gif](./images/신고된게시글관리1.gif)
     
     관리자는 신고된 글을 각각 확인
     
-    ![KakaoTalk_20250801_163453658_03.gif](attachment:75933d45-717b-44dc-8127-9dc14185861b:KakaoTalk_20250801_163453658_03.gif)
+    ![신고된게시글관리2.gif](./images/신고된게시글관리2.gif)
     
     확인 후 신고 사유가 적절한 경우 해당 게시글 삭제 처리
     
-    ![KakaoTalk_20250801_163453658_04.gif](attachment:d510dd77-5bf3-4ce8-ba28-80cc63e5c306:KakaoTalk_20250801_163453658_04.gif)
+    ![신고된게시글관리3.gif](./images/신고된게시글관리3.gif)
     
     신고 사유가 적절치 않으면 해당 게시글 복구 처리
     
-    ![KakaoTalk_20250801_163453658_05.gif](attachment:090c682b-26fb-4627-a11e-a8d91c5f582d:KakaoTalk_20250801_163453658_05.gif)
+    ![신고된게시글관리4.gif](./images/신고된게시글관리4.gif)
     
     처리가 완료된 게시글들은 다시 정상적으로 조회 가능
     
